@@ -10,14 +10,14 @@ const other = {
   id: 'sample-docs-roadmap',
   type: 'group',
   children: [
-    {
-      id: 'sample-page',
-      title: 'Feed Back',
-      type: 'item',
-      // url: '/sample-page',
-      icon: icons.IconBrandChrome,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'sample-page',
+    //   title: 'Feed Back',
+    //   type: 'item',
+    //   // url: '/sample-page',
+    //   icon: icons.IconBrandChrome,
+    //   breadcrumbs: false
+    // },
     {
       id: 'documentation',
       title: 'Help',

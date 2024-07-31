@@ -31,7 +31,7 @@ function Catagory() {
   return (
     <Box p={3}>
       <Typography variant="h5" align="center" gutterBottom>
-       KPI Category
+        Category
       </Typography>
       <form onSubmit={formik.handleSubmit}>
         <Grid container spacing={2} justifyContent="center">

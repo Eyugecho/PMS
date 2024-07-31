@@ -21,7 +21,7 @@ function App() {
           <AppBar position="static" style={{background:'#fff'}}>
             <Tabs value={value} onChange={handleChange} variant="fullWidth">
              
-              <Tab label="KPI Catagory" />
+              {/* <Tab label="KPI Catagory" /> */}
               <Tab label="Perspective Type" />
               <Tab label="Measuring Units" />
               <Tab label="Evaluation Type" />
@@ -33,22 +33,22 @@ function App() {
           </AppBar>
         </Grid>
         <Grid item xs={12}>
-          <TabPanel value={value} index={0}>
+          {/* <TabPanel value={value} index={0}>
             <Catagory />
-          </TabPanel>
-          <TabPanel value={value} index={1}>
+          </TabPanel> */}
+          <TabPanel value={value} index={0}>
             <Perceptive />
           </TabPanel>
-          <TabPanel value={value} index={2}>
+          <TabPanel value={value} index={1}>
             <Measuring />
           </TabPanel>
-          <TabPanel value={value} index={3}>
+          <TabPanel value={value} index={2}>
             <EvalType />
           </TabPanel>
-          <TabPanel value={value} index={4}>
+          <TabPanel value={value} index={3}>
             <Frequency />
           </TabPanel>
-          <TabPanel value={value} index={5}>
+          <TabPanel value={value} index={4}>
             <Period />
           </TabPanel>
         </Grid>

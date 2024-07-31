@@ -1,16 +1,18 @@
 // assets
-import { IconKey } from '@tabler/icons-react';
+import { IconKey,IconUser } from '@tabler/icons-react';
 
 // constant
 const icons = {
-  IconKey
+  IconKey,
+  IconUser
+
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
 
 const pages = {
   id: 'pages',
-  title: 'Account Management',
+  title: 'Employee',
   // caption: 'Pages Caption',
   type: 'group',
   // requiredRoles: ['Admin'],
@@ -20,12 +22,12 @@ const pages = {
       id: 'authentication',
       title: 'Account',
       type: 'collapse',
-      icon: icons.IconKey,
+      icon: icons.IconUser,
 
       children: [
         {
           id: 'usermanage',
-          title: 'User Management',
+          title: 'Employee Management',
           type: 'item',
           url: '/utils/user-creation',
           // target: true
@@ -45,11 +47,22 @@ const pages = {
           // target: true
         },
         {
-          id: 'units',
-          title: 'Departments',
+          id: 'check-employee',
+          title: 'Check Employee Target',
           type: 'item',
-          url: '/units/units-creation',
-          // target: true
+          // url: '/utils/util-typography',
+          icon: icons.IconReport,
+    
+          breadcrumbs: false,
+        },
+        {
+          id: 'search-employee',
+          title: 'Search Employee',
+          type: 'item',
+          // url: '/utils/util-color',
+          icon: icons.IconReport,
+    
+          breadcrumbs: false
         },
        
         {
@@ -60,7 +73,9 @@ const pages = {
           // target: true
         },
       ]
+      
     }
+    
   ]
 };
 

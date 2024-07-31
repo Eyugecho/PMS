@@ -20,6 +20,7 @@ const ResetPage = Loadable(lazy(() => import('views/password-reset/view/reset-vi
 const UnitsPage = Loadable(lazy(() => import('views/newunit-creation/view/unit-view')));
 const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
 const KpiManagePage = Loadable(lazy(() => import('views/kpi-managment/view/kpiMange-view')));
+const KpiTrackingPage = Loadable(lazy(() => import('views/kpi-tracking/view/kpiTrack-view')));
 
 // const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
 // const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
@@ -167,6 +168,18 @@ const MainRoutes = {
           element: 
           <Protected>
             <KpiManagePage />
+          </Protected>
+        }
+      ]
+    },
+    {
+      path: 'kpi-tracking',
+      children: [
+        {
+          path: 'kpi-track',
+          element: 
+          <Protected>
+            <KpiTrackingPage />
           </Protected>
         }
       ]
