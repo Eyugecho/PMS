@@ -242,7 +242,7 @@ const Units = () => {
                 //     sx={{ paddingTop: 6 }}
                 //   />
                 // )
-                <UnitList units={UnitData} />
+                <UnitList units={data} />
               )}
             </Grid>
 

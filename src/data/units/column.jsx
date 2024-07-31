@@ -3,7 +3,7 @@ import { Box, Typography, useTheme } from '@mui/material';
 const UnitColumns = [
   {
     field: 'name',
-    headerName: 'Department name',
+    headerName: 'Unit name',
     width: 330,
     renderCell: (params) => {
       return <Typography variant="subtitle1">{params.value}</Typography>;
@@ -16,16 +16,18 @@ const UnitColumns = [
     renderCell: (params) => {
       const manager = params.value;
 
-      return (
+      return manager ? (
         <Box>
-          <Typography variant="body2">{manager.name}</Typography>
-          <Typography variant="subtitle2">{manager.position}</Typography>
+          <Typography variant="body2">{manager?.user?.name}</Typography>
+          <Typography variant="subtitle2">{manager?.position}</Typography>
         </Box>
+      ) : (
+        <Typography variant="subtitle2">Not Assigned</Typography>
       );
     }
   },
   {
-    field: 'type',
+    field: 'unit_type',
     headerName: 'Unit Type',
     width: 220,
     renderCell: (params) => {
@@ -34,7 +36,7 @@ const UnitColumns = [
       return (
         <Box>
           <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-            {type}
+            {type?.name}
           </Typography>
         </Box>
       );
