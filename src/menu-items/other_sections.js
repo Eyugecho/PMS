@@ -1,45 +1,28 @@
 // assets
-import { IconDashboard,IconReport,IconShadow } from '@tabler/icons-react';
+import { IconDashboard,IconReport,IconShadow ,IconUser} from '@tabler/icons-react';
 
 // constant
-const icons = { IconDashboard ,IconReport,IconShadow};
+const icons = { IconDashboard ,IconReport,IconShadow,IconUser};
 
 // ==============================|| other_section  MENU ITEMS ||============================== //
 
 const other_section = {
   id: 'other_sec',
-  title: '',
+  title: 'Users',
   type: 'group',
   children: [
-    {
-      id: 'check-employee',
-      title: 'Check Employee Target',
-      type: 'item',
-      // url: '/utils/util-typography',
-      icon: icons.IconReport,
 
-      breadcrumbs: false,
-    },
     {
-      id: 'search-employee',
-      title: 'Search Employee',
-      type: 'item',
-      // url: '/utils/util-color',
-      icon: icons.IconReport,
-
-      breadcrumbs: false
-    },
-    {
-      id: 'role-define',
-      title: 'Role Define For Cost Center',
+      id: 'profile',
+      title: 'Profile',
       type: 'item',
       // url: '/utils/user-creation',
-      icon: icons.IconReport,
+      icon: icons.IconUser,
       breadcrumbs: false
     },
     {
-        id: 'role-revok',
-        title: 'Role Revoke',
+        id: 'change-password',
+        title: 'Change Password',
         type: 'item',
         // url: '/utils/user-creation',
         icon: icons.IconReport,

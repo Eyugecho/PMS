@@ -5,11 +5,13 @@ import other from './other';
 import report from './reports';
 import other_section from './other_sections';
 import Kpi_basic_config from './Kpi_basic_config';
+import department from './departments';
+
 
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems = {
-  items: [dashboard, pages,Kpi_basic_config, utilities,report,other_section, other]
+  items: [dashboard,Kpi_basic_config,report,department,pages, other]
 };
 
 export default menuItems;

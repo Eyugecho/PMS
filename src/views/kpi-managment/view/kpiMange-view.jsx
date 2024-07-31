@@ -42,9 +42,9 @@ export default function KpiManagement() {
   const [newKpi, setNewKpi] = useState({
     name: '',
     perspective: '',
-    category: '',
+    // category: '',
     measuring: '',
-    weight: ''
+    // weight: ''
   });
   const [perspectives, setPerspectives] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -150,9 +150,9 @@ export default function KpiManagement() {
     setNewKpi({
       name: '',
       perspective: '',
-      category: '',
+      // category: '',
       measuring: '',
-      weight: ''
+    //   weight: ''
     });
   };
 
@@ -228,7 +228,7 @@ export default function KpiManagement() {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="dense">
+          {/* <FormControl fullWidth margin="dense">
             <InputLabel>Category</InputLabel>
             <Select
               name="category"
@@ -241,7 +241,7 @@ export default function KpiManagement() {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
           <FormControl fullWidth margin="dense">
             <InputLabel>Measuring Unit</InputLabel>
             <Select
@@ -288,7 +288,7 @@ export default function KpiManagement() {
               margin: '0 10px 0 0px',
             }}
           >
-            New KPI
+            Add
           </Button>
         </div>
 
@@ -304,9 +304,9 @@ export default function KpiManagement() {
               headLabel={[
                 { id: 'name', label: 'Name' },
                 { id: 'perspective', label: 'Perspective' },
-                { id: 'category', label: 'Category' },
+                // { id: 'category', label: 'Category' },
                 { id: 'measuring', label: 'Measuring Unit' },
-                { id: 'weight', label: 'Weight' },
+                // { id: 'weight', label: 'Weight' },
                 { id: '' },
               ]}
             />
@@ -318,9 +318,9 @@ export default function KpiManagement() {
                     key={index}
                     name={row.name}
                     perspective={row.perspective}
-                    category={row.category}
+                    // category={row.category}
                     measuring={row.measuring}
-                    weight={row.weight}
+                    // weight={row.weight}
                     selected={selected.indexOf(row.name) !== -1}
                     handleClick={(event) => handleClick(event, row.name)}
                   />

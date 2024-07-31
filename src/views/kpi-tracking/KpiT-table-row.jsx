@@ -18,15 +18,19 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 
 import Iconify from '../../ui-component/iconify/iconify';
+import { fr } from '@faker-js/faker';
 
-export default function KpiMTableRow({
+export default function KpiTTableRow({
   selected,
 
-name,
+  kpi,
 
-perspective,
-// category,
-measuring,
+  period,
+  measuringUnit,
+  weight,
+  frequency,
+  unit,
+// measuring,
 // weight,
 
 
@@ -35,10 +39,13 @@ measuring,
   const [openMenu, setOpenMenu] = useState(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editedData, setEditedData] = useState({
-    name: name,
-    perspective: perspective,
-    // category: category,
-    measuring: measuring,
+    kpi: kpi,
+    period: period,
+    measuringUnit: measuringUnit,
+    weight: weight,
+    frequency: frequency,
+    unit: unit,
+    // measuring: measuring,
     // weight: weight,
 
 
@@ -80,7 +87,7 @@ measuring,
   const handleDelete = () => {
     // Handle deletion here
     // This is where you would typically delete the row from your backend or state management
-    console.log("Deleted:", name);
+    console.log("Deleted:", kpi);
     handleCloseMenu(); // Close the menu after deletion
   };
 
@@ -92,14 +99,16 @@ measuring,
         </TableCell>
         <TableCell component="th">
           <Typography variant="subtitle2" noWrap>
-            {name}
+            {kpi}
           </Typography>
         </TableCell>
+        <TableCell>{unit}</TableCell>
         
-        <TableCell>{perspective}</TableCell>
-        {/* <TableCell>{category}</TableCell> */}
-        <TableCell>{measuring}</TableCell>
-        {/* <TableCell>{weight}</TableCell> */}
+        <TableCell>{period}</TableCell>
+        <TableCell>{measuringUnit}</TableCell>
+        <TableCell>{frequency}</TableCell>
+        <TableCell>{weight}</TableCell>
+
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -115,45 +124,54 @@ measuring,
 
         <TextField
             margin="dense"
-            name="name"
-            label="name"
+            name="kpi"
+            label="kpi"
             fullWidth
-            value={editedData.name}
+            value={editedData.kpi}
             onChange={handleChange}
           />
 
+
           <TextField
             margin="dense"
-            name="perspective"
-            label="perspective"
+            name="unit"
+            label="Units"
             fullWidth
-            value={editedData.perspective}
+            value={editedData.unit}
             onChange={handleChange}
           />
-        {/* <TextField
+          <TextField
             margin="dense"
-            name="category"
-            label="category"
+            name="period"
+            label="Fiscal Year"
             fullWidth
-            value={editedData.category}
+            value={editedData.period}
             onChange={handleChange}
-          /> */}
+          />
         <TextField
             margin="dense"
-            name="measuring"
-            label="categmeasuringory"
+            name="measuringUnit"
+            label="measuringUnit"
             fullWidth
-            value={editedData.measuring}
+            value={editedData.measuringUnit}
             onChange={handleChange}
           />
-        {/* <TextField
+        <TextField
             margin="dense"
             name="weight"
             label="weight"
             fullWidth
             value={editedData.weight}
             onChange={handleChange}
-          /> */}
+          />
+        <TextField
+            margin="dense"
+            name="frequency"
+            label="frequency"
+            fullWidth
+            value={editedData.frequency}
+            onChange={handleChange}
+          />
 
         </DialogContent>
         <DialogActions>
@@ -188,13 +206,16 @@ measuring,
   );
 }
 
-KpiMTableRow.propTypes = {
+KpiTTableRow.propTypes = {
   handleClick: PropTypes.func,
   selected: PropTypes.bool,
-  perspective: PropTypes.string,
-  // category: PropTypes.string,
-  name: PropTypes.string,
-    measuring: PropTypes.string,
+  period: PropTypes.string,
+  measuringUnit: PropTypes.string,
+  kpi: PropTypes.string,
+  weight: PropTypes.string,
+  frequency: PropTypes.string,
+  unit: PropTypes.string,
+    // measuring: PropTypes.string,
 
 
 };

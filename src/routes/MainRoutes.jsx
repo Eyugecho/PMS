@@ -21,6 +21,7 @@ const RoleCreation = Loadable(lazy(() => import('views/newrole-creation/view/rol
 const ResetPage = Loadable(lazy(() => import('views/password-reset/view/reset-view')));
 const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
 const KpiManagePage = Loadable(lazy(() => import('views/kpi-managment/view/kpiMange-view')));
+const KpiTrackingPage = Loadable(lazy(() => import('views/kpi-tracking/view/kpiTrack-view')));
 
 // const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
 // const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
@@ -175,6 +176,18 @@ const MainRoutes = {
               <KpiManagePage />
             </Protected>
           )
+        }
+      ]
+    },
+    {
+      path: 'kpi-tracking',
+      children: [
+        {
+          path: 'kpi-track',
+          element: 
+          <Protected>
+            <KpiTrackingPage />
+          </Protected>
         }
       ]
     },
