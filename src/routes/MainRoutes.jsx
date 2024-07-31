@@ -4,10 +4,12 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
-
+import { element } from 'prop-types';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
+const Units = Loadable(lazy(() => import('views/departments')));
+const ViewUnit = Loadable(lazy(() => import('views/departments/view')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -17,7 +19,6 @@ const UserCreation = Loadable(lazy(() => import('views/newuser-creation/view/use
 const PrevilageCreation = Loadable(lazy(() => import('views/newprevilage-creation/view/previlage-view')));
 const RoleCreation = Loadable(lazy(() => import('views/newrole-creation/view/role-view')));
 const ResetPage = Loadable(lazy(() => import('views/password-reset/view/reset-view')));
-const UnitsPage = Loadable(lazy(() => import('views/newunit-creation/view/unit-view')));
 const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
 const KpiManagePage = Loadable(lazy(() => import('views/kpi-managment/view/kpiMange-view')));
 
@@ -35,43 +36,53 @@ const MainRoutes = {
   children: [
     {
       path: '/',
-      element: <Protected>
-        <DashboardDefault />
-      </Protected>
+      element: (
+        <Protected>
+          <DashboardDefault />
+        </Protected>
+      )
     },
     {
       path: 'dashboard',
       children: [
         {
           path: 'default',
-          element: 
-          <Protected>
-            <DashboardDefault />
+          element: (
+            <Protected>
+              <DashboardDefault />
             </Protected>
+          )
         }
       ]
     },
     {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-typography',
-          element:
-          <Protected>
-            <UtilsTypography />
-          </Protected> 
-        }
-      ]
+      path: 'units',
+      element: (
+        <Protected>
+          <Units />
+        </Protected>
+      )
     },
+
+    {
+      path: 'units/view',
+      element: (
+        <Protected>
+          <ViewUnit />
+        </Protected>
+      )
+    },
+
     {
       path: 'utils',
       children: [
         {
           path: 'util-color',
-          element: 
-          <Protected>
-            <UtilsColor />
-          </Protected>
+          element: (
+            <Protected>
+              <UtilsColor />
+            </Protected>
+          )
         }
       ]
     },
@@ -80,10 +91,11 @@ const MainRoutes = {
       children: [
         {
           path: 'util-shadow',
-          element: 
-          <Protected>
-            <UtilsShadow />
-          </Protected>
+          element: (
+            <Protected>
+              <UtilsShadow />
+            </Protected>
+          )
         }
       ]
     },
@@ -92,10 +104,11 @@ const MainRoutes = {
       children: [
         {
           path: 'user-creation',
-          element: 
-          <Protected>
-            <UserCreation />
-          </Protected>
+          element: (
+            <Protected>
+              <UserCreation />
+            </Protected>
+          )
         }
       ]
     },
@@ -104,10 +117,11 @@ const MainRoutes = {
       children: [
         {
           path: 'previlage-creation',
-          element: 
-          <Protected>
-            <PrevilageCreation />
-          </Protected>
+          element: (
+            <Protected>
+              <PrevilageCreation />
+            </Protected>
+          )
         }
       ]
     },
@@ -116,10 +130,11 @@ const MainRoutes = {
       children: [
         {
           path: 'role-creation',
-          element: 
-          <Protected>
-            <RoleCreation />
-          </Protected>
+          element: (
+            <Protected>
+              <RoleCreation />
+            </Protected>
+          )
         }
       ]
     },
@@ -128,34 +143,25 @@ const MainRoutes = {
       children: [
         {
           path: 'reset-password',
-          element: 
-          <Protected>
-            <ResetPage />
-          </Protected>
+          element: (
+            <Protected>
+              <ResetPage />
+            </Protected>
+          )
         }
       ]
     },
-    {
-      path: 'units',
-      children: [
-        {
-          path: 'units-creation',
-          element: 
-          <Protected>
-            <UnitsPage />
-          </Protected>
-        }
-      ]
-    },
+
     {
       path: 'basic-config',
       children: [
         {
           path: 'basic-config-creation',
-          element: 
-          <Protected>
-            <BasicConfigPage />
-          </Protected>
+          element: (
+            <Protected>
+              <BasicConfigPage />
+            </Protected>
+          )
         }
       ]
     },
@@ -164,10 +170,11 @@ const MainRoutes = {
       children: [
         {
           path: 'kpi-managment',
-          element: 
-          <Protected>
-            <KpiManagePage />
-          </Protected>
+          element: (
+            <Protected>
+              <KpiManagePage />
+            </Protected>
+          )
         }
       ]
     },
@@ -191,10 +198,11 @@ const MainRoutes = {
     // },
     {
       path: 'sample-page',
-      element: 
-      <Protected>
-        <SamplePage />
-      </Protected>
+      element: (
+        <Protected>
+          <SamplePage />
+        </Protected>
+      )
     }
   ]
 };
