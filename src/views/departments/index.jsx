@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, CircularProgress, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material';
 import Backend from 'services/backend';
-import PageContainer from 'ui-component/MainPage';
 import Fallbacks from 'utils/components/Fallbacks';
 import Search from 'ui-component/search';
 import { UnitList } from './components/UnitList';
-import UnitData from 'data/units/units';
 import { AddUnit } from './components/AddUnit';
+import { IconDots } from '@tabler/icons-react';
+import AddUnitType from './components/AddUnitType';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ContainerCard from './components/ContainerCard';
-import { IconDots, IconPlus } from '@tabler/icons-react';
-import AddUnitType from './components/AddUnitType';
 
 //================================ UNITS MANAGEMENT PAGE=====================
 const Units = () => {
@@ -119,14 +116,14 @@ const Units = () => {
         if (response.success) {
           setIsAdding(false);
           handleUnitModalClose();
-          toast(response.message);
+          toast.success(response.message);
         } else {
           setIsAdding(false);
-          toast(response.message);
+          toast.error(response.message);
         }
       })
       .catch((error) => {
-        toast(error.message);
+        toast.error(error.message);
         setIsAdding(false);
       });
   };
@@ -206,99 +203,97 @@ const Units = () => {
   }, []);
   return (
     <div>
-      <PageContainer back={false} title="Units">
-        <Grid
-          container
-          sx={{
-            backgroundColor: theme.palette.background.default,
-            borderRadius: 2,
-            marginTop: 2,
-            paddingY: 3,
-            paddingX: 2
-          }}
-        >
-          <Grid xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Search />
+      <Grid
+        container
+        sx={{
+          backgroundColor: theme.palette.background.default,
+          borderRadius: 2,
+          marginTop: 2,
+          paddingY: 3,
+          paddingX: 2
+        }}
+      >
+        <Grid xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Search />
 
-            <Button variant="contained" color="primary" onClick={() => handleAddUnitClick()}>
-              Add Unit
-            </Button>
+          <Button variant="contained" color="primary" onClick={() => handleAddUnitClick()}>
+            Add Unit
+          </Button>
+        </Grid>
+
+        <Grid container sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Grid xs={8.2} sx={{ minHeight: '64dvh' }}>
+            {loading ? (
+              <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress size={22} />
+              </Box>
+            ) : (
+              // ) : error ? (
+              //   <Fallbacks severity="error" title="Server error" description="There is error fetching units" />
+              // ) : data.length == !0 ? (
+              //   <Fallbacks
+              //     severity="department"
+              //     title="Unit not found"
+              //     description="The list of added units will be listed here"
+              //     sx={{ paddingTop: 6 }}
+              //   />
+              // )
+              <UnitList units={data} />
+            )}
           </Grid>
 
-          <Grid container sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Grid xs={8.2} sx={{ minHeight: '64dvh' }}>
-              {loading ? (
-                <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CircularProgress size={22} />
-                </Box>
-              ) : (
-                // ) : error ? (
-                //   <Fallbacks severity="error" title="Server error" description="There is error fetching units" />
-                // ) : data.length == !0 ? (
-                //   <Fallbacks
-                //     severity="department"
-                //     title="Unit not found"
-                //     description="The list of added units will be listed here"
-                //     sx={{ paddingTop: 6 }}
-                //   />
-                // )
-                <UnitList units={data} />
-              )}
-            </Grid>
-
-            <Grid xs={3.6} sx={{ paddingTop: 1 }}>
-              <Box sx={{ border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6 }}>
-                  <Typography variant="subtitle1">Unit Types</Typography>
-                  <AddUnitType isAdding={isAdding} handleSubmission={(value) => handleTypeAddition(value)} />
-                </Box>
-                <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[400], marginY: 1 }} />
-
-                <Box>
-                  {unitLoading ? (
-                    <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <CircularProgress size={20} />
-                    </Box>
-                  ) : error ? (
-                    <Fallbacks severity="error" title="Server error" description="There is error fetching unit type" />
-                  ) : unitType.length === 0 ? (
-                    <Fallbacks
-                      severity="department"
-                      title="Unit type not found"
-                      description="The list of added unit types will be listed here"
-                      sx={{ paddingTop: 6 }}
-                    />
-                  ) : (
-                    unitType.map((type, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          paddingY: 0.8,
-                          paddingX: 2,
-                          ':hover': {
-                            backgroundColor: theme.palette.grey[50]
-                          }
-                        }}
-                      >
-                        <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
-                          {type.name}
-                        </Typography>
-
-                        <IconButton>
-                          <IconDots size={18} style={{ color: theme.palette.grey[500] }} />
-                        </IconButton>
-                      </Box>
-                    ))
-                  )}
-                </Box>
+          <Grid xs={3.6} sx={{ paddingTop: 1 }}>
+            <Box sx={{ border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6 }}>
+                <Typography variant="subtitle1">Unit Types</Typography>
+                <AddUnitType isAdding={isAdding} handleSubmission={(value) => handleTypeAddition(value)} />
               </Box>
-            </Grid>
+              <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[400], marginY: 1 }} />
+
+              <Box>
+                {unitLoading ? (
+                  <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CircularProgress size={20} />
+                  </Box>
+                ) : error ? (
+                  <Fallbacks severity="error" title="Server error" description="There is error fetching unit type" />
+                ) : unitType.length === 0 ? (
+                  <Fallbacks
+                    severity="department"
+                    title="Unit type not found"
+                    description="The list of added unit types will be listed here"
+                    sx={{ paddingTop: 6 }}
+                  />
+                ) : (
+                  unitType.map((type, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingY: 0.8,
+                        paddingX: 2,
+                        ':hover': {
+                          backgroundColor: theme.palette.grey[50]
+                        }
+                      }}
+                    >
+                      <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
+                        {type.name}
+                      </Typography>
+
+                      <IconButton>
+                        <IconDots size={18} style={{ color: theme.palette.grey[500] }} />
+                      </IconButton>
+                    </Box>
+                  ))
+                )}
+              </Box>
+            </Box>
           </Grid>
         </Grid>
-      </PageContainer>
+      </Grid>
 
       <AddUnit
         add={add}

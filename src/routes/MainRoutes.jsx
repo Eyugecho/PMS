@@ -10,6 +10,8 @@ import { element } from 'prop-types';
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 const Units = Loadable(lazy(() => import('views/departments')));
 const ViewUnit = Loadable(lazy(() => import('views/departments/view')));
+const Planning = Loadable(lazy(() => import('views/planning')));
+const CreatePlan = Loadable(lazy(() => import('views/planning/create')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -70,6 +72,24 @@ const MainRoutes = {
       element: (
         <Protected>
           <ViewUnit />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'planning',
+      element: (
+        <Protected>
+          <Planning />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'planning/create',
+      element: (
+        <Protected>
+          <CreatePlan />
         </Protected>
       )
     },
@@ -184,10 +204,11 @@ const MainRoutes = {
       children: [
         {
           path: 'kpi-track',
-          element: 
-          <Protected>
-            <KpiTrackingPage />
-          </Protected>
+          element: (
+            <Protected>
+              <KpiTrackingPage />
+            </Protected>
+          )
         }
       ]
     },

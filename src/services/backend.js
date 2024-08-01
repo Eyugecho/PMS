@@ -5,6 +5,12 @@ const Backend = {
   units: 'units',
   types: 'unit-types',
   employees: 'employees',
-  kpi: 'kpi'
+  kpi: 'kpis',
+  fiscalYear: 'get-fiscal-year',
+  periods: 'periods',
+  frequencies: 'frequencies',
+  planningPeriods: 'get-planing-period',
+  orgPlan: 'main-kpi-tracking',
+  getOrgPlans: 'get-my-kpi-trackings'
 };
 export default Backend;

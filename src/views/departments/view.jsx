@@ -133,7 +133,7 @@ const ViewUnit = () => {
               </Grid>
 
               <Grid xs={12} sm={12} md={4} lg={3.4} xl={3.4}>
-                <Box sx={{ minHeight: 240, border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
+                <Box sx={{ minHeight: 280, border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6 }}>
                     <Typography variant="subtitle1">Unit Manger</Typography>
                     <ActionMenu icon={<IconDots size={18} />}>
@@ -171,7 +171,7 @@ const ViewUnit = () => {
                     )}
                   </Box>
                 </Box>
-                <Box sx={{ minHeight: 240, border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
+                <Box sx={{ minHeight: 200, border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6, paddingY: 0.6 }}>
                     <Typography variant="subtitle1">Unit Supervisors</Typography>
                   </Box>

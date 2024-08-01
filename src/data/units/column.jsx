@@ -9,6 +9,23 @@ const UnitColumns = [
       return <Typography variant="subtitle1">{params.value}</Typography>;
     }
   },
+
+  {
+    field: 'unit_type',
+    headerName: 'Unit type',
+    width: 220,
+    renderCell: (params) => {
+      const type = params.value;
+
+      return (
+        <Box>
+          <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+            {type?.name}
+          </Typography>
+        </Box>
+      );
+    }
+  },
   {
     field: 'manager',
     headerName: 'Manager',
@@ -25,24 +42,7 @@ const UnitColumns = [
         <Typography variant="subtitle2">Not Assigned</Typography>
       );
     }
-  },
-  {
-    field: 'unit_type',
-    headerName: 'Unit Type',
-    width: 220,
-    renderCell: (params) => {
-      const type = params.value;
-
-      return (
-        <Box>
-          <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-            {type?.name}
-          </Typography>
-        </Box>
-      );
-    }
-  },
-  { field: 'employees', headerName: 'Employees', width: 80 }
+  }
 ];
 
 export const UnitKpiColumns = [

@@ -259,7 +259,6 @@
 
 // export default AuthLogin;
 
-
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
@@ -321,42 +320,37 @@ const AuthLogin = ({ ...others }) => {
     try {
       const response = await axios.post(`${config.API_URL}/login-with-email`, {
         email: values.email,
-        password: values.password,
+        password: values.password
       });
-  
+
       console.log('Server response:', response.data);
-  
+
       if (response.data.success) {
         const { access_token } = response.data.data; // Ensure to extract access_token from data
-  
+
         // Ensure token is a string
         if (typeof access_token !== 'string') {
           console.error('Invalid token format:', access_token);
           throw new Error('Invalid token format');
         }
-  
-        console.log('Received token:', access_token);
-  
+
         const decodedToken = decodeToken(access_token);
-  
-        console.log('Decoded token:', decodedToken);
-  
         const user = {
           id: decodedToken.sub,
           name: decodedToken.name,
           email: decodedToken.email,
           roles: decodedToken.roles,
-          permissions: decodedToken.roles.flatMap(role => role.permissions)
+          permissions: decodedToken.roles.flatMap((role) => role.permissions)
         };
-  
+
         localStorage.setItem('token', access_token);
         dispatch(setUser(user));
-  
+
         toast.success('Login successful...!');
-  
-        if (hasRole(user.roles, 'Admin')) {
-          navigate('/utils/user-creation');
-        } else if (hasPermission(user.permissions, 'read:dashboard')) {
+
+        if (hasRole(user.roles, 'CEO')) {
+          navigate('/dashboard');
+        } else if (hasRole(user.roles, 'Admin')) {
           navigate('/dashboard');
         } else {
           navigate('/unauthorized');
@@ -373,7 +367,6 @@ const AuthLogin = ({ ...others }) => {
       setSubmitting(false);
     }
   };
-  
 
   return (
     <>
@@ -399,13 +392,15 @@ const AuthLogin = ({ ...others }) => {
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
-            <FormControl style={{ display: 'flex' }} error={Boolean(touched.email && errors.email)} >
-              <InputLabel htmlFor="outlined-adornment-email-login" style={{fontSize:'12px'}}>Email Address / Username</InputLabel>
+            <FormControl style={{ display: 'flex' }} error={Boolean(touched.email && errors.email)}>
+              <InputLabel htmlFor="outlined-adornment-email-login" style={{ fontSize: '12px' }}>
+                Email Address / Username
+              </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-email-login"
                 type="email"
                 value={values.email}
-                style={{ height: '40px' ,marginBottom:'10px'}}
+                style={{ height: '40px', marginBottom: '10px' }}
                 name="email"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -419,8 +414,10 @@ const AuthLogin = ({ ...others }) => {
               )}
             </FormControl>
 
-            <FormControl style={{ display: 'flex' }} error={Boolean(touched.password && errors.password)} >
-              <InputLabel htmlFor="outlined-adornment-password-login" style={{fontSize:'12px'}}>Password</InputLabel>
+            <FormControl style={{ display: 'flex' }} error={Boolean(touched.password && errors.password)}>
+              <InputLabel htmlFor="outlined-adornment-password-login" style={{ fontSize: '12px' }}>
+                Password
+              </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-password-login"
                 type={showPassword ? 'text' : 'password'}
@@ -470,15 +467,23 @@ const AuthLogin = ({ ...others }) => {
 
             <Box sx={{ mt: 2 }}>
               <AnimateButton>
-                <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" sx={{
-          transition: 'all .2s ease-in-out',
-          color: theme.palette.secondary.dark,
-          '&[aria-controls="menu-list-grow"],&:hover': {
-            background: theme.palette.secondary.dark_icon_hover,
-            color: theme.palette.secondary.dark
-          },
-        borderRadius: `${customization.borderRadius}px`
-        }}>
+                <Button
+                  disableElevation
+                  disabled={isSubmitting}
+                  fullWidth
+                  size="large"
+                  type="submit"
+                  variant="contained"
+                  sx={{
+                    transition: 'all .2s ease-in-out',
+                    color: theme.palette.secondary.dark,
+                    '&[aria-controls="menu-list-grow"],&:hover': {
+                      background: theme.palette.secondary.dark_icon_hover,
+                      color: theme.palette.secondary.dark
+                    },
+                    borderRadius: `${customization.borderRadius}px`
+                  }}
+                >
                   Sign in
                 </Button>
               </AnimateButton>
