@@ -14,13 +14,8 @@ import {
   TableRow,
   Paper,
   IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Card,
   CardContent,
-  CardActions,
   FormControl,
   InputLabel,
   Select,
@@ -28,11 +23,9 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 // Configuration URL (Ensure you have config setup properly)
 import config from '../../configration/config';
@@ -42,7 +35,6 @@ function Period() {
   const [frequencies, setFrequencies] = useState([]);
   const [activities, setActivities] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -148,10 +140,10 @@ function Period() {
 
   const handleEdit = (index) => {
     const period = periods[index];
-    formik.setFieldValue('fiscalYear', period.fiscal_year);
+    formik.setFieldValue('fiscalYear', period.fiscal_year_id);
     formik.setFieldValue('frequency', period.frequency_id);
     formik.setFieldValue('activity', period.type);
-    formik.setFieldValue('dates', period.dates);
+    formik.setFieldValue('dates', [{ startDate: period.start_date, endDate: period.end_date }]);
     setEditIndex(index);
     handleOpen();
   };
@@ -226,7 +218,7 @@ function Period() {
   return (
     <Box p={3}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Card variant="outlined">
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -286,158 +278,66 @@ function Period() {
                       </Select>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12}>
-                    {renderDateFields()}
-                  </Grid>
                 </Grid>
-                <Grid container spacing={2} mt={2}>
-                  <Grid item>
-                    <Button variant="contained" color="primary" type="submit">
-                      {editIndex !== null ? 'Update Period' : 'Create Period'}
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button variant="outlined" color="secondary" onClick={handleClose}>
-                      Cancel
-                    </Button>
-                  </Grid>
-                </Grid>
+                <Box mt={2}>
+                  {renderDateFields()}
+                </Box>
+                <Box mt={2}>
+                  <Button color="primary" variant="contained"  type="submit">
+                    {editIndex !== null ? 'Update Period' : 'Create Period'}
+                  </Button>
+                </Box>
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Fiscal Year</TableCell>
-                  <TableCell>Frequency</TableCell>
-                  <TableCell>Activity</TableCell>
-                  <TableCell>Dates</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {periods.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5}>
-                      <Box textAlign="center" py={2}>
-                        <SentimentDissatisfiedIcon />
-                        <Typography>No periods found</Typography>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  periods.map((period, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{period.fiscal_year}</TableCell>
-                      <TableCell>{frequencies.find((freq) => freq.id === period.frequency_id)?.name}</TableCell>
-                      <TableCell>{period.type}</TableCell>
-                      <TableCell>
-                        {period.dates.map((date, i) => (
-                          <div key={i}>{`Start: ${date.startDate}, End: ${date.endDate}`}</div>
-                        ))}
-                      </TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => handleEdit(index)} color="primary">
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => handleDelete(index)} color="error">
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
+        <Grid item xs={12}>
+          <Card variant="outlined">
+            <CardContent>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Fiscal Year</TableCell>
+                      <TableCell>Activity</TableCell>
+                      <TableCell>Start Date</TableCell>
+                      <TableCell>End Date</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {periods.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} align="center">
+                          <SentimentDissatisfiedIcon />
+                          No Periods Found
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      periods.map((period, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{period.fiscal_year.year}</TableCell>
+                          <TableCell>{period.fiscal_year.type}</TableCell>
+                          <TableCell>{period.start_date}</TableCell>
+                          <TableCell>{period.end_date}</TableCell>
+                          <TableCell>
+                            <IconButton onClick={() => handleEdit(index)}>
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton onClick={() => handleDelete(index)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
-
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editIndex !== null ? 'Edit Period' : 'Create Period'}</DialogTitle>
-        <DialogContent>
-          <Box component="form" onSubmit={formik.handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  id="fiscalYear"
-                  name="fiscalYear"
-                  label="Fiscal Year"
-                  value={formik.values.fiscalYear}
-                  onChange={formik.handleChange}
-                  error={formik.touched.fiscalYear && Boolean(formik.errors.fiscalYear)}
-                  helperText={formik.touched.fiscalYear && formik.errors.fiscalYear}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="frequency-label">Frequency</InputLabel>
-                  <Select
-                    labelId="frequency-label"
-                    id="frequency"
-                    name="frequency"
-                    value={formik.values.frequency}
-                    onChange={formik.handleChange}
-                    error={formik.touched.frequency && Boolean(formik.errors.frequency)}
-                  >
-                    <MenuItem value="">None</MenuItem>
-                    {frequencies.map((frequency) => (
-                      <MenuItem key={frequency.id} value={frequency.id}>
-                        {frequency.name} ({frequency.value})
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="activity-label">Activity</InputLabel>
-                  <Select
-                    labelId="activity-label"
-                    id="activity"
-                    name="activity"
-                    value={formik.values.activity}
-                    onChange={formik.handleChange}
-                    error={formik.touched.activity && Boolean(formik.errors.activity)}
-                  >
-                    <MenuItem value="">None</MenuItem>
-                    {activities.map((activity, index) => (
-                      <MenuItem key={index} value={activity}>
-                        {activity}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                {renderDateFields()}
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} mt={2}>
-              <Grid item>
-                <Button variant="contained" color="primary" type="submit">
-                  {editIndex !== null ? 'Update Period' : 'Create Period'}
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="outlined" color="secondary" onClick={handleClose}>
-                  Cancel
-                </Button>
-              </Grid>
-            </Grid>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-
       <ToastContainer />
     </Box>
   );

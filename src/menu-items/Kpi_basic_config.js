@@ -15,55 +15,38 @@ const Kpi_basic_config = {
   type: 'group',
     // requiredRoles: ['Admin'],
   children: [
-    {
-        id: 'basic-config',
-        title: 'Pre-Setups',
+    // {
+    //     id: 'basic-config',
+    //     title: 'Pre-Setups',
+    //     type: 'item',
+    //     url: '/basic-config/basic-config-creation',
+    //     icon: icons.IconSettingsStar,
+        
+
+    //     // target: true
+    //   },
+  
+      {
+        id: 'kpi',
+        title: 'Kpi Register',
         type: 'item',
-        url: '/basic-config/basic-config-creation',
-        icon: icons.IconSettingsStar,
-        
-
-        // target: true
-      },
-    {
-        id: 'authentication',
-        title: 'Kpi Managment',
-        type: 'collapse',
-        icon: icons.IconFileReport,
-        children: [
-            {
-                id: 'kpi',
-                title: 'Kpi Register',
-                type: 'item',
-                url: '/kpi/kpi-managment',
-                // icon: icons.IconReport,
-                
-        
-                // target: true
-              },
-              {
-                id: 'kpi_tracking',
-                title: 'Kpi Tracking',
-                type: 'item',
-                url: '/kpi-tracking/kpi-track',
-                // icon: icons.IconReport,
-                
-        
-                // target: true
-              },
-
-        ]
-    },
-
-    {
-        id: 'target-settings',
-        title: 'Target Settings',
-        type: 'item',
-        // url: '/basic-config/basic-config-creation',
+        url: '/kpi/kpi-managment',
         icon: icons.IconReport,
-    
+        
+
         // target: true
       },
+  
+
+    // {
+    //     id: 'target-settings',
+    //     title: 'Target Settings',
+    //     type: 'item',
+    //     // url: '/basic-config/basic-config-creation',
+    //     icon: icons.IconReport,
+    
+    //     // target: true
+    //   },
       {
         id: 'mointoring',
         title: 'Mointoring',
