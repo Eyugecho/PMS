@@ -5,12 +5,15 @@ import { IconDashboard,IconReport,IconShadow,IconActivity,IconSettingsStar,IconF
 const icons = { IconDashboard ,IconReport,IconShadow,IconActivity,IconSettingsStar,IconFileReport,IconBrandCampaignmonitor};
 
 
+
+
 // ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
 
 const Kpi_basic_config = {
   id: 'Kpi_basic_config',
   title: 'Planning',
   type: 'group',
+    // requiredRoles: ['Admin'],
   children: [
     {
         id: 'basic-config',
