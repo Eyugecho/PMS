@@ -10,6 +10,7 @@ const dashboard = {
   id: 'dashboard',
   title: '',
   type: 'group',
+  
   children: [
     {
       id: 'default',

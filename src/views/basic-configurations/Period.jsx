@@ -1,64 +1,189 @@
 import React, { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
-import { Box, Typography, TextField, Button, Grid, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Card,
+  CardContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Configuration URL (Ensure you have config setup properly)
+import config from '../../configration/config';
 
 function Period() {
   const [periods, setPeriods] = useState([]);
   const [frequencies, setFrequencies] = useState([]);
-  const [evalTypes, setEvalTypes] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [editIndex, setEditIndex] = useState(null);
 
   useEffect(() => {
-    const storedPeriods = localStorage.getItem('periods');
-    if (storedPeriods) {
-      setPeriods(JSON.parse(storedPeriods));
-    }
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('periods', JSON.stringify(periods));
-  }, [periods]);
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    const storedFrequencies = localStorage.getItem('frequencies');
-    if (storedFrequencies) {
-      setFrequencies(JSON.parse(storedFrequencies));
-    }
-  }, []);
+      // Fetch frequencies
+      const responseFrequencies = await fetch(`${config.API_URL_Units}/frequencies`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const dataFrequencies = await responseFrequencies.json();
+      if (dataFrequencies.success) {
+        setFrequencies(dataFrequencies.data.data);
+      } else {
+        toast.error('Failed to fetch frequencies');
+      }
 
-  useEffect(() => {
-    const storedEvalTypes = localStorage.getItem('evaltype');
-    if (storedEvalTypes) {
-      setEvalTypes(JSON.parse(storedEvalTypes));
+      // Fetch activities
+      const responseActivities = await fetch(`${config.API_URL_Units}/get-period-activities`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const dataActivities = await responseActivities.json();
+      if (dataActivities.success) {
+        setActivities(dataActivities.data);
+      } else {
+        toast.error('Failed to fetch activities');
+      }
+
+      // Fetch periods
+      const responsePeriods = await fetch(`${config.API_URL_Units}/periods`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const dataPeriods = await responsePeriods.json();
+      if (dataPeriods.success) {
+        setPeriods(dataPeriods.data.periods);
+      } else {
+        toast.error('Failed to fetch periods');
+      }
+    } catch (error) {
+      toast.error('Error occurred while fetching data');
     }
-  }, []);
+  };
 
   const formik = useFormik({
     initialValues: {
       fiscalYear: '',
       frequency: '',
-      evalType: '',
+      activity: '',
       dates: [],
     },
-    onSubmit: (values, { resetForm }) => {
-      const frequency = frequencies.find((freq) => freq.name === values.frequency);
-      if (values.fiscalYear && frequency && values.evalType) {
+    onSubmit: async (values, { resetForm }) => {
+      const frequency = frequencies.find((freq) => freq.id === values.frequency);
+      if (values.fiscalYear && frequency && values.activity) {
         const newPeriod = {
-          fiscalYear: values.fiscalYear,
-          frequency: values.frequency,
-          evalType: values.evalType,
+          fiscal_year: values.fiscalYear,
+          frequency_id: frequency.id,
+          type: values.activity,
           dates: values.dates,
         };
-        setPeriods([...periods, newPeriod]);
+
+        try {
+          const token = localStorage.getItem('token');
+          const method = editIndex !== null ? 'PATCH' : 'POST';
+          const url = editIndex !== null
+            ? `${config.API_URL_Units}/periods/${periods[editIndex].id}`
+            : `${config.API_URL_Units}/periods`;
+
+          const response = await fetch(url, {
+            method: method,
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newPeriod),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            toast.success(editIndex !== null ? 'Period updated' : 'Period created');
+            fetchData(); // Refresh the list
+            handleClose();
+          } else {
+            toast.error(result.message || 'Failed to save period');
+          }
+        } catch (error) {
+          toast.error('Error occurred while saving period');
+        }
+
         resetForm();
       }
     },
   });
 
+  const handleEdit = (index) => {
+    const period = periods[index];
+    formik.setFieldValue('fiscalYear', period.fiscal_year_id);
+    formik.setFieldValue('frequency', period.frequency_id);
+    formik.setFieldValue('activity', period.type);
+    formik.setFieldValue('dates', [{ startDate: period.start_date, endDate: period.end_date }]);
+    setEditIndex(index);
+    handleOpen();
+  };
+
+  const handleDelete = async (index) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${config.API_URL_Units}/periods/${periods[index].id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        toast.success('Period deleted');
+        fetchData(); // Refresh the list
+      } else {
+        toast.error(result.message || 'Failed to delete period');
+      }
+    } catch (error) {
+      toast.error('Error occurred while deleting period');
+    }
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    formik.resetForm();
+  };
+
   const renderDateFields = () => {
-    const frequency = frequencies.find((freq) => freq.name === formik.values.frequency);
+    const frequency = frequencies.find((freq) => freq.id === formik.values.frequency);
     if (!frequency) return null;
 
-    const numOfFields = frequency.value;
+    const numOfFields = frequency.value; // Number of date fields
 
     return Array.from({ length: numOfFields }, (_, i) => (
       <Grid container spacing={2} key={i}>
@@ -66,7 +191,7 @@ function Period() {
           <TextField
             fullWidth
             id={`startDate-${i}`}
-            name={`dates[${i}].startDate`}
+            name={`dates[${i}].start_date`}
             label={`Start Date ${i + 1}`}
             type="date"
             InputLabelProps={{ shrink: true }}
@@ -78,7 +203,7 @@ function Period() {
           <TextField
             fullWidth
             id={`endDate-${i}`}
-            name={`dates[${i}].endDate`}
+            name={`dates[${i}].end_date`}
             label={`End Date ${i + 1}`}
             type="date"
             InputLabelProps={{ shrink: true }}
@@ -92,86 +217,128 @@ function Period() {
 
   return (
     <Box p={3}>
-      <Typography variant="h5" align="center" gutterBottom>
-        Period Registration
-      </Typography>
-      <form onSubmit={formik.handleSubmit}>
-        <Grid container spacing={2} justifyContent="center">
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              id="fiscalYear"
-              name="fiscalYear"
-              label="Fiscal Year"
-              value={formik.values.fiscalYear}
-              onChange={formik.handleChange}
-              error={formik.touched.fiscalYear && Boolean(formik.errors.fiscalYear)}
-              helperText={formik.touched.fiscalYear && formik.errors.fiscalYear}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel id="frequency-label">Frequency</InputLabel>
-              <Select
-                labelId="frequency-label"
-                id="frequency"
-                name="frequency"
-                value={formik.values.frequency}
-                onChange={formik.handleChange}
-                error={formik.touched.frequency && Boolean(formik.errors.frequency)}
-              >
-                <MenuItem value="">None</MenuItem>
-                {frequencies.map((frequency, index) => (
-                  <MenuItem key={index} value={frequency.name}>
-                    {frequency.name} ({frequency.value})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel id="evaltype-label">Evaluation Type</InputLabel>
-              <Select
-                labelId="evaltype-label"
-                id="evalType"
-                name="evalType"
-                value={formik.values.evalType}
-                onChange={formik.handleChange}
-                error={formik.touched.evalType && Boolean(formik.errors.evalType)}
-              >
-                <MenuItem value="">None</MenuItem>
-                {evalTypes.map((type, index) => (
-                  <MenuItem key={index} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Create New Period
+              </Typography>
+              <Box component="form" onSubmit={formik.handleSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      id="fiscalYear"
+                      name="fiscalYear"
+                      label="Fiscal Year"
+                      value={formik.values.fiscalYear}
+                      onChange={formik.handleChange}
+                      error={formik.touched.fiscalYear && Boolean(formik.errors.fiscalYear)}
+                      helperText={formik.touched.fiscalYear && formik.errors.fiscalYear}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel id="frequency-label">Frequency</InputLabel>
+                      <Select
+                        labelId="frequency-label"
+                        id="frequency"
+                        name="frequency"
+                        value={formik.values.frequency}
+                        onChange={formik.handleChange}
+                        error={formik.touched.frequency && Boolean(formik.errors.frequency)}
+                      >
+                        <MenuItem value="">None</MenuItem>
+                        {frequencies.map((frequency) => (
+                          <MenuItem key={frequency.id} value={frequency.id}>
+                            {frequency.name} ({frequency.value})
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel id="activity-label">Activity</InputLabel>
+                      <Select
+                        labelId="activity-label"
+                        id="activity"
+                        name="activity"
+                        value={formik.values.activity}
+                        onChange={formik.handleChange}
+                        error={formik.touched.activity && Boolean(formik.errors.activity)}
+                      >
+                        <MenuItem value="">None</MenuItem>
+                        {activities.map((activity, index) => (
+                          <MenuItem key={index} value={activity}>
+                            {activity}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                <Box mt={2}>
+                  {renderDateFields()}
+                </Box>
+                <Box mt={2}>
+                  <Button color="primary" variant="contained"  type="submit">
+                    {editIndex !== null ? 'Update Period' : 'Create Period'}
+                  </Button>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
         </Grid>
-        <Box mt={4}>{renderDateFields()}</Box>
-        <Grid container spacing={2} justifyContent="center">
-          <Grid item xs={12} sm={4}>
-            <Button variant="contained" color="primary" type="submit" fullWidth>
-              Add
-            </Button>
-          </Grid>
+        <Grid item xs={12}>
+          <Card variant="outlined">
+            <CardContent>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Fiscal Year</TableCell>
+                      <TableCell>Activity</TableCell>
+                      <TableCell>Start Date</TableCell>
+                      <TableCell>End Date</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {periods.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} align="center">
+                          <SentimentDissatisfiedIcon />
+                          No Periods Found
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      periods.map((period, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{period.fiscal_year.year}</TableCell>
+                          <TableCell>{period.fiscal_year.type}</TableCell>
+                          <TableCell>{period.start_date}</TableCell>
+                          <TableCell>{period.end_date}</TableCell>
+                          <TableCell>
+                            <IconButton onClick={() => handleEdit(index)}>
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton onClick={() => handleDelete(index)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
         </Grid>
-      </form>
-      <Box mt={4}>
-        <FormControl fullWidth>
-          <InputLabel id="period-label">Registered Periods</InputLabel>
-          <Select label="Registered Periods" id="periods" value="">
-            <MenuItem value="" disabled></MenuItem>
-            {periods.map((period, index) => (
-              <MenuItem key={index} value={period.fiscalYear}>
-                {period.fiscalYear} ({period.frequency}) - {period.evalType}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+      </Grid>
+      <ToastContainer />
     </Box>
   );
 }

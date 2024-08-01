@@ -30,6 +30,7 @@ export default function KpiTTableRow({
   weight,
   frequency,
   unit,
+  unitType,
 // measuring,
 // weight,
 
@@ -45,6 +46,7 @@ export default function KpiTTableRow({
     weight: weight,
     frequency: frequency,
     unit: unit,
+    unitType: unitType,
     // measuring: measuring,
     // weight: weight,
 
@@ -102,6 +104,8 @@ export default function KpiTTableRow({
             {kpi}
           </Typography>
         </TableCell>
+        <TableCell>{unitType}</TableCell>
+        
         <TableCell>{unit}</TableCell>
         
         <TableCell>{period}</TableCell>
@@ -130,7 +134,14 @@ export default function KpiTTableRow({
             value={editedData.kpi}
             onChange={handleChange}
           />
-
+        <TextField
+            margin="dense"
+            name="unitType"
+            label="unitType"
+            fullWidth
+            value={editedData.unitType}
+            onChange={handleChange}
+          />
 
           <TextField
             margin="dense"
@@ -214,6 +225,7 @@ KpiTTableRow.propTypes = {
   kpi: PropTypes.string,
   weight: PropTypes.string,
   frequency: PropTypes.string,
+  unittype: PropTypes.string,
   unit: PropTypes.string,
     // measuring: PropTypes.string,
 

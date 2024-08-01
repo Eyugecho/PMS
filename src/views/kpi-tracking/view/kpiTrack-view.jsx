@@ -53,6 +53,7 @@ export default function KpiTracking() {
     weight: '',
     frequency:'',
     unit: '',
+    unitType: ''
   });
   const [trackingData, setTrackingData] = useState([]);
 
@@ -89,83 +90,146 @@ export default function KpiTracking() {
           setFrequencies(JSON.parse(storedFrequencies));
         }
     // Fetch unit from API endpoint
-    const fetchUnits = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('No token found');
-        }
+    // const fetchUnits = async () => {
+    //   try {
+    //     const token = localStorage.getItem('token');
+    //     if (!token) {
+    //       throw new Error('No token found');
+    //     }
 
-        const response = await fetch(`${config.API_URL_Units}/units`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+    //     const response = await fetch(`${config.API_URL_Units}/units`, {
+    //       method: 'GET',
+    //       headers: {
+    //         'Authorization': `Bearer ${token}`,
+    //         'Content-Type': 'application/json'
+    //       }
+    //     });
 
-        if (response.status === 401) {
-          console.error('Unauthorized. Redirecting to login...');
-          window.location.href = 'http://localhost:4000/all/pages/login/login3';
-          return;
-        }
+    //     if (response.status === 401) {
+    //       console.error('Unauthorized. Redirecting to login...');
+    //       window.location.href = 'http://localhost:4000/all/pages/login/login3';
+    //       return;
+    //     }
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch Units: ${response.statusText}`);
-        }
+    //     if (!response.ok) {
+    //       throw new Error(`Failed to fetch Units: ${response.statusText}`);
+    //     }
 
-        const result = await response.json();
-        if (result.success && Array.isArray(result.data.data)) {
-          setUnits(result.data.data);
-        } else {
-          console.error('Expected an array but got:', result.data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch Uints:', error);
-      }
+    //     const result = await response.json();
+    //     if (result.success && Array.isArray(result.data.data)) {
+    //       setUnits(result.data.data);
+    //     } else {
+    //       console.error('Expected an array but got:', result.data);
+    //     }
+    //   } catch (error) {
+    //     console.error('Failed to fetch Uints:', error);
+    //   }
 
-    };
+    // };
 
-    fetchUnits();
+    // fetchUnits();
       // Fetch unit types from the backend
-  const fetchUnitTypes = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token found');
-      }
+  // const fetchUnitTypes = async () => {
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     if (!token) {
+  //       throw new Error('No token found');
+  //     }
 
-      const response = await fetch(`${config.API_URL_Units}/unit-types`, {
+  //     const response = await fetch(`${config.API_URL_Units}/unit-types`, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Authorization': `Bearer ${token}`,
+  //         'Content-Type': 'application/json'
+  //       }
+  //     });
+
+  //     if (response.status === 401) {
+  //       console.error('Unauthorized. Redirecting to login...');
+  //       window.location.href = 'http://localhost:4000/all/pages/login/login3';
+  //       return;
+  //     }
+
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to fetch unit types: ${response.statusText}`);
+  //     }
+
+  //     const result = await response.json();
+  //     console.log(result);
+  //     if (result.success && Array.isArray(result.data)) {
+  //       setUnitTypes(result.data);
+  //     } else {
+  //       console.error('Expected an array but got:', result.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch unit types:', error);
+  //   }
+  // };
+
+  // fetchUnitTypes();
+
+ // Fetch unit types and units from the backend
+ // Fetch unit types and units from the backend
+ const fetchUnitTypesWithUnits = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No token found');
+
+    const unitTypesResponse = await fetch(`${config.API_URL_Units}/unit-types`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (unitTypesResponse.status === 401) {
+      console.error('Unauthorized. Redirecting to login...');
+      window.location.href = 'http://localhost:4000/all/pages/login/login3';
+      return;
+    }
+
+    if (!unitTypesResponse.ok) throw new Error(`Failed to fetch unit types: ${unitTypesResponse.statusText}`);
+
+    const unitTypesResult = await unitTypesResponse.json();
+    if (!unitTypesResult.success || !Array.isArray(unitTypesResult.data)) {
+      console.error('Expected an array of unit types but got:', unitTypesResult.data);
+      throw new Error('Expected an array of unit types but got incorrect data structure.');
+    }
+
+    const unitTypes = unitTypesResult.data;
+    setUnitTypes(unitTypes);
+
+    // Fetch units for each unit type
+    const unitsPromises = unitTypes.map(unitType =>
+      fetch(`${config.API_URL_Units}/unit-by-type/${unitType.id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-      });
+      }).then(res => res.json())
+    );
 
-      if (response.status === 401) {
-        console.error('Unauthorized. Redirecting to login...');
-        window.location.href = 'http://localhost:4000/all/pages/login/login3';
-        return;
+    const unitsResults = await Promise.all(unitsPromises);
+
+    // Map units by their type
+    const unitsByType = unitsResults.reduce((acc, unitsResult, index) => {
+      if (unitsResult.success && Array.isArray(unitsResult.data)) {
+        acc[unitTypes[index].id] = unitsResult.data;
       }
+      return acc;
+    }, {});
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch unit types: ${response.statusText}`);
-      }
+    setUnits(unitsByType);
+  } catch (error) {
+    console.error('Failed to fetch unit types or units:', error);
+  }
+};
 
-      const result = await response.json();
-      console.log(result);
-      if (result.success && Array.isArray(result.data)) {
-        setUnitTypes(result.data);
-      } else {
-        console.error('Expected an array but got:', result.data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch unit types:', error);
-    }
-  };
-
-  fetchUnitTypes();
+fetchUnitTypesWithUnits();
+  
+  
 
   }, []);
 
@@ -231,7 +295,21 @@ export default function KpiTracking() {
       [name]: value,
     }));
   };
+  const handleUnitTypeChange = (event) => {
+    const selectedUnitTypeId = event.target.value;
+    setNewTracking({
+      ...newTracking,
+      unitType: selectedUnitTypeId,
+      units: '' // Reset unit when unit type changes
+    });
+  };
 
+  const handleUnitChange = (event) => {
+    setNewTracking({
+      ...newTracking,
+      unit: event.target.value
+    });
+  };
   const handleRegister = async () => {
     const updatedTrackingData = [...trackingData, newTracking];
     setTrackingData(updatedTrackingData);
@@ -244,6 +322,7 @@ export default function KpiTracking() {
       weight: '',
       frequency:'',
       unit: '',
+      unitType: ''
     });
   };
 
@@ -280,20 +359,34 @@ export default function KpiTracking() {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Units</InputLabel>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Unit Type</InputLabel>
             <Select
-              name="unit"
-              value={newTracking.unit}
-              onChange={handleChange}
+              name="unitType"
+              value={selectedUnitType}
+              onChange={handleUnitTypeChange}
             >
-              {units.map((unit, index) => (
-                <MenuItem key={index} value={unit.name}>
-                  {unit.name}
+              {unitTypes.map((unitType) => (
+                <MenuItem key={unitType.id} value={unitType.id}>
+                  {unitType.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+            <FormControl fullWidth margin="dense">
+              <InputLabel>Units</InputLabel>
+              <Select
+                name="unit"
+                value={newTracking.unit}
+                onChange={handleChange}
+              >
+                {units[selectedUnitType]?.map((unit, index) => (
+                  <MenuItem key={index} value={unit.name}>
+                    {unit.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           <FormControl fullWidth margin="dense">
             <InputLabel>Frequencies</InputLabel>
             <Select
@@ -308,36 +401,7 @@ export default function KpiTracking() {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Unit Type</InputLabel>
-            <Select
-              name="unitType"
-              value={selectedUnitType}
-              onChange={(event) => setSelectedUnitType(event.target.value)}
-            >
-              {unitTypes.map((type, index) => (
-                <MenuItem key={index} value={type.id}>
-                  {type.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Units</InputLabel>
-            <Select
-              name="unit"
-              value={newTracking.unit}
-              onChange={handleChange}
-            >
-              {units
-                .filter((unit) => unit.unit_type_id === selectedUnitType)
-                .map((unit, index) => (
-                  <MenuItem key={index} value={unit.name}>
-                    {unit.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
+
           {/* <TextField
             margin="dense"
             name="value"
@@ -402,13 +466,12 @@ export default function KpiTracking() {
               onSelectAllClick={handleSelectAllClick}
               headLabel={[
                 { id: 'kpi', label: 'KPI' },
+                { id: 'unitType', label: 'Unit Type' },
                 { id: 'unit', label: 'Unit' },
-
                 { id: 'period', label: 'Fiscal Year' },
                 { id: 'measuringUnit', label: 'Measuring Unit' },
                 { id: 'frequency', label: 'Frequency' },
                 { id: 'weight', label: 'Weight' },
-
                 { id: '' },
               ]}
             />
@@ -420,6 +483,7 @@ export default function KpiTracking() {
                     key={index}
                     kpi={row.kpi}
                     period={row.period}
+                    unitType={row.unitType}
                     unit={row.unit}
                     measuringUnit={row.measuringUnit}
                     weight={row.weight}
