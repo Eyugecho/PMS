@@ -5,6 +5,11 @@ import {
   TextField,
   Button,
   Grid,
+  Card,
+  CardContent,
+  Snackbar,
+  Alert,
+  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -17,15 +22,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Card,
-  CardContent,
-  Snackbar,
-  Alert,
-  MenuItem
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import { useFormik } from 'formik';
 import axios from 'axios';
@@ -40,11 +39,13 @@ function KpiManagement() {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [measuringUnits, setMeasuringUnits] = useState([]);
   const [perspectiveTypes, setPerspectiveTypes] = useState([]);
+  const [variationCategories, setVariationCategories] = useState([]);
 
   useEffect(() => {
     fetchKpis();
     fetchMeasuringUnits();
     fetchPerspectiveTypes();
+    fetchVariationCategories();
   }, []);
 
   const fetchKpis = async () => {
@@ -80,14 +81,12 @@ function KpiManagement() {
 
       const data = await response.json();
       if (data.success) {
-        setMeasuringUnits(data.data.data); // Extract the array from nested data
+        setMeasuringUnits(data.data.data);
       } else {
         console.error('Failed to fetch measuring units:', data.message);
-        toast.error(`Failed to fetch measuring units: ${data.message}`);
       }
     } catch (error) {
       console.error('Error fetching measuring units:', error);
-      toast.error(`Error fetching measuring units: ${error.message}`);
     }
   };
 
@@ -113,6 +112,28 @@ function KpiManagement() {
     }
   };
 
+  const fetchVariationCategories = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${config.API_URL_Units}/get-variation-categories`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setVariationCategories(data.data); // Directly use the string array
+      } else {
+        console.error('Failed to fetch variation categories:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching variation categories:', error);
+    }
+  };
+
   const handleSave = async (values) => {
     try {
       const token = localStorage.getItem('token');
@@ -120,6 +141,11 @@ function KpiManagement() {
       const url = editIndex !== null 
         ? `${config.API_URL_Units}/kpis/${kpis[editIndex].id}` 
         : `${config.API_URL_Units}/kpis`;
+
+      // Ensure that variation_category is a valid category
+      if (!variationCategories.includes(values.variation_category)) {
+        throw new Error('Invalid variation category selected');
+      }
 
       const response = await axios({
         method,
@@ -151,7 +177,6 @@ function KpiManagement() {
       }
       setSnackbarOpen(true);
     } catch (error) {
-      console.error('Error saving KPI:', error);
       setSnackbarMessage('Error saving KPI: ' + error.message);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -263,9 +288,9 @@ function KpiManagement() {
                   helperText={formik.touched.perspective_type_id && formik.errors.perspective_type_id}
                   margin="normal"
                 >
-                  {perspectiveTypes.map((type) => (
-                    <MenuItem key={type.id} value={type.id}>
-                      {type.name}
+                  {perspectiveTypes.map((perspective) => (
+                    <MenuItem key={perspective.id} value={perspective.id}>
+                      {perspective.name}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -289,6 +314,7 @@ function KpiManagement() {
                 </TextField>
                 <TextField
                   fullWidth
+                  select
                   id="variation_category"
                   name="variation_category"
                   label="Variation Category"
@@ -297,7 +323,13 @@ function KpiManagement() {
                   error={formik.touched.variation_category && Boolean(formik.errors.variation_category)}
                   helperText={formik.touched.variation_category && formik.errors.variation_category}
                   margin="normal"
-                />
+                >
+                  {variationCategories.map((category) => (
+                    <MenuItem key={category} value={category}>
+                      {category}
+                    </MenuItem>
+                  ))}
+                </TextField>
                 <TextField
                   fullWidth
                   id="description"
@@ -310,8 +342,8 @@ function KpiManagement() {
                   margin="normal"
                 />
                 <Box mt={2}>
-                  <Button color="primary" variant="contained" type="submit">
-                    {editIndex !== null ? 'Update KPI' : 'Save KPI'}
+                  <Button variant="contained" color="primary" type="submit">
+                    {editIndex !== null ? 'Update KPI' : 'Create KPI'}
                   </Button>
                 </Box>
               </Box>
@@ -321,12 +353,12 @@ function KpiManagement() {
         <Grid item xs={12}>
           <Card variant="outlined">
             <CardContent>
-   
+      
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>KPI</TableCell>
+                      <TableCell>Name</TableCell>
                       <TableCell>Perspective Type</TableCell>
                       <TableCell>Measuring Unit</TableCell>
                       <TableCell>Variation Category</TableCell>
@@ -335,31 +367,41 @@ function KpiManagement() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {kpis.map((kpi, index) => (
-                      <TableRow key={kpi.id}>
-                        <TableCell>{kpi?.name ?? 'N/A'}</TableCell>
-                        <TableCell>{perspectiveTypes.find(pt => pt.id === kpi.perspective_type_id)?.name ?? 'N/A'}</TableCell>
-                        <TableCell>{measuringUnits.find(mu => mu.id === kpi.measuring_unit_id)?.name ?? 'N/A'}</TableCell>
-                        <TableCell>{kpi?.variation_category ?? 'N/A'}</TableCell>
-                        <TableCell>{kpi?.description ?? 'N/A'}</TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => handleEdit(index)}><EditIcon /></IconButton>
-                          <IconButton onClick={() => handleDelete(kpi.id)}><DeleteIcon /></IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
+  {kpis.length > 0 ? (
+    kpis.map((kpi, index) => (
+      <TableRow key={kpi.id}>
+        <TableCell>{kpi.name}</TableCell>
+        <TableCell>{kpi.perspective_type?.name || 'N/A'}</TableCell>
+        <TableCell>{kpi.measuring_unit?.name || 'N/A'}</TableCell>
+        <TableCell>{kpi.variation_category || 'N/A'}</TableCell>
+        <TableCell>{kpi.description || 'N/A'}</TableCell>
+        <TableCell>
+          <IconButton onClick={() => handleEdit(index)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton onClick={() => handleDelete(kpi.id)}>
+            <DeleteIcon />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+    ))
+  ) : (
+    <TableRow>
+      <TableCell colSpan={6} align="center">
+        <SentimentDissatisfiedIcon />
+        <Typography variant="body2">No KPIs available</Typography>
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
+
                 </Table>
               </TableContainer>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{editIndex !== null ? 'Edit KPI' : 'Create KPI'}</DialogTitle>
         <DialogContent>
@@ -387,9 +429,9 @@ function KpiManagement() {
               helperText={formik.touched.perspective_type_id && formik.errors.perspective_type_id}
               margin="normal"
             >
-              {perspectiveTypes.map((type) => (
-                <MenuItem key={type.id} value={type.id}>
-                  {type.name}
+              {perspectiveTypes.map((perspective) => (
+                <MenuItem key={perspective.id} value={perspective.id}>
+                  {perspective.name}
                 </MenuItem>
               ))}
             </TextField>
@@ -413,6 +455,7 @@ function KpiManagement() {
             </TextField>
             <TextField
               fullWidth
+              select
               id="variation_category"
               name="variation_category"
               label="Variation Category"
@@ -421,7 +464,13 @@ function KpiManagement() {
               error={formik.touched.variation_category && Boolean(formik.errors.variation_category)}
               helperText={formik.touched.variation_category && formik.errors.variation_category}
               margin="normal"
-            />
+            >
+              {variationCategories.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </TextField>
             <TextField
               fullWidth
               id="description"
@@ -434,8 +483,8 @@ function KpiManagement() {
               margin="normal"
             />
             <Box mt={2}>
-              <Button color="primary" variant="contained" type="submit">
-                {editIndex !== null ? 'Update KPI' : 'Save KPI'}
+              <Button variant="contained" color="primary" type="submit">
+                {editIndex !== null ? 'Update KPI' : 'Create KPI'}
               </Button>
             </Box>
           </Box>
@@ -446,6 +495,12 @@ function KpiManagement() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

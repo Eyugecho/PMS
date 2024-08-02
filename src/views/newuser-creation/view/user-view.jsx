@@ -251,7 +251,7 @@ export default function UserPage() {
               },
               margin: '0 10px 0 0px',
             }}>
-          New User
+          Add
         </Button>
         </div>
         
