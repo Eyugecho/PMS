@@ -17,8 +17,6 @@ import { SET_MENU } from 'store/actions';
 import { drawerWidth } from 'store/constant';
 import overlayImage from '../../assets/images/overlay_4.jpg';
 
-
-
 // assets
 import { IconChevronRight } from '@tabler/icons-react';
 
@@ -78,8 +76,7 @@ const MainLayout = () => {
         elevation={3}
         sx={{
           bgcolor: theme.palette.background.default,
-          transition: leftDrawerOpened ? theme.transitions.create('width') : 'none',
-        
+          transition: leftDrawerOpened ? theme.transitions.create('width') : 'none'
         }}
       >
         <Toolbar>
@@ -91,15 +88,18 @@ const MainLayout = () => {
       <Sidebar drawerOpen={!matchDownMd ? leftDrawerOpened : !leftDrawerOpened} drawerToggle={handleLeftDrawerToggle} />
 
       {/* main content */}
-      <Main  theme={theme} open={leftDrawerOpened} style={{
-        // background:`url(${overlayImage})`,
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        
-      }}>
-        
-        <Breadcrumbs separator={IconChevronRight} navigation={navigation} icon title rightAlign />
+      <Main
+        theme={theme}
+        open={leftDrawerOpened}
+        style={{
+          // background:`url(${overlayImage})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center'
+        }}
+      >
+        {/* navigation={navigation} */}
+        <Breadcrumbs separator={IconChevronRight} icon title rightAlign />
         <Outlet />
       </Main>
       <Customization />

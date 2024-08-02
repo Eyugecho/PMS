@@ -1,10 +1,15 @@
 // assets
-import { IconKey,IconABOff } from '@tabler/icons-react';
+import { IconBuildingSkyscraper, IconFileRss, IconPrison, IconUserCog, IconUsersGroup } from '@tabler/icons-react';
+import { IconKey, IconABOff,IconFile3d } from '@tabler/icons-react';
 
 // constant
 const icons = {
   IconKey,
-  IconABOff
+  IconABOff,
+  IconFile3d,
+  IconFileRss,
+  IconBuildingSkyscraper,
+  IconUsersGroup
 
 };
 
@@ -12,31 +17,28 @@ const icons = {
 
 const dep = {
   id: 'dep',
-  title: 'Departments',
+  title: 'Organaization Structure',
   // caption: 'Pages Caption',
   type: 'group',
   // requiredRoles: ['Admin'],
-  
+
   children: [
     {
       id: 'department-creation',
-      title: 'Departments',
-      type: 'collapse',
-      icon: icons.IconKey,
+      title: 'Units',
+      type: 'item',
+      icon: icons.IconBuildingSkyscraper,
+      url: '/units'
+    },
+    {
+      id: 'usermanage',
+      title: 'Employee Management',
+      type: 'item',
+      url: '/utils/user-creation',
+      icon: icons.IconUsersGroup,
 
-      children: [
-        {
-            id: 'units',
-            title: 'Departments',
-            type: 'item',
-            url: '/units/units-creation',
-            // target: true
-          },
-       
-      ]
-      
-    }
-    
+      // target: true
+    },  
   ]
 };
 

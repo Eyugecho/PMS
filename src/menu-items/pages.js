@@ -12,7 +12,7 @@ const icons = {
 
 const pages = {
   id: 'pages',
-  title: 'Employee',
+  title: 'Account Managment',
   // caption: 'Pages Caption',
   type: 'group',
   // requiredRoles: ['Admin'],
@@ -25,13 +25,7 @@ const pages = {
       icon: icons.IconUser,
 
       children: [
-        {
-          id: 'usermanage',
-          title: 'Employee Management',
-          type: 'item',
-          url: '/utils/user-creation',
-          // target: true
-        },  
+
         {
           id: 'role',
           title: 'Role',
@@ -46,24 +40,24 @@ const pages = {
           url: '/previlage/previlage-creation',
           // target: true
         },
-        {
-          id: 'check-employee',
-          title: 'Check Employee Target',
-          type: 'item',
-          // url: '/utils/util-typography',
-          icon: icons.IconReport,
+        // {
+        //   id: 'check-employee',
+        //   title: 'Check Employee Target',
+        //   type: 'item',
+        //   // url: '/utils/util-typography',
+        //   icon: icons.IconReport,
     
-          breadcrumbs: false,
-        },
-        {
-          id: 'search-employee',
-          title: 'Search Employee',
-          type: 'item',
-          // url: '/utils/util-color',
-          icon: icons.IconReport,
+        //   breadcrumbs: false,
+        // },
+        // {
+        //   id: 'search-employee',
+        //   title: 'Search Employee',
+        //   type: 'item',
+        //   // url: '/utils/util-color',
+        //   icon: icons.IconReport,
     
-          breadcrumbs: false
-        },
+        //   breadcrumbs: false
+        // },
        
         {
           id: 'login3',

@@ -222,7 +222,7 @@ function Perceptive() {
                   fullWidth
                   id="perspectiveName"
                   name="perspectiveName"
-                  label="New Perspective"
+                  label="Perspective"
                   value={formik.values.perspectiveName}
                   onChange={formik.handleChange}
                   error={formik.touched.perspectiveName && Boolean(formik.errors.perspectiveName)}
