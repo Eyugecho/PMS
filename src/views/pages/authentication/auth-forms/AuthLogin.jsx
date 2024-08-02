@@ -353,7 +353,7 @@ const AuthLogin = ({ ...others }) => {
         } else if (hasRole(user.roles, 'Admin')) {
           navigate('/dashboard');
         } else {
-          navigate('/unauthorized');
+          navigate('/dashboard');
         }
       } else {
         setStatus({ success: false });

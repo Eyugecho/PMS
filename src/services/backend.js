@@ -11,6 +11,7 @@ const Backend = {
   frequencies: 'frequencies',
   planningPeriods: 'get-planing-period',
   orgPlan: 'main-kpi-tracking',
-  getOrgPlans: 'get-my-kpi-trackings'
+  getOrgPlans: 'get-my-kpi-trackings',
+  childUnits: 'get-my-child-units'
 };
 export default Backend;

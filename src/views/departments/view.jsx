@@ -23,6 +23,7 @@ import { UnitKpiData } from 'data/units/UnitKpi';
 import ActionMenu from 'ui-component/ActionMenu';
 import { DotMenus } from 'data/menus/DotMenu';
 import Fallbacks from 'utils/components/Fallbacks';
+import { UnitKpiColumns } from 'data/units/column';
 
 const ViewUnit = () => {
   const { state } = useLocation();
@@ -128,7 +129,7 @@ const ViewUnit = () => {
                     )}
                   </Box> */}
 
-                  <UnitKpi kpi={UnitKpiData} />
+                  <UnitKpi column={UnitKpiColumns} kpi={UnitKpiData} />
                 </ContainerCard>
               </Grid>
 

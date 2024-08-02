@@ -11,7 +11,16 @@ import {
 } from '@tabler/icons-react';
 
 // constant
-const icons = { IconDashboard, IconReport, IconShadow, IconActivity, IconSettingsStar, IconFileReport, IconBrandCampaignmonitor };
+const icons = {
+  IconAdjustmentsHorizontal,
+  IconDashboard,
+  IconReport,
+  IconShadow,
+  IconActivity,
+  IconSettingsStar,
+  IconFileReport,
+  IconBrandCampaignmonitor
+};
 
 // ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
 
@@ -53,9 +62,7 @@ const Kpi_basic_config = {
       title: 'Planning',
       type: 'item',
       url: '/planning',
-      icon: icons.IconDashboard
-
-      // target: true
+      icon: icons.IconAdjustmentsHorizontal
     },
 
     {

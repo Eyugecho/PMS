@@ -5,6 +5,7 @@ import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
 import { element } from 'prop-types';
+import ViewPlan from 'views/planning/View';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
@@ -94,6 +95,14 @@ const MainRoutes = {
       )
     },
 
+    {
+      path: 'planning/view',
+      element: (
+        <Protected>
+          <ViewPlan />
+        </Protected>
+      )
+    },
     {
       path: 'utils',
       children: [
@@ -212,7 +221,7 @@ const MainRoutes = {
         }
       ]
     },
-    
+
     // {
     //   path: 'icons',
     //   children: [
