@@ -17,7 +17,7 @@ function App() {
   return (
     <Container maxWidth="lg" style={{ paddingTop: '10px' }}>
       <Paper elevation={3} style={{ padding: '0px', backgroundColor: '#fff' }}>
-        <AppBar position="static" style={{ backgroundColor: '#C1C2CD', boxShadow: '0px 4px 5px rgba(0, 0, 0, 0.2)' }}>
+        <AppBar position="static" style={{ backgroundColor: '#E6F6F8', boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.2)' }}>
           <Tabs 
             value={value} 
             onChange={handleChange} 

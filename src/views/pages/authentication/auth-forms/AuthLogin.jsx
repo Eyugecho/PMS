@@ -349,9 +349,9 @@ const AuthLogin = ({ ...others }) => {
         toast.success('Login successful...!');
 
         if (hasRole(user.roles, 'CEO')) {
-          navigate('/dashboard');
+          navigate('/kpi/kpi-managment');
         } else if (hasRole(user.roles, 'Admin')) {
-          navigate('/dashboard');
+          navigate('/Eod/Eod-act');
         } else {
           navigate('/dashboard');
         }

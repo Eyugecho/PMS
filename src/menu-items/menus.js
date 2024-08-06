@@ -11,7 +11,8 @@ import {
   IconFile3d,
   IconCircleCheck,
   IconTimeDuration0,
-  IconChecklist
+  IconChecklist,
+  IconLayoutSidebarInactive
 } from '@tabler/icons-react';
 
 // constant
@@ -27,7 +28,8 @@ const icons = {
   IconFile3d,
   IconCircleCheck,
   IconTimeDuration0,
-  IconChecklist
+  IconChecklist,
+  IconLayoutSidebarInactive
 };
 
 // ==============================|| menus  MENU ITEMS ||============================== //
@@ -60,20 +62,27 @@ const Menus = {
       icon: icons.IconAdjustmentsHorizontal
     },
     {
-      id: 'mointoring',
-      title: 'Monitoring',
-      type: 'collapse',
-      url: 'monitoring/daily',
-      icon: icons.IconBrandCampaignmonitor,
-      children: [
-        {
-          id: 'daily-activity',
-          title: 'Daily Activity',
-          type: 'item',
-          url: 'placeholder'
-        }
-      ]
+      id: 'eod_activity',
+      title: 'EOD Activity',
+      type: 'item',
+      icon: icons.IconLayoutSidebarInactive,
+      url: '/Eod/Eod-act'
     },
+    // {
+    //   id: 'mointoring',
+    //   title: 'Monitoring',
+    //   type: 'collapse',
+    //   url: 'monitoring/daily',
+    //   icon: icons.IconBrandCampaignmonitor,
+    //   children: [
+    //     {
+    //       id: 'daily-activity',
+    //       title: 'Daily Activity',
+    //       type: 'item',
+    //       url: 'placeholder'
+    //     }
+    //   ]
+    // },
 
     {
       id: 'evaluation',

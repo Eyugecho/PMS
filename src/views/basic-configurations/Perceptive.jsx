@@ -23,12 +23,15 @@ import {
   CardActions,
   Snackbar,
   Alert,
-  Divider
+  Divider,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import config from '../../configration/config';
 
 function Perceptive() {
@@ -38,6 +41,8 @@ function Perceptive() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
     fetchPerceptives();
@@ -134,6 +139,7 @@ function Perceptive() {
     formik.setFieldValue('perspectiveName', perceptives[index].name);
     setEditIndex(index);
     handleOpen();
+    handleCloseMenu();
   };
 
   const handleDelete = async (id) => {
@@ -177,6 +183,7 @@ function Perceptive() {
       console.error('Error deleting perspective:', error);
     }
     setSnackbarOpen(true);
+    handleCloseMenu();
   };
   
 
@@ -202,6 +209,16 @@ function Perceptive() {
     setOpen(false);
     formik.resetForm();
     setEditIndex(null);
+  };
+
+  const handleMenuOpen = (event, index) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedIndex(index);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setSelectedIndex(null);
   };
 
   const handleSnackbarClose = () => {
@@ -276,12 +293,21 @@ function Perceptive() {
                             {perceptive.name}
                           </TableCell>
                           <TableCell align="right">
-                            <IconButton color="primary" onClick={() => handleEdit(index)}>
-                              <EditIcon />
+                            <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
+                              <MoreVertIcon />
                             </IconButton>
-                            <IconButton color="secondary" onClick={() => handleDelete(perceptive.id)}>
-                              <DeleteIcon />
-                            </IconButton>
+                            <Menu
+                              anchorEl={anchorEl}
+                              open={Boolean(anchorEl) && selectedIndex === index}
+                              onClose={handleCloseMenu}
+                            >
+                              <MenuItem onClick={() => handleEdit(index)}>
+                                <EditIcon fontSize="small" /> Edit
+                              </MenuItem>
+                              <MenuItem onClick={() => handleDelete(perceptive.id)}>
+                                <DeleteIcon fontSize="small" /> Delete
+                              </MenuItem>
+                            </Menu>
                           </TableCell>
                         </TableRow>
                       ))}

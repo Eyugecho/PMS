@@ -21,19 +21,17 @@ import {
   Card,
   CardContent,
   CardActions,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
+  Menu,
   MenuItem,
+  Divider,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 // Configuration URL (Ensure you have config setup properly)
 import config from '../../configration/config';
@@ -42,6 +40,8 @@ function EvalType() {
   const [evalTypes, setEvalTypes] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
     fetchEvalTypes();
@@ -50,7 +50,6 @@ function EvalType() {
   const fetchEvalTypes = async () => {
     try {
       const token = localStorage.getItem('token');
-      
       const response = await fetch(`${config.API_URL_Units}/evaluation-types`, {
         method: 'GET',
         headers: {
@@ -121,7 +120,6 @@ function EvalType() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-
       });
 
       const result = await response.json();
@@ -136,6 +134,16 @@ function EvalType() {
     }
   };
 
+  const handleMenuOpen = (event, index) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedIndex(index);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedIndex(null);
+  };
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -143,6 +151,7 @@ function EvalType() {
   const handleClose = () => {
     setOpen(false);
     formik.resetForm();
+    setEditIndex(null);
   };
 
   return (
@@ -224,12 +233,28 @@ function EvalType() {
                           </TableCell>
                           <TableCell>{type.description || '-'}</TableCell>
                           <TableCell align="right">
-                            <IconButton color="primary" onClick={() => handleEdit(index)}>
-                              <EditIcon />
+                            <IconButton
+                              color="primary"
+                              onClick={(event) => handleMenuOpen(event, index)}
+                            >
+                              <MoreVertIcon />
                             </IconButton>
-                            <IconButton color="secondary" onClick={() => handleDelete(index)}>
-                              <DeleteIcon />
-                            </IconButton>
+                            <Menu
+                              anchorEl={anchorEl}
+                              open={Boolean(anchorEl) && selectedIndex === index}
+                              onClose={handleMenuClose}
+                            >
+                              <MenuItem
+                                onClick={() => { handleEdit(index); handleMenuClose(); }}
+                              >
+                                <EditIcon fontSize="small" /> Edit
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => { handleDelete(index); handleMenuClose(); }}
+                              >
+                                <DeleteIcon fontSize="small" /> Delete
+                              </MenuItem>
+                            </Menu>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -275,7 +300,7 @@ function EvalType() {
         </DialogActions>
       </Dialog>
 
-      <ToastContainer /> {/* Add ToastContainer here */}
+      <ToastContainer />
     </Box>
   );
 }
