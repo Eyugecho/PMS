@@ -19,7 +19,7 @@ export default function ActionMenu({ icon, children }) {
 
   return (
     <div>
-      <IconButton aria-describedby={id} onClick={handleClick} sx={{ backgroundColor: theme.palette.grey[50] }}>
+      <IconButton aria-describedby={id} onClick={handleClick}>
         {icon}
       </IconButton>
 

@@ -25,6 +25,12 @@ const pages = {
 
       children: [
         {
+          id: 'users',
+          title: 'Users',
+          type: 'item',
+          url: 'placeholder'
+        },
+        {
           id: 'role',
           title: 'Role',
           type: 'item',

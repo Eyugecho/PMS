@@ -29,7 +29,7 @@ const icons = {
 // ==============================|| menus  MENU ITEMS ||============================== //
 
 const Menus = {
-  id: 'Kpi_basic_config',
+  id: 'planning',
   title: 'Planning',
   type: 'group',
   // requiredRoles: ['Admin'],
@@ -79,7 +79,7 @@ const Menus = {
           id: 'daily-activity',
           title: 'Daily Activity',
           type: 'item',
-          url: 'monitoring/daily'
+          url: 'placeholder'
         }
       ]
     },
@@ -101,13 +101,13 @@ const Menus = {
           id: 'approvals',
           title: 'Approvals',
           type: 'item',
-          url: '/approvals'
+          url: 'placeholder'
         },
         {
           id: 'feedbacks',
           title: 'Feedbacks',
           type: 'item',
-          url: '/feedbacks'
+          url: 'placeholder'
         }
       ]
     },
@@ -115,7 +115,7 @@ const Menus = {
       id: 'grading-ranking',
       title: 'Grading & Ranking',
       type: 'item',
-      url: '/ranking',
+      url: 'placeholder',
       icon: icons.IconReport
     }
   ]

@@ -10,13 +10,13 @@ const dashboard = {
   id: 'dashboard',
   title: '',
   type: 'group',
-  
+
   children: [
     {
       id: 'default',
-      title: 'HOME',
+      title: 'Home',
       type: 'item',
-      url: '/dashboard/default',
+      url: '/placeholder',
       icon: icons.IconDashboard,
       breadcrumbs: false
     }

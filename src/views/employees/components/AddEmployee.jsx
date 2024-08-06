@@ -31,6 +31,7 @@ const validationSchema = Yup.object().shape({
   gender: Yup.string().required('Unit type is required'),
   email: Yup.string().email().required('Email is required'),
   phone: Yup.string().required('Phone number is required'),
+  unit: Yup.string().required('Unit is required'),
   position: Yup.string().required('The employee position is required'),
   start_date: Yup.date().required('Stat date is required')
 });
@@ -82,8 +83,33 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       });
   };
 
+  const handleFetchingRoles = () => {
+    const token = localStorage.getItem('token');
+    const Api = Backend.auth + Backend.roles;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setRoles(response.data);
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+      });
+  };
+
   React.useEffect(() => {
     handleFetchingManagers();
+    handleFetchingRoles();
     return () => {};
   }, []);
   return (
@@ -136,8 +162,8 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
                   justifyContent: 'space-around'
                 }}
               >
-                <FormControlLabel value="male" control={<Radio />} label="Male" />
-                <FormControlLabel value="female" control={<Radio />} label="Female" />
+                <FormControlLabel value="Male" control={<Radio />} label="Male" />
+                <FormControlLabel value="Female" control={<Radio />} label="Female" />
               </RadioGroup>
             </FormControl>
 
@@ -176,9 +202,9 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
             </FormControl>
 
             <FormControl fullWidth error={formik.touched.unit && Boolean(formik.errors.unit)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlfor="unit">Unit (optional)</InputLabel>
+              <InputLabel htmlfor="unit">Unit</InputLabel>
 
-              <Select id="unit" name="unit" label="Unit (optional)" value={formik.values.unit} onChange={formik.handleChange}>
+              <Select id="unit" name="unit" label="Unit" value={formik.values.unit} onChange={formik.handleChange}>
                 {units.length === 0 ? (
                   <Typography variant="body2" sx={{ padding: 1 }}>
                     Unit not found
@@ -203,7 +229,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
                   </Typography>
                 ) : (
                   roles?.map((role, index) => (
-                    <MenuItem key={index} value={role.id}>
+                    <MenuItem key={index} value={role.uuid}>
                       {role.name}
                     </MenuItem>
                   ))

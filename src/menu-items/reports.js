@@ -21,21 +21,21 @@ const report = {
           id: 'generic-report',
           title: 'Generic Report',
           type: 'item',
-          // url: '/utils/util-typography',
+          url: 'placeholder',
           breadcrumbs: false
         },
         {
           id: 'cpr-report',
           title: 'CPR Report',
           type: 'item',
-          // url: '/utils/util-color',
+          url: 'placeholder',
           breadcrumbs: false
         },
         {
           id: 'pip-report',
           title: 'PIP Report',
           type: 'item',
-          // url: '/utils/user-creation',
+          url: 'placeholder',
           breadcrumbs: false
         }
       ]
@@ -50,28 +50,28 @@ const report = {
           id: 'target-dashboard',
           title: 'Target Dashboard',
           type: 'item',
-          // url: '/utils/util-typography',
+          url: 'placeholder',
           breadcrumbs: false
         },
         {
           id: 'cpr-dashboard',
           title: 'CPR Dashboard',
           type: 'item',
-          // url: '/utils/util-color',
+          url: 'placeholder',
           breadcrumbs: false
         },
         {
           id: 'evaluation-dashboard',
           title: 'Evaluation Dashboard',
           type: 'item',
-          // url: '/utils/user-creation',
+          url: 'placeholder',
           breadcrumbs: false
         },
         {
           id: 'pip-dashboard',
           title: 'PIP Dashboard',
           type: 'item',
-          // url: '/utils/user-creation',
+          url: 'placeholder',
           breadcrumbs: false
         }
       ]

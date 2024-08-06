@@ -5,25 +5,15 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
 import { Grid, Box, CircularProgress, DialogTitle, Divider, IconButton, InputBase, Paper, useTheme, Typography } from '@mui/material';
-import { IconMoodEmpty, IconX } from '@tabler/icons';
 import { IconLabel } from 'ui-component/content/IconLabel';
 import { CheckCircle, Person } from '@mui/icons-material';
+import { IconUser, IconX } from '@tabler/icons-react';
 import SearchIcon from '@mui/icons-material/Search';
 import PropTypes from 'prop-types';
-import Connections from 'api';
+import Backend from 'services/backend';
+import { toast } from 'react-toastify';
 
-export const AssignManager = ({
-  open,
-  handleDialogClose,
-  departmentId,
-  coordinators,
-  isLoading,
-  searchText,
-  searching,
-  onTextChange,
-  onSubmit,
-  onRefresh
-}) => {
+export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLoading, searchText, searching, onTextChange, onSubmit }) => {
   const [selectedCoordinator, setSelectedCoordinator] = useState(null);
   const [assigning, setAssigning] = useState(false);
   const theme = useTheme();
@@ -45,8 +35,8 @@ export const AssignManager = ({
 
   const handleManagerAssignment = () => {
     setAssigning(true);
-    var Api = Connections.api + Connections.assigncoordinator;
-    const token = sessionStorage.getItem('token');
+    var Api = Backend.api + Backend.units + `/` + unit_id;
+    const token = localStorage.getItem('token');
     const headers = {
       Authorization: `Bearer` + token,
       accept: 'application/json',
@@ -54,23 +44,25 @@ export const AssignManager = ({
     };
 
     const data = {
-      id: selectedCoordinator.id,
-      departmentId: departmentId
+      manager_id: selectedCoordinator.id,
+      unit_id: unit_id
     };
 
-    fetch(Api, { method: 'POST', headers: headers, body: JSON.stringify(data) })
+    fetch(Api, { method: 'PATCH', headers: headers, body: JSON.stringify(data) })
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
           setAssigning(false);
-
-          onRefresh();
+          handleDialogClose();
+          toast.success(response.data.message);
         } else {
           setAssigning(false);
+          toast.error(response.data.message);
         }
       })
       .catch((error) => {
         setAssigning(false);
+        toast.error(error.message);
       });
   };
 
@@ -79,23 +71,28 @@ export const AssignManager = ({
       <Dialog open={open} onClose={handleDialogClose}>
         <Box
           sx={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 2,
+            width: '100%',
+            backgroundColor: theme.palette.primary.main,
             display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            paddingRight: 2
+            justifyContent: 'space-between',
+            paddingRight: 2,
+            paddingY: 0.6
           }}
         >
-          <DialogTitle variant="h4" color="grey">
-            Assign Unit Manager
+          <DialogTitle variant="h4" color={theme.palette.background.default}>
+            Assign Manager
           </DialogTitle>
           <IconButton onClick={handleDialogClose}>
-            <IconX size={20} />
+            <IconX size={20} color={theme.palette.background.default} />
           </IconButton>
         </Box>
 
         <DialogContent sx={{ width: 500, padding: 4 }}>
-          <Paper component="form" sx={{ boxShadow: 1, display: 'flex', alignItems: 'center' }}>
+          <Paper component="form" sx={{ border: 0.6, display: 'flex', alignItems: 'center' }}>
             <InputBase
               sx={{ ml: 1, px: 1.5, flex: 1 }}
               placeholder="Search"
@@ -112,7 +109,6 @@ export const AssignManager = ({
 
           <Grid container>
             <Grid item xs={12}>
-              {' '}
               {isLoading ? (
                 <Box
                   sx={{
@@ -127,7 +123,7 @@ export const AssignManager = ({
                 </Box>
               ) : (
                 <Box sx={{ paddingTop: 2 }}>
-                  {coordinators.length == 0 ? (
+                  {managers.length == 0 ? (
                     <Box
                       sx={{
                         display: 'flex',
@@ -137,14 +133,14 @@ export const AssignManager = ({
                         padding: 4
                       }}
                     >
-                      <IconMoodEmpty />
-                      <Typography variant="body2">Coordinator not found</Typography>
+                      <IconUser />
+                      <Typography variant="body2">Manager is not found</Typography>
                     </Box>
                   ) : (
-                    coordinators.map((coordinator) => (
+                    managers.map((manager) => (
                       <Box
-                        key={coordinator.id}
-                        onClick={() => handleSelection(coordinator)}
+                        key={manager.id}
+                        onClick={() => handleSelection(manager)}
                         sx={{
                           display: 'flex',
                           flexDirection: 'row',
@@ -155,23 +151,21 @@ export const AssignManager = ({
                           border: 1,
                           borderColor: theme.palette.primary[200],
                           borderRadius: 2,
-                          backgroundColor: selectedCoordinator && selectedCoordinator.id === coordinator.id && theme.palette.primary[200],
+                          backgroundColor: selectedCoordinator && selectedCoordinator.id === manager.id && theme.palette.primary[200],
                           cursor: 'pointer'
                         }}
                       >
                         <Box>
-                          <Typography variant="subtitle2">
-                            Currently |<b> {coordinator.department ? coordinator.department.name : 'Not assigned'}</b>
-                          </Typography>
-                          <IconLabel content={coordinator.name} label={coordinator.email} sx={{ paddinY: 3 }}>
+                          {/* <Typography variant="subtitle2">
+                            Currently |<b> {manager.department ? manager.department.name : 'Not assigned'}</b>
+                          </Typography> */}
+                          <IconLabel content={manager?.user?.name} label={manager?.user?.email} sx={{ paddinY: 3 }}>
                             <Person fontSize="small" />
                           </IconLabel>
                         </Box>
 
                         <Box>
-                          {selectedCoordinator && selectedCoordinator.id === coordinator.id && (
-                            <CheckCircle color="primary" fontSize="small" />
-                          )}
+                          {selectedCoordinator && selectedCoordinator.id === manager.id && <CheckCircle color="primary" fontSize="small" />}
                         </Box>
                       </Box>
                     ))
@@ -200,7 +194,7 @@ export const AssignManager = ({
 AssignManager.propTypes = {
   open: PropTypes.bool,
   handleDialogClose: PropTypes.func,
-  coordinators: PropTypes.array,
+  managers: PropTypes.array,
   isLoading: PropTypes.bool,
   searchText: PropTypes.string,
   onTextChange: PropTypes.func,

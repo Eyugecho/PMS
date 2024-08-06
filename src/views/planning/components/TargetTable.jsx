@@ -15,11 +15,10 @@ import {
 } from '@mui/material';
 import { PeriodNaming } from 'utils/function';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
-import { EvaluateModal } from './EvaluateModal';
 import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
 
-const PlanTable = ({ plans, unitName, unitType }) => {
+const TargetTable = ({ plans }) => {
   const theme = useTheme();
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
@@ -91,16 +90,15 @@ const PlanTable = ({ plans, unitName, unitType }) => {
   };
   return (
     <React.Fragment>
-      <TableContainer component={Paper} sx={{ minHeight: '64dvh', border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 2 }}>
-        <Table sx={{ minWidth: 650 }} aria-label="Organization plan table">
+      <TableContainer
+        component={Paper}
+        sx={{ minHeight: '44dvh', marginTop: 2, backgroundColor: theme.palette.grey[100], borderRadius: 2 }}
+      >
+        <Table sx={{ minWidth: 650 }} aria-label="Distributed target table">
           <TableHead>
             <TableRow>
-              <TableCell>Fiscal Year</TableCell>
-              <TableCell>KPI Name</TableCell>
+              <TableCell>Unit name</TableCell>
               <TableCell>KPI Weights(%)</TableCell>
-              <TableCell>Total Targets</TableCell>
-              <TableCell>Measuring Unit</TableCell>
-              <TableCell>Frequency</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
@@ -110,7 +108,7 @@ const PlanTable = ({ plans, unitName, unitType }) => {
                 <TableRow
                   key={index}
                   sx={{
-                    backgroundColor: selectedRow == index ? theme.palette.primary[200] : theme.palette.background.default,
+                    backgroundColor: selectedRow == index && theme.palette.primary[200],
                     ':hover': {
                       backgroundColor: theme.palette.primary[200],
                       color: theme.palette.background.default,
@@ -123,20 +121,17 @@ const PlanTable = ({ plans, unitName, unitType }) => {
                     <IconButton aria-label="expand row" size="small" onClick={() => handleRowClick(index)}>
                       {selectedRow === index ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                     </IconButton>
-                    <Typography variant="body2" sx={{ marginLeft: 2 }}>
-                      {plan?.fiscal_year.year}
+                    <Typography variant="subtitle1" sx={{ marginLeft: 2 }}>
+                      {' '}
+                      {plan?.unit ? plan?.unit?.name : plan?.employee?.user?.name}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ border: 0 }}>
-                    <Typography variant="subtitle1">{plan?.kpi?.name}</Typography>
-                  </TableCell>
-                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(2)}</TableCell>
-                  <TableCell sx={{ border: 0 }}>{plan?.total_target}</TableCell>
-                  <TableCell sx={{ border: 0 }}>{plan?.kpi?.measuring_unit?.name}</TableCell>
-                  <TableCell sx={{ border: 0 }}>{plan?.frequency?.name}</TableCell>
+
+                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(2)}%</TableCell>
+
                   <TableCell sx={{ border: 0 }}>
                     <Button variant="outlined" onClick={() => handleRowClick(index)}>
-                      Targets
+                      Show Targets
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -144,13 +139,22 @@ const PlanTable = ({ plans, unitName, unitType }) => {
                 {selectedRow == index && (
                   <TableRow>
                     <TableCell colSpan={7}>
-                      <Collapse in={selectedRow !== null} timeout="auto" unmountOnExit>
-                        <Table sx={{ minWidth: 650 }} aria-label="Organization plan table">
+                      <Collapse
+                        in={selectedRow !== null}
+                        timeout="auto"
+                        unmountOnExit
+                        sx={{ backgroundColor: theme.palette.background.default, borderRadius: 2 }}
+                      >
+                        <Table
+                          sx={{
+                            minWidth: 650
+                          }}
+                          aria-label="Organization plan table"
+                        >
                           <TableHead>
                             <TableRow>
                               <TableCell>Period</TableCell>
                               <TableCell>Target</TableCell>
-                              <TableCell>Action</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -160,7 +164,7 @@ const PlanTable = ({ plans, unitName, unitType }) => {
                                 sx={
                                   selectedTarget == target.id
                                     ? {
-                                        backgroundColor: theme.palette.grey[100],
+                                        backgroundColor: theme.palette.background.default,
                                         ':hover': {
                                           backgroundColor: theme.palette.grey[100],
                                           color: theme.palette.background.default,
@@ -180,12 +184,7 @@ const PlanTable = ({ plans, unitName, unitType }) => {
                                 }
                               >
                                 <TableCell sx={{ border: 0 }}>{PeriodNaming(plan?.frequency?.name) + ' ' + (index + 1)}</TableCell>
-                                <TableCell sx={{ border: 0 }}>{target?.target}</TableCell>
-                                <TableCell sx={{ border: 0 }}>
-                                  <Button variant="contained" sx={{ boxShadow: 0 }} onClick={() => handleEvaluationClick(target.id)}>
-                                    Evaluate
-                                  </Button>
-                                </TableCell>
+                                <TableCell sx={{ border: 0, fontWeight: 'bold' }}>{target?.target}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
@@ -200,19 +199,9 @@ const PlanTable = ({ plans, unitName, unitType }) => {
         </Table>
       </TableContainer>
 
-      {targetId && (
-        <EvaluateModal
-          add={add}
-          unitName={unitName}
-          unitType={unitType}
-          isAdding={isAdding}
-          onClose={handleEvaluateModalClose}
-          handleSubmission={(value) => handleEvaluation(value)}
-        />
-      )}
       <ToastContainer />
     </React.Fragment>
   );
 };
 
-export default PlanTable;
+export default TargetTable;
