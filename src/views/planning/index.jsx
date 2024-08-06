@@ -1,10 +1,11 @@
-import { Button, Grid, useTheme } from '@mui/material';
+import { Box, Button, CircularProgress, Grid, Typography, useTheme } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { PlanList } from './components/PlanList';
 import { useNavigate } from 'react-router-dom';
 import { CreatePlan } from './components/CreatePlan';
 import { toast } from 'react-toastify';
 import Backend from 'services/backend';
+import { IconTargetArrow } from '@tabler/icons-react';
 
 const Planning = () => {
   const theme = useTheme();
@@ -81,7 +82,7 @@ const Planning = () => {
 
         <Grid container>
           <Grid item xs={12}>
-            <PlanList plans={data} />
+            <PlanList plans={data} isLoading={loading} />
           </Grid>
         </Grid>
       </Grid>

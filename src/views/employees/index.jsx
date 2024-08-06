@@ -21,6 +21,9 @@ import { AddEmployee } from './components/AddEmployee';
 import { IconMenu } from 'ui-component/menu/IconMenu';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import SplitButton from 'ui-component/buttons/SplitButton';
+
+const AddEmployeeOptions = ['Add Employee', 'Import From Excel', 'Import From Odoo'];
 
 const Employees = () => {
   const theme = useTheme();
@@ -46,6 +49,16 @@ const Employees = () => {
     setAdd(false);
   };
 
+  const handleEmployeeAdd = (index) => {
+    if (index === 0) {
+      handleAddEmployeeModal();
+    } else if (index === 1) {
+      alert('We will be implement importing from exceel');
+    } else {
+      alert('We will be implement importing from odoo');
+    }
+  };
+
   const handleEmployeeAddition = (value) => {
     setIsAdding(true);
     const token = localStorage.getItem('token');
@@ -62,8 +75,11 @@ const Employees = () => {
       email: value?.email,
       phone: value?.phone,
       position: value?.position,
-      units: value?.unit,
-      start_date: value?.start_date
+      unit_id: value?.unit,
+      roles: [value?.role],
+      started_date: value?.start_date,
+      password: 'password',
+      password_confirmation: 'password'
     };
 
     fetch(Api, {
@@ -142,9 +158,11 @@ const Employees = () => {
           <Grid xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3 }}>
             <Search />
 
-            <Button variant="contained" color="primary" sx={{ paddingX: 2 }} onClick={() => handleAddEmployeeModal()}>
+            {/* <Button variant="contained" color="primary" sx={{ paddingX: 2 }} onClick={() => handleAddEmployeeModal()}>
               Add Employees
-            </Button>
+            </Button> */}
+
+            <SplitButton options={AddEmployeeOptions} handleSelection={(value) => handleEmployeeAdd(value)} />
           </Grid>
 
           <TableContainer component={Paper} sx={{ minHeight: '66dvh', border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 2 }}>
@@ -164,7 +182,7 @@ const Employees = () => {
               <TableBody>
                 {loading ? (
                   <TableRow sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
-                    <TableCell colSpan={7} sx={{ border: 0 }}>
+                    <TableCell colSpan={7} sx={{ border: 0, alignItems: 'center', justifyContent: 'center' }}>
                       <CircularProgress size={20} />
                     </TableCell>
                   </TableRow>
@@ -194,7 +212,6 @@ const Employees = () => {
                             borderRadius: 2
                           }
                         }}
-                        onClick={() => navigate('/employees/view', { state: employee })}
                       >
                         <TableCell sx={{ display: 'flex', alignItems: 'center', border: 0 }}>
                           <Typography variant="subtitle1">{employee?.user?.name}</Typography>
@@ -206,7 +223,7 @@ const Employees = () => {
                         <TableCell sx={{ border: 0 }}>{employee?.user?.roles?.name ? employee?.user?.roles?.name : 'N/A'}</TableCell>
                         <TableCell sx={{ border: 0 }}>{formatDate(employee?.created_at)?.formattedDate}</TableCell>
                         <TableCell sx={{ border: 0 }}>
-                          <IconMenu />
+                          <IconMenu onView={() => navigate('/employees/view', { state: employee })} />
                         </TableCell>
                       </TableRow>
                     </>

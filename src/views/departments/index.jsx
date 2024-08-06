@@ -9,6 +9,8 @@ import { IconDots } from '@tabler/icons-react';
 import AddUnitType from './components/AddUnitType';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import PageContainer from 'ui-component/MainPage';
+import UnitsTable from './components/UnitsTable';
 
 //================================ UNITS MANAGEMENT PAGE=====================
 const Units = () => {
@@ -202,18 +204,17 @@ const Units = () => {
     return () => {};
   }, []);
   return (
-    <div>
+    <PageContainer title="Units">
       <Grid
         container
         sx={{
-          backgroundColor: theme.palette.background.default,
           borderRadius: 2,
           marginTop: 2,
           paddingY: 3,
           paddingX: 2
         }}
       >
-        <Grid xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Grid xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: 2 }}>
           <Search />
 
           <Button variant="contained" color="primary" onClick={() => handleAddUnitClick()}>
@@ -222,28 +223,27 @@ const Units = () => {
         </Grid>
 
         <Grid container sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Grid xs={8.2} sx={{ minHeight: '64dvh' }}>
+          <Grid xs={12} sm={12} md={8} lg={8} xl={8} sx={{ minHeight: '64dvh', margin: 2 }}>
             {loading ? (
               <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <CircularProgress size={22} />
               </Box>
+            ) : error ? (
+              <Fallbacks severity="error" title="Server error" description="There is error fetching units" />
+            ) : data.length == !0 ? (
+              <Fallbacks
+                severity="department"
+                title="Unit not found"
+                description="The list of added units will be listed here"
+                sx={{ paddingTop: 6 }}
+              />
             ) : (
-              // ) : error ? (
-              //   <Fallbacks severity="error" title="Server error" description="There is error fetching units" />
-              // ) : data.length == !0 ? (
-              //   <Fallbacks
-              //     severity="department"
-              //     title="Unit not found"
-              //     description="The list of added units will be listed here"
-              //     sx={{ paddingTop: 6 }}
-              //   />
-              // )
-              <UnitList units={data} />
+              <UnitsTable units={data} />
             )}
           </Grid>
 
-          <Grid xs={3.6} sx={{ paddingTop: 1 }}>
-            <Box sx={{ border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
+          <Grid xs={12} sm={12} md={3.6} lg={3.6} xl={3.6} sx={{ paddingTop: 1 }}>
+            <Box sx={{ border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 1.6, margin: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6 }}>
                 <Typography variant="subtitle1">Unit Types</Typography>
                 <AddUnitType isAdding={isAdding} handleSubmission={(value) => handleTypeAddition(value)} />
@@ -307,7 +307,7 @@ const Units = () => {
         handleSubmission={(value) => handleUnitAddition(value)}
       />
       <ToastContainer />
-    </div>
+    </PageContainer>
   );
 };
 

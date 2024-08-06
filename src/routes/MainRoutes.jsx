@@ -12,6 +12,7 @@ import { DailyActivity } from 'views/monitoring/daily';
 import { Approvals } from 'views/approvals';
 import { Feedbacks } from 'views/approvals/feedback';
 import { Ranking } from 'views/ranking';
+import { PagePlaceholder } from 'views/sample-page/Placeholder';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
@@ -181,6 +182,15 @@ const MainRoutes = {
       element: (
         <Protected>
           <Ranking />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'placeholder',
+      element: (
+        <Protected>
+          <PagePlaceholder />
         </Protected>
       )
     },

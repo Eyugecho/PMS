@@ -10,9 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import PropTypes from 'prop-types';
 
-const options = ['Add Unit', 'Add Unit Type'];
-
-export default function SplitButton({ handleSelection }) {
+export default function SplitButton({ options, handleSelection }) {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -56,6 +54,8 @@ export default function SplitButton({ handleSelection }) {
       </ButtonGroup>
       <Popper
         sx={{
+          width: 'inherit',
+          boxShadow: 1,
           zIndex: 1
         }}
         open={open}
@@ -73,11 +73,11 @@ export default function SplitButton({ handleSelection }) {
           >
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
-                <MenuList id="split-button-menu" autoFocusItem>
+                <MenuList id="split-button-menu">
                   {options.map((option, index) => (
                     <MenuItem
                       key={option}
-                      disabled={index === 2}
+                      sx={{ width: 'inherit', padding: 1, marginY: 0.5 }}
                       selected={index === selectedIndex}
                       onClick={(event) => handleMenuItemClick(event, index)}
                     >

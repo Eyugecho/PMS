@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, CssBaseline, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material';
-import { IconCircleCheckFilled, IconDotsVertical } from '@tabler/icons-react';
+import { Box, Button, Chip, CircularProgress, CssBaseline, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material';
+import { IconCircleCheckFilled, IconDotsVertical, IconTargetArrow } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
@@ -11,6 +11,8 @@ import { UnitKpiData } from 'data/units/UnitKpi';
 import { DistributedKPIColumns } from 'data/planning/columns';
 import { DistributeTarget } from './components/DistributeTarget';
 import { PeriodNaming } from 'utils/function';
+import PlanTable from 'views/evaluation/components/PlanTable';
+import TargetTable from './components/TargetTable';
 
 const ViewPlan = () => {
   const { state } = useLocation();
@@ -19,7 +21,7 @@ const ViewPlan = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
-
+  const [tab, setTab] = useState('units');
   const [open, setOpen] = useState(false);
 
   const handleDistributeClick = () => {
@@ -66,10 +68,15 @@ const ViewPlan = () => {
     }
   };
 
+  const handleTabChange = (value) => {
+    setTab(value);
+  };
+
   useEffect(() => {
     const handleFetchingDistribution = () => {
+      setLoading(true);
       const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.childTarget + state?.id;
+      const Api = Backend.api + Backend.childTarget + state?.id + `?unit_type=${tab}`;
       const header = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',
@@ -102,7 +109,7 @@ const ViewPlan = () => {
     handleFetchingDistribution();
 
     return () => {};
-  }, [state?.id]);
+  }, [state?.id, tab]);
   return (
     <div>
       <CssBaseline />
@@ -215,8 +222,42 @@ const ViewPlan = () => {
               }}
             >
               <Typography variant="h4">Target Distributed</Typography>
+              <Box sx={{ marginBottom: 2.4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', marginY: 3 }}>
+                  {['units', 'employees'].map((item, index) => (
+                    <Chip
+                      key={index}
+                      label={item}
+                      sx={{ marginLeft: index > 0 && 2, cursor: 'pointer', textTransform: 'capitalize', paddingX: 2, paddingY: 0.4 }}
+                      color="primary"
+                      variant={tab === item ? 'filled' : 'outlined'}
+                      onClick={() => handleTabChange(item)}
+                    >
+                      {item}
+                    </Chip>
+                  ))}
+                </Box>
+              </Box>
 
-              <UnitKpi column={DistributedKPIColumns} row={data.target} />
+              {loading ? (
+                <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CircularProgress size={20} />
+                </Box>
+              ) : error ? (
+                <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="body2">There is error fetching the targets</Typography>
+                </Box>
+              ) : data.length === 0 ? (
+                <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <IconTargetArrow size={80} color={theme.palette.grey[400]} />
+                  <Typography variant="h4" sx={{ marginTop: 1.6 }}>
+                    Target is not found
+                  </Typography>
+                  <Typography variant="caption">The list of distributed target will be listed here</Typography>
+                </Box>
+              ) : (
+                <TargetTable plans={data} />
+              )}
             </Grid>
           </Grid>
         </Grid>

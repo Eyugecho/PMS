@@ -1,29 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  CssBaseline,
-  Divider,
-  Grid,
-  IconButton,
-  MenuItem,
-  Stack,
-  Typography,
-  useTheme
-} from '@mui/material';
-import { IconDots, IconDotsVertical, IconPlus, IconSortAscending, IconSortDescending } from '@tabler/icons-react';
+import { Box, CircularProgress, Grid, IconButton, MenuItem, Typography, useTheme } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import PageContainer from 'ui-component/MainPage';
-import ContainerCard from './components/ContainerCard';
 import Backend from 'services/backend';
-import { UnitKpi } from './components/UnitKpi';
-import { UnitKpiData } from 'data/units/UnitKpi';
+import {
+  IconBuilding,
+  IconCalendar,
+  IconChairDirector,
+  IconChartDonut,
+  IconCircle,
+  IconDirection,
+  IconDotsVertical,
+  IconEdit,
+  IconGenderMale,
+  IconList,
+  IconMail,
+  IconPhone,
+  IconReplace,
+  IconTargetArrow,
+  IconTie,
+  IconTrash,
+  IconUser
+} from '@tabler/icons-react';
+import { formatDate } from 'utils/function';
+import { DetailInfo } from 'views/employees/components/DetailInfo';
+import { toast, ToastContainer } from 'react-toastify';
+import PlanTable from 'views/evaluation/components/PlanTable';
 import ActionMenu from 'ui-component/ActionMenu';
-import { DotMenus } from 'data/menus/DotMenu';
-import Fallbacks from 'utils/components/Fallbacks';
-import { UnitKpiColumns } from 'data/units/column';
+import { AssignManager } from './components/AssignManager';
+
+const IconColor = 'black';
 
 const ViewUnit = () => {
   const { state } = useLocation();
@@ -32,13 +38,88 @@ const ViewUnit = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 20,
+    page: 1
+  });
 
-  const [sort, setSort] = useState(false);
+  const [managers, setManagers] = useState([]);
+  const [loadingManager, setManagerLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [searching, setSearching] = useState(false);
+
+  const handleOpenDialog = () => {
+    setOpen(true);
+    handleGettingManager();
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleGettingManager = () => {
+    setOpen(true);
+
+    if (managers.length == 0) {
+      setManagerLoading(true);
+      var Api = Backend.api + Backend.getManagers;
+      const token = localStorage.getItem('token');
+      var headers = {
+        Authorization: `Bearer` + token,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      fetch(Api, { method: 'GET', headers: headers })
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            setManagerLoading(false);
+            setManagers(response.data);
+          } else {
+            setManagerLoading(false);
+            toast.error(response.data.message);
+          }
+        })
+        .catch((error) => {
+          setManagerLoading(false);
+          toast.error(error.message);
+        });
+    }
+  };
+
+  const handleSearchingManager = () => {
+    setSearching(true);
+    var Api = Backend.api + Backend.getManagers + `?search=${search}`;
+    const token = localStorage.getItem('token');
+    var headers = {
+      Authorization: `Bearer` + token,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, { method: 'GET', headers: headers })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setSearching(false);
+          setManagers(response.data);
+        } else {
+          setSearching(false);
+          handlePrompts(response.message, 'error');
+        }
+      })
+      .catch((error) => {
+        setSearching(false);
+        handlePrompts(error, 'error');
+      });
+  };
 
   useEffect(() => {
     const handleFetchingUnitDetails = () => {
       const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.units + `/details?id=${state?.id}`;
+      const Api = Backend.api + Backend.getUnitTarget + state?.id;
       const header = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',
@@ -72,156 +153,161 @@ const ViewUnit = () => {
     return () => {};
   }, [state?.id]);
   return (
-    <div>
-      <CssBaseline />
-      <PageContainer
-        back={true}
-        title={`${state?.name}`}
-        rightOption={
-          <IconButton>
-            <IconDotsVertical size={20} />
-          </IconButton>
-        }
-      >
+    <PageContainer back={true} title="Unit Details">
+      <Grid container sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: 2 }}>
         <Grid
-          container
+          item
+          xs={12}
+          sm={12}
+          md={3.8}
+          lg={3.2}
+          xl={3.2}
           sx={{
-            backgroundColor: theme.palette.background.default,
-            borderRadius: 2,
-            marginTop: 2,
-            paddingY: 3,
-            paddingX: 2
+            backgroundColor: theme.palette.primary[200],
+            border: 0.4,
+            borderColor: theme.palette.grey[200],
+            borderRadius: 2
           }}
         >
-          <Grid xs={12} sx={{ minHeight: '60dvh' }}>
-            <Grid container>
-              <Grid xs={12} sm={12} md={8} lg={8.6} xl={8.6}>
-                <ContainerCard>
-                  <Stack direction="row" spacing={2} sx={{ padding: 1 }}>
-                    <Chip
-                      label={`Unit KPI's`}
-                      sx={{
-                        backgroundColor: theme.palette.primary.main,
-                        color: theme.palette.background.default,
-                        ':hover': { backgroundColor: theme.palette.primary.main }
-                      }}
-                    />
-                  </Stack>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 1,
+              paddingLeft: 2,
+              borderBottom: 0.4,
+              borderColor: theme.palette.grey[500]
+            }}
+          >
+            <Typography variant="h4">Unit Info</Typography>
 
-                  {/* <Box sx={{ minHeight: 432 }}>
-                    {loading ? (
-                      <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <CircularProgress size={22} />
-                      </Box>
-                    ) : error ? (
-                      <Fallbacks severity="error" title="Server error" description="There is error fetching departments" />
-                    ) : data.length === 0 ? (
-                      <Fallbacks
-                        severity="kpi"
-                        title="Unit kpi is not found"
-                        description="The list of assigned unit will be listed here"
-                        sx={{ paddingTop: 6 }}
-                      />
-                    ) : (
-                      <Box>
-                        <UnitKpi kpi={UnitKpiData} />
-                      </Box>
-                    )}
-                  </Box> */}
+            <ActionMenu icon={<IconDotsVertical size={18} />}>
+              <Box sx={{ paddingY: 1.6, paddingX: 1 }}>
+                <MenuItem sx={{ borderRadius: 2, padding: 1, paddingX: 2 }} onClick={() => handleOpenDialog()}>
+                  <IconReplace size={20} style={{ paddingRight: 2 }} />{' '}
+                  <Typography variant="body2" marginLeft={1}>
+                    {state?.manager ? 'Change manager' : 'Assign Manager'}
+                  </Typography>
+                </MenuItem>
 
-                  <UnitKpi column={UnitKpiColumns} kpi={UnitKpiData} />
-                </ContainerCard>
-              </Grid>
+                <MenuItem sx={{ borderRadius: 2, padding: 1, paddingX: 2 }}>
+                  <IconEdit size={20} style={{ paddingRight: 2 }} />{' '}
+                  <Typography variant="body2" marginLeft={1}>
+                    Edit
+                  </Typography>
+                </MenuItem>
+                <MenuItem sx={{ borderRadius: 2, padding: 1, paddingX: 2 }}>
+                  <IconTrash size={20} style={{ paddingRight: 2, color: theme.palette.error.main }} />
+                  <Typography variant="body2" color={theme.palette.error.main} marginLeft={1}>
+                    Delete
+                  </Typography>
+                </MenuItem>
+              </Box>
+            </ActionMenu>
+          </Box>
+          <Box sx={{ padding: 2 }}>
+            {state?.name && <DetailInfo label={'Unit name'} info={state?.name} icon={<IconBuilding size={24} color={IconColor} />} />}
+            {state?.unit_type?.name && (
+              <DetailInfo label={'Unit type'} info={state?.unit_type?.name} icon={<IconDirection size={24} color={IconColor} />} />
+            )}
+            {state?.manager?.user?.name && (
+              <DetailInfo label={'Manager name'} info={state?.manager?.user?.name} icon={<IconUser size={24} color={IconColor} />} />
+            )}
+            {state?.manager?.position && (
+              <DetailInfo
+                label={'Manager Position'}
+                info={state?.manager?.position}
+                icon={<IconChairDirector size={24} color={IconColor} />}
+              />
+            )}
 
-              <Grid xs={12} sm={12} md={4} lg={3.4} xl={3.4}>
-                <Box sx={{ minHeight: 280, border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6 }}>
-                    <Typography variant="subtitle1">Unit Manger</Typography>
-                    <ActionMenu icon={<IconDots size={18} />}>
-                      <Box sx={{ paddingY: 1 }}>
-                        {DotMenus?.map((menu, index) => (
-                          <MenuItem key={index} sx={{ fontSize: 14, padding: 2 }}>
-                            {menu.icon} {menu.name}
-                          </MenuItem>
-                        ))}
-                      </Box>
-                    </ActionMenu>
-                  </Box>
-                  <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[400], marginY: 1 }} />
+            {state?.manager?.user?.email && (
+              <DetailInfo label={'Manager email'} info={state?.manager?.user?.email} icon={<IconMail size={24} color={IconColor} />} />
+            )}
+            {state?.position && (
+              <DetailInfo label={'Position'} info={state?.position} icon={<IconChartDonut size={24} color={IconColor} />} />
+            )}
 
-                  <Box>
-                    {loading ? (
-                      <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <CircularProgress size={20} />
-                      </Box>
-                    ) : error ? (
-                      <Fallbacks severity="error" title="Server error" description="There is error fetching unit manager detail" />
-                    ) : data?.length === 0 ? (
-                      <Fallbacks
-                        severity="manager"
-                        title="Unit manger detail is not found"
-                        description="The unit might not have a manager"
-                        sx={{ paddingTop: 6 }}
-                      >
-                        <Button variant="contained" color="primary">
-                          Add Manager
-                        </Button>{' '}
-                      </Fallbacks>
-                    ) : (
-                      <p>Manger details</p>
-                    )}
-                  </Box>
-                </Box>
-                <Box sx={{ minHeight: 200, border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6, paddingY: 0.6 }}>
-                    <Typography variant="subtitle1">Unit Supervisors</Typography>
-                  </Box>
-                  <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[400], marginY: 1 }} />
-
-                  <Box>
-                    {loading ? (
-                      <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <CircularProgress size={20} />
-                      </Box>
-                    ) : error ? (
-                      <Fallbacks severity="error" title="Server error" description="There is error fetching unit supervisors" />
-                    ) : data?.length === 0 ? (
-                      <Fallbacks
-                        severity="supervisor"
-                        title="Unit supervisors are not found"
-                        description="The unit might not have a supervisors"
-                        sx={{ paddingTop: 6 }}
-                      />
-                    ) : (
-                      <p>Supervisors</p>
-                    )}
-                  </Box>
-                </Box>
-              </Grid>
-            </Grid>
-
-            <Grid container>
-              <Grid xs={12}>
-                <Box sx={{ minHeight: 240, border: 0.4, borderColor: theme.palette.grey[400], borderRadius: 1.6, paddingY: 1, margin: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6 }}>
-                    <Typography variant="subtitle1">Unit Employees</Typography>
-
-                    <IconButton onClick={() => setSort(!sort)}>
-                      {sort ? <IconSortAscending size={18} /> : <IconSortDescending size={18} />}
-                    </IconButton>
-                  </Box>
-                  <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[400], marginY: 1 }} />
-
-                  <Box sx={{ paddingX: 1.6 }}>
-                    <p>Employees card</p>
-                  </Box>
-                </Box>
-              </Grid>
-            </Grid>
-          </Grid>
+            {state?.user?.created_at && (
+              <DetailInfo
+                label={'Start date'}
+                info={formatDate(state?.user?.created_at).formattedDate}
+                icon={<IconCalendar size={24} color={IconColor} />}
+              />
+            )}
+          </Box>
         </Grid>
-      </PageContainer>
-    </div>
+
+        <Grid
+          item
+          xs={12}
+          sm={12}
+          md={7.9}
+          lg={8.6}
+          xl={8.6}
+          sx={{
+            backgroundColor: theme.palette.background.default,
+            border: 0.4,
+            borderColor: theme.palette.grey[200],
+            borderRadius: 2
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: 1,
+              paddingLeft: 2,
+              borderBottom: 0.4,
+              borderColor: theme.palette.grey[200]
+            }}
+          >
+            <Typography variant="h4">Unit KPI's and Targets</Typography>
+
+            <IconButton>
+              <IconDotsVertical size={18} />
+            </IconButton>
+          </Box>
+
+          <Box>
+            {loading ? (
+              <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress size={20} />
+              </Box>
+            ) : error ? (
+              <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="body2">There is error fetching the unit KPI's</Typography>
+              </Box>
+            ) : data.length === 0 ? (
+              <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <IconTargetArrow size={80} color={theme.palette.grey[400]} />
+                <Typography variant="h4" sx={{ marginTop: 1.6 }}>
+                  Unit target is not found
+                </Typography>
+                <Typography variant="caption">The list of assigned target will be listed here</Typography>
+              </Box>
+            ) : (
+              <PlanTable plans={data} />
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+
+      <AssignManager
+        open={open}
+        handleDialogClose={() => handleClose()}
+        managers={managers}
+        unit_id={state.id}
+        isLoading={loadingManager}
+        searchText={search}
+        searching={searching}
+        onTextChange={(event) => setSearch(event.target.value)}
+        onSubmit={() => handleSearchingManager()}
+      />
+      <ToastContainer />
+    </PageContainer>
   );
 };
 
