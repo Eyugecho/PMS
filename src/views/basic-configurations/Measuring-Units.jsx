@@ -20,21 +20,25 @@ import {
   DialogTitle,
   Card,
   CardContent,
-  CardActions
+  CardActions,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import config from '../../configration/config'; // Ensure this path is correct
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 function Measuring() {
   const [measuringUnits, setMeasuringUnits] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
     fetchMeasuringUnits();
@@ -151,6 +155,16 @@ function Measuring() {
     },
   });
 
+  const handleMenuOpen = (event, index) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedIndex(index);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedIndex(null);
+  };
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -242,12 +256,21 @@ function Measuring() {
                           </TableCell>
                           <TableCell>{unit.description}</TableCell>
                           <TableCell align="right">
-                            <IconButton color="primary" onClick={() => handleEdit(index)}>
-                              <EditIcon />
+                            <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
+                              <MoreVertIcon />
                             </IconButton>
-                            <IconButton color="secondary" onClick={() => handleDelete(unit.id)}>
-                              <DeleteIcon />
-                            </IconButton>
+                            <Menu
+                              anchorEl={anchorEl}
+                              open={Boolean(anchorEl) && selectedIndex === index}
+                              onClose={handleMenuClose}
+                            >
+                              <MenuItem onClick={() => { handleEdit(index); handleMenuClose(); }}>
+                                <EditIcon fontSize="small" /> Edit
+                              </MenuItem>
+                              <MenuItem onClick={() => { handleDelete(unit.id); handleMenuClose(); }}>
+                                <DeleteIcon fontSize="small" /> Delete
+                              </MenuItem>
+                            </Menu>
                           </TableCell>
                         </TableRow>
                       ))}

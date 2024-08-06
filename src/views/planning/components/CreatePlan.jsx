@@ -30,9 +30,9 @@ export const CreatePlan = ({ add, onClose }) => {
       if (Validation.length > 0) {
         toast.error(Validation[0]);
         return;
+      } else {
+        handlePlanSubmission(ThePlan);
       }
-
-      handlePlanSubmission(ThePlan);
     } else {
       toast.warn('The plan is not filled properly');
     }

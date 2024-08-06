@@ -1,18 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
-import { UnitKpiColumns } from 'data/units/column';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 
-export const UnitKpi = ({ kpi }) => {
+export const UnitKpi = ({ column, kpi }) => {
   const navigate = useNavigate();
   return (
     <Box sx={{ marginTop: 3 }}>
       <div style={{ minHeight: 400, width: '100%' }}>
         <DataGrid
           rows={kpi}
-          columns={UnitKpiColumns}
+          columns={column}
           initialState={{
             pagination: {
               paginationModel: { page: 0, pageSize: 10 }

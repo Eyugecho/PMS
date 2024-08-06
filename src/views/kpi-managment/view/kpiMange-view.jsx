@@ -10,13 +10,6 @@ import {
   Snackbar,
   Alert,
   MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   IconButton,
   Dialog,
   DialogActions,
@@ -25,12 +18,15 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import { DataGrid } from '@mui/x-data-grid';
 import { useFormik } from 'formik';
 import axios from 'axios';
 import config from '../../../configration/config';
 
 function KpiManagement() {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
   const [kpis, setKpis] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [open, setOpen] = useState(false);
@@ -105,10 +101,10 @@ function KpiManagement() {
       if (data.success) {
         setPerspectiveTypes(data.data.data);
       } else {
-        console.error('Failed to fetch perceptives:', data.message);
+        console.error('Failed to fetch perspective types:', data.message);
       }
     } catch (error) {
-      console.error('Error fetching perceptives:', error);
+      console.error('Error fetching perspective types:', error);
     }
   };
 
@@ -255,197 +251,108 @@ function KpiManagement() {
     setSnackbarOpen(false);
   };
 
-  return (
-    <Box p={3}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Create New KPI
-              </Typography>
-              <Box component="form" onSubmit={formik.handleSubmit}>
-                <TextField
-                  fullWidth
-                  id="name"
-                  name="name"
-                  label="KPI Name"
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  error={formik.touched.name && Boolean(formik.errors.name)}
-                  helperText={formik.touched.name && formik.errors.name}
-                  margin="normal"
-                />
-                <TextField
-                  fullWidth
-                  select
-                  id="perspective_type_id"
-                  name="perspective_type_id"
-                  label="Perspective Type"
-                  value={formik.values.perspective_type_id}
-                  onChange={formik.handleChange}
-                  error={formik.touched.perspective_type_id && Boolean(formik.errors.perspective_type_id)}
-                  helperText={formik.touched.perspective_type_id && formik.errors.perspective_type_id}
-                  margin="normal"
-                >
-                  {perspectiveTypes.map((perspective) => (
-                    <MenuItem key={perspective.id} value={perspective.id}>
-                      {perspective.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  fullWidth
-                  select
-                  id="measuring_unit_id"
-                  name="measuring_unit_id"
-                  label="Measuring Unit"
-                  value={formik.values.measuring_unit_id}
-                  onChange={formik.handleChange}
-                  error={formik.touched.measuring_unit_id && Boolean(formik.errors.measuring_unit_id)}
-                  helperText={formik.touched.measuring_unit_id && formik.errors.measuring_unit_id}
-                  margin="normal"
-                >
-                  {measuringUnits.map((unit) => (
-                    <MenuItem key={unit.id} value={unit.id}>
-                      {unit.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  fullWidth
-                  select
-                  id="variation_category"
-                  name="variation_category"
-                  label="Variation Category"
-                  value={formik.values.variation_category}
-                  onChange={formik.handleChange}
-                  error={formik.touched.variation_category && Boolean(formik.errors.variation_category)}
-                  helperText={formik.touched.variation_category && formik.errors.variation_category}
-                  margin="normal"
-                >
-                  {variationCategories.map((category) => (
-                    <MenuItem key={category} value={category}>
-                      {category}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  fullWidth
-                  id="description"
-                  name="description"
-                  label="Description"
-                  value={formik.values.description}
-                  onChange={formik.handleChange}
-                  error={formik.touched.description && Boolean(formik.errors.description)}
-                  helperText={formik.touched.description && formik.errors.description}
-                  margin="normal"
-                />
-                <Box mt={2}>
-                  <Button variant="contained" color="primary" type="submit">
-                    {editIndex !== null ? 'Update KPI' : 'Create KPI'}
-                  </Button>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12}>
-          <Card variant="outlined">
-            <CardContent>
-      
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Perspective Type</TableCell>
-                      <TableCell>Measuring Unit</TableCell>
-                      <TableCell>Variation Category</TableCell>
-                      <TableCell>Description</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-  {kpis.length > 0 ? (
-    kpis.map((kpi, index) => (
-      <TableRow key={kpi.id}>
-        <TableCell>{kpi.name}</TableCell>
-        <TableCell>{kpi.perspective_type?.name || 'N/A'}</TableCell>
-        <TableCell>{kpi.measuring_unit?.name || 'N/A'}</TableCell>
-        <TableCell>{kpi.variation_category || 'N/A'}</TableCell>
-        <TableCell>{kpi.description || 'N/A'}</TableCell>
-        <TableCell>
-          <IconButton onClick={() => handleEdit(index)}>
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+  };
+
+  const columns = [
+    { field: 'name', headerName: 'Name', flex: 1 },
+    { field: 'perspective_type_id', headerName: 'Perspective Type', flex: 1 },
+    { field: 'measuring_unit_id', headerName: 'Measuring Unit', flex: 1 },
+    { field: 'variation_category', headerName: 'Variation Category', flex: 1 },
+    { field: 'description', headerName: 'Description', flex: 2 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      renderCell: (params) => (
+        <>
+          <IconButton onClick={() => handleEdit(params.row)}>
             <EditIcon />
           </IconButton>
-          <IconButton onClick={() => handleDelete(kpi.id)}>
+          <IconButton onClick={() => handleDelete(params.row.id)}>
             <DeleteIcon />
           </IconButton>
-        </TableCell>
-      </TableRow>
-    ))
-  ) : (
-    <TableRow>
-      <TableCell colSpan={6} align="center">
-        <SentimentDissatisfiedIcon />
-        <Typography variant="body2">No KPIs available</Typography>
-      </TableCell>
-    </TableRow>
-  )}
-</TableBody>
+        </>
+      ),
+    },
+  ];
 
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+  return (
+    <Box sx={{ padding: 3 }}>
+
+
+
+      <Card>
+        <CardContent>
+          
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button variant="contained" color="primary" onClick={handleOpen}>
+          Add
+        </Button>
+      </Box>
+          <DataGrid
+            rows={kpis}
+            columns={columns}
+            pageSize={rowsPerPage}
+            onPageChange={handleChangePage}
+            onPageSizeChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 20]}
+            pagination
+            autoHeight
+          />
+        </CardContent>
+      </Card>
 
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editIndex !== null ? 'Edit KPI' : 'Create KPI'}</DialogTitle>
+        <DialogTitle>{editIndex !== null ? 'Edit KPI' : 'Add KPI'}</DialogTitle>
         <DialogContent>
-          <Box component="form" onSubmit={formik.handleSubmit}>
+          <form onSubmit={formik.handleSubmit}>
             <TextField
               fullWidth
+              margin="normal"
               id="name"
               name="name"
-              label="KPI Name"
+              label="Name"
               value={formik.values.name}
               onChange={formik.handleChange}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
-              margin="normal"
             />
             <TextField
               fullWidth
-              select
+              margin="normal"
               id="perspective_type_id"
               name="perspective_type_id"
               label="Perspective Type"
+              select
               value={formik.values.perspective_type_id}
               onChange={formik.handleChange}
               error={formik.touched.perspective_type_id && Boolean(formik.errors.perspective_type_id)}
               helperText={formik.touched.perspective_type_id && formik.errors.perspective_type_id}
-              margin="normal"
             >
-              {perspectiveTypes.map((perspective) => (
-                <MenuItem key={perspective.id} value={perspective.id}>
-                  {perspective.name}
+              {perspectiveTypes.map((type) => (
+                <MenuItem key={type.id} value={type.id}>
+                  {type.name}
                 </MenuItem>
               ))}
             </TextField>
             <TextField
               fullWidth
-              select
+              margin="normal"
               id="measuring_unit_id"
               name="measuring_unit_id"
               label="Measuring Unit"
+              select
               value={formik.values.measuring_unit_id}
               onChange={formik.handleChange}
               error={formik.touched.measuring_unit_id && Boolean(formik.errors.measuring_unit_id)}
               helperText={formik.touched.measuring_unit_id && formik.errors.measuring_unit_id}
-              margin="normal"
             >
               {measuringUnits.map((unit) => (
                 <MenuItem key={unit.id} value={unit.id}>
@@ -455,48 +362,52 @@ function KpiManagement() {
             </TextField>
             <TextField
               fullWidth
-              select
+              margin="normal"
               id="variation_category"
               name="variation_category"
               label="Variation Category"
+              select
               value={formik.values.variation_category}
               onChange={formik.handleChange}
               error={formik.touched.variation_category && Boolean(formik.errors.variation_category)}
               helperText={formik.touched.variation_category && formik.errors.variation_category}
-              margin="normal"
             >
-              {variationCategories.map((category) => (
-                <MenuItem key={category} value={category}>
+              {variationCategories.map((category, index) => (
+                <MenuItem key={index} value={category}>
                   {category}
                 </MenuItem>
               ))}
             </TextField>
             <TextField
               fullWidth
+              margin="normal"
               id="description"
               name="description"
               label="Description"
+              multiline
+              rows={4}
               value={formik.values.description}
               onChange={formik.handleChange}
               error={formik.touched.description && Boolean(formik.errors.description)}
               helperText={formik.touched.description && formik.errors.description}
-              margin="normal"
             />
-            <Box mt={2}>
-              <Button variant="contained" color="primary" type="submit">
-                {editIndex !== null ? 'Update KPI' : 'Create KPI'}
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Cancel
               </Button>
-            </Box>
-          </Box>
+              <Button type="submit" color="primary">
+                {editIndex !== null ? 'Update' : 'Save'}
+              </Button>
+            </DialogActions>
+          </form>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
           {snackbarMessage}
         </Alert>

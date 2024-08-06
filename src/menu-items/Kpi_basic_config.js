@@ -8,7 +8,8 @@ import {
   IconFileReport,
   IconBrandCampaignmonitor,
   IconAdjustmentsHorizontal,
-  IconFile3d
+  IconFile3d,
+  IconLayoutSidebarInactive
 } from '@tabler/icons-react';
 
 // constant
@@ -21,10 +22,9 @@ const icons = {
   IconSettingsStar,
   IconFileReport,
   IconBrandCampaignmonitor,
-  IconFile3d
+  IconFile3d,
+  IconLayoutSidebarInactive
 };
-
-
 
 // ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
 
@@ -32,7 +32,7 @@ const Kpi_basic_config = {
   id: 'Kpi_basic_config',
   title: 'Planning',
   type: 'group',
-    // requiredRoles: ['Admin'],
+  // requiredRoles: ['Admin'],
   children: [
     // {
     //   id: 'basic-config',
@@ -55,16 +55,22 @@ const Kpi_basic_config = {
 
 
     {
-      id: 'planning-item',
+      id: 'planning',
       title: 'Planning',
       type: 'item',
       icon: icons.IconAdjustmentsHorizontal,
       url: '/planning'
     },
-
+    {
+      id: 'eod_activity',
+      title: 'EOD Activity',
+      type: 'item',
+      icon: icons.IconLayoutSidebarInactive,
+      url: '/Eod/Eod-act'
+    },
     {
       id: 'mointoring',
-      title: 'Mointoring',
+      title: 'Monitoring',
       type: 'collapse',
       icon: icons.IconBrandCampaignmonitor,
       children: [

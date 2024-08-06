@@ -20,6 +20,7 @@ export const PlanList = ({ plans }) => {
           }}
           pageSizeOptions={[10, 25, 50, 100]}
           sx={{ cursor: 'pointer', borderRadius: 2 }}
+          onRowClick={(params) => navigate('/planning/view', { state: params.row })}
         />
       </div>
     </Box>
