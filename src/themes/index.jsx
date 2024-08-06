@@ -24,10 +24,10 @@ export const theme = (customization) => {
     background: color.primaryLight,
     darkTextPrimary: color.grey700,
     darkTextSecondary: color.grey500,
-    textDark: color.grey900,
+    textDark: color.darkPaper,
     menuSelected: color.secondaryDark,
     menuSelectedBack: color.secondaryLight,
-    divider: color.grey200,
+    divider: color.paper,
     customization
   };
 
@@ -51,6 +51,5 @@ export const theme = (customization) => {
 
   return themes;
 };
-
 
 export default theme;

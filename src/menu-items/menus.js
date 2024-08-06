@@ -7,7 +7,11 @@ import {
   IconSettingsStar,
   IconFileReport,
   IconBrandCampaignmonitor,
-  IconAdjustmentsHorizontal
+  IconAdjustmentsHorizontal,
+  IconFile3d,
+  IconCircleCheck,
+  IconTimeDuration0,
+  IconChecklist
 } from '@tabler/icons-react';
 
 // constant
@@ -19,12 +23,16 @@ const icons = {
   IconActivity,
   IconSettingsStar,
   IconFileReport,
-  IconBrandCampaignmonitor
+  IconBrandCampaignmonitor,
+  IconFile3d,
+  IconCircleCheck,
+  IconTimeDuration0,
+  IconChecklist
 };
 
-// ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
+// ==============================|| menus  MENU ITEMS ||============================== //
 
-const Kpi_basic_config = {
+const Menus = {
   id: 'Kpi_basic_config',
   title: 'Planning',
   type: 'group',
@@ -32,31 +40,18 @@ const Kpi_basic_config = {
   children: [
     {
       id: 'authentication',
-      title: 'Kpi Managment',
+      title: 'KPI Managment',
       type: 'collapse',
       icon: icons.IconFileReport,
       children: [
         {
           id: 'kpi',
-          title: 'Kpi Register',
+          title: 'Register KPI',
           type: 'item',
           url: '/kpi/kpi-managment'
-          // icon: icons.IconReport,
-
-          // target: true
-        },
-        {
-          id: 'kpi_tracking',
-          title: 'Kpi Tracking',
-          type: 'item',
-          url: '/kpi-tracking/kpi-track'
-          // icon: icons.IconReport,
-
-          // target: true
         }
       ]
     },
-
     {
       id: 'planning',
       title: 'Planning',
@@ -64,34 +59,29 @@ const Kpi_basic_config = {
       url: '/planning',
       icon: icons.IconAdjustmentsHorizontal
     },
-
     {
       id: 'mointoring',
       title: 'Monitoring',
       type: 'collapse',
+      url: 'monitoring/daily',
       icon: icons.IconBrandCampaignmonitor,
       children: [
         {
           id: 'daily-activity',
-          title: 'Daily Activity Settings',
-          type: 'item'
-          // url: '/kpi/kpi-managment',
-          // icon: icons.IconReport,
-
-          // target: true
-        },
-        {
-          id: 'moitoring-evaluation',
-          title: 'Mointoring & Evaluation',
-          type: 'item'
-          // url: '/kpi/kpi-managment',
-          // icon: icons.IconReport,
-
-          // target: true
+          title: 'Daily Activity',
+          type: 'item',
+          url: 'monitoring/daily'
         }
       ]
     },
 
+    {
+      id: 'evaluation',
+      title: 'Evaluation',
+      type: 'item',
+      url: 'evaluation',
+      icon: icons.IconChecklist
+    },
     {
       id: 'approval-settings',
       title: 'Approval Managment',
@@ -102,19 +92,13 @@ const Kpi_basic_config = {
           id: 'approvals',
           title: 'Approvals',
           type: 'item',
-          // url: '/kpi/kpi-managment',
-          icon: icons.IconReport
-
-          // target: true
+          url: '/approvals'
         },
         {
           id: 'feedbacks',
           title: 'Feedbacks',
           type: 'item',
-          // url: '/kpi/kpi-managment',
-          icon: icons.IconReport
-
-          // target: true
+          url: '/feedbacks'
         }
       ]
     },
@@ -122,12 +106,10 @@ const Kpi_basic_config = {
       id: 'grading-ranking',
       title: 'Grading & Ranking',
       type: 'item',
-      // url: '/basic-config/basic-config-creation',
+      url: '/ranking',
       icon: icons.IconReport
-
-      // target: true
     }
   ]
 };
 
-export default Kpi_basic_config;
+export default Menus;

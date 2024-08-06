@@ -22,7 +22,7 @@ function App() {
             value={value} 
             onChange={handleChange} 
             variant="fullWidth" 
-            textColor="primary" 
+            textColor="secondary" 
             indicatorColor="secondary"
           >
             <Tab label="Perspective Type" />

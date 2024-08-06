@@ -159,7 +159,7 @@ function EvalType() {
                   fullWidth
                   id="name"
                   name="name"
-                  label="Evaluation Type Name"
+                  label="Evaluation Type"
                   value={formik.values.name}
                   onChange={formik.handleChange}
                   error={formik.touched.name && Boolean(formik.errors.name)}

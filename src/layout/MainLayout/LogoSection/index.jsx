@@ -15,7 +15,7 @@ const LogoSection = () => {
   const defaultId = useSelector((state) => state.customization.defaultId);
   const dispatch = useDispatch();
   return (
-    <ButtonBase disableRipple onClick={() => dispatch({ type: MENU_OPEN, id: defaultId })} component={Link} to={config.defaultPath} style={{}}>
+    <ButtonBase disableRipple onClick={() => dispatch({ type: MENU_OPEN, id: defaultId })} component={Link} to={config.defaultPath} sx={{}}>
       <Logo />
       <h1 style={{fontSize:'15px',marginLeft:'10px'}}>PMS</h1>
     </ButtonBase>

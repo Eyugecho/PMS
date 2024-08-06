@@ -12,6 +12,13 @@ const Backend = {
   planningPeriods: 'get-planing-period',
   orgPlan: 'main-kpi-tracking',
   getOrgPlans: 'get-my-kpi-trackings',
-  childUnits: 'get-my-child-units'
+  distributeTarget: 'distribute-kpi-tracking',
+  childUnits: 'get-my-child-units',
+  childTarget: 'get-my-child-targets/',
+  getDepartments: 'get-departments',
+  getEmployees: 'get-employees',
+  getUnitTarget: 'get-tasks-by-unit/',
+  getEmployeeTarget: 'get-tasks-by-employee/',
+  evaluate: 'evaluate'
 };
 export default Backend;

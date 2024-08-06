@@ -7,7 +7,7 @@ import {
   Autocomplete,
   Box,
   Chip,
-  Divider,
+  CircularProgress,
   Grid,
   IconButton,
   InputBase,
@@ -22,13 +22,13 @@ import {
 } from '@mui/material';
 import { IconX } from '@tabler/icons-react';
 import Backend from 'services/backend';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
-export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handleSubmission }) => {
-  //   console.log(targets[0]);
+export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
   const theme = useTheme();
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [assignTo, setAssignTo] = React.useState('units');
+  const [isAdding, setIsAdding] = React.useState(false);
 
   const [unitLoading, setUnitLoading] = useState(false);
   const [units, setUnits] = useState([]);
@@ -40,6 +40,10 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [employeePayload, setEmployeePayload] = useState([]);
 
+  const handleAssignTo = (value) => {
+    setAssignTo(value);
+  };
+
   const handleUnitsChange = (event, value) => {
     setSelectedUnits(value);
     const addedUnit = value.find((unit) => !selectedUnits.some((selectedUnit) => selectedUnit.id === unit.id));
@@ -49,9 +53,8 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
       const newPayload = {
         unit_id: addedUnit.id,
         unit_name: addedUnit.name,
-        parent_id: targets[currentIndex].id,
         total_target: targets[currentIndex].target,
-        unit_target: 0
+        unit_targets: []
       };
       setUnitPayload((prevPayload) => [...prevPayload, newPayload]);
     }
@@ -62,23 +65,114 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
     }
   };
 
-  const handleEmployeesChange = (event, value) => {
-    setSelectedEmployees(value);
-    let newEmployee = value[value.length - 1];
+  const handleUnitTargetChange = (event, parent_id, unit_id) => {
+    const value = event.target.value;
 
-    const updatedPayload = {
-      unit_id: newEmployee.id,
-      unit_name: newEmployee.name,
-      parent_id: targets[currentIndex].id,
-      total_target: targets[currentIndex].target,
-      unit_target: 0
-    };
+    setUnitPayload((prevUnit) =>
+      prevUnit.map((unit) => {
+        if (unit.unit_id === unit_id) {
+          // Check if target with parent_id already exists inside unit target
+          const targetIndex = unit.unit_targets.findIndex((target) => target.parent_id === parent_id);
 
-    setEmployeePayload((prevPayload) => [...prevPayload, updatedPayload]);
+          // If target exists, update it; otherwise, add a new target
+          const updatedUnitTargets =
+            targetIndex !== -1
+              ? unit.unit_targets.map((target, index) => (index === targetIndex ? { ...target, target: value } : target))
+              : [...unit.unit_targets, { parent_id: parent_id, target: value, weight: '' }];
+
+          return { ...unit, unit_targets: updatedUnitTargets };
+        }
+        return unit; // Ensure to return the unit if it doesn't match the unit_id
+      })
+    );
   };
 
-  const handleAssignTo = (value) => {
-    setAssignTo(value);
+  const handleUnitWeightChange = (event, parent_id, unit_id) => {
+    const value = event.target.value;
+
+    setUnitPayload((prevUnit) =>
+      prevUnit.map((unit) => {
+        if (unit.unit_id === unit_id) {
+          // Check if target with parent_id already exists inside unit target
+          const targetIndex = unit.unit_targets.findIndex((target) => target.parent_id === parent_id);
+
+          // If target exists, update it, otherwise, add a new target
+          const updatedUnitTargets =
+            targetIndex !== -1
+              ? unit.unit_targets.map((target, index) => (index === targetIndex ? { ...target, weight: value } : target))
+              : [...unit.unit_targets, { parent_id: parent_id, target: '', weight: value }];
+
+          return { ...unit, unit_targets: updatedUnitTargets };
+        }
+        return unit;
+      })
+    );
+  };
+
+  const handleEmployeesChange = (event, value) => {
+    setSelectedEmployees(value);
+
+    const addedEmployee = value.find((unit) => !selectedEmployees.some((selectedUnit) => selectedUnit.id === unit.id));
+    const removeEmployee = selectedEmployees.find((unit) => !value.some((selectedUnit) => selectedUnit.id === unit.id));
+
+    if (addedEmployee) {
+      const newPayload = {
+        unit_id: addedEmployee.id,
+        unit_name: addedEmployee.user?.name,
+        total_target: targets[currentIndex].target,
+        unit_targets: []
+      };
+      setEmployeePayload((prevPayload) => [...prevPayload, newPayload]);
+    }
+
+    if (removeEmployee) {
+      const updatedPayload = employeePayload.filter((payload) => payload.unit_id !== removeEmployee.id);
+      setEmployeePayload(updatedPayload);
+    }
+  };
+
+  const handleEmployeeTargetChange = (event, parent_id, unit_id) => {
+    const value = event.target.value;
+
+    setEmployeePayload((prevUnit) =>
+      prevUnit.map((unit) => {
+        if (unit.unit_id === unit_id) {
+          // Check if target with parent_id already exists inside unit target
+          const targetIndex = unit.unit_targets.findIndex((target) => target.parent_id === parent_id);
+
+          // If target exists, update it; otherwise, add a new target
+          const updatedUnitTargets =
+            targetIndex !== -1
+              ? unit.unit_targets.map((target, index) => (index === targetIndex ? { ...target, target: value } : target))
+              : [...unit.unit_targets, { parent_id: parent_id, target: value }];
+
+          return { ...unit, unit_targets: updatedUnitTargets };
+        }
+        return unit; // Ensure to return the unit if it doesn't match the unit_id
+      })
+    );
+  };
+
+  const handleEmployeeWeightChange = (event, parent_id, unit_id) => {
+    const value = event.target.value;
+
+    setEmployeePayload((prevUnit) =>
+      prevUnit.map((unit) => {
+        if (unit.unit_id === unit_id) {
+          // Check if target with parent_id already exists inside unit target
+          const targetIndex = unit.unit_targets.findIndex((target) => target.parent_id === parent_id);
+
+          // If target exists, update it, otherwise, add a new target
+          const updatedUnitTargets =
+            targetIndex !== -1
+              ? unit.unit_targets.map((target, index) => (index === targetIndex ? { ...target, weight: value } : target))
+              : [...unit.unit_targets, { parent_id: parent_id, target: '', weight: value }];
+
+          return { ...unit, unit_targets: updatedUnitTargets };
+        }
+        return unit;
+      })
+    );
   };
 
   const handleFetchingUnits = () => {
@@ -115,8 +209,6 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
       });
   };
 
-  const handleSelection = (event, value) => {};
-
   const handleNext = () => {
     if (currentIndex < targets.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -127,6 +219,48 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
     }
+  };
+
+  const handleSubmission = () => {
+    setIsAdding(true);
+    const token = localStorage.getItem('token');
+    const Api = Backend.api + Backend.distributeTarget;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      plan_id: plan_id,
+      unit_target: unitPayload,
+      employee_target: employeePayload
+    };
+
+    fetch(Api, {
+      method: 'POST',
+      headers: header,
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setIsAdding(false);
+          toast.success(response.data?.message);
+          onClose();
+          setSelectedUnits([]);
+          setUnitPayload([]);
+          setSelectedEmployees([]);
+          setEmployeePayload([]);
+        } else {
+          setIsAdding(false);
+          toast.error(response.data?.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message);
+        setIsAdding(false);
+      });
   };
 
   useEffect(() => {
@@ -224,7 +358,8 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ minWidth: 120 }}>Employee name</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Target Assigned</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>Employee target</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>Target weight(%)</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -235,19 +370,35 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
                         </TableCell>
                       </TableRow>
                     ) : (
-                      employeePayload?.map((unit, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{unit.unit_name}</TableCell>
-                          <TableCell>
-                            <InputBase
-                              sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                              value={unit.target}
-                              inputProps={{ 'aria-label': 'target' }}
-                              type="number"
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      employeePayload?.map((unit, index) => {
+                        const targetIndex = unit.unit_targets?.findIndex((target) => target.parent_id === targets[currentIndex].id);
+                        const targetValue = targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].target : '';
+                        const targetWeight = targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].weight : '';
+                        return (
+                          <TableRow key={index}>
+                            <TableCell>{unit.unit_name}</TableCell>
+                            <TableCell>
+                              <InputBase
+                                sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: theme.palette.primary.main }}
+                                value={targetValue}
+                                onChange={(event) => handleEmployeeTargetChange(event, targets[currentIndex].id, unit.unit_id)}
+                                inputProps={{ 'aria-label': 'target' }}
+                                type="number"
+                              />
+                            </TableCell>
+
+                            <TableCell>
+                              <InputBase
+                                sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: theme.palette.primary.main }}
+                                value={targetWeight}
+                                onChange={(event) => handleEmployeeWeightChange(event, targets[currentIndex].id, unit.unit_id)}
+                                inputProps={{ 'aria-label': 'target' }}
+                                type="number"
+                              />
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
@@ -256,7 +407,8 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ minWidth: 120 }}>Unit name</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Target Assigned</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>Unit target</TableCell>
+                      <TableCell sx={{ minWidth: 80 }}>Target Weight(%)</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -267,19 +419,34 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
                         </TableCell>
                       </TableRow>
                     ) : (
-                      unitPayload?.map((unit, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{unit.unit_name}</TableCell>
-                          <TableCell>
-                            <InputBase
-                              sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                              value={unit.target}
-                              inputProps={{ 'aria-label': 'target' }}
-                              type="number"
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      unitPayload?.map((unit, index) => {
+                        const targetIndex = unit.unit_targets?.findIndex((target) => target.parent_id === targets[currentIndex].id);
+                        const targetValue = targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].target : '';
+                        const targetWeight = targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].weight : '';
+                        return (
+                          <TableRow key={index}>
+                            <TableCell>{unit.unit_name}</TableCell>
+                            <TableCell>
+                              <InputBase
+                                sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
+                                value={targetValue}
+                                onChange={(event) => handleUnitTargetChange(event, targets[currentIndex].id, unit.unit_id)}
+                                inputProps={{ 'aria-label': 'target' }}
+                                type="number"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <InputBase
+                                sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
+                                value={targetWeight}
+                                onChange={(event) => handleUnitWeightChange(event, targets[currentIndex].id, unit.unit_id)}
+                                inputProps={{ 'aria-label': 'target' }}
+                                type="number"
+                              />
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
@@ -292,11 +459,23 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
               </Button>
 
               {currentIndex === targets.length - 1 ? (
-                <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} onClick={() => handleNext()}>
-                  Submit
+                <Button
+                  type="button"
+                  variant="contained"
+                  sx={{ paddingX: 6, boxShadow: 0 }}
+                  onClick={() => handleSubmission()}
+                  disabled={isAdding}
+                >
+                  {isAdding ? (
+                    <CircularProgress size={18} sx={{ color: 'white' }} />
+                  ) : (
+                    <Typography variant="subtitle1" color={theme.palette.background.default}>
+                      Submit
+                    </Typography>
+                  )}
                 </Button>
               ) : (
-                <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} onClick={() => handleNext()}>
+                <Button type="button" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} onClick={() => handleNext()}>
                   Next
                 </Button>
               )}
@@ -304,6 +483,7 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming, handl
           </Grid>
         </Grid>
       </Dialog>
+      <ToastContainer />
     </React.Fragment>
   );
 };

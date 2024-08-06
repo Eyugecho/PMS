@@ -2,9 +2,7 @@ import PropTypes from 'prop-types';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import Divider from '@mui/material/Divider';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
+import { Divider, List, Typography } from '@mui/material';
 
 // project imports
 import NavItem from '../NavItem';

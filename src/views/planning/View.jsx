@@ -69,7 +69,7 @@ const ViewPlan = () => {
   useEffect(() => {
     const handleFetchingDistribution = () => {
       const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.units + `/details?id=${state?.id}`;
+      const Api = Backend.api + Backend.childTarget + state?.id;
       const header = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',
@@ -84,6 +84,7 @@ const ViewPlan = () => {
         .then((response) => {
           if (response.success) {
             setData(response.data);
+            console.log(response.data);
             setLoading(false);
             setError(false);
           } else {
@@ -119,11 +120,10 @@ const ViewPlan = () => {
           sx={{
             borderRadius: 2,
             marginTop: 2,
-            paddingY: 2,
-            paddingX: 2
+            paddingY: 2
           }}
         >
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} sx={{ border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 2 }}>
             <Table sx={{ minWidth: 650 }} aria-label="KPI table">
               <TableHead>
                 <TableRow>
@@ -152,24 +152,30 @@ const ViewPlan = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Grid container marginTop={1}>
+          <Grid container sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
             <Grid
               xs={12}
+              sm={12}
+              md={3.8}
+              lg={2.9}
+              xl={2}
               sx={{
                 display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between'
+                flexDirection: 'column'
               }}
             >
               {state?.target?.map((target, index) => (
                 <Box
                   key={index}
                   sx={{
-                    minWidth: 140,
-                    margin: 2,
-                    paddingY: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    margin: 0.5,
+                    paddingY: 0.8,
                     paddingX: 2,
+                    border: 0.4,
+                    borderColor: theme.palette.grey[300],
                     borderRadius: 2,
                     backgroundColor: theme.palette.background.default
                   }}
@@ -178,72 +184,40 @@ const ViewPlan = () => {
                     {handleTargetNaming(state?.frequency?.name)} {index + 1}
                   </Typography>
                   <Box sx={{ paddingX: 2 }}>
-                    <Typography variant="h2" sx={{ marginY: 2 }}>
+                    <Typography variant="h4" sx={{ marginY: 2 }}>
                       {target.target}
                     </Typography>
                   </Box>
                 </Box>
               ))}
+              <Button
+                variant="contained"
+                sx={{ marginY: 2, marginX: 1, padding: 1.2, boxShadow: 0 }}
+                onClick={() => handleDistributeClick()}
+              >
+                Distribute Targets
+              </Button>
             </Grid>
-            <Button variant="contained" sx={{ margin: 2, boxShadow: 0 }} onClick={() => handleDistributeClick()}>
-              Distribute Targets
-            </Button>
-          </Grid>
 
-          <Grid
-            xs={12}
-            sx={{ minHeight: '60dvh', marginTop: 2, borderRadius: 2, padding: 2, backgroundColor: theme.palette.background.default }}
-          >
-            <Box sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[200], paddingY: 1 }}>
-              <Typography variant="h4">Target Ditributed</Typography>
-            </Box>
+            <Grid
+              xs={12}
+              sm={12}
+              md={8}
+              lg={9}
+              xl={9.9}
+              sx={{
+                border: 0.4,
+                borderColor: theme.palette.grey[300],
+                borderRadius: 2,
+                padding: 2,
+                marginTop: 0.5,
+                backgroundColor: theme.palette.background.default
+              }}
+            >
+              <Typography variant="h4">Target Distributed</Typography>
 
-            <UnitKpi column={DistributedKPIColumns} kpi={UnitKpiData} />
-
-            {loading ? (
-              <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <CircularProgress size={22} />
-              </Box>
-            ) : error ? (
-              <Fallbacks severity="error" title="Server error" description="There is error fetching targets" />
-            ) : data.length === 0 ? (
-              <Fallbacks
-                severity="kpi"
-                title="There is no target found"
-                description="The list of target for KPI will be listed here"
-                sx={{ paddingTop: 6 }}
-              />
-            ) : (
-              <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="KPI table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Fiscal Year</TableCell>
-                      <TableCell>KPI Name</TableCell>
-                      <TableCell>KPI Weights</TableCell>
-                      <TableCell>Total Targets</TableCell>
-                      <TableCell>Measuring Unit</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-                        <IconCircleCheckFilled size={20} />
-                        <Typography variant="body2" sx={{ marginLeft: 2 }}>
-                          {state?.fiscal_year.year}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="subtitle1">{state?.kpi?.name}</Typography>
-                      </TableCell>
-                      <TableCell>{state?.weight}</TableCell>
-                      <TableCell>{state?.total_target}</TableCell>
-                      <TableCell>{state?.kpi?.measuring_unit?.name}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
+              <UnitKpi column={DistributedKPIColumns} row={data.target} />
+            </Grid>
           </Grid>
         </Grid>
       </PageContainer>
@@ -253,7 +227,6 @@ const ViewPlan = () => {
         onClose={handleModalClose}
         plan_id={state?.id}
         targets={state?.target}
-        handleSubmission={() => alert('submission')}
         naming={PeriodNaming(state?.frequency?.name)}
       />
     </div>

@@ -12,8 +12,6 @@ import SearchSection from './SearchSection';
 import NotificationSection from './NotificationSection';
 import ProfileSection from './ProfileSection';
 
-import Divider from '@mui/material/Divider';
-
 // assets
 import { IconMenu2 } from '@tabler/icons-react';
 
@@ -32,32 +30,29 @@ const Header = ({ handleLeftDrawerToggle }) => {
           [theme.breakpoints.down('md')]: {
             width: 'auto'
           }
-          
         }}
       >
-        <Box component="span" sx={{ display: { xs: 'none', md: 'block' }, flexGrow: 1 , ml:2}}>
+        <Box component="span" sx={{ display: { xs: 'none', md: 'block' }, flexGrow: 1, ml: 2 }}>
           <LogoSection />
         </Box>
         {/* <Divider orientation="vertical" flexItem  sx={{ width: { md: 100, lg: 20 } }}/> */}
-        <ButtonBase sx={{ borderRadius: '8px', overflow: 'hidden' , ml:5}}>
+        <ButtonBase sx={{ borderRadius: '8px', overflow: 'hidden', ml: 5 }}>
           <Avatar
             variant="rounded"
             sx={{
               ...theme.typography.commonAvatar,
               ...theme.typography.mediumAvatar,
               transition: 'all .2s ease-in-out',
-              background: theme.palette.secondary.light_icon,
-              color: theme.palette.secondary.dark,
+              background: theme.palette.background.default,
+              color: theme.palette.primary.dark,
               '&:hover': {
-                background: theme.palette.secondary.dark_icon_hover,
-                color: theme.palette.secondary.dark
+                background: theme.palette.primary.light,
+                color: theme.palette.primary.dark
               }
-              
             }}
             onClick={handleLeftDrawerToggle}
-            color="inherit"
           >
-            <IconMenu2 stroke={1.5} size="1rem" />
+            <IconMenu2 stroke={1.5} size="1.6rem" />
           </Avatar>
         </ButtonBase>
       </Box>

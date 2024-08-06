@@ -23,39 +23,39 @@ const Planning = () => {
     setCreate(false);
   };
 
-  useEffect(() => {
-    const handleFetchingPlan = () => {
-      const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.getOrgPlans;
-      const header = {
-        Authorization: `Bearer ${token}`,
-        accept: 'application/json',
-        'Content-Type': 'application/json'
-      };
-
-      fetch(Api, {
-        method: 'GET',
-        headers: header
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          if (response.success) {
-            setData(response.data);
-            setLoading(false);
-            setError(false);
-          } else {
-            setLoading(false);
-            setError(false);
-            toast.warning(response.data.message);
-          }
-        })
-        .catch((error) => {
-          toast.warning(error.message);
-          setError(true);
-          setLoading(false);
-        });
+  const handleFetchingPlan = () => {
+    const token = localStorage.getItem('token');
+    const Api = Backend.api + Backend.getOrgPlans;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
     };
 
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setData(response.data);
+          setLoading(false);
+          setError(false);
+        } else {
+          setLoading(false);
+          setError(false);
+          toast.warning(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.warning(error.message);
+        setError(true);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
     handleFetchingPlan();
 
     return () => {};
@@ -86,7 +86,7 @@ const Planning = () => {
         </Grid>
       </Grid>
 
-      <CreatePlan add={create} onClose={handleCreateModalClose} />
+      <CreatePlan add={create} onClose={handleCreateModalClose} onSucceed={() => handleFetchingPlan()} />
     </div>
   );
 };

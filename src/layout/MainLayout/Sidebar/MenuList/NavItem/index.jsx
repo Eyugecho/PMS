@@ -1,17 +1,11 @@
 import PropTypes from 'prop-types';
 import { forwardRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import Avatar from '@mui/material/Avatar';
-import Chip from '@mui/material/Chip';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Typography from '@mui/material/Typography';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material';
 
 // project imports
 import { MENU_OPEN, SET_MENU } from 'store/actions';
@@ -24,20 +18,19 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 const NavItem = ({ item, level }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { pathname } = useLocation();
   const customization = useSelector((state) => state.customization);
   const matchesSM = useMediaQuery(theme.breakpoints.down('lg'));
 
   const Icon = item.icon;
   const itemIcon = item?.icon ? (
-    <Icon stroke={1.5} size="1.3rem" style={{color:'#fff'}}/>
+    <Icon stroke={1.5} size="1.3rem" />
   ) : (
     <FiberManualRecordIcon
       sx={{
         width: customization.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
         height: customization.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6
       }}
-      fontSize={level > 0 ? 'inherit' : 'large'}
+      fontSize={level > 0 ? 'inherit' : 'medium'}
     />
   );
 
@@ -64,11 +57,11 @@ const NavItem = ({ item, level }) => {
       .toString()
       .split('/')
       .findIndex((id) => id === item.id);
-    if (currentIndex > 1) {
+    if (currentIndex > -1) {
       dispatch({ type: MENU_OPEN, id: item.id });
     }
     // eslint-disable-next-line
-  }, [pathname]);
+  }, []);
 
   return (
     <ListItemButton
@@ -78,9 +71,9 @@ const NavItem = ({ item, level }) => {
         borderRadius: `${customization.borderRadius}px`,
         mb: 0.5,
         alignItems: 'flex-start',
-        backgroundColor: level > 1 ? 'transparent !important' : 'inherit',
-        py: level > 1 ? 1 : 0.3,
-        pl: `${level * 20}px`
+        py: level > 1 ? 1 : 1.25,
+        pl: `${level * 24}px`,
+        backgroundColor: level > 1 && customization.isOpen.findIndex((id) => id === item.id) > -1 ? theme.palette.primary.light : 'inherit'
       }}
       selected={customization.isOpen.findIndex((id) => id === item.id) > -1}
       onClick={() => itemHandler(item.id)}
@@ -88,7 +81,7 @@ const NavItem = ({ item, level }) => {
       <ListItemIcon sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon>
       <ListItemText
         primary={
-          <Typography variant={customization.isOpen.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body1'} color="#fff">
+          <Typography variant={customization.isOpen.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body2'} color="inherit">
             {item.title}
           </Typography>
         }

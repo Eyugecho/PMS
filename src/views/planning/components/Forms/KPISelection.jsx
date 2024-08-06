@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Box, Chip, IconButton, InputBase, Table, TableBody, TableCell, TableHead, TableRow, useTheme } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Chip, InputBase, Table, TableBody, TableCell, TableHead, TableRow, useTheme } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { KPIData } from './kpi';
 import { ToastContainer, toast } from 'react-toastify';
 import Backend from 'services/backend';
 

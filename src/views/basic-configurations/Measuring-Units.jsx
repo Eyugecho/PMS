@@ -175,7 +175,7 @@ function Measuring() {
                   fullWidth
                   id="measuringUnit"
                   name="measuringUnit"
-                  label="New Measuring Unit"
+                  label="Measuring Unit"
                   value={formik.values.measuringUnit}
                   onChange={formik.handleChange}
                   error={formik.touched.measuringUnit && Boolean(formik.errors.measuringUnit)}

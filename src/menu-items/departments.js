@@ -1,17 +1,23 @@
 // assets
-import { IconKey, IconABOff } from '@tabler/icons-react';
+import { IconBuildingSkyscraper, IconFileRss, IconPrison, IconUserCog, IconUsersGroup } from '@tabler/icons-react';
+import { IconKey, IconABOff,IconFile3d } from '@tabler/icons-react';
 
 // constant
 const icons = {
   IconKey,
-  IconABOff
+  IconABOff,
+  IconFile3d,
+  IconFileRss,
+  IconBuildingSkyscraper,
+  IconUsersGroup
+
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
 
 const dep = {
   id: 'dep',
-  title: 'Departments',
+  title: 'Organaization Structure',
   // caption: 'Pages Caption',
   type: 'group',
   // requiredRoles: ['Admin'],
@@ -21,9 +27,18 @@ const dep = {
       id: 'department-creation',
       title: 'Units',
       type: 'item',
-      icon: icons.IconKey,
+      icon: icons.IconBuildingSkyscraper,
       url: '/units'
-    }
+    },
+    {
+      id: 'employees',
+      title: 'Employee Management',
+      type: 'item',
+      url: '/employees',
+      icon: icons.IconUsersGroup,
+
+      // target: true
+    },  
   ]
 };
 

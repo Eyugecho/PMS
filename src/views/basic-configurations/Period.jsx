@@ -190,24 +190,24 @@ function Period() {
         <Grid item xs={6}>
           <TextField
             fullWidth
-            id={`startDate-${i}`}
+            id={`start_date-${i}`}
             name={`dates[${i}].start_date`}
             label={`Start Date ${i + 1}`}
             type="date"
             InputLabelProps={{ shrink: true }}
-            value={formik.values.dates[i]?.startDate || ''}
+            value={formik.values.dates[i]?.start_date || ''}
             onChange={formik.handleChange}
           />
         </Grid>
         <Grid item xs={6}>
           <TextField
             fullWidth
-            id={`endDate-${i}`}
+            id={`end_date-${i}`}
             name={`dates[${i}].end_date`}
             label={`End Date ${i + 1}`}
             type="date"
             InputLabelProps={{ shrink: true }}
-            value={formik.values.dates[i]?.endDate || ''}
+            value={formik.values.dates[i]?.end_date || ''}
             onChange={formik.handleChange}
           />
         </Grid>

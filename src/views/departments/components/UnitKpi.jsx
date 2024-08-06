@@ -4,13 +4,13 @@ import { Box } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 
-export const UnitKpi = ({ column, kpi }) => {
+export const UnitKpi = ({ column, row }) => {
   const navigate = useNavigate();
   return (
     <Box sx={{ marginTop: 3 }}>
-      <div style={{ minHeight: 400, width: '100%' }}>
+      <div style={{ width: '100%' }}>
         <DataGrid
-          rows={kpi}
+          rows={row}
           columns={column}
           initialState={{
             pagination: {
@@ -18,7 +18,7 @@ export const UnitKpi = ({ column, kpi }) => {
             }
           }}
           pageSizeOptions={[10, 25, 50, 100]}
-          sx={{ borderRadius: 2 }}
+          sx={{ minHeight: '44dvh', borderRadius: 2, border: 0 }}
         />
       </div>
     </Box>

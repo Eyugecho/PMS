@@ -19,7 +19,7 @@ import Transitions from 'ui-component/extended/Transitions';
 
 // assets
 import { IconAdjustmentsHorizontal, IconSearch, IconX } from '@tabler/icons-react';
-import { Select ,MenuItem,FormControl,InputLabel} from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 const HeaderAvatar = forwardRef(({ children, ...others }, ref) => {
   const theme = useTheme();
@@ -119,7 +119,7 @@ const SearchSection = () => {
         <PopupState variant="popper" popupId="demo-popup-popper">
           {(popupState) => (
             <>
-              <Box sx={{ ml:2 }}>
+              <Box sx={{ ml: 2 }}>
                 <HeaderAvatar {...bindToggle(popupState)}>
                   <IconSearch stroke={1.5} size="19.2px" />
                 </HeaderAvatar>
@@ -150,86 +150,28 @@ const SearchSection = () => {
         </PopupState>
       </Box>
       <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-      <FormControl variant="outlined" className="relative" sx={{ width: { md: 100, lg: 150 }, ml: 0.2, px: 2,height:'40px',display:'flex',justifyContent:'center' }}>
-      <InputLabel id="year-select-label" sx={{ ml: 0.5, px: 2,py:0 }}>Fiscal Year</InputLabel >
-      <Select
-        labelId="year-select-label"
-        id="year-select"
-        value={year}
-        onChange={handleYearChange}
-        label="Year"
-        className="bg-transparent text-lg text-gray-600 focus:outline-none cursor-pointer rounded-lg border-black px-2 hover:bg-yellow hover:text-black"
-        sx={{ width: { md: 100, lg: 120 }, ml: 0.5, px: 2,height:'35px' }}
-     >
-    
-        <MenuItem value="2022">2022-2023</MenuItem>
-        <MenuItem value="2023">2023-2024</MenuItem>
-        <MenuItem value="2024">2024-2025</MenuItem>
-        <MenuItem value="2025">2025-2026</MenuItem>
-      </Select>
-    </FormControl>
-    
-        {/* <OutlinedInput
-          id="input-search-header"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Search"
-          startAdornment={
-            <InputAdornment position="start">
-              <IconSearch stroke={1.5} size="12px" />
-            </InputAdornment>
-          }
-          endAdornment={
-            <InputAdornment position="end">
-              <HeaderAvatar>
-                <IconAdjustmentsHorizontal stroke={1.5} size="20px" />
-              </HeaderAvatar>
-            </InputAdornment>
-          }
-          aria-describedby="search-helper-text"
-          inputProps={{ 'aria-label': 'weight', sx: { bgcolor: 'transparent', pl: 0.2 } }}
-          sx={{ width: { md: 250, lg: 404 }, ml: 2, px: 2,height:'35px' }}
-        /> */}
+        <FormControl variant="filled" className="relative" sx={{ ml: 0.8, px: 2, display: 'flex', justifyContent: 'center' }}>
+          <InputLabel id="year-select-label" sx={{ ml: 0.5, px: 2, py: 0 }}>
+            Fiscal Year
+          </InputLabel>
+          <Select labelId="year-select-label" id="year-select" value={year} onChange={handleYearChange} label="Fiscal Year">
+            <MenuItem value="2022">2022-2023</MenuItem>
+            <MenuItem value="2023">2023-2024</MenuItem>
+            <MenuItem value="2024">2024-2025</MenuItem>
+            <MenuItem value="2025">2025-2026</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
       <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-      <FormControl variant="outlined" className="relative" sx={{ width: { md: 100, lg: 200 }, ml: 0.2, px: 0,height:'40px',display:'flex',justifyContent:'center' }}>
-      <InputLabel id="year-select-label" sx={{ ml: 0.5, px: 0,py:0 }}>Semi Annual</InputLabel >
-      <Select
-        labelId="year-select-label"
-        id="year-select"
-        value={year}
-        onChange={handleYearChange}
-        label="Year"
-        className="bg-transparent text-lg text-gray-600 focus:outline-none cursor-pointer rounded-lg border-black px-2 hover:bg-yellow hover:text-black"
-        sx={{ width: { md: 100, lg: 120 }, ml: 0.5, px: 2,height:'35px' }}
-     >
-    
-        <MenuItem value="2022">First Semi Annual</MenuItem>
-        <MenuItem value="2023">Second Semi Annual</MenuItem>
-      </Select>
-    </FormControl>
-    
-        {/* <OutlinedInput
-          id="input-search-header"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Search"
-          startAdornment={
-            <InputAdornment position="start">
-              <IconSearch stroke={1.5} size="12px" />
-            </InputAdornment>
-          }
-          endAdornment={
-            <InputAdornment position="end">
-              <HeaderAvatar>
-                <IconAdjustmentsHorizontal stroke={1.5} size="20px" />
-              </HeaderAvatar>
-            </InputAdornment>
-          }
-          aria-describedby="search-helper-text"
-          inputProps={{ 'aria-label': 'weight', sx: { bgcolor: 'transparent', pl: 0.2 } }}
-          sx={{ width: { md: 250, lg: 404 }, ml: 2, px: 2,height:'35px' }}
-        /> */}
+        <FormControl variant="filled" className="relative" sx={{ ml: 0.2, px: 0, display: 'flex', justifyContent: 'center' }}>
+          <InputLabel id="year-select-label" sx={{ ml: 0.5, px: 0, py: 0 }}>
+            Frequency
+          </InputLabel>
+          <Select labelId="year-select-label" id="year-select" value={year} onChange={handleYearChange} label="Year" sx={{ ml: 0.5 }}>
+            <MenuItem value="2022">First Semi Annual</MenuItem>
+            <MenuItem value="2023">Second Semi Annual</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
     </>
   );
