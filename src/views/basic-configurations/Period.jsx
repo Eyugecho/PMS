@@ -20,15 +20,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Menu,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -41,9 +35,6 @@ function Period() {
   const [frequencies, setFrequencies] = useState([]);
   const [activities, setActivities] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -179,16 +170,6 @@ function Period() {
     }
   };
 
-  const handleMenuOpen = (event, index) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedIndex(index);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedIndex(null);
-  };
-
   const handleOpen = () => {
     setOpen(true);
   };
@@ -209,24 +190,24 @@ function Period() {
         <Grid item xs={6}>
           <TextField
             fullWidth
-            id={`start_date-${i}`}
+            id={`startDate-${i}`}
             name={`dates[${i}].start_date`}
             label={`Start Date ${i + 1}`}
             type="date"
             InputLabelProps={{ shrink: true }}
-            value={formik.values.dates[i]?.start_date || ''}
+            value={formik.values.dates[i]?.startDate || ''}
             onChange={formik.handleChange}
           />
         </Grid>
         <Grid item xs={6}>
           <TextField
             fullWidth
-            id={`end_date-${i}`}
+            id={`endDate-${i}`}
             name={`dates[${i}].end_date`}
             label={`End Date ${i + 1}`}
             type="date"
             InputLabelProps={{ shrink: true }}
-            value={formik.values.dates[i]?.end_date || ''}
+            value={formik.values.dates[i]?.endDate || ''}
             onChange={formik.handleChange}
           />
         </Grid>
@@ -302,7 +283,7 @@ function Period() {
                   {renderDateFields()}
                 </Box>
                 <Box mt={2}>
-                  <Button color="primary" variant="contained" type="submit">
+                  <Button color="primary" variant="contained"  type="submit">
                     {editIndex !== null ? 'Update Period' : 'Create Period'}
                   </Button>
                 </Box>
@@ -327,7 +308,7 @@ function Period() {
                   <TableBody>
                     {periods.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} align="center">
+                        <TableCell colSpan={7} align="center">
                           <SentimentDissatisfiedIcon />
                           No Periods Found
                         </TableCell>
@@ -340,21 +321,12 @@ function Period() {
                           <TableCell>{period.start_date}</TableCell>
                           <TableCell>{period.end_date}</TableCell>
                           <TableCell>
-                            <IconButton onClick={(event) => handleMenuOpen(event, index)}>
-                              <MoreVertIcon />
+                            <IconButton onClick={() => handleEdit(index)}>
+                              <EditIcon />
                             </IconButton>
-                            <Menu
-                              anchorEl={anchorEl}
-                              open={selectedIndex === index}
-                              onClose={handleMenuClose}
-                            >
-                              <MenuItem onClick={() => { handleEdit(index); handleMenuClose(); }}>
-                                <EditIcon /> Edit
-                              </MenuItem>
-                              <MenuItem onClick={() => { handleDelete(index); handleMenuClose(); }}>
-                                <DeleteIcon /> Delete
-                              </MenuItem>
-                            </Menu>
+                            <IconButton onClick={() => handleDelete(index)}>
+                              <DeleteIcon />
+                            </IconButton>
                           </TableCell>
                         </TableRow>
                       ))
@@ -366,78 +338,6 @@ function Period() {
           </Card>
         </Grid>
       </Grid>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editIndex !== null ? 'Edit Period' : 'Create New Period'}</DialogTitle>
-        <DialogContent>
-          <Box component="form" onSubmit={formik.handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  id="fiscalYear"
-                  name="fiscalYear"
-                  label="Fiscal Year"
-                  value={formik.values.fiscalYear}
-                  onChange={formik.handleChange}
-                  error={formik.touched.fiscalYear && Boolean(formik.errors.fiscalYear)}
-                  helperText={formik.touched.fiscalYear && formik.errors.fiscalYear}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="frequency-label">Frequency</InputLabel>
-                  <Select
-                    labelId="frequency-label"
-                    id="frequency"
-                    name="frequency"
-                    value={formik.values.frequency}
-                    onChange={formik.handleChange}
-                    error={formik.touched.frequency && Boolean(formik.errors.frequency)}
-                  >
-                    <MenuItem value="">None</MenuItem>
-                    {frequencies.map((frequency) => (
-                      <MenuItem key={frequency.id} value={frequency.id}>
-                        {frequency.name} ({frequency.value})
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="activity-label">Activity</InputLabel>
-                  <Select
-                    labelId="activity-label"
-                    id="activity"
-                    name="activity"
-                    value={formik.values.activity}
-                    onChange={formik.handleChange}
-                    error={formik.touched.activity && Boolean(formik.errors.activity)}
-                  >
-                    <MenuItem value="">None</MenuItem>
-                    {activities.map((activity, index) => (
-                      <MenuItem key={index} value={activity}>
-                        {activity}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-            <Box mt={2}>
-              {renderDateFields()}
-            </Box>
-            <Box mt={2}>
-              <Button color="primary" variant="contained" type="submit">
-                {editIndex !== null ? 'Update Period' : 'Create Period'}
-              </Button>
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">Cancel</Button>
-        </DialogActions>
-      </Dialog>
       <ToastContainer />
     </Box>
   );

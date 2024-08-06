@@ -8,8 +8,8 @@ import PlanColumns from 'data/planning/columns';
 export const PlanList = ({ plans }) => {
   const navigate = useNavigate();
   return (
-    <Box sx={{ marginTop: 3 }}>
-      <div style={{ minHeight: 400, width: '100%' }}>
+    <Box sx={{}}>
+      <div style={{ width: '100%' }}>
         <DataGrid
           rows={plans}
           columns={PlanColumns}
@@ -19,7 +19,7 @@ export const PlanList = ({ plans }) => {
             }
           }}
           pageSizeOptions={[10, 25, 50, 100]}
-          sx={{ cursor: 'pointer', borderRadius: 2 }}
+          sx={{ cursor: 'pointer', borderRadius: 2, border: 0, minHeight: '71dvh' }}
           onRowClick={(params) => navigate('/planning/view', { state: params.row })}
         />
       </div>

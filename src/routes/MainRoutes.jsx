@@ -6,6 +6,12 @@ import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
 import { element } from 'prop-types';
 import ViewPlan from 'views/planning/View';
+import { Monitoring } from 'views/monitoring';
+import { Evaluation } from 'views/evaluation';
+import { DailyActivity } from 'views/monitoring/daily';
+import { Approvals } from 'views/approvals';
+import { Feedbacks } from 'views/approvals/feedback';
+import { Ranking } from 'views/ranking';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
@@ -13,6 +19,8 @@ const Units = Loadable(lazy(() => import('views/departments')));
 const ViewUnit = Loadable(lazy(() => import('views/departments/view')));
 const Planning = Loadable(lazy(() => import('views/planning')));
 const CreatePlan = Loadable(lazy(() => import('views/planning/create')));
+const Employees = Loadable(lazy(() => import('views/employees')));
+const ViewEmployee = Loadable(lazy(() => import('views/employees/view')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -60,6 +68,25 @@ const MainRoutes = {
         }
       ]
     },
+
+    {
+      path: 'employees',
+      element: (
+        <Protected>
+          <Employees />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'employees/view',
+      element: (
+        <Protected>
+          <ViewEmployee />
+        </Protected>
+      )
+    },
+
     {
       path: 'units',
       element: (
@@ -104,6 +131,61 @@ const MainRoutes = {
         </Protected>
       )
     },
+
+    {
+      path: 'monitoring',
+      element: (
+        <Protected>
+          <Monitoring />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'monitoring/daily',
+      element: (
+        <Protected>
+          <DailyActivity />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'evaluation',
+      element: (
+        <Protected>
+          <Evaluation />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'approvals',
+      element: (
+        <Protected>
+          <Approvals />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'feedbacks',
+      element: (
+        <Protected>
+          <Feedbacks />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'ranking',
+      element: (
+        <Protected>
+          <Ranking />
+        </Protected>
+      )
+    },
+
     {
       path: 'utils',
       children: [

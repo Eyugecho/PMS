@@ -400,7 +400,7 @@ const AuthLogin = ({ ...others }) => {
                 id="outlined-adornment-email-login"
                 type="email"
                 value={values.email}
-                style={{ height: '40px', marginBottom: '10px' }}
+                sx={{ marginBottom: '16px' }}
                 name="email"
                 onBlur={handleBlur}
                 onChange={handleChange}
@@ -414,7 +414,7 @@ const AuthLogin = ({ ...others }) => {
               )}
             </FormControl>
 
-            <FormControl style={{ display: 'flex' }} error={Boolean(touched.password && errors.password)}>
+            <FormControl style={{ display: 'flex', marginTop: 2 }} error={Boolean(touched.password && errors.password)}>
               <InputLabel htmlFor="outlined-adornment-password-login" style={{ fontSize: '12px' }}>
                 Password
               </InputLabel>
@@ -423,7 +423,7 @@ const AuthLogin = ({ ...others }) => {
                 type={showPassword ? 'text' : 'password'}
                 value={values.password}
                 name="password"
-                style={{ height: '40px' }}
+                sx={{ marginBottom: '16px' }}
                 onBlur={handleBlur}
                 onChange={handleChange}
                 endAdornment={
@@ -465,7 +465,7 @@ const AuthLogin = ({ ...others }) => {
               </Box>
             )}
 
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 4 }}>
               <AnimateButton>
                 <Button
                   disableElevation
@@ -475,6 +475,7 @@ const AuthLogin = ({ ...others }) => {
                   type="submit"
                   variant="contained"
                   sx={{
+                    padding: 1.6,
                     transition: 'all .2s ease-in-out',
                     color: theme.palette.secondary.dark,
                     '&[aria-controls="menu-list-grow"],&:hover': {
@@ -489,7 +490,7 @@ const AuthLogin = ({ ...others }) => {
               </AnimateButton>
             </Box>
 
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <Box
                 sx={{
                   alignItems: 'center',
@@ -540,7 +541,7 @@ const AuthLogin = ({ ...others }) => {
                   Sign in with Google
                 </Button>
               </AnimateButton>
-            </Grid>
+            </Grid> */}
           </form>
         )}
       </Formik>

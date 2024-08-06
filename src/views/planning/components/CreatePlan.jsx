@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { PlanningValidation } from 'utils/validation/Validation';
 import Backend from 'services/backend';
 
-export const CreatePlan = ({ add, onClose }) => {
+export const CreatePlan = ({ add, onClose, onSucceed }) => {
   const theme = useTheme();
   const [isAdding, setIsAdding] = React.useState(false);
   const [activeIndex, setActiveInde] = React.useState(0);
@@ -67,6 +67,8 @@ export const CreatePlan = ({ add, onClose }) => {
         if (response.success) {
           setIsAdding(false);
           toast.success(response.message);
+          onSucceed();
+          onClose();
         } else {
           setIsAdding(false);
           toast.error(response.data?.message);

@@ -31,10 +31,10 @@ const dep = {
       url: '/units'
     },
     {
-      id: 'usermanage',
+      id: 'employees',
       title: 'Employee Management',
       type: 'item',
-      url: '/utils/user-creation',
+      url: '/employees',
       icon: icons.IconUsersGroup,
 
       // target: true

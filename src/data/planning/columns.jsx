@@ -66,43 +66,23 @@ const PlanColumns = [
 ];
 
 export const DistributedKPIColumns = [
-  {
-    field: 'fiscal_year',
-    headerName: 'Fiscal Year',
-    width: 120,
-    renderCell: (params) => {
-      return (
-        <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-          {params.value}
-        </Typography>
-      );
-    }
-  },
-  {
-    field: 'period',
-    headerName: 'Period',
-    width: 120,
-    renderCell: (params) => {
-      return (
-        <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-          {params.value}
-        </Typography>
-      );
-    }
-  },
+  // {
+  //   field: 'period',
+  //   headerName: 'Frequency',
+  //   width: 120,
+  //   renderCell: (params) => {
 
-  {
-    field: 'parent_weight',
-    headerName: 'Parent KPI Weight ',
-    width: 80,
-    renderCell: (params) => {
-      return <Typography variant="body2">{params.value}%</Typography>;
-    }
-  },
+  //     return (
+  //       <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+  //         {params.value}
+  //       </Typography>
+  //     );
+  //   }
+  // },
 
   {
     field: 'unit',
-    headerName: 'Assigned to(Unit)',
+    headerName: 'Unit',
     width: 180,
     renderCell: (params) => {
       return <Typography variant="body2">{params.value}</Typography>;
@@ -120,8 +100,8 @@ export const DistributedKPIColumns = [
 
   {
     field: 'your_weight',
-    headerName: 'Unit KPI Weight',
-    width: 160,
+    headerName: 'KPI Weight',
+    width: 100,
     renderCell: (params) => {
       return (
         <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
@@ -133,11 +113,12 @@ export const DistributedKPIColumns = [
   {
     field: 'target',
     headerName: 'Target',
-    width: 120,
+    width: 80,
     renderCell: (params) => {
+      const unitTarget = params.value;
       return (
         <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-          {params.value}
+          {unitTarget}
         </Typography>
       );
     }
@@ -146,11 +127,12 @@ export const DistributedKPIColumns = [
   {
     field: 'actual',
     headerName: 'Actual',
-    width: 120,
+    width: 80,
     renderCell: (params) => {
+      const targetActual = params.value?.target;
       return (
         <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-          {params.value}
+          {targetActual}
         </Typography>
       );
     }

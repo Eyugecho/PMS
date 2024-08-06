@@ -26,9 +26,9 @@ const icons = {
   IconLayoutSidebarInactive
 };
 
-// ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
+// ==============================|| menus  MENU ITEMS ||============================== //
 
-const Kpi_basic_config = {
+const Menus = {
   id: 'Kpi_basic_config',
   title: 'Planning',
   type: 'group',
@@ -72,29 +72,25 @@ const Kpi_basic_config = {
       id: 'mointoring',
       title: 'Monitoring',
       type: 'collapse',
+      url: 'monitoring/daily',
       icon: icons.IconBrandCampaignmonitor,
       children: [
         {
           id: 'daily-activity',
-          title: 'Daily Activity Settings',
-          type: 'item'
-          // url: '/kpi/kpi-managment',
-          // icon: icons.IconReport,
-
-          // target: true
-        },
-        {
-          id: 'moitoring-evaluation',
-          title: 'Mointoring & Evaluation',
-          type: 'item'
-          // url: '/kpi/kpi-managment',
-          // icon: icons.IconReport,
-
-          // target: true
+          title: 'Daily Activity',
+          type: 'item',
+          url: 'monitoring/daily'
         }
       ]
     },
 
+    {
+      id: 'evaluation',
+      title: 'Evaluation',
+      type: 'item',
+      url: 'evaluation',
+      icon: icons.IconChecklist
+    },
     {
       id: 'approval-settings',
       title: 'Approval Managment',
@@ -105,19 +101,13 @@ const Kpi_basic_config = {
           id: 'approvals',
           title: 'Approvals',
           type: 'item',
-          // url: '/kpi/kpi-managment',
-          icon: icons.IconReport
-
-          // target: true
+          url: '/approvals'
         },
         {
           id: 'feedbacks',
           title: 'Feedbacks',
           type: 'item',
-          // url: '/kpi/kpi-managment',
-          icon: icons.IconReport
-
-          // target: true
+          url: '/feedbacks'
         }
       ]
     },
@@ -125,12 +115,10 @@ const Kpi_basic_config = {
       id: 'grading-ranking',
       title: 'Grading & Ranking',
       type: 'item',
-      // url: '/basic-config/basic-config-creation',
+      url: '/ranking',
       icon: icons.IconReport
-
-      // target: true
     }
   ]
 };
 
-export default Kpi_basic_config;
+export default Menus;

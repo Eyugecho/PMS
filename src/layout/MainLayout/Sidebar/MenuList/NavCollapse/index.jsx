@@ -1,30 +1,26 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import Collapse from '@mui/material/Collapse';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Typography from '@mui/material/Typography';
+import { Collapse, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 
 // project imports
 import NavItem from '../NavItem';
 
 // assets
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+// import { IconChevronDown, IconChevronUp } from '@tabler/icons';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { useLocation } from 'react-router-dom';
 
 // ==============================|| SIDEBAR MENU LIST COLLAPSE ITEMS ||============================== //
 
 const NavCollapse = ({ menu, level }) => {
   const theme = useTheme();
+
   const customization = useSelector((state) => state.customization);
-  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -32,9 +28,6 @@ const NavCollapse = ({ menu, level }) => {
   const handleClick = () => {
     setOpen(!open);
     setSelected(!selected ? menu.id : null);
-    if (menu?.id !== 'authentication') {
-      navigate(menu.children[0]?.url);
-    }
   };
 
   const { pathname } = useLocation();
@@ -84,7 +77,7 @@ const NavCollapse = ({ menu, level }) => {
 
   const Icon = menu.icon;
   const menuIcon = menu.icon ? (
-    <Icon strokeWidth={1.5} size="1.3rem" style={{ marginTop: 'auto', marginBottom: 'auto',color:'#fff' }} />
+    <Icon strokeWidth={1.5} size="1.3rem" style={{ marginTop: 'auto', marginBottom: 'auto' }} />
   ) : (
     <FiberManualRecordIcon
       sx={{
@@ -102,9 +95,8 @@ const NavCollapse = ({ menu, level }) => {
           borderRadius: `${customization.borderRadius}px`,
           mb: 0.5,
           alignItems: 'flex-start',
-          backgroundColor: level > 1 ? 'transparent !important' : 'inherit',
-          py: level > 1 ? 1 : 0.3,
-          pl: `${level * 20}px`
+          py: level > 1 ? 1 : 1.25,
+          pl: `${level * 24}px`
         }}
         selected={selected === menu.id}
         onClick={handleClick}
@@ -112,7 +104,7 @@ const NavCollapse = ({ menu, level }) => {
         <ListItemIcon sx={{ my: 'auto', minWidth: !menu.icon ? 18 : 36 }}>{menuIcon}</ListItemIcon>
         <ListItemText
           primary={
-            <Typography variant={selected === menu.id ? 'h5' : 'body1'} color="#fff" sx={{ my: 'auto' }}>
+            <Typography variant={selected === menu.id ? 'h5' : 'body2'} color="inherit" sx={{ my: 'auto' }}>
               {menu.title}
             </Typography>
           }
@@ -143,9 +135,7 @@ const NavCollapse = ({ menu, level }) => {
               top: 0,
               height: '100%',
               width: '1px',
-              opacity: 1,
-              background: 'theme.palette.primary.light',
-              
+              opacity: 1
             }
           }}
         >

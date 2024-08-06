@@ -52,7 +52,7 @@ export default function themeTypography(theme) {
       fontWeight: 400
     },
     body1: {
-      fontSize: '0.75rem',
+      fontSize: '0.875rem',
       fontWeight: 400,
       lineHeight: '1.334em'
     },
@@ -91,23 +91,23 @@ export default function themeTypography(theme) {
       width: '100%',
       minHeight: 'calc(100vh - 88px)',
       flexGrow: 1,
-      padding: '10px',
-      marginTop: '75px',
+      padding: '20px',
+      marginTop: '88px',
       marginRight: '20px',
       borderRadius: `${theme?.customization?.borderRadius}px`
     },
     menuCaption: {
       fontSize: '0.875rem',
       fontWeight: 500,
-      color: '#gray',
-      padding: '2px',
+      color: theme.heading,
+      padding: '6px',
       textTransform: 'capitalize',
       marginTop: '10px'
     },
     subMenuCaption: {
       fontSize: '0.6875rem',
       fontWeight: 500,
-      color: theme.darkTextSecondary,
+      color: theme.background,
       textTransform: 'capitalize'
     },
     commonAvatar: {
@@ -120,8 +120,8 @@ export default function themeTypography(theme) {
       fontSize: '1rem'
     },
     mediumAvatar: {
-      width: '28px',
-      height: '28px',
+      width: '34px',
+      height: '34px',
       fontSize: '1.2rem'
     },
     largeAvatar: {
