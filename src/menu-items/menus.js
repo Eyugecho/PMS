@@ -9,7 +9,10 @@ import {
   IconBrandCampaignmonitor,
   IconAdjustmentsHorizontal,
   IconFile3d,
-  IconLayoutSidebarInactive
+  IconLayoutSidebarInactive,
+  IconCircleCheck,
+  IconTimeDuration0,
+  IconChecklist
 } from '@tabler/icons-react';
 
 // constant
@@ -23,43 +26,40 @@ const icons = {
   IconFileReport,
   IconBrandCampaignmonitor,
   IconFile3d,
-  IconLayoutSidebarInactive
+  IconLayoutSidebarInactive,
+  IconCircleCheck,
+  IconTimeDuration0,
+  IconChecklist
 };
 
 // ==============================|| menus  MENU ITEMS ||============================== //
 
 const Menus = {
-  id: 'planning',
+  id: 'Kpi_basic_config',
   title: 'Planning',
   type: 'group',
   // requiredRoles: ['Admin'],
   children: [
-    // {
-    //   id: 'basic-config',
-    //   title: 'Pre-Setups',
-    //   type: 'item',
-    //   url: '/basic-config/basic-config-creation',
-    //   icon: icons.IconSettingsStar
-
-    //   // target: true
-    // },
     {
-      id: 'kpi',
-      title: 'Kpi Managment',
-      type: 'item',
-      url: '/kpi/kpi-managment',
+      id: 'authentication',
+      title: 'KPI Managment',
+      type: 'collapse',
       icon: icons.IconFileReport,
-
-      // target: true
+      children: [
+        {
+          id: 'kpi',
+          title: 'Register KPI',
+          type: 'item',
+          url: '/kpi/kpi-managment'
+        }
+      ]
     },
-
-
     {
       id: 'planning',
       title: 'Planning',
       type: 'item',
-      icon: icons.IconAdjustmentsHorizontal,
-      url: '/planning'
+      url: '/planning',
+      icon: icons.IconAdjustmentsHorizontal
     },
     {
       id: 'eod_activity',
@@ -79,7 +79,7 @@ const Menus = {
           id: 'daily-activity',
           title: 'Daily Activity',
           type: 'item',
-          url: 'placeholder'
+          url: 'monitoring/daily'
         }
       ]
     },
@@ -101,13 +101,13 @@ const Menus = {
           id: 'approvals',
           title: 'Approvals',
           type: 'item',
-          url: 'placeholder'
+          url: '/approvals'
         },
         {
           id: 'feedbacks',
           title: 'Feedbacks',
           type: 'item',
-          url: 'placeholder'
+          url: '/feedbacks'
         }
       ]
     },
@@ -115,7 +115,7 @@ const Menus = {
       id: 'grading-ranking',
       title: 'Grading & Ranking',
       type: 'item',
-      url: 'placeholder',
+      url: '/ranking',
       icon: icons.IconReport
     }
   ]
