@@ -323,8 +323,6 @@ const AuthLogin = ({ ...others }) => {
         password: values.password
       });
 
-      console.log('Server response:', response.data);
-
       if (response.data.success) {
         const { access_token } = response.data.data; // Ensure to extract access_token from data
 
@@ -346,14 +344,14 @@ const AuthLogin = ({ ...others }) => {
         localStorage.setItem('token', access_token);
         dispatch(setUser(user));
 
-        toast.success('Login successful...!');
+        toast.success('Login successful!');
 
         if (hasRole(user.roles, 'CEO')) {
           navigate('/kpi/kpi-managment');
         } else if (hasRole(user.roles, 'Admin')) {
           navigate('/Eod/Eod-act');
         } else {
-          navigate('/dashboard');
+          navigate('/');
         }
       } else {
         setStatus({ success: false });
@@ -361,7 +359,6 @@ const AuthLogin = ({ ...others }) => {
         setSubmitting(false);
       }
     } catch (error) {
-      console.error('Login error:', error);
       setStatus({ success: false });
       setErrors({ submit: error.message });
       setSubmitting(false);

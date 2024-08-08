@@ -14,7 +14,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
+  DialogTitle
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -49,9 +49,9 @@ function KpiManagement() {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${config.API_URL_Units}/kpis`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (response.data.success) {
@@ -70,9 +70,9 @@ function KpiManagement() {
       const response = await fetch(`${config.API_URL_Units}/measuring-units`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       const data = await response.json();
@@ -92,9 +92,9 @@ function KpiManagement() {
       const response = await fetch(`${config.API_URL_Units}/perspective-types`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       const data = await response.json();
@@ -114,9 +114,9 @@ function KpiManagement() {
       const response = await fetch(`${config.API_URL_Units}/get-variation-categories`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       const data = await response.json();
@@ -134,9 +134,7 @@ function KpiManagement() {
     try {
       const token = localStorage.getItem('token');
       const method = editIndex !== null ? 'PATCH' : 'POST';
-      const url = editIndex !== null 
-        ? `${config.API_URL_Units}/kpis/${kpis[editIndex].id}` 
-        : `${config.API_URL_Units}/kpis`;
+      const url = editIndex !== null ? `${config.API_URL_Units}/kpis/${kpis[editIndex].id}` : `${config.API_URL_Units}/kpis`;
 
       // Ensure that variation_category is a valid category
       if (!variationCategories.includes(values.variation_category)) {
@@ -147,11 +145,11 @@ function KpiManagement() {
         method,
         url,
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json, text/plain, */*',
+          Accept: 'application/json, text/plain, */*'
         },
-        data: values,
+        data: values
       });
 
       if (!response.data.success) {
@@ -160,9 +158,7 @@ function KpiManagement() {
       } else {
         setKpis((prevKpis) => {
           if (editIndex !== null) {
-            return prevKpis.map((kpi, index) =>
-              index === editIndex ? response.data.data : kpi
-            );
+            return prevKpis.map((kpi, index) => (index === editIndex ? response.data.data : kpi));
           } else {
             return [...prevKpis, response.data.data];
           }
@@ -194,15 +190,13 @@ function KpiManagement() {
       const token = localStorage.getItem('token');
       const response = await axios.delete(`${config.API_URL_Units}/kpis/${id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (response.status === 204 || response.data.success) {
-        setKpis((prevKpis) => 
-          prevKpis.filter((kpi) => kpi.id !== id)
-        );
+        setKpis((prevKpis) => prevKpis.filter((kpi) => kpi.id !== id));
         setSnackbarMessage('KPI deleted successfully!');
         setSnackbarSeverity('success');
       } else {
@@ -234,7 +228,7 @@ function KpiManagement() {
         handleSave(values);
       }
       resetForm();
-    },
+    }
   });
 
   const handleOpen = () => {
@@ -262,8 +256,26 @@ function KpiManagement() {
 
   const columns = [
     { field: 'name', headerName: 'Name', flex: 1 },
-    { field: 'perspective_type_id', headerName: 'Perspective Type', flex: 1 },
-    { field: 'measuring_unit_id', headerName: 'Measuring Unit', flex: 1 },
+    {
+      field: 'perspective_type',
+      headerName: 'Perspective Type',
+      renderCell: (params) => {
+        const perspective = params.value?.name;
+
+        return perspective;
+      },
+      flex: 1
+    },
+    {
+      field: 'measuring_unit',
+      headerName: 'Measuring Unit',
+      renderCell: (params) => {
+        const MU = params.value?.name;
+
+        return MU;
+      },
+      flex: 1
+    },
     { field: 'variation_category', headerName: 'Variation Category', flex: 1 },
     { field: 'description', headerName: 'Description', flex: 2 },
     {
@@ -279,23 +291,19 @@ function KpiManagement() {
             <DeleteIcon />
           </IconButton>
         </>
-      ),
-    },
+      )
+    }
   ];
 
   return (
     <Box sx={{ padding: 3 }}>
-
-
-
       <Card>
         <CardContent>
-          
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <Button variant="contained" color="primary" onClick={handleOpen}>
-          Add
-        </Button>
-      </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button variant="contained" color="primary" onClick={handleOpen}>
+              Add
+            </Button>
+          </Box>
           <DataGrid
             rows={kpis}
             columns={columns}
@@ -403,11 +411,7 @@ function KpiManagement() {
         </DialogContent>
       </Dialog>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-      >
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
           {snackbarMessage}
         </Alert>

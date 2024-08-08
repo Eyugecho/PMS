@@ -10,7 +10,7 @@ import settings from './settings';
 
 let role = 'Employee';
 const menuItems = {
-  items: [dashboard, Menus, report, department, pages, settings, other]
+  items: [dashboard, Menus, department, report, pages, settings, other]
 };
 // const adminMenu = {
 //   items: [dashboard, Menus, report]

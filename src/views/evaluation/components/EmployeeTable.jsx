@@ -137,7 +137,7 @@ const EmployeeTable = ({ employees }) => {
                       ) : (
                         <TableRow>
                           <TableCell colSpan={7} sx={{ width: '100%', border: 0 }}>
-                            <PlanTable plans={data} unitName={employee?.user.name} unitType={employee?.position} />
+                            <PlanTable plans={data} unitName={employee?.user.name} unitType={employee?.position} page="evaluation" />
                           </TableCell>
                         </TableRow>
                       )}

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card,
-  Stack,
   Table,
   Button,
   Container,
   TableBody,
-  Typography,
   TableContainer,
   TablePagination,
   Dialog,
@@ -21,15 +19,12 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import KpiTTableNoData from '../KpiT-table-no-data';
 import KpiTTableRow from '../KpiT-table-row';
 import KpiTTableHead from '../KpiT-table-head';
 import KpiTTableEmptyRows from '../KpiT-table-empty-rows';
 import KpiTTableToolbar from '../KpiT-table-toolbar';
-import { emptyRows, getComparator } from '../utils';
-import Iconify from '../../../ui-component/iconify/iconify';
+import { emptyRows } from '../utils';
 import config from '../../../configration/config';
-import axios from 'axios';
 
 export default function KpiTracking() {
   const [page, setPage] = useState(0);
@@ -51,7 +46,7 @@ export default function KpiTracking() {
     period: '',
     measuringUnit: '',
     weight: '',
-    frequency:'',
+    frequency: '',
     unit: '',
     unitType: ''
   });
@@ -85,152 +80,69 @@ export default function KpiTracking() {
       setTrackingData(JSON.parse(storedTrackingData));
     }
     // Fetch Frequencies
-        const storedFrequencies = localStorage.getItem('frequencies');
-        if (storedFrequencies) {
-          setFrequencies(JSON.parse(storedFrequencies));
-        }
-    // Fetch unit from API endpoint
-    // const fetchUnits = async () => {
-    //   try {
-    //     const token = localStorage.getItem('token');
-    //     if (!token) {
-    //       throw new Error('No token found');
-    //     }
-
-    //     const response = await fetch(`${config.API_URL_Units}/units`, {
-    //       method: 'GET',
-    //       headers: {
-    //         'Authorization': `Bearer ${token}`,
-    //         'Content-Type': 'application/json'
-    //       }
-    //     });
-
-    //     if (response.status === 401) {
-    //       console.error('Unauthorized. Redirecting to login...');
-    //       window.location.href = 'http://localhost:4000/all/pages/login/login3';
-    //       return;
-    //     }
-
-    //     if (!response.ok) {
-    //       throw new Error(`Failed to fetch Units: ${response.statusText}`);
-    //     }
-
-    //     const result = await response.json();
-    //     if (result.success && Array.isArray(result.data.data)) {
-    //       setUnits(result.data.data);
-    //     } else {
-    //       console.error('Expected an array but got:', result.data);
-    //     }
-    //   } catch (error) {
-    //     console.error('Failed to fetch Uints:', error);
-    //   }
-
-    // };
-
-    // fetchUnits();
-      // Fetch unit types from the backend
-  // const fetchUnitTypes = async () => {
-  //   try {
-  //     const token = localStorage.getItem('token');
-  //     if (!token) {
-  //       throw new Error('No token found');
-  //     }
-
-  //     const response = await fetch(`${config.API_URL_Units}/unit-types`, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Authorization': `Bearer ${token}`,
-  //         'Content-Type': 'application/json'
-  //       }
-  //     });
-
-  //     if (response.status === 401) {
-  //       console.error('Unauthorized. Redirecting to login...');
-  //       window.location.href = 'http://localhost:4000/all/pages/login/login3';
-  //       return;
-  //     }
-
-  //     if (!response.ok) {
-  //       throw new Error(`Failed to fetch unit types: ${response.statusText}`);
-  //     }
-
-  //     const result = await response.json();
-  //     console.log(result);
-  //     if (result.success && Array.isArray(result.data)) {
-  //       setUnitTypes(result.data);
-  //     } else {
-  //       console.error('Expected an array but got:', result.data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to fetch unit types:', error);
-  //   }
-  // };
-
-  // fetchUnitTypes();
-
- // Fetch unit types and units from the backend
- // Fetch unit types and units from the backend
- const fetchUnitTypesWithUnits = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error('No token found');
-
-    const unitTypesResponse = await fetch(`${config.API_URL_Units}/unit-types`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (unitTypesResponse.status === 401) {
-      console.error('Unauthorized. Redirecting to login...');
-      window.location.href = 'http://localhost:4000/all/pages/login/login3';
-      return;
+    const storedFrequencies = localStorage.getItem('frequencies');
+    if (storedFrequencies) {
+      setFrequencies(JSON.parse(storedFrequencies));
     }
 
-    if (!unitTypesResponse.ok) throw new Error(`Failed to fetch unit types: ${unitTypesResponse.statusText}`);
+    const fetchUnitTypesWithUnits = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token found');
 
-    const unitTypesResult = await unitTypesResponse.json();
-    if (!unitTypesResult.success || !Array.isArray(unitTypesResult.data)) {
-      console.error('Expected an array of unit types but got:', unitTypesResult.data);
-      throw new Error('Expected an array of unit types but got incorrect data structure.');
-    }
+        const unitTypesResponse = await fetch(`${config.API_URL_Units}/unit-types`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-    const unitTypes = unitTypesResult.data;
-    setUnitTypes(unitTypes);
-
-    // Fetch units for each unit type
-    const unitsPromises = unitTypes.map(unitType =>
-      fetch(`${config.API_URL_Units}/unit-by-type/${unitType.id}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+        if (unitTypesResponse.status === 401) {
+          console.error('Unauthorized. Redirecting to login...');
+          window.location.href = 'http://localhost:4000/all/pages/login/login3';
+          return;
         }
-      }).then(res => res.json())
-    );
 
-    const unitsResults = await Promise.all(unitsPromises);
+        if (!unitTypesResponse.ok) throw new Error(`Failed to fetch unit types: ${unitTypesResponse.statusText}`);
 
-    // Map units by their type
-    const unitsByType = unitsResults.reduce((acc, unitsResult, index) => {
-      if (unitsResult.success && Array.isArray(unitsResult.data)) {
-        acc[unitTypes[index].id] = unitsResult.data;
+        const unitTypesResult = await unitTypesResponse.json();
+        if (!unitTypesResult.success || !Array.isArray(unitTypesResult.data)) {
+          console.error('Expected an array of unit types but got:', unitTypesResult.data);
+          throw new Error('Expected an array of unit types but got incorrect data structure.');
+        }
+
+        const unitTypes = unitTypesResult.data;
+        setUnitTypes(unitTypes);
+
+        // Fetch units for each unit type
+        const unitsPromises = unitTypes.map((unitType) =>
+          fetch(`${config.API_URL_Units}/unit-by-type/${unitType.id}`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }).then((res) => res.json())
+        );
+
+        const unitsResults = await Promise.all(unitsPromises);
+
+        // Map units by their type
+        const unitsByType = unitsResults.reduce((acc, unitsResult, index) => {
+          if (unitsResult.success && Array.isArray(unitsResult.data)) {
+            acc[unitTypes[index].id] = unitsResult.data;
+          }
+          return acc;
+        }, {});
+
+        setUnits(unitsByType);
+      } catch (error) {
+        console.error('Failed to fetch unit types or units:', error);
       }
-      return acc;
-    }, {});
+    };
 
-    setUnits(unitsByType);
-  } catch (error) {
-    console.error('Failed to fetch unit types or units:', error);
-  }
-};
-
-fetchUnitTypesWithUnits();
-  
-  
-
+    fetchUnitTypesWithUnits();
   }, []);
 
   const handleSort = (event, id) => {
@@ -258,10 +170,7 @@ fetchUnitTypesWithUnits();
     } else if (selectedIndex === selected.length - 1) {
       newSelected = newSelected.concat(selected.slice(0, -1));
     } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
+      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
     }
     setSelected(newSelected);
   };
@@ -292,7 +201,7 @@ fetchUnitTypesWithUnits();
     const { name, value } = event.target;
     setNewTracking((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: value
     }));
   };
   const handleUnitTypeChange = (event) => {
@@ -320,7 +229,7 @@ fetchUnitTypesWithUnits();
       period: '',
       measuringUnit: '',
       weight: '',
-      frequency:'',
+      frequency: '',
       unit: '',
       unitType: ''
     });
@@ -333,11 +242,7 @@ fetchUnitTypesWithUnits();
         <DialogContent>
           <FormControl fullWidth margin="dense">
             <InputLabel>KPI</InputLabel>
-            <Select
-              name="kpi"
-              value={newTracking.kpi}
-              onChange={handleChange}
-            >
+            <Select name="kpi" value={newTracking.kpi} onChange={handleChange}>
               {kpis.map((kpi, index) => (
                 <MenuItem key={index} value={kpi.name}>
                   {kpi.name}
@@ -347,11 +252,7 @@ fetchUnitTypesWithUnits();
           </FormControl>
           <FormControl fullWidth margin="dense">
             <InputLabel>Fiscal Year</InputLabel>
-            <Select
-              name="period"
-              value={newTracking.period}
-              onChange={handleChange}
-            >
+            <Select name="period" value={newTracking.period} onChange={handleChange}>
               {periods.map((period, index) => (
                 <MenuItem key={index} value={period.fiscalYear}>
                   {period.fiscalYear}
@@ -361,11 +262,7 @@ fetchUnitTypesWithUnits();
           </FormControl>
           <FormControl fullWidth margin="normal">
             <InputLabel>Unit Type</InputLabel>
-            <Select
-              name="unitType"
-              value={selectedUnitType}
-              onChange={handleUnitTypeChange}
-            >
+            <Select name="unitType" value={selectedUnitType} onChange={handleUnitTypeChange}>
               {unitTypes.map((unitType) => (
                 <MenuItem key={unitType.id} value={unitType.id}>
                   {unitType.name}
@@ -373,27 +270,19 @@ fetchUnitTypesWithUnits();
               ))}
             </Select>
           </FormControl>
-            <FormControl fullWidth margin="dense">
-              <InputLabel>Units</InputLabel>
-              <Select
-                name="unit"
-                value={newTracking.unit}
-                onChange={handleChange}
-              >
-                {units[selectedUnitType]?.map((unit, index) => (
-                  <MenuItem key={index} value={unit.name}>
-                    {unit.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Units</InputLabel>
+            <Select name="unit" value={newTracking.unit} onChange={handleChange}>
+              {units[selectedUnitType]?.map((unit, index) => (
+                <MenuItem key={index} value={unit.name}>
+                  {unit.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <FormControl fullWidth margin="dense">
             <InputLabel>Frequencies</InputLabel>
-            <Select
-              name="frequency"
-              value={newTracking.frequency}
-              onChange={handleChange}
-            >
+            <Select name="frequency" value={newTracking.frequency} onChange={handleChange}>
               {frequencies.map((frequency, index) => (
                 <MenuItem key={index} value={frequency.name}>
                   {frequency.name}
@@ -402,16 +291,7 @@ fetchUnitTypesWithUnits();
             </Select>
           </FormControl>
 
-          {/* <TextField
-            margin="dense"
-            name="value"
-            label="Value"
-            type="number"
-            fullWidth
-            value={newTracking.value}
-            onChange={handleChange}
-          /> */}
-            <TextField
+          <TextField
             margin="dense"
             name="weight"
             label="Weight"
@@ -431,11 +311,7 @@ fetchUnitTypesWithUnits();
 
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <KpiTTableToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-          />
+          <KpiTTableToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
           <Button
             variant="contained"
             onClick={handleOpen}
@@ -446,9 +322,9 @@ fetchUnitTypesWithUnits();
               color: theme.palette.secondary.dark,
               '&[aria-controls="menu-list-grow"],&:hover': {
                 background: theme.palette.secondary.dark_icon_hover,
-                color: theme.palette.secondary.dark,
+                color: theme.palette.secondary.dark
               },
-              margin: '0 10px 0 0px',
+              margin: '0 10px 0 0px'
             }}
           >
             Add
@@ -472,38 +348,28 @@ fetchUnitTypesWithUnits();
                 { id: 'measuringUnit', label: 'Measuring Unit' },
                 { id: 'frequency', label: 'Frequency' },
                 { id: 'weight', label: 'Weight' },
-                { id: '' },
+                { id: '' }
               ]}
             />
             <TableBody>
-              {trackingData
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => (
-                  <KpiTTableRow
-                    key={index}
-                    kpi={row.kpi}
-                    period={row.period}
-                    unitType={row.unitType}
-                    unit={row.unit}
-                    measuringUnit={row.measuringUnit}
-                    weight={row.weight}
-                    frequency={row.frequency}
-                    selected={selected.indexOf(row.kpi) !== -1}
-                    handleClick={(event) => handleClick(event, row.kpi)}
-                  />
-                ))}
+              {trackingData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                <KpiTTableRow
+                  key={index}
+                  kpi={row.kpi}
+                  period={row.period}
+                  unitType={row.unitType}
+                  unit={row.unit}
+                  measuringUnit={row.measuringUnit}
+                  weight={row.weight}
+                  frequency={row.frequency}
+                  selected={selected.indexOf(row.kpi) !== -1}
+                  handleClick={(event) => handleClick(event, row.kpi)}
+                />
+              ))}
               <KpiTTableEmptyRows
                 height={emptyRows(page, rowsPerPage, trackingData.length)}
                 emptyRows={emptyRows(page, rowsPerPage, trackingData.length)}
               />
-              {/* <KpiTTableNoData
-                isNotFound={!applyFilter({
-                  data: trackingData,
-                  comparator: getComparator(order, orderBy),
-                  filterName,
-                }).length}
-                filterName={filterName}
-              /> */}
             </TableBody>
           </Table>
         </TableContainer>

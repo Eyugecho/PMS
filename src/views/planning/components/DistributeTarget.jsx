@@ -359,7 +359,7 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
                     <TableRow>
                       <TableCell sx={{ minWidth: 120 }}>Employee name</TableCell>
                       <TableCell sx={{ minWidth: 80 }}>Employee target</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Target weight(%)</TableCell>
+                      {currentIndex === 0 && <TableCell sx={{ minWidth: 80 }}>Annum weight(%)</TableCell>}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -387,15 +387,17 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
                               />
                             </TableCell>
 
-                            <TableCell>
-                              <InputBase
-                                sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                                value={targetWeight}
-                                onChange={(event) => handleEmployeeWeightChange(event, targets[currentIndex].id, unit.unit_id)}
-                                inputProps={{ 'aria-label': 'target' }}
-                                type="number"
-                              />
-                            </TableCell>
+                            {currentIndex === 0 && (
+                              <TableCell>
+                                <InputBase
+                                  sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: theme.palette.primary.main }}
+                                  value={targetWeight}
+                                  onChange={(event) => handleEmployeeWeightChange(event, targets[currentIndex].id, unit.unit_id)}
+                                  inputProps={{ 'aria-label': 'target' }}
+                                  type="number"
+                                />
+                              </TableCell>
+                            )}
                           </TableRow>
                         );
                       })
@@ -408,7 +410,7 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
                     <TableRow>
                       <TableCell sx={{ minWidth: 120 }}>Unit name</TableCell>
                       <TableCell sx={{ minWidth: 80 }}>Unit target</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Target Weight(%)</TableCell>
+                      {currentIndex === 0 && <TableCell sx={{ minWidth: 80 }}>Annum Weight(%)</TableCell>}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -435,15 +437,17 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
                                 type="number"
                               />
                             </TableCell>
-                            <TableCell>
-                              <InputBase
-                                sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                                value={targetWeight}
-                                onChange={(event) => handleUnitWeightChange(event, targets[currentIndex].id, unit.unit_id)}
-                                inputProps={{ 'aria-label': 'target' }}
-                                type="number"
-                              />
-                            </TableCell>
+                            {currentIndex === 0 && (
+                              <TableCell>
+                                <InputBase
+                                  sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
+                                  value={targetWeight}
+                                  onChange={(event) => handleUnitWeightChange(event, targets[currentIndex].id, unit.unit_id)}
+                                  inputProps={{ 'aria-label': 'target' }}
+                                  type="number"
+                                />
+                              </TableCell>
+                            )}
                           </TableRow>
                         );
                       })

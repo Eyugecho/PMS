@@ -102,6 +102,7 @@ const Units = () => {
     };
 
     const data = {
+      parent_id: value?.parent_id,
       unit_type_id: value?.type,
       name: value?.name,
       manager: value?.manager,
@@ -167,7 +168,7 @@ const Units = () => {
   };
 
   useEffect(() => {
-    const handleFetchingDepartment = () => {
+    const handleFetchingUnits = () => {
       const token = localStorage.getItem('token');
       const Api = Backend.api + Backend.units;
       const header = {
@@ -199,7 +200,7 @@ const Units = () => {
     };
 
     handleFetchingTypes();
-    handleFetchingDepartment();
+    handleFetchingUnits();
 
     return () => {};
   }, []);
@@ -299,6 +300,7 @@ const Units = () => {
         add={add}
         isAdding={isAdding}
         types={unitType}
+        units={data}
         managers={[
           { id: 1, name: 'Mekuanint Birara' },
           { id: 2, name: 'Biruk Asmamaw' }

@@ -10,6 +10,7 @@ const PageContainer = ({ back, title, rightOption, children }) => {
   return (
     <Grid container>
       <Grid
+        item
         xs={12}
         sx={{
           display: 'flex',

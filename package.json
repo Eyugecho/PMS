@@ -1,13 +1,13 @@
 {
-  "name": "berry-free-material-react",
-  "version": "3.5.0",
+  "name": "droga-pms",
+  "version": "1.0.0",
   "private": true,
   "author": {
-    "name": "CodedThemes",
-    "email": "CodedThemes@gmail.com",
-    "url": "https://codedthemes.com/"
+    "name": "Droga Consulting",
+    "email": "contact@drogaconsulting.com",
+    "url": "https://drogaconsulting.com/"
   },
-  "homepage": "https://berrydashboard.io/all",
+  "homepage": "https://droga-pms.netlify.app/all",
   "scripts": {
     "start": "env-cmd -f .env vite",
     "build": "vite build",

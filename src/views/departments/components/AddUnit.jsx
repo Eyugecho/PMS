@@ -22,13 +22,15 @@ import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Unit name is required'),
+  parent_id: Yup.string().required('Unit is required'),
   type: Yup.string().required('Unit type is required')
 });
 
-export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmission }) => {
+export const AddUnit = ({ add, isAdding, units, types, managers, onClose, handleSubmission }) => {
   const formik = useFormik({
     initialValues: {
       name: '',
+      parent_id: '',
       type: '',
       manager: null,
       description: ''
@@ -38,6 +40,7 @@ export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmiss
       handleSubmission(values);
     }
   });
+
   return (
     <React.Fragment>
       <Dialog open={add} onClose={onClose}>
@@ -50,7 +53,31 @@ export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmiss
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)}>
+            <FormControl fullWidth error={formik.touched.parent_id && Boolean(formik.errors.parent_id)}>
+              <InputLabel htmlfor="unit">Select unit</InputLabel>
+
+              <Select id="unit" name="parent_id" label="Select unit" value={formik.values.parent_id} onChange={formik.handleChange}>
+                {units.length === 0 ? (
+                  <Typography variant="body2" sx={{ padding: 1 }}>
+                    Unit is not found
+                  </Typography>
+                ) : (
+                  units?.map((unit, index) => (
+                    <MenuItem key={index} value={unit.id}>
+                      {unit.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+
+              {formik.touched.parent_id && formik.errors.parent_id && (
+                <FormHelperText error id="standard-weight-helper-text-parent_id">
+                  {formik.errors.parent_id}
+                </FormHelperText>
+              )}
+            </FormControl>
+
+            <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
               <InputLabel htmlfor="type">Unit type</InputLabel>
 
               <Select id="type" name="type" label="Unit type" value={formik.values.type} onChange={formik.handleChange}>

@@ -85,10 +85,10 @@ const Menus = {
     // },
 
     {
-      id: 'evaluation',
+      id: 'evaluations',
       title: 'Evaluation',
       type: 'item',
-      url: 'evaluation',
+      url: 'evaluations',
       icon: icons.IconChecklist
     },
     {

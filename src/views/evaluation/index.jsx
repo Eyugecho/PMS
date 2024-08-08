@@ -6,7 +6,7 @@ import UnitTable from './components/UnitTable';
 import { toast } from 'react-toastify';
 import EmployeeTable from './components/EmployeeTable';
 
-export const Evaluation = () => {
+const Evaluations = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
@@ -95,3 +95,5 @@ export const Evaluation = () => {
     </PageContainer>
   );
 };
+
+export default Evaluations;

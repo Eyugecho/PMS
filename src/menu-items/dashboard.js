@@ -16,7 +16,7 @@ const dashboard = {
       id: 'default',
       title: 'Home',
       type: 'item',
-      url: '/placeholder',
+      url: '/planning',
       icon: icons.IconDashboard,
       breadcrumbs: false
     }

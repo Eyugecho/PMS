@@ -289,7 +289,7 @@ const ViewUnit = () => {
                 <Typography variant="caption">The list of assigned target will be listed here</Typography>
               </Box>
             ) : (
-              <PlanTable plans={data} />
+              <PlanTable plans={data} page="unit" />
             )}
           </Box>
         </Grid>

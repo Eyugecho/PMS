@@ -2,6 +2,9 @@ const Backend = {
   //   api: 'https://localhost:8000/api/',
   api: 'https://droga-pms.amanueld.info/api/',
   auth: 'https://droga-auth.amanueld.info/api/',
+  resetPassword: 'reset-password',
+  setPassword: 'create-password',
+  verifyOtp: 'verify-otp',
   roles: 'roles',
   units: 'units',
   types: 'unit-types',
@@ -22,5 +25,7 @@ const Backend = {
   getUnitTarget: 'get-tasks-by-unit/',
   getEmployeeTarget: 'get-tasks-by-employee/',
   evaluate: 'evaluate'
+
+  // -----------------------------------------------
 };
 export default Backend;

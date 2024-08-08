@@ -177,7 +177,7 @@ const ViewEmployee = () => {
                 <Typography variant="caption">The list of assigned target will be listed here</Typography>
               </Box>
             ) : (
-              <PlanTable plans={data} />
+              <PlanTable plans={data} page="employee"/>
             )}
           </Box>
         </Grid>
