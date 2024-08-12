@@ -40,7 +40,11 @@ export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmiss
   });
   return (
     <React.Fragment>
-      <Dialog open={add} onClose={onClose}>
+      <Dialog open={add} onClose={onClose}         sx={ {
+          backdropFilter: 'blur(10px)', // Frosted glass effect
+          backgroundColor: 'rgba(255, 255, 255, 0.1)', // Optional: Lightens the backdrop
+        }}>
+
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 2 }}>
           <DialogTitle variant="h4">Add Unit</DialogTitle>
           <IconButton onClick={onClose}>

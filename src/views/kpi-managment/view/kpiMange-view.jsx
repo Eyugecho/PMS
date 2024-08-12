@@ -262,8 +262,8 @@ function KpiManagement() {
 
   const columns = [
     { field: 'name', headerName: 'Name', flex: 1 },
-    { field: 'perspective_type_id', headerName: 'Perspective Type', flex: 1 },
-    { field: 'measuring_unit_id', headerName: 'Measuring Unit', flex: 1 },
+    { field: 'perspective_type', headerName: 'Perspective Type', flex: 1 },
+    { field: 'measuring_unit', headerName: 'Measuring Unit',  flex: 1 },
     { field: 'variation_category', headerName: 'Variation Category', flex: 1 },
     { field: 'description', headerName: 'Description', flex: 2 },
     {

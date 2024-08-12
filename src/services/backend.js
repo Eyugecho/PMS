@@ -21,6 +21,11 @@ const Backend = {
   getManagers: 'get-managers',
   getUnitTarget: 'get-tasks-by-unit/',
   getEmployeeTarget: 'get-tasks-by-employee/',
-  evaluate: 'evaluate'
+  evaluate: 'evaluate',
+  
+  permissi: 'permissions',
+
+  role: 'roles',
+
 };
 export default Backend;

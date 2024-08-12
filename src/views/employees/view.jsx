@@ -17,6 +17,7 @@ import { useLocation } from 'react-router-dom';
 import { DetailInfo } from './components/DetailInfo';
 import { formatDate } from 'utils/function';
 import Backend from 'services/backend';
+import PlanTable from 'views/evaluation/components/PlanTable';
 
 const IconColor = 'black';
 
@@ -151,7 +152,7 @@ const ViewEmployee = () => {
               borderColor: theme.palette.grey[200]
             }}
           >
-            <Typography variant="h4">Employee KPI's</Typography>
+            <Typography variant="h4">Employee KPI's and Targets</Typography>
 
             <IconButton>
               <IconDotsVertical size={18} />
@@ -176,13 +177,7 @@ const ViewEmployee = () => {
                 <Typography variant="caption">The list of assigned target will be listed here</Typography>
               </Box>
             ) : (
-              <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <IconList size={80} color={theme.palette.grey[400]} />
-                <Typography variant="h4" sx={{ marginTop: 1.6 }}>
-                  Employee target will be listed here
-                </Typography>
-                <Typography variant="caption">The list of assigned target will be implemented and listed here</Typography>
-              </Box>
+              <PlanTable plans={data} />
             )}
           </Box>
         </Grid>

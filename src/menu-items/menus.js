@@ -12,7 +12,8 @@ import {
   IconLayoutSidebarInactive,
   IconCircleCheck,
   IconTimeDuration0,
-  IconChecklist
+  IconChecklist,
+ 
 } from '@tabler/icons-react';
 
 // constant
@@ -29,7 +30,8 @@ const icons = {
   IconLayoutSidebarInactive,
   IconCircleCheck,
   IconTimeDuration0,
-  IconChecklist
+  IconChecklist,
+  
 };
 
 // ==============================|| menus  MENU ITEMS ||============================== //
@@ -83,6 +85,21 @@ const Menus = {
         }
       ]
     },
+    // {
+    //   id: 'mointoring',
+    //   title: 'Monitoring',
+    //   type: 'collapse',
+    //   url: 'monitoring/daily',
+    //   icon: icons.IconBrandCampaignmonitor,
+    //   children: [
+    //     {
+    //       id: 'daily-activity',
+    //       title: 'Daily Activity',
+    //       type: 'item',
+    //       url: 'placeholder'
+    //     }
+    //   ]
+    // },
 
     {
       id: 'evaluation',

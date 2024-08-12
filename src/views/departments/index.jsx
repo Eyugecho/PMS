@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Divider, Grid, IconButton, Menu, Paper, Typography, useTheme ,MenuItem,ListItemIcon} from '@mui/material';
 import Backend from 'services/backend';
 import Fallbacks from 'utils/components/Fallbacks';
 import Search from 'ui-component/search';
@@ -11,6 +11,13 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PageContainer from 'ui-component/MainPage';
 import UnitsTable from './components/UnitsTable';
+import { Container } from '@mui/system';
+import { MoreHoriz } from '@mui/icons-material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+
 
 //================================ UNITS MANAGEMENT PAGE=====================
 const Units = () => {
@@ -25,6 +32,19 @@ const Units = () => {
   const [managers, setManagers] = useState([]);
   const [add, setAdd] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedUnit, setSelectedUnit] = useState(null);
+
+
+  const handleClick = (event, unit) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedUnit(unit);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setSelectedUnit(null);
+  };
 
   const handleFetchingTypes = () => {
     setUnitLoading(true);
@@ -203,8 +223,19 @@ const Units = () => {
 
     return () => {};
   }, []);
+
+  const handleEdit = () => {
+    // Implement edit functionality
+    handleClose();
+  };
+
+  const handleDelete = () => {
+    // Implement delete functionality
+    handleClose();
+  }
   return (
-    <PageContainer title="Units">
+    <Container title="Units">
+      <Paper elevation={2} style={{ padding: '0px', backgroundColor: '#fff' }}>
       <Grid
         container
         sx={{
@@ -243,8 +274,24 @@ const Units = () => {
           </Grid>
 
           <Grid xs={12} sm={12} md={3.6} lg={3.6} xl={3.6} sx={{ paddingTop: 1 }}>
-            <Box sx={{ border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 1.6, margin: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6 }}>
+            
+            <Box     
+               sx={{ 
+                    background: theme.palette.grey[100], 
+                    color: '#000', 
+                    borderRadius: 2,
+                    fontWeight: 'bold', 
+                    fontSize: '0.9rem', 
+                    marginTop: 1,
+                    borderBottom: `2px solid ${theme.palette.divider}`,
+                    position: 'relative',
+                    padding: '12px 16px',
+                    '&:not(:last-of-type)': {
+                      borderRight: `1px solid ${theme.palette.divider}`,
+                    }
+                  }}
+                >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 1.6 , borderColor: theme.palette.grey[300], }}>
                 <Typography variant="subtitle1">Unit Types</Typography>
                 <AddUnitType isAdding={isAdding} handleSubmission={(value) => handleTypeAddition(value)} />
               </Box>
@@ -276,6 +323,7 @@ const Units = () => {
                         paddingX: 2,
                         ':hover': {
                           backgroundColor: theme.palette.grey[50]
+                          
                         }
                       }}
                     >
@@ -283,14 +331,46 @@ const Units = () => {
                         {type.name}
                       </Typography>
 
-                      <IconButton>
-                        <IconDots size={18} style={{ color: theme.palette.grey[500] }} />
-                      </IconButton>
+                 <IconButton 
+                    onClick={(event) => handleClick(event)}
+                    size="small"
+                  >
+                    <MoreHoriz />
+                  </IconButton>
+
+                 <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                          sx={{
+                              '& .MuiPaper-root': {
+                                backdropFilter: 'blur(10px)', 
+                                backgroundColor: 'rgba(255, 255, 255, 0.3)', 
+                                borderRadius: 2,
+                                boxShadow: theme.shadows[1],
+                              },
+                            }}
+                  >
+                    <MenuItem onClick={handleEdit}>
+                      <ListItemIcon>
+                        <EditIcon fontSize="small" style={{paddingRight:'4px' ,color:'#11365A'}}/>
+                      </ListItemIcon>
+                      Edit
+                    </MenuItem>
+                    <MenuItem onClick={handleDelete}>
+                      <ListItemIcon>
+                        <DeleteIcon fontSize="small" style={{paddingRight:'4px' ,color:'red'}}/>
+                      </ListItemIcon>
+                      Delete
+                    </MenuItem>
+                  </Menu>
+                      
                     </Box>
                   ))
                 )}
               </Box>
             </Box>
+
           </Grid>
         </Grid>
       </Grid>
@@ -307,7 +387,8 @@ const Units = () => {
         handleSubmission={(value) => handleUnitAddition(value)}
       />
       <ToastContainer />
-    </PageContainer>
+      </Paper>
+    </Container>
   );
 };
 

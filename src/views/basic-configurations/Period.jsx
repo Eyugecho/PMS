@@ -120,7 +120,8 @@ function Period() {
             },
             body: JSON.stringify(newPeriod),
           });
-
+          console.log(response);
+          
           const result = await response.json();
           if (result.success) {
             toast.success(editIndex !== null ? 'Period updated' : 'Period created');
@@ -130,7 +131,7 @@ function Period() {
             toast.error(result.message || 'Failed to save period');
           }
         } catch (error) {
-          toast.error('Error occurred while saving period');
+          // toast.error('Error occurred while saving period');
         }
 
         resetForm();

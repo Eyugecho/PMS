@@ -35,12 +35,14 @@ const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/v
 const KpiManagePage = Loadable(lazy(() => import('views/kpi-managment/view/kpiMange-view')));
 const KpiTrackingPage = Loadable(lazy(() => import('views/kpi-tracking/view/kpiTrack-view')));
 const EodActivityPage = Loadable(lazy(() => import('views/Eod/view/Eod-view')));
+const RolePermission = Loadable(lazy(() => import('views/roles_permission/Page')));
 
 // const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
 // const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
+const Testpage = Loadable(lazy(() => import('views/sample-page/test')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -327,6 +329,23 @@ const MainRoutes = {
         }
       ]
     },
+    {
+      path: 'rolePermission',
+      element: (
+        <Protected>
+          <RolePermission />
+        </Protected>
+      )
+    },
+    {
+      path: 'test',
+      element: (
+        <Protected>
+          <Testpage/>
+        </Protected>
+      )
+    },
+
     // {
     //   path: 'icons',
     //   children: [
