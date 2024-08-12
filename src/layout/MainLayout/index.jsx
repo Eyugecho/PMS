@@ -25,19 +25,13 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({
       duration: theme.transitions.duration.leavingScreen
     }),
     [theme.breakpoints.up('md')]: {
-      marginLeft: -(drawerWidth - 20),
-      width: `calc(100% - ${drawerWidth}px)`
+      width: `calc(100% - ${drawerWidth})`
     },
     [theme.breakpoints.down('md')]: {
-      marginLeft: '20px',
-      width: `calc(100% - ${drawerWidth}px)`,
-      padding: '16px'
+      width: `100%`
     },
     [theme.breakpoints.down('sm')]: {
-      marginLeft: '10px',
-      width: `calc(100% - ${drawerWidth}px)`,
-      padding: '16px',
-      marginRight: '10px'
+      width: `100%`
     }
   }),
   ...(open && {
@@ -48,13 +42,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({
     marginLeft: 0,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    width: `calc(100% - ${drawerWidth}px)`,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: '20px'
-    },
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: '10px'
-    }
+    width: `calc(100% - ${drawerWidth}px)`
   })
 }));
 
@@ -63,7 +51,6 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({
 const MainLayout = () => {
   const theme = useTheme();
   const matchDownMd = useMediaQuery(theme.breakpoints.down('md'));
-  // Handle left drawer
   const leftDrawerOpened = useSelector((state) => state.customization.opened);
   const dispatch = useDispatch();
   const handleLeftDrawerToggle = () => {
@@ -72,28 +59,34 @@ const MainLayout = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        enableColorOnDark
-        position="fixed"
-        color="inherit"
-        elevation={3}
-        sx={{
-          bgcolor: theme.palette.background.default,
-          transition: leftDrawerOpened ? theme.transitions.create('width') : 'none'
-        }}
-      >
-        <Toolbar>
-          <Header handleLeftDrawerToggle={handleLeftDrawerToggle} />
-        </Toolbar>
-      </AppBar>
-
-      {/* drawer */}
       <Sidebar drawerOpen={!matchDownMd ? leftDrawerOpened : !leftDrawerOpened} drawerToggle={handleLeftDrawerToggle} />
+      <Main theme={theme} open={leftDrawerOpened} sx={{ backgroundColor: theme.palette.primary.light }}>
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            right: 0,
+            zIndex: 2,
+            paddingX: 4,
+            paddingY: 1.6,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: {
+              xl: leftDrawerOpened ? `calc(100% - ${drawerWidth}px)` : '100%',
+              lg: leftDrawerOpened ? `calc(100% - ${drawerWidth}px)` : '100%',
+              md: '100%',
+              sm: '100%',
+              xs: '100%'
+            },
+            backgroundColor: theme.palette.primary.light,
+            borderBottom: 0.6,
+            borderColor: theme.palette.divider
+          }}
+        >
+          <Header handleLeftDrawerToggle={handleLeftDrawerToggle} drawerOpen={leftDrawerOpened} />
+        </Box>
 
-      {/* main content */}
-      <Main theme={theme} open={leftDrawerOpened}>
-        {/* <Breadcrumbs separator={IconChevronRight} icon title leftAligns /> */}
         <Outlet />
       </Main>
       <Customization />

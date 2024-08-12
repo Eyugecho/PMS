@@ -8,11 +8,9 @@ import Stack from '@mui/material/Stack';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 // third-party
-import PerfectScrollbar from 'react-perfect-scrollbar';
 import { BrowserView, MobileView } from 'react-device-detect';
 
 // project imports
-import MenuCard from './MenuCard';
 import MenuList from './MenuList';
 import LogoSection from '../LogoSection';
 import Chip from 'ui-component/extended/Chip';
@@ -27,26 +25,25 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
 
   const drawer = (
     <>
-      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-        <Box sx={{ display: 'flex', p: 2, mx: 'auto' }}>
-          <LogoSection />
-        </Box>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          backgroundColor: theme.palette.primary.light,
+          width: drawerWidth,
+          zIndex: 1,
+          paddingY: 1.6,
+          paddingX: 2
+        }}
+      >
+        <LogoSection />
       </Box>
-      <BrowserView>
-        <PerfectScrollbar
-          component="div"
-          style={{
-            height: !matchUpMd ? 'calc(100vh - 56px)' : 'calc(100vh - 70px)',
-            paddingLeft: '16px',
-            paddingRight: '16px'
-          }}
-        >
-          <MenuList />
+      <BrowserView style={{ marginTop: 6, paddingLeft: 6, paddingRight: 12 }}>
+        <MenuList />
 
-          <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
-            <Chip label={import.meta.env.VITE_APP_VERSION} disabled chipcolor="secondary" size="small" sx={{ cursor: 'pointer' }} />
-          </Stack>
-        </PerfectScrollbar>
+        <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
+          <Chip label={import.meta.env.VITE_APP_VERSION} disabled chipcolor="secondary" size="small" sx={{ cursor: 'pointer' }} />
+        </Stack>
       </BrowserView>
       <MobileView>
         <Box sx={{ px: 2 }}>
@@ -62,7 +59,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const container = window !== undefined ? () => window.document.body : undefined;
 
   return (
-    <Box component="nav" sx={{ flexShrink: { md: 50 }, width: matchUpMd ? drawerWidth : 'auto' }} aria-label="mailbox folders">
+    <Box component="nav" sx={{ flexShrink: { md: 50 }, width: matchUpMd ? drawerWidth : 'auto' }} aria-label="drawers">
       <Drawer
         container={container}
         variant={matchUpMd ? 'persistent' : 'temporary'}
@@ -72,12 +69,8 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
         sx={{
           '& .MuiDrawer-paper': {
             width: drawerWidth,
-            background: theme.palette.background.default,
-            color: theme.palette.text.primary,
-            borderRight: 'none',
-            [theme.breakpoints.up('md')]: {
-              top: '73px'
-            }
+            background: theme.palette.primary.light,
+            color: theme.palette.text.primary
           }
         }}
         ModalProps={{ keepMounted: true }}

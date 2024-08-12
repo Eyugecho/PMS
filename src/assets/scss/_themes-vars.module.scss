@@ -4,19 +4,19 @@ $paper2: #000;
 
 // primary
 $primaryLight: #fcfcfc;
-$primaryMain: #11365a;
-$primaryDark: #0d2744;
-$primary200: #bfddf8;
-$primary800: #10487c;
+$primaryMain: #003b73;
+$primaryDark: #003b73;
+$primary200: #a7f1ff;
+$primary800: #0064e6;
 
 // secondary
-$secondaryLight_icon: #013463; // notification,hamberger,menuhover color
-$secondaryLight: #17566F; // notification,hamberger,menuhover color
-$secondaryMain: #000;
-$secondaryDark: #ffff;
-$secondaryDark_icon_hover: #17566F;
-$secondary200: #b39ddb;
-$secondary800: #000;
+$secondaryLight_icon: #f7ffc1; // notification,hamberger,menuhover color
+$secondaryLight: #fcffe7; // notification,hamberger,menuhover color
+$secondaryMain: #fff100;
+$secondaryDark: #442c04;
+$secondaryDark_icon_hover: #d1b300;
+$secondary200: #f4ff86;
+$secondary800: #89650a;
 
 // success Colors
 $successLight: #b9f6ca;
@@ -52,7 +52,7 @@ $grey900: #121926;
 // ==============================|| DARK THEME VARIANTS ||============================== //
 
 // paper & background
-$darkBackground: #1a223f; // level 3
+$darkBackground: #01080f; 
 $darkPaper: #111936; // level 4
 
 // dark 800 & 900
@@ -75,8 +75,8 @@ $darkSecondary800: #000;
 
 // text variants
 $darkTextTitle: #d7dcec;
-$darkTextPrimary: #bdc8f0;
-$darkTextSecondary: #8492c4;
+$darkTextPrimary: #c7d3eb;
+$darkTextSecondary: #3a4e96;
 
 // ==============================|| JAVASCRIPT ||============================== //
 

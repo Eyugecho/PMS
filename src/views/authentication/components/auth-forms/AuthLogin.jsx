@@ -1,28 +1,24 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { Formik } from 'formik';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 // third party
 import * as Yup from 'yup';
-import { Formik } from 'formik';
+
 // project imports
 import AnimateButton from 'ui-component/extended/AnimateButton';
 // assets
@@ -31,16 +27,17 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 // config
 import config from '../../../../configration/config';
-import { decodeToken, hasRole, hasPermission } from '../../../../store/permissionUtils';
+import { decodeToken, hasRole } from '../../../../store/permissionUtils';
 import { setUser } from '../../../../store/actions';
+import { AuthContext } from 'context/AuthContext';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
+  const { signin } = useContext(AuthContext);
   const customization = useSelector((state) => state.customization);
-  const [checked, setChecked] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -58,9 +55,8 @@ const AuthLogin = ({ ...others }) => {
       });
 
       if (response.data.success) {
-        const { access_token } = response.data.data; // Ensure to extract access_token from data
+        const { access_token } = response.data.data;
 
-        // Ensure token is a string
         if (typeof access_token !== 'string') {
           throw new Error('Invalid token format');
         }
@@ -76,7 +72,7 @@ const AuthLogin = ({ ...others }) => {
 
         localStorage.setItem('token', access_token);
         dispatch(setUser(user));
-
+        signin();
         toast.success('Login successful!');
 
         if (hasRole(user.roles, 'CEO')) {
@@ -170,7 +166,7 @@ const AuthLogin = ({ ...others }) => {
                   </InputAdornment>
                 }
                 label="Password"
-                inputProps={{}}
+                color="primary"
               />
               {touched.password && errors.password && (
                 <FormHelperText error id="standard-weight-helper-text-password-login">
@@ -178,13 +174,13 @@ const AuthLogin = ({ ...others }) => {
                 </FormHelperText>
               )}
             </FormControl>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-              <FormControlLabel
+            <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={1}>
+              {/* <FormControlLabel
                 control={
                   <Checkbox checked={checked} onChange={(event) => setChecked(event.target.checked)} name="checked" color="primary" />
                 }
                 label="Remember me"
-              />
+              /> */}
               <Link to={'/forgot-password'} variant="subtitle1" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
                 Forgot Password?
               </Link>
@@ -207,10 +203,8 @@ const AuthLogin = ({ ...others }) => {
                   sx={{
                     padding: 1.6,
                     transition: 'all .2s ease-in-out',
-                    color: theme.palette.secondary.dark,
                     '&[aria-controls="menu-list-grow"],&:hover': {
-                      background: theme.palette.secondary.dark_icon_hover,
-                      color: theme.palette.secondary.dark
+                      background: theme.palette.primary[800]
                     },
                     borderRadius: `${customization.borderRadius}px`
                   }}

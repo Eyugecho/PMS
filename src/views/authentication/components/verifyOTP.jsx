@@ -18,6 +18,7 @@ const Verification = ({ phone, onWrong, onResend, isResending }) => {
 
   const handleSavingUserToken = (token) => {
     localStorage.setItem('token', token);
+    navigate('/reset-password');
   };
 
   const EnteredCode = (entered) => {
@@ -48,9 +49,8 @@ const Verification = ({ phone, onWrong, onResend, isResending }) => {
       .then((response) => {
         if (response.success) {
           setIsSubmitting(false);
+          handleSavingUserToken(response.data.access_token);
           toast.success(response.data.message);
-          handleSavingUserToken(response.token);
-          navigate('/reset-password');
         } else {
           setIsSubmitting(false);
           toast.error(response.data.message);

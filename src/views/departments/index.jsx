@@ -1,14 +1,13 @@
+import 'react-toastify/dist/ReactToastify.css';
 import React, { useEffect, useState } from 'react';
 import { Box, Button, CircularProgress, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material';
+import { AddUnit } from './components/AddUnit';
+import { IconDots } from '@tabler/icons-react';
+import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
 import Fallbacks from 'utils/components/Fallbacks';
 import Search from 'ui-component/search';
-import { UnitList } from './components/UnitList';
-import { AddUnit } from './components/AddUnit';
-import { IconDots } from '@tabler/icons-react';
 import AddUnitType from './components/AddUnitType';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import PageContainer from 'ui-component/MainPage';
 import UnitsTable from './components/UnitsTable';
 
@@ -231,7 +230,7 @@ const Units = () => {
               </Box>
             ) : error ? (
               <Fallbacks severity="error" title="Server error" description="There is error fetching units" />
-            ) : data.length == !0 ? (
+            ) : data.length === 0 ? (
               <Fallbacks
                 severity="department"
                 title="Unit not found"

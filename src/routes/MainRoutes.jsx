@@ -4,7 +4,6 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
-import { element } from 'prop-types';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
@@ -23,6 +22,7 @@ const DailyActivity = Loadable(lazy(() => import('views/monitoring/daily')));
 const Evaluations = Loadable(lazy(() => import('views/evaluation')));
 const Monitoring = Loadable(lazy(() => import('views/monitoring')));
 const ViewPlan = Loadable(lazy(() => import('views/planning/View')));
+const Account = Loadable(lazy(() => import('views/account')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -328,24 +328,15 @@ const MainRoutes = {
         }
       ]
     },
-    // {
-    //   path: 'icons',
-    //   children: [
-    //     {
-    //       path: 'tabler-icons',
-    //       element: <UtilsTablerIcons />
-    //     }
-    //   ]
-    // },
-    // {
-    //   path: 'icons',
-    //   children: [
-    //     {
-    //       path: 'material-icons',
-    //       element: <UtilsMaterialIcons />
-    //     }
-    //   ]
-    // },
+    {
+      path: 'account',
+      element: (
+        <Protected>
+          <Account />
+        </Protected>
+      )
+    },
+
     {
       path: 'sample-page',
       element: (

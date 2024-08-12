@@ -1,12 +1,12 @@
 // assets
-import { IconDashboard, IconReport, IconShadow, IconActivity, IconReportAnalytics } from '@tabler/icons-react';
+import { IconChartInfographic, IconZoomScan } from '@tabler/icons-react';
 
 // constant
-const icons = { IconDashboard, IconReport, IconShadow, IconActivity, IconReportAnalytics };
+const icons = { IconZoomScan, IconChartInfographic };
 
-// ==============================|| Section 1 MENU ITEMS ||============================== //
+// ==============================|| REPORT AND ANALYSIS MENU ITEMS ||============================== //
 
-const report = {
+const ReportsAndAnalysis = {
   id: 'reports',
   title: 'Reports & Analysis',
   type: 'group',
@@ -15,7 +15,7 @@ const report = {
       id: 'reporting',
       title: 'Reports',
       type: 'collapse',
-      icon: icons.IconActivity,
+      icon: icons.IconChartInfographic,
       children: [
         {
           id: 'generic-report',
@@ -41,10 +41,10 @@ const report = {
       ]
     },
     {
-      id: 'analysising',
+      id: 'analysis',
       title: 'Analysis',
       type: 'collapse',
-      icon: icons.IconReportAnalytics,
+      icon: icons.IconZoomScan,
       children: [
         {
           id: 'target-dashboard',
@@ -79,4 +79,4 @@ const report = {
   ]
 };
 
-export default report;
+export default ReportsAndAnalysis;

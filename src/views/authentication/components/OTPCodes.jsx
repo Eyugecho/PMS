@@ -45,10 +45,7 @@ function OTPCodes({ optcode }) {
           maxLength={1}
           value={otp[index]}
           onChange={(event) => handleOtpChange(event, index)}
-          InputProps={{
-            style: { width: 40, textAlign: 'center' }
-          }}
-          sx={{ fontSize: 16, marginLeft: 1.6 }}
+          sx={{ fontSize: 16, marginLeft: 1.6, textAlign: 'center' }}
         />
       ))}
     </Grid>

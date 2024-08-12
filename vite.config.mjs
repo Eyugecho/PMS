@@ -1,5 +1,3 @@
-// https://github.com/vitejs/vite/discussions/3448
-// import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import jsconfigPaths from 'vite-jsconfig-paths';
@@ -11,14 +9,14 @@ export default defineConfig({
   optimizeDeps: {
     include: ['jwt-decode']
   },
-  base: '/all',
+  base: '/',
   define: {
     global: 'window'
   },
 
   server: {
     open: true,
-    // host: '192.168.1.45',
+    host: '192.168.1.9',
     port: 3000
   },
   preview: {

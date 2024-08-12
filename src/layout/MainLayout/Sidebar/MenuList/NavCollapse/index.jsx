@@ -101,7 +101,7 @@ const NavCollapse = ({ menu, level }) => {
         selected={selected === menu.id}
         onClick={handleClick}
       >
-        <ListItemIcon sx={{ my: 'auto', minWidth: !menu.icon ? 18 : 36 }}>{menuIcon}</ListItemIcon>
+        <ListItemIcon sx={{ my: 'auto', minWidth: !menu.icon ? 18 : 36, color: theme.palette.text.primary }}>{menuIcon}</ListItemIcon>
         <ListItemText
           primary={
             <Typography variant={selected === menu.id ? 'h5' : 'body2'} color="inherit" sx={{ my: 'auto' }}>

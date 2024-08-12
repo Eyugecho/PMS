@@ -19,16 +19,13 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ButtonBase from '@mui/material/ButtonBase';
 
-// third-party
-import PerfectScrollbar from 'react-perfect-scrollbar';
-
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
-import NotificationList from './NotificationList';
 
 // assets
 import { IconBell } from '@tabler/icons-react';
+import { IconButton } from '@mui/material';
 
 // notification status options
 const status = [
@@ -75,6 +72,7 @@ const NotificationSection = () => {
   };
 
   const prevOpen = useRef(open);
+
   useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current.focus();
@@ -90,36 +88,24 @@ const NotificationSection = () => {
     <>
       <Box
         sx={{
-          ml: 2,
-          mr: 3,
+          mr: 2,
           [theme.breakpoints.down('md')]: {
             mr: 2
           }
         }}
       >
-        <ButtonBase sx={{ borderRadius: '12px' }}>
-          <Avatar
-            variant="rounded"
-            sx={{
-              ...theme.typography.commonAvatar,
-              ...theme.typography.mediumAvatar,
-              transition: 'all .2s ease-in-out',
-              background: theme.palette.secondary.light_icon,
-              color: theme.palette.secondary.dark,
-              '&[aria-controls="menu-list-grow"],&:hover': {
-                background: theme.palette.secondary.dark_icon_hover,
-                color: theme.palette.secondary.dark
-              }
-            }}
-            ref={anchorRef}
-            aria-controls={open ? 'menu-list-grow' : undefined}
-            aria-haspopup="true"
-            onClick={handleToggle}
-            color="inherit"
-          >
-            <IconBell stroke={1.5} size="1.3rem" />
-          </Avatar>
-        </ButtonBase>
+        <IconButton
+          sx={{
+            transition: 'all .2s ease-in-out'
+          }}
+          ref={anchorRef}
+          aria-controls={open ? 'menu-list-grow' : undefined}
+          aria-haspopup="true"
+          onClick={handleToggle}
+          color="inherit"
+        >
+          <IconBell stroke={1.6} size="1.4rem" />
+        </IconButton>
       </Box>
       <Popper
         placement={matchesXs ? 'bottom' : 'bottom-end'}
@@ -143,7 +129,7 @@ const NotificationSection = () => {
           <Transitions position={matchesXs ? 'top' : 'top-right'} in={open} {...TransitionProps}>
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
-                <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
+                <MainCard border={true} content={false} boxShadow shadow={theme.shadows[1]}>
                   <Grid container direction="column" spacing={2}>
                     <Grid item xs={12}>
                       <Grid container alignItems="center" justifyContent="space-between" sx={{ pt: 2, px: 2 }}>
@@ -168,34 +154,31 @@ const NotificationSection = () => {
                       </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                      <PerfectScrollbar style={{ height: '100%', maxHeight: 'calc(100vh - 205px)', overflowX: 'hidden' }}>
-                        <Grid container direction="column" spacing={2}>
-                          <Grid item xs={12}>
-                            <Box sx={{ px: 2, pt: 0.25 }}>
-                              <TextField
-                                id="outlined-select-currency-native"
-                                select
-                                fullWidth
-                                value={value}
-                                onChange={handleChange}
-                                SelectProps={{
-                                  native: true
-                                }}
-                              >
-                                {status.map((option) => (
-                                  <option key={option.value} value={option.value}>
-                                    {option.label}
-                                  </option>
-                                ))}
-                              </TextField>
-                            </Box>
-                          </Grid>
-                          <Grid item xs={12} p={0}>
-                            <Divider sx={{ my: 0 }} />
-                          </Grid>
+                      <Grid container direction="column" spacing={2}>
+                        <Grid item xs={12}>
+                          <Box sx={{ px: 2, pt: 0.25 }}>
+                            <TextField
+                              id="outlined-select-currency-native"
+                              select
+                              fullWidth
+                              value={value}
+                              onChange={handleChange}
+                              SelectProps={{
+                                native: true
+                              }}
+                            >
+                              {status.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </TextField>
+                          </Box>
                         </Grid>
-                        {/* <NotificationList /> */}
-                      </PerfectScrollbar>
+                        <Grid item xs={12} p={0}>
+                          <Divider sx={{ my: 0 }} />
+                        </Grid>
+                      </Grid>
                     </Grid>
                   </Grid>
                   <Divider />

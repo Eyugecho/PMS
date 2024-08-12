@@ -5,29 +5,26 @@ import {
   Box,
   Button,
   CircularProgress,
-  FormControl,
   FormHelperText,
   Grid,
   IconButton,
-  InputLabel,
   OutlinedInput,
   Stack,
   Typography,
   useMediaQuery
 } from '@mui/material';
-import { Formik, useFormik } from 'formik';
+import { useFormik } from 'formik';
 
 // third party
 import * as Yup from 'yup';
-import useScriptRef from 'hooks/useScriptRef';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 
 // assets
 import AuthWrapper from './components/AuthWrapper';
 import MainCard from 'ui-component/cards/MainCard';
 import Backend from 'services/backend';
-import { IconArrowLeft } from '@tabler/icons-react';
 import Verification from './components/verifyOTP';
+import { IconArrowLeft } from '@tabler/icons-react';
 
 // ============================|| AUTH - FORGOT PASSWORD ||============================ //
 
