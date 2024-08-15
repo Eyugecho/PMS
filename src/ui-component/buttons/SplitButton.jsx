@@ -54,8 +54,7 @@ export default function SplitButton({ options, handleSelection }) {
       </ButtonGroup>
       <Popper
         sx={{
-          width: 'inherit',
-          boxShadow: 1,
+          width: 'wrap',
           zIndex: 1
         }}
         open={open}
@@ -71,7 +70,7 @@ export default function SplitButton({ options, handleSelection }) {
               transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom'
             }}
           >
-            <Paper>
+            <Paper sx={{ width: '100%' }}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu">
                   {options.map((option, index) => (

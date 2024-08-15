@@ -7,7 +7,6 @@ import { useTheme } from '@mui/material/styles';
 import {
   Box,
   ClickAwayListener,
-  Divider,
   IconButton,
   List,
   ListItemButton,
@@ -22,10 +21,9 @@ import {
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
-import User1 from 'assets/images/users/user-round.svg';
 
 // assets
-import { IconLogout, IconPaperclip, IconSettings, IconShield, IconUser } from '@tabler/icons-react';
+import { IconPaperclip, IconShield, IconUser } from '@tabler/icons-react';
 
 // ==============================|| PROFILE MENU ||============================== //
 

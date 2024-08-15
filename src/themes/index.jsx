@@ -43,7 +43,8 @@ export const theme = (customization) => {
         }
       }
     },
-    typography: themeTypography(themeOption)
+    typography: themeTypography(themeOption),
+    backdropFilter: 'blur(6px)'
   };
 
   const themes = createTheme(themeOptions);

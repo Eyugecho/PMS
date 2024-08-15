@@ -46,7 +46,6 @@ const App = () => {
             <CssBaseline />
             <NavigationScroll>
               <RouterProvider router={router} />
-              <ToastContainer />
             </NavigationScroll>
           </QueryClientProvider>
         </AuthContext.Provider>

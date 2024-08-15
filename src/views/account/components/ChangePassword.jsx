@@ -7,6 +7,7 @@ import {
   Grid,
   IconButton,
   InputAdornment,
+  InputBase,
   InputLabel,
   OutlinedInput,
   Typography,
@@ -120,7 +121,7 @@ const ChangePassword = () => {
           <form noValidate onSubmit={formik.handleSubmit}>
             <FormControl sx={{ display: 'flex', marginTop: 5 }} error={Boolean(formik.touched.oldPassword && formik.errors.oldPassword)}>
               <InputLabel htmlFor="outlined-adornment-password-login">Old Password</InputLabel>
-              <OutlinedInput
+              <InputBase
                 id="oldPassword"
                 name="oldPassword"
                 type={showOldPassword ? 'text' : 'password'}
@@ -128,7 +129,7 @@ const ChangePassword = () => {
                 value={formik.values.oldPassword}
                 onChange={formik.handleChange}
                 fullWidth
-                sx={{ color: theme.palette.background.paper }}
+                sx={{ padding: 1, border: 1, borderColor: theme.palette.divider, borderRadius: theme.shape.borderRadius }}
                 error={formik.touched.oldPassword && Boolean(formik.errors.oldPassword)}
                 endAdornment={
                   <InputAdornment position="end">
@@ -158,7 +159,7 @@ const ChangePassword = () => {
                   error={Boolean(formik.touched.newPassword && formik.errors.newPassword)}
                 >
                   <InputLabel htmlFor="outlined-adornment-password-login">New Password</InputLabel>
-                  <OutlinedInput
+                  <InputBase
                     id="outlined-adornment-password-login"
                     type={showPassword ? 'text' : 'password'}
                     value={formik.values.newPassword}
@@ -166,6 +167,7 @@ const ChangePassword = () => {
                     onChange={formik.handleChange}
                     label="New Password"
                     color="primary"
+                    sx={{ padding: 1, border: 1, borderColor: theme.palette.divider, borderRadius: theme.shape.borderRadius }}
                   />
                   {formik.touched.newPassword && formik.errors.newPassword && (
                     <FormHelperText error id="standard-weight-helper-text-password-login">
@@ -180,7 +182,7 @@ const ChangePassword = () => {
                   error={Boolean(formik.touched.confirmPassword && formik.errors.confirmPassword)}
                 >
                   <InputLabel htmlFor="outlined-adornment-password-login">Confirm Password</InputLabel>
-                  <OutlinedInput
+                  <InputBase
                     id="outlined-adornment-password-login"
                     type={showPassword ? 'text' : 'password'}
                     value={formik.values.confirmPassword}
@@ -201,6 +203,7 @@ const ChangePassword = () => {
                     }
                     label="Confirm Password"
                     color="primary"
+                    sx={{ padding: 1, border: 1, borderColor: theme.palette.divider, borderRadius: theme.shape.borderRadius }}
                   />
                   {formik.touched.confirmPassword && formik.errors.confirmPassword && (
                     <FormHelperText error id="standard-weight-helper-text-password-login">

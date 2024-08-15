@@ -15,7 +15,17 @@ const InfoList = ({ label, info }) => {
       <Typography variant="subtitle2" color={theme.palette.text.disabled}>
         {label}
       </Typography>
-      <Box sx={{ width: 'auto', mt: 0.6, border: 0.8, borderColor: theme.palette.divider, paddingY: 1.2, paddingX: 1.6, borderRadius: 2 }}>
+      <Box
+        sx={{
+          width: 'auto',
+          mt: 0.6,
+          border: 0.8,
+          borderColor: theme.palette.divider,
+          paddingY: 1.2,
+          paddingX: 1.6,
+          borderRadius: theme.shape.borderRadius
+        }}
+      >
         <Typography variant="subtitle1" color={theme.palette.text.primary}>
           {info}
         </Typography>

@@ -15,7 +15,12 @@ const LinearProgress = ({ value, sx }) => {
         }}
       >
         <Box
-          sx={{ height: 5, width: `${value}%`, backgroundColor: theme.palette.primary.main, borderRadius: theme.shape.borderRadius }}
+          sx={{
+            height: value > 99 ? 8 : 5,
+            width: `${value}%`,
+            backgroundColor: value > 99 ? theme.palette.success.dark : theme.palette.primary.main,
+            borderRadius: theme.shape.borderRadius
+          }}
         ></Box>
       </Box>
       <Typography variant="subtitle2">{value}%</Typography>

@@ -23,6 +23,7 @@ const Evaluations = Loadable(lazy(() => import('views/evaluation')));
 const Monitoring = Loadable(lazy(() => import('views/monitoring')));
 const ViewPlan = Loadable(lazy(() => import('views/planning/View')));
 const Account = Loadable(lazy(() => import('views/account')));
+const KPIManagement = Loadable(lazy(() => import('views/kpi')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -296,7 +297,7 @@ const MainRoutes = {
           path: 'kpi-managment',
           element: (
             <Protected>
-              <KpiManagePage />
+              <KPIManagement />
             </Protected>
           )
         }

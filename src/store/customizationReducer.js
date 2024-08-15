@@ -9,6 +9,7 @@ export const initialState = {
   defaultId: 'default',
   fontFamily: config.fontFamily,
   borderRadius: config.borderRadius,
+  backdropFilter: config.backdropFilter,
   opened: true,
   systemTheme: 'light'
 };
@@ -38,6 +39,11 @@ const customizationReducer = (state = initialState, action) => {
       return {
         ...state,
         borderRadius: action.borderRadius
+      };
+    case actionTypes.SET_BACKDROP_FILTER:
+      return {
+        ...state,
+        backdropFilter: action.backdropFilter
       };
     case actionTypes.SET_SYSTEM_THEME:
       return {

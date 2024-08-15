@@ -1,27 +1,30 @@
-import {} from '@mui/system';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Paper, useTheme } from '@mui/material';
+import { Paper, useTheme } from '@mui/material';
 
-const DrogaCard = ({ sx, children }) => {
+const DrogaDataCard = ({ sx, children, onPress }) => {
   const theme = useTheme();
   return (
     <Paper
       sx={{
         backgroundColor: theme.palette.background.default,
         padding: 2,
-        border: 0.8,
+        border: 1,
         borderColor: theme.palette.divider,
+        cursor: 'pointer',
+        ':hover': { boxShadow: 1 },
         ...sx
       }}
+      onClick={onPress}
     >
       {children}
     </Paper>
   );
 };
 
-DrogaCard.propTypes = {
+DrogaDataCard.propTypes = {
   sx: PropTypes.object,
-  children: PropTypes.node
+  children: PropTypes.node,
+  onPress: PropTypes.func
 };
-export default DrogaCard;
+export default DrogaDataCard;
