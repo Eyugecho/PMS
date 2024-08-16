@@ -6,6 +6,7 @@ import { CreatePlan } from './components/CreatePlan';
 import { toast } from 'react-toastify';
 import Backend from 'services/backend';
 import { IconTargetArrow } from '@tabler/icons-react';
+import PageContainer from 'ui-component/MainPage';
 
 const Planning = () => {
   const theme = useTheme();
@@ -62,7 +63,14 @@ const Planning = () => {
     return () => {};
   }, []);
   return (
-    <div>
+    <PageContainer
+      title={'Organization Plans'}
+      rightOption={
+        <Button variant="contained" color="primary" onClick={() => handleCreatePlan()}>
+          Create new plan
+        </Button>
+      }
+    >
       <Grid
         container
         sx={{
@@ -73,13 +81,6 @@ const Planning = () => {
           paddingX: 2
         }}
       >
-        <Grid xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span></span>
-          <Button variant="contained" color="primary" onClick={() => handleCreatePlan()}>
-            Create new plan
-          </Button>
-        </Grid>
-
         <Grid container>
           <Grid item xs={12}>
             <PlanList plans={data} isLoading={loading} />
@@ -88,7 +89,7 @@ const Planning = () => {
       </Grid>
 
       <CreatePlan add={create} onClose={handleCreateModalClose} onSucceed={() => handleFetchingPlan()} />
-    </div>
+    </PageContainer>
   );
 };
 

@@ -1,16 +1,13 @@
 import dashboard from './dashboard';
-import pages from './pages';
-import other from './other';
-import report from './reports';
-import Menus from './menus';
-import department from './departments';
+import ReportsAndAnalysis from './reports-analysis';
+import OrgStructure from './org-structure';
 import settings from './settings';
+import Accounts from './account';
 
 // ==============================|| MENU ITEMS ||============================== //
 
-let role = 'Employee';
 const menuItems = {
-  items: [dashboard, Menus, report, department, pages, settings, other]
+  items: [dashboard, OrgStructure, ReportsAndAnalysis, Accounts, settings]
 };
 // const adminMenu = {
 //   items: [dashboard, Menus, report]

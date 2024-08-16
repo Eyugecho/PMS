@@ -10,15 +10,14 @@ const PageContainer = ({ back, title, rightOption, children }) => {
   return (
     <Grid container>
       <Grid
+        item
         xs={12}
         sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: theme.palette.background.default,
           borderRadius: 2,
-          paddingY: 2,
-          paddingX: 2.4
+          paddingX: 1.4
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -28,7 +27,7 @@ const PageContainer = ({ back, title, rightOption, children }) => {
             </IconButton>
           )}
 
-          <Typography variant="h4" sx={{ marginLeft: 2 }}>
+          <Typography variant="h3" sx={{ marginLeft: 2, color: theme.palette.text.primary }}>
             {title ? title : 'No title'}
           </Typography>
         </Box>
@@ -37,7 +36,9 @@ const PageContainer = ({ back, title, rightOption, children }) => {
       </Grid>
 
       <Grid container>
-        <Grid xs={12}>{children}</Grid>
+        <Grid item xs={12}>
+          {children}
+        </Grid>
       </Grid>
     </Grid>
   );

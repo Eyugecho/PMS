@@ -1,13 +1,13 @@
 {
-  "name": "berry-free-material-react",
-  "version": "3.5.0",
+  "name": "droga-pms",
+  "version": "1.0.0",
   "private": true,
   "author": {
-    "name": "CodedThemes",
-    "email": "CodedThemes@gmail.com",
-    "url": "https://codedthemes.com/"
+    "name": "Droga Consulting",
+    "email": "contact@drogaconsulting.com",
+    "url": "https://drogaconsulting.com/"
   },
-  "homepage": "https://berrydashboard.io/all",
+  "homepage": "https://droga-pms.netlify.app/all",
   "scripts": {
     "start": "env-cmd -f .env vite",
     "build": "vite build",
@@ -32,6 +32,8 @@
     "@mui/system": "^5.15.9",
     "@mui/utils": "^5.15.11",
     "@mui/x-data-grid": "^7.11.1",
+    "@mui/x-date-pickers": "^7.12.1",
+    "@mui/x-date-pickers-pro": "^7.12.1",
     "@nextui-org/card": "^2.0.33",
     "@nextui-org/react": "^2.4.6",
     "@reduxjs/toolkit": "^2.2.1",
@@ -39,6 +41,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "apexcharts": "^3.46.2",
     "axios": "^1.7.2",
+    "date-fns": "^3.6.0",
     "env-cmd": "^10.1.0",
     "formik": "^2.4.5",
     "framer-motion": "^11.0.6",
@@ -48,6 +51,7 @@
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
+    "react-datepicker": "^7.3.0",
     "react-device-detect": "^2.2.3",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.1",
@@ -106,6 +110,7 @@
     "react-refresh": "^0.14.2",
     "sass": "^1.71.1",
     "vite": "^5.3.5",
+    "vite-plugin-eslint": "^1.8.1",
     "webpack": "^5.93.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"

@@ -22,7 +22,8 @@ import {
   CardContent,
   CardActions,
   Menu,
-  MenuItem
+  MenuItem,
+  useTheme
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -174,112 +175,126 @@ function Measuring() {
     formik.resetForm();
     setEditIndex(null);
   };
+  const theme = useTheme();
 
   return (
-    <Box p={3}>
+    <Box p={0}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Create New Measuring Unit
-              </Typography>
-              <Box component="form" onSubmit={formik.handleSubmit}>
-                <TextField
-                  fullWidth
-                  id="measuringUnit"
-                  name="measuringUnit"
-                  label="Measuring Unit"
-                  value={formik.values.measuringUnit}
-                  onChange={formik.handleChange}
-                  error={formik.touched.measuringUnit && Boolean(formik.errors.measuringUnit)}
-                  helperText={formik.touched.measuringUnit && formik.errors.measuringUnit}
-                  margin="normal"
-                />
-                <TextField
-                  fullWidth
-                  id="measuringType"
-                  name="measuringType"
-                  label="Type (e.g., Numerical, Percentage)"
-                  value={formik.values.measuringType}
-                  onChange={formik.handleChange}
-                  error={formik.touched.measuringType && Boolean(formik.errors.measuringType)}
-                  helperText={formik.touched.measuringType && formik.errors.measuringType}
-                  margin="normal"
-                />
-                <CardActions>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    startIcon={<AddCircleOutlineIcon />}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={formik.handleReset}
-                  >
-                    Clear
-                  </Button>
-                </CardActions>
+        <Grid item xs={12}>
+          <Grid item xs={12}  style={{padding:'2px 2px 2px 25px'}}>
+            <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={handleOpen}>
+              Add Measuring Unit
+            </Button>
+          </Grid>
+          <CardContent>
+            {measuringUnits.length === 0 ? (
+              <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
+                <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
+                  No measuring units entered yet.
+                </Typography>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card variant="outlined">
-            <CardContent>
-              {measuringUnits.length === 0 ? (
-                <Box display="flex" alignItems="center" justifyContent="center" height="100%">
-                  <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
-                  <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
-                    No measuring units entered yet.
-                  </Typography>
-                </Box>
-              ) : (
-                <TableContainer component={Paper} variant="outlined" style={{ border: '1px solid #ddd' }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Measuring Unit</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell align="right">Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {measuringUnits.map((unit, index) => (
-                        <TableRow key={unit.id}>
-                          <TableCell component="th" scope="row">
-                            {unit.name}
-                          </TableCell>
-                          <TableCell>{unit.description}</TableCell>
-                          <TableCell align="right">
-                            <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
-                              <MoreVertIcon />
-                            </IconButton>
-                            <Menu
-                              anchorEl={anchorEl}
-                              open={Boolean(anchorEl) && selectedIndex === index}
-                              onClose={handleMenuClose}
-                            >
-                              <MenuItem onClick={() => { handleEdit(index); handleMenuClose(); }}>
-                                <EditIcon fontSize="small" /> Edit
-                              </MenuItem>
-                              <MenuItem onClick={() => { handleDelete(unit.id); handleMenuClose(); }}>
-                                <DeleteIcon fontSize="small" /> Delete
-                              </MenuItem>
-                            </Menu>
-                          </TableCell>
-                        </TableRow>
+            ) : (
+              <TableContainer style={{ border: '1px solid #ddd' }}>
+                <Table
+                  sx={{
+                    minWidth: 650,
+                    borderCollapse: 'collapse'
+                  }}
+                >
+                  <TableHead>
+                    <TableRow>
+                      {['Measuring Unit', 'Description', 'Actions'].map((header) => (
+                        <TableCell
+                          key={header}
+                          sx={{
+                            background: theme.palette.grey[100],
+                            color: '#000',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            borderBottom: `2px solid ${theme.palette.divider}`,
+                            position: 'relative',
+                            padding: '12px 16px',
+                            '&:not(:last-of-type)': {
+                              borderRight: `1px solid ${theme.palette.divider}`
+                            }
+                          }}
+                        >
+                          {header}
+                        </TableCell>
                       ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </CardContent>
-          </Card>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {measuringUnits.map((unit, index) => (
+                      <TableRow
+                        key={unit.id}
+                        sx={{
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: 2,
+                          '&:nth-of-type(odd)': {
+                            backgroundColor: theme.palette.grey[50]
+                          },
+                          '&:hover': {
+                            backgroundColor: theme.palette.grey[100]
+                          }
+                        }}
+                      >
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
+                        >
+                          {unit.name}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
+                        >
+                          {unit.description}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
+                        >
+                          <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
+                            <MoreVertIcon />
+                          </IconButton>
+                          <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedIndex === index} onClose={handleMenuClose}>
+                            <MenuItem
+                              onClick={() => {
+                                handleEdit(index);
+                                handleMenuClose();
+                              }}
+                            >
+                              <EditIcon fontSize="small" /> Edit
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => {
+                                handleDelete(unit.id);
+                                handleMenuClose();
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" /> Delete
+                            </MenuItem>
+                          </Menu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
         </Grid>
       </Grid>
       <Dialog open={open} onClose={handleClose}>

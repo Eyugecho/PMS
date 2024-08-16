@@ -6,8 +6,7 @@ import {
   IconActivity,
   IconSettingsStar,
   IconFileReport,
-  IconBrandCampaignmonitor,
-  IconPacman
+  IconBrandCampaignmonitor
 } from '@tabler/icons-react';
 
 // constant
@@ -19,7 +18,6 @@ const settings = {
   id: 'settings',
   title: 'Settings',
   type: 'group',
-  // requiredRoles: ['Admin'],
   children: [
     {
       id: 'basic-config',
@@ -27,8 +25,6 @@ const settings = {
       type: 'item',
       url: '/basic-config/basic-config-creation',
       icon: icons.IconSettingsStar
-
-      // target: true
     }
   ]
 };

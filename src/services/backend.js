@@ -2,6 +2,13 @@ const Backend = {
   //   api: 'https://localhost:8000/api/',
   api: 'https://droga-pms.amanueld.info/api/',
   auth: 'https://droga-auth.amanueld.info/api/',
+  resetPassword: 'reset-password',
+  setPassword: 'create-password',
+  verifyOtp: 'verify-otp',
+  myProfile: 'my-profile',
+  changePassword: 'change-password',
+  updateProfileImage: 'update-profile-image',
+  removeProfileImage: 'remove-profile-image',
   roles: 'roles',
   units: 'units',
   types: 'unit-types',
@@ -22,7 +29,7 @@ const Backend = {
   getUnitTarget: 'get-tasks-by-unit/',
   getEmployeeTarget: 'get-tasks-by-employee/',
   evaluate: 'evaluate',
-  
+
   permissi: 'permissions',
 
   role: 'roles',

@@ -19,7 +19,7 @@ import { EvaluateModal } from './EvaluateModal';
 import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
 
-const PlanTable = ({ plans, unitName, unitType }) => {
+const PlanTable = ({ plans, unitName, unitType, page }) => {
   const theme = useTheme();
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
@@ -148,9 +148,10 @@ const PlanTable = ({ plans, unitName, unitType }) => {
                         <Table sx={{ minWidth: 650 }} aria-label="Organization plan table">
                           <TableHead>
                             <TableRow>
-                              <TableCell>Period</TableCell>
-                              <TableCell>Target</TableCell>
-                              <TableCell>Action</TableCell>
+                              <TableCell>Periods</TableCell>
+                              <TableCell>Targets</TableCell>
+                              <TableCell>Actuals</TableCell>
+                              {page === 'evaluation' && <TableCell>Action</TableCell>}
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -181,11 +182,21 @@ const PlanTable = ({ plans, unitName, unitType }) => {
                               >
                                 <TableCell sx={{ border: 0 }}>{PeriodNaming(plan?.frequency?.name) + ' ' + (index + 1)}</TableCell>
                                 <TableCell sx={{ border: 0 }}>{target?.target}</TableCell>
-                                <TableCell sx={{ border: 0 }}>
-                                  <Button variant="contained" sx={{ boxShadow: 0 }} onClick={() => handleEvaluationClick(target.id)}>
-                                    Evaluate
-                                  </Button>
-                                </TableCell>
+                                <TableCell sx={{ border: 0 }}>{target?.actual_value}</TableCell>
+                                {page === 'evaluation' &&
+                                  (target?.actual_value == 0 ? (
+                                    <TableCell sx={{ border: 0 }}>
+                                      <Button variant="contained" sx={{ boxShadow: 0 }} onClick={() => handleEvaluationClick(target.id)}>
+                                        Evaluate
+                                      </Button>
+                                    </TableCell>
+                                  ) : (
+                                    <TableCell sx={{ border: 0 }}>
+                                      <Button variant="text" sx={{ boxShadow: 0 }} onClick={() => handleEvaluationClick(target.id)}>
+                                        Update Evaluation
+                                      </Button>
+                                    </TableCell>
+                                  ))}
                               </TableRow>
                             ))}
                           </TableBody>

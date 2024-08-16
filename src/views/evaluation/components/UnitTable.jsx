@@ -15,7 +15,7 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import { PeriodNaming } from 'utils/function';
+
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import Backend from 'services/backend';
 import { toast } from 'react-toastify';
@@ -58,8 +58,6 @@ const UnitTable = ({ units }) => {
           setData(response.data);
           setLoading(false);
           setError(false);
-
-          console.log(response.data);
         } else {
           setLoading(false);
           setError(false);
@@ -142,7 +140,7 @@ const UnitTable = ({ units }) => {
                       ) : (
                         <TableRow sx={{}}>
                           <TableCell colSpan={7} sx={{ width: '100%', border: 0 }}>
-                            <PlanTable plans={data} unitName={unit?.name} unitType={unit?.unit_type?.name} />
+                            <PlanTable plans={data} unitName={unit?.name} unitType={unit?.unit_type?.name} page="evaluation" />
                           </TableCell>
                         </TableRow>
                       )}

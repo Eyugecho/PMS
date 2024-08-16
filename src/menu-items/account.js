@@ -1,27 +1,25 @@
 // assets
-import { IconKey, IconUser } from '@tabler/icons-react';
+import { IconKey, IconUserCog } from '@tabler/icons-react';
 
 // constant
 const icons = {
   IconKey,
-  IconUser
+  IconUserCog
 };
 
-// ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
+// ==============================|| USER MANAGEMENT MENU ITEMS ||============================== //
 
-const pages = {
-  id: 'pages',
+const Accounts = {
+  id: 'accounts',
   title: 'Account Managment',
-  // caption: 'Pages Caption',
   type: 'group',
-  // requiredRoles: ['Admin'],
 
   children: [
     {
-      id: 'authentication',
-      title: 'Account',
+      id: 'user-accounts',
+      title: 'User Accounts',
       type: 'collapse',
-      icon: icons.IconUser,
+      icon: icons.IconUserCog,
 
       children: [
         {
@@ -38,15 +36,14 @@ const pages = {
         },
 
         {
-          id: 'login3',
+          id: 'reset-password',
           title: 'Password Reset',
           type: 'item',
           url: '/reset/reset-password'
-          // target: true
         }
       ]
     }
   ]
 };
 
-export default pages;
+export default Accounts;

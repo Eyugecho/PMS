@@ -99,6 +99,25 @@ function EodActivity() {
         data: formValues,
       });
 
+       if (!response.data.success) {
+         const errorResponse = await response.json();
+         const errorMessage = errorResponse.data?.message || 'Failed to delete';
+         throw new Error(errorMessage);
+       }
+       const data = await response.json();
+
+       if (data.success) {
+         toast(`${type === 'unit' ? 'Unit' : 'Unit Type'} deleted successfully`);
+         if (type === 'unit') {
+           handleFetchingUnits();
+           handleClose();
+         } else {
+           handleFetchingTypes();
+           handleClose();
+         }
+       } else {
+         throw new Error(data.message || 'Failed to delete');
+       }
       if (response.data.success) {
         setData((prevData) => {
           if (editIndex !== null) {

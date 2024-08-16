@@ -4,7 +4,7 @@ import { IconEye, IconPencil, IconTrash } from '@tabler/icons-react';
 
 export const IconMenu = ({ onView, onEdit, onDelete }) => {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <IconButton onClick={onView}>
         <IconEye size={18} />
       </IconButton>

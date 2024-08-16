@@ -2,10 +2,10 @@ import React from 'react';
 import { Grid, Typography } from '@mui/material';
 import Development from 'assets/images/developer.svg';
 
-export const PagePlaceholder = () => {
+const PagePlaceholder = () => {
   return (
-    <Grid>
-      <Grid item={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <Grid container>
+      <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <img src={Development} alt="Page under developer" style={{ width: 300, height: 300 }} />
 
         <Typography variant="h3" color="primary" marginTop={2}>
@@ -18,3 +18,5 @@ export const PagePlaceholder = () => {
     </Grid>
   );
 };
+
+export default PagePlaceholder;

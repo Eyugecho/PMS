@@ -1,4 +1,5 @@
 import { Box, Typography, useTheme } from '@mui/material';
+import { IconMenu } from 'ui-component/menu/IconMenu';
 
 const PlanColumns = [
   {
@@ -61,6 +62,16 @@ const PlanColumns = [
     renderCell: (params) => {
       let frequency = params.value;
       return <Typography variant="body2">{frequency?.name}</Typography>;
+    }
+  },
+
+  {
+    field: 'actions',
+    headerName: 'Actions',
+    width: 220,
+    renderCell: (params) => {
+      const row = params.row;
+      return <IconMenu />;
     }
   }
 ];

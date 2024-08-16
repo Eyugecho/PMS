@@ -163,10 +163,18 @@ const ViewUnit = () => {
           lg={3.2}
           xl={3.2}
           sx={{
-            backgroundColor: theme.palette.primary[200],
-            border: 0.4,
-            borderColor: theme.palette.grey[200],
-            borderRadius: 2
+            background: theme.palette.grey[100],
+            color: '#000',
+            borderRadius: 2,
+            fontSize: '0.9rem',
+            marginTop: 0,
+            borderBottom: `2px solid ${theme.palette.divider}`,
+            position: 'relative',
+            padding: '12px 16px',
+            '&:not(:last-of-type)': {
+              borderRight: `1px solid ${theme.palette.divider}`
+            },
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
           }}
         >
           <Box
@@ -183,7 +191,7 @@ const ViewUnit = () => {
             <Typography variant="h4">Unit Info</Typography>
 
             <ActionMenu icon={<IconDotsVertical size={18} />}>
-              <Box sx={{ paddingY: 1.6, paddingX: 1 }}>
+              <Box sx={{ paddingY: 1.6, paddingX: 1, backdropFilter: 'blur(10px)' }}>
                 <MenuItem sx={{ borderRadius: 2, padding: 1, paddingX: 2 }} onClick={() => handleOpenDialog()}>
                   <IconReplace size={20} style={{ paddingRight: 2 }} />{' '}
                   <Typography variant="body2" marginLeft={1}>
@@ -197,16 +205,11 @@ const ViewUnit = () => {
                     Edit
                   </Typography>
                 </MenuItem>
-                <MenuItem sx={{ borderRadius: 2, padding: 1, paddingX: 2 }}>
-                  <IconTrash size={20} style={{ paddingRight: 2, color: theme.palette.error.main }} />
-                  <Typography variant="body2" color={theme.palette.error.main} marginLeft={1}>
-                    Delete
-                  </Typography>
-                </MenuItem>
               </Box>
             </ActionMenu>
           </Box>
-          <Box sx={{ padding: 2 }}>
+
+          <Box sx={{ padding: 2, backgroundColor: theme.palette.grey[50], borderRadius: 2 }}>
             {state?.name && <DetailInfo label={'Unit name'} info={state?.name} icon={<IconBuilding size={24} color={IconColor} />} />}
             {state?.unit_type?.name && (
               <DetailInfo label={'Unit type'} info={state?.unit_type?.name} icon={<IconDirection size={24} color={IconColor} />} />
@@ -289,7 +292,7 @@ const ViewUnit = () => {
                 <Typography variant="caption">The list of assigned target will be listed here</Typography>
               </Box>
             ) : (
-              <PlanTable plans={data} />
+              <PlanTable plans={data} page="unit" />
             )}
           </Box>
         </Grid>

@@ -32,7 +32,7 @@ const KPISelection = () => {
     const value = event.target.value;
     const newWeight = parseFloat(value);
 
-    const newSelectedKpi = selectedKpi.map((kpi, i) => (kpi.kpi_id === id ? { ...kpi, weight: newWeight ? newWeight : 0 } : kpi));
+    const newSelectedKpi = selectedKpi.map((kpi, i) => (kpi.kpi_id === id ? { ...kpi, weight: newWeight ? newWeight : '' } : kpi));
 
     const totalWeight = newSelectedKpi.reduce((sum, kpi) => sum + parseFloat(kpi.weight), 0);
     if (totalWeight > 100) {

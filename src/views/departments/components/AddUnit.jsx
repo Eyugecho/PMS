@@ -22,15 +22,18 @@ import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Unit name is required'),
+  parent_id: Yup.string().required('Unit is required'),
   type: Yup.string().required('Unit type is required')
 });
 
-export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmission }) => {
+export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handleSubmission }) => {
   const formik = useFormik({
     initialValues: {
       name: '',
+      parent_id: '',
       type: '',
       manager: null,
+      unit:null,
       description: ''
     },
     validationSchema: validationSchema,
@@ -38,13 +41,20 @@ export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmiss
       handleSubmission(values);
     }
   });
+  console.log(unitss);
+  console.log(managers);
+  
+
   return (
     <React.Fragment>
-      <Dialog open={add} onClose={onClose}         sx={ {
+      <Dialog
+        open={add}
+        onClose={onClose}
+        sx={{
           backdropFilter: 'blur(10px)', // Frosted glass effect
-          backgroundColor: 'rgba(255, 255, 255, 0.1)', // Optional: Lightens the backdrop
-        }}>
-
+          backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Lightens the backdrop
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 2 }}>
           <DialogTitle variant="h4">Add Unit</DialogTitle>
           <IconButton onClick={onClose}>
@@ -54,7 +64,31 @@ export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmiss
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)}>
+            <FormControl fullWidth error={formik.touched.unit && Boolean(formik.errors.unit)}>
+              <InputLabel htmlfor="unit">Select unit</InputLabel>
+
+              <Select id="unit" name="parent_id" label="Select unit" value={formik.values.unit} onChange={formik.handleChange}>
+                {unitss.length === 0 ? (
+                  <Typography variant="body2" sx={{ padding: 1 }}>
+                    Unit is not found
+                  </Typography>
+                ) : (
+                  unitss?.map((unitt, index) => (
+                    <MenuItem key={index} value={unitt.id}>
+                      {unitt.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+
+              {formik.touched.parent_id && formik.errors.parent_id && (
+                <FormHelperText error id="standard-weight-helper-text-parent_id">
+                  {formik.errors.parent_id}
+                </FormHelperText>
+              )}
+            </FormControl>
+
+            <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
               <InputLabel htmlfor="type">Unit type</InputLabel>
 
               <Select id="type" name="type" label="Unit type" value={formik.values.type} onChange={formik.handleChange}>
@@ -105,7 +139,7 @@ export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmiss
                 ) : (
                   managers?.map((manager, index) => (
                     <MenuItem key={index} value={manager.id}>
-                      {manager.name}
+                      {manager.user.name}
                     </MenuItem>
                   ))
                 )}
@@ -132,7 +166,7 @@ export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmiss
             </FormControl>
           </DialogContent>
           <DialogActions sx={{ paddingX: 2 }}>
-            <Button onClick={onClose} sx={{ marginLeft: 10 }}>
+            <Button variant="" onClick={onClose} sx={{ marginLeft: 10 }}>
               Cancel
             </Button>
             <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={isAdding}>
@@ -144,3 +178,4 @@ export const AddUnit = ({ add, isAdding, types, managers, onClose, handleSubmiss
     </React.Fragment>
   );
 };
+export default AddUnit;

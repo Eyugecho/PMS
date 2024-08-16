@@ -42,6 +42,7 @@ export default function AddUnitType({ isAdding, handleSubmission }) {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       handleSubmission(values);
+      handleClose();
     }
   });
 

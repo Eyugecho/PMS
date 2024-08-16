@@ -1,6 +1,6 @@
 // assets
-import { IconBuildingSkyscraper, IconFileRss, IconPrison, IconUserCog, IconUsersGroup } from '@tabler/icons-react';
-import { IconKey, IconABOff,IconFile3d } from '@tabler/icons-react';
+import { IconBuildingSkyscraper, IconFileRss, IconUsersGroup } from '@tabler/icons-react';
+import { IconKey, IconABOff, IconFile3d } from '@tabler/icons-react';
 
 // constant
 const icons = {
@@ -10,21 +10,17 @@ const icons = {
   IconFileRss,
   IconBuildingSkyscraper,
   IconUsersGroup
-
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
 
-const dep = {
+const OrgStructure = {
   id: 'dep',
-  title: 'Organaization Structure',
-  // caption: 'Pages Caption',
+  title: 'Organization Structure',
   type: 'group',
-  // requiredRoles: ['Admin'],
-
   children: [
     {
-      id: 'department-creation',
+      id: 'units',
       title: 'Units',
       type: 'item',
       icon: icons.IconBuildingSkyscraper,
@@ -32,14 +28,12 @@ const dep = {
     },
     {
       id: 'employees',
-      title: 'Employee Management',
+      title: 'Employees',
       type: 'item',
       url: '/employees',
-      icon: icons.IconUsersGroup,
-
-      // target: true
-    },  
+      icon: icons.IconUsersGroup
+    }
   ]
 };
 
-export default dep;
+export default OrgStructure;
