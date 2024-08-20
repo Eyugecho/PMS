@@ -26,7 +26,6 @@ const Search = ({ title, filter, children, value, onChange }) => {
 
   return (
     <Paper
-      component="form"
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -44,7 +43,6 @@ const Search = ({ title, filter, children, value, onChange }) => {
         onChange={onChange}
         placeholder="Search..."
         inputProps={{ 'aria-label': 'search' }}
-        
       />
 
       {filter && (

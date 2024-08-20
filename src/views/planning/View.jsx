@@ -35,7 +35,7 @@ const ViewPlan = () => {
   const [update, setUpdate] = useState(false);
   const [deletePlan, setDeletePlan] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [search, setSearch] = useState();
+  const [search, setSearch] = useState('');
 
   /*** Update plan functionality implemented below  this*/
   const handleUpdateModalClose = () => {

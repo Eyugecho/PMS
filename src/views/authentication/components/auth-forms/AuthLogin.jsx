@@ -81,9 +81,9 @@ const AuthLogin = ({ ...others }) => {
         toast.success('Login successful!');
 
         if (hasRole(user.roles, 'CEO')) {
-          navigate('/kpi/kpi-managment');
+          navigate('/');
         } else if (hasRole(user.roles, 'Admin')) {
-          navigate('/Eod/Eod-act');
+          navigate('/');
         } else {
           navigate('/');
         }
