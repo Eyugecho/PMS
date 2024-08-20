@@ -25,7 +25,8 @@ import {
   Alert,
   Divider,
   Menu,
-  MenuItem
+  MenuItem,
+  useTheme
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -101,15 +102,15 @@ function Perceptive() {
    
       } else {
         if (result.success) {
-          // Update the state with new or updated perspective
+         
           setPerceptives((prevPerceptives) => {
             if (editIndex !== null) {
-              // If updating, replace the old perspective with the new one
+             
               return prevPerceptives.map((p, i) =>
                 i === editIndex ? result.data : p
               );
             } else {
-              // If creating, add the new perspective
+              
               return [...prevPerceptives, result.data];
             }
           });
@@ -117,14 +118,14 @@ function Perceptive() {
           setSnackbarMessage('Perspective saved successfully!');
           setSnackbarSeverity('success');
         } else {
-          console.error('Error creating/updating perspective:', result.message);
+          
           setSnackbarMessage('Error creating/updating perspective: ' + result.message);
           setSnackbarSeverity('error');
         }
       }
       setSnackbarOpen(true);
     } catch (error) {
-      console.error('Error creating/updating perspective:', error);
+
       setSnackbarMessage('Error creating/updating perspective: ' + error.message);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -153,16 +154,15 @@ function Perceptive() {
         },
       });
   
-      // Check if the response is empty
-      if (response.status === 204) { // No Content
-        // Successfully deleted, no response body
+
+      if (response.status === 204) { 
         setPerceptives((prevPerceptives) => 
           prevPerceptives.filter((p) => p.id !== id)
         );
         setSnackbarMessage('Perspective deleted successfully!');
         setSnackbarSeverity('success');
       } else {
-        // Try to parse response as JSON if not empty
+        
         const data = await response.json();
         if (data.success) {
           setPerceptives((prevPerceptives) => 
@@ -173,14 +173,14 @@ function Perceptive() {
         } else {
           setSnackbarMessage('Failed to delete perspective: ' + data.message);
           setSnackbarSeverity('error');
-          console.error('Failed to delete perspective:', data.message);
+          
         }
       }
     } catch (error) {
-      // Handle JSON parse error or other errors
+     
       setSnackbarMessage('Error deleting perspective: ' + error.message);
       setSnackbarSeverity('error');
-      console.error('Error deleting perspective:', error);
+      
     }
     setSnackbarOpen(true);
     handleCloseMenu();
@@ -224,130 +224,151 @@ function Perceptive() {
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
-
+const theme = useTheme();
   return (
-    <Box p={3}>
+    <Box p={0}>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Create New Perspective
-              </Typography>
-              <Box component="form" onSubmit={formik.handleSubmit}>
-                <TextField
-                  fullWidth
-                  id="perspectiveName"
-                  name="perspectiveName"
-                  label="Perspective"
-                  value={formik.values.perspectiveName}
-                  onChange={formik.handleChange}
-                  error={formik.touched.perspectiveName && Boolean(formik.errors.perspectiveName)}
-                  helperText={formik.touched.perspectiveName && formik.errors.perspectiveName}
-                  margin="normal"
-                />
-                <CardActions>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    startIcon={<AddCircleOutlineIcon />}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={formik.handleReset}
-                  >
-                    Clear
-                  </Button>
-                </CardActions>
+        <Grid item xs={12}>
+          <Grid item xs={12} p={2} style={{ padding: '2px 2px 2px 25px' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddCircleOutlineIcon />}
+              onClick={() => {
+                formik.resetForm();
+                setEditIndex(false);
+                handleOpen();
+              }}
+            >
+              Create New Perspective
+            </Button>
+          </Grid>
+          <CardContent>
+            {perceptives.length === 0 ? (
+              <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
+                <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
+                  No perspectives entered yet.
+                </Typography>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card variant="outlined">
-            <CardContent>
-              {perceptives.length === 0 ? (
-                <Box display="flex" alignItems="center" justifyContent="center" height="100%">
-                  <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
-                  <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
-                    No perspectives entered yet.
-                  </Typography>
-                </Box>
-              ) : (
-                <TableContainer component={Paper} variant="outlined" style={{ border: '1px solid #ddd' }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Perspective</TableCell>
-                        <TableCell align="right">Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {perceptives.map((perceptive, index) => (
-                        <TableRow key={perceptive.id}>
-                          <TableCell component="th" scope="row">
-                            {perceptive.name}
-                          </TableCell>
-                          <TableCell align="right">
-                            <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
-                              <MoreVertIcon />
-                            </IconButton>
-                            <Menu
-                              anchorEl={anchorEl}
-                              open={Boolean(anchorEl) && selectedIndex === index}
-                              onClose={handleCloseMenu}
-                            >
-                              <MenuItem onClick={() => handleEdit(index)}>
-                                <EditIcon fontSize="small" /> Edit
-                              </MenuItem>
-                              <MenuItem onClick={() => handleDelete(perceptive.id)}>
-                                <DeleteIcon fontSize="small" /> Delete
-                              </MenuItem>
-                            </Menu>
-                          </TableCell>
-                        </TableRow>
+            ) : (
+              <TableContainer style={{ border: '1px solid #ddd' }}>
+                <Table
+                  sx={{
+                    minWidth: 650,
+                    borderCollapse: 'collapse'
+                  }}
+                >
+                  <TableHead>
+                    <TableRow>
+                      {['Perspectives', 'Actions'].map((header) => (
+                        <TableCell
+                          key={header}
+                          sx={{
+                            background: theme.palette.grey[100],
+                            color: '#000',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            borderBottom: `2px solid ${theme.palette.divider}`,
+                            position: 'relative',
+                            padding: '12px 16px',
+                            '&:not(:last-of-type)': {
+                              borderRight: `1px solid ${theme.palette.divider}`
+                            }
+                          }}
+                        >
+                          {header}
+                        </TableCell>
                       ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </CardContent>
-          </Card>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {perceptives.map((perceptive, index) => (
+                      <TableRow
+                        key={perceptive.id}
+                        sx={{
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: 2,
+                          '&:nth-of-type(odd)': {
+                            backgroundColor: theme.palette.grey[50]
+                          },
+                          '&:hover': {
+                            backgroundColor: theme.palette.grey[100]
+                          }
+                        }}
+                      >
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            border: 0,
+                            padding: '12px 16px',
+                           
+                          }}
+                        >
+                          {perceptive.name}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px',
+                            
+                          }}
+                        >
+                          <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
+                            <MoreVertIcon />
+                          </IconButton>
+                          <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedIndex === index} onClose={handleClose}>
+                            <MenuItem onClick={() => handleEdit(index)}>
+                              <EditIcon fontSize="small" /> Edit
+                            </MenuItem>
+                            <MenuItem onClick={() => handleDelete(perceptive.id)}>
+                              <DeleteIcon fontSize="small" /> Delete
+                            </MenuItem>
+                          </Menu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
         </Grid>
       </Grid>
 
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Edit Perspective</DialogTitle>
+        <DialogTitle>{editIndex ? 'Edit Perspective' : 'Create New Perspective'}</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="perspectiveName"
-            name="perspectiveName"
-            label="Perspective Name"
-            type="text"
-            fullWidth
-            value={formik.values.perspectiveName}
-            onChange={formik.handleChange}
-            error={formik.touched.perspectiveName && Boolean(formik.errors.perspectiveName)}
-            helperText={formik.touched.perspectiveName && formik.errors.perspectiveName}
-          />
+          <Box component="form" onSubmit={formik.handleSubmit}>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="perspectiveName"
+              name="perspectiveName"
+              label="Perspective Name"
+              type="text"
+              fullWidth
+              value={formik.values.perspectiveName}
+              onChange={formik.handleChange}
+              error={formik.touched.perspectiveName && Boolean(formik.errors.perspectiveName)}
+              helperText={formik.touched.perspectiveName && formik.errors.perspectiveName}
+            />
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Cancel
+              </Button>
+              <Button type="submit" color="primary">
+                {editIndex ? 'Update' : 'Save'}
+              </Button>
+            </DialogActions>
+          </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">Cancel</Button>
-          <Button onClick={formik.handleSubmit} color="primary">Update</Button>
-        </DialogActions>
       </Dialog>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-      >
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>

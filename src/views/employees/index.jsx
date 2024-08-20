@@ -33,6 +33,7 @@ const Employees = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
+  const [mounted, setMounted] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -304,10 +305,24 @@ const Employees = () => {
   };
 
   useEffect(() => {
-    handleFetchingEmployees();
+    const debounceTimeout = setTimeout(() => {
+      handleFetchingEmployees();
+    }, 800);
+
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [search]);
+
+  useEffect(() => {
+    if (mounted) {
+      handleFetchingEmployees();
+    } else {
+      setMounted(true);
+    }
 
     return () => {};
-  }, [pagination.page, pagination.perPage, search]);
+  }, [pagination.page, pagination.perPage]);
 
   return (
     <PageContainer title="Employees">

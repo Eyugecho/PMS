@@ -42,7 +42,14 @@ const AddKPI = ({ open, handleClose, isLoading, measuringUnits, perspectiveTypes
   });
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      sx={{
+        backdropFilter: 'blur(10px)', // Frosted glass effect
+        backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Lightens the backdrop
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingX: 1 }}>
         <DialogTitle variant="h3" color={theme.palette.text.primary}>
           Create new KPI

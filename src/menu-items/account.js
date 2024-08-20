@@ -30,15 +30,9 @@ const Accounts = {
         },
         {
           id: 'role',
-          title: 'Role',
+          title: 'Role and Permission',
           type: 'item',
-          url: '/role/role-creation'
-        },
-        {
-          id: 'permission',
-          title: 'Privilege',
-          type: 'item',
-          url: '/previlage/previlage-creation'
+          url: '/rolePermission'
         },
 
         {

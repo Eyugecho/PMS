@@ -14,16 +14,15 @@ import {
   TextField,
   Tabs,
   Tab,
-  Typography,
   Grid,
   Menu,
   MenuItem
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
-import config from '../../../configration/config';
+import config from '../../configration/config';
 import MoreVertIcon from '@mui/icons-material/MoreVert'; // Import MoreVertIcon
-import Iconify from '../../../ui-component/iconify/iconify';
+import Iconify from '../../ui-component/iconify/iconify';
 
 const EodActivity = () => {
   const [page, setPage] = useState(0);

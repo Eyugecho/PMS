@@ -26,13 +26,14 @@ const validationSchema = Yup.object().shape({
   type: Yup.string().required('Unit type is required')
 });
 
-export const AddUnit = ({ add, isAdding, units, types, managers, onClose, handleSubmission }) => {
+export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handleSubmission }) => {
   const formik = useFormik({
     initialValues: {
       name: '',
       parent_id: '',
       type: '',
       manager: null,
+      unit: null,
       description: ''
     },
     validationSchema: validationSchema,
@@ -43,7 +44,14 @@ export const AddUnit = ({ add, isAdding, units, types, managers, onClose, handle
 
   return (
     <React.Fragment>
-      <Dialog open={add} onClose={onClose}>
+      <Dialog
+        open={add}
+        onClose={onClose}
+        sx={{
+          backdropFilter: 'blur(10px)', // Frosted glass effect
+          backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Lightens the backdrop
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 2 }}>
           <DialogTitle variant="h4">Add Unit</DialogTitle>
           <IconButton onClick={onClose}>
@@ -53,18 +61,18 @@ export const AddUnit = ({ add, isAdding, units, types, managers, onClose, handle
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.parent_id && Boolean(formik.errors.parent_id)}>
+            <FormControl fullWidth error={formik.touched.unit && Boolean(formik.errors.unit)}>
               <InputLabel htmlfor="unit">Select unit</InputLabel>
 
-              <Select id="unit" name="parent_id" label="Select unit" value={formik.values.parent_id} onChange={formik.handleChange}>
-                {units.length === 0 ? (
+              <Select id="unit" name="parent_id" label="Select unit" value={formik.values.unit} onChange={formik.handleChange}>
+                {unitss.length === 0 ? (
                   <Typography variant="body2" sx={{ padding: 1 }}>
                     Unit is not found
                   </Typography>
                 ) : (
-                  units?.map((unit, index) => (
-                    <MenuItem key={index} value={unit.id}>
-                      {unit.name}
+                  unitss?.map((unitt, index) => (
+                    <MenuItem key={index} value={unitt.id}>
+                      {unitt.name}
                     </MenuItem>
                   ))
                 )}
@@ -128,7 +136,7 @@ export const AddUnit = ({ add, isAdding, units, types, managers, onClose, handle
                 ) : (
                   managers?.map((manager, index) => (
                     <MenuItem key={index} value={manager.id}>
-                      {manager.name}
+                      {manager.user.name}
                     </MenuItem>
                   ))
                 )}
@@ -155,7 +163,7 @@ export const AddUnit = ({ add, isAdding, units, types, managers, onClose, handle
             </FormControl>
           </DialogContent>
           <DialogActions sx={{ paddingX: 2 }}>
-            <Button onClick={onClose} sx={{ marginLeft: 10 }}>
+            <Button variant="" onClick={onClose} sx={{ marginLeft: 10 }}>
               Cancel
             </Button>
             <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={isAdding}>
@@ -167,3 +175,4 @@ export const AddUnit = ({ add, isAdding, units, types, managers, onClose, handle
     </React.Fragment>
   );
 };
+export default AddUnit;
