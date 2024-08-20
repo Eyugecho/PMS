@@ -1,4 +1,17 @@
 {
+  "redirects": [
+    {
+      "source": "/old-route",
+      "destination": "/new-route",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*).js",
