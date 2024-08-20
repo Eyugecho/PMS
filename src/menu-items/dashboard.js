@@ -58,7 +58,7 @@ const dashboard = {
       title: 'EOD Activity',
       type: 'item',
       icon: icons.IconHazeMoon,
-      url: '/Eod/Eod-act'
+      url: '/Eod'
     },
     {
       id: 'mointoring',

@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import {
+  Alert,
   Autocomplete,
   Box,
   Chip,
   CircularProgress,
   Grid,
-  IconButton,
   InputBase,
   Table,
   TableBody,
@@ -20,20 +20,28 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
+import { AnimatePresence, motion } from 'framer-motion';
 import { IconX } from '@tabler/icons-react';
+import { toast } from 'react-toastify';
+import { firstSlideEmployee, firstSlideUnit, unitTargetValidation } from 'utils/validation/distribution';
 import Backend from 'services/backend';
-import { toast, ToastContainer } from 'react-toastify';
+import GetToken from 'utils/auth-token';
+import PropTypes from 'prop-types';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
 
-export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
+const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
   const theme = useTheme();
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const prevIndex = useRef(currentIndex);
+  const [direction, setDirection] = useState('next');
   const [assignTo, setAssignTo] = React.useState('units');
   const [isAdding, setIsAdding] = React.useState(false);
 
-  const [unitLoading, setUnitLoading] = useState(false);
   const [units, setUnits] = useState([]);
-  const [unitError, setUnitError] = useState(false);
-  const [search, setSearch] = useState('');
+  const [error, setError] = React.useState({
+    state: false,
+    message: ''
+  });
 
   const [selectedUnits, setSelectedUnits] = useState([]);
   const [unitPayload, setUnitPayload] = useState([]);
@@ -54,6 +62,7 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
         unit_id: addedUnit.id,
         unit_name: addedUnit.name,
         total_target: targets[currentIndex].target,
+        child_weight: 0,
         unit_targets: []
       };
       setUnitPayload((prevPayload) => [...prevPayload, newPayload]);
@@ -87,22 +96,13 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
     );
   };
 
-  const handleUnitWeightChange = (event, parent_id, unit_id) => {
+  const handleUnitWeightChange = (event, unit_id) => {
     const value = event.target.value;
 
     setUnitPayload((prevUnit) =>
       prevUnit.map((unit) => {
         if (unit.unit_id === unit_id) {
-          // Check if target with parent_id already exists inside unit target
-          const targetIndex = unit.unit_targets.findIndex((target) => target.parent_id === parent_id);
-
-          // If target exists, update it, otherwise, add a new target
-          const updatedUnitTargets =
-            targetIndex !== -1
-              ? unit.unit_targets.map((target, index) => (index === targetIndex ? { ...target, weight: value } : target))
-              : [...unit.unit_targets, { parent_id: parent_id, target: '', weight: value }];
-
-          return { ...unit, unit_targets: updatedUnitTargets };
+          return { ...unit, child_weight: value };
         }
         return unit;
       })
@@ -120,6 +120,7 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
         unit_id: addedEmployee.id,
         unit_name: addedEmployee.user?.name,
         total_target: targets[currentIndex].target,
+        child_weight: 0,
         unit_targets: []
       };
       setEmployeePayload((prevPayload) => [...prevPayload, newPayload]);
@@ -153,33 +154,23 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
     );
   };
 
-  const handleEmployeeWeightChange = (event, parent_id, unit_id) => {
+  const handleEmployeeWeightChange = (event, unit_id) => {
     const value = event.target.value;
 
     setEmployeePayload((prevUnit) =>
       prevUnit.map((unit) => {
         if (unit.unit_id === unit_id) {
-          // Check if target with parent_id already exists inside unit target
-          const targetIndex = unit.unit_targets.findIndex((target) => target.parent_id === parent_id);
-
-          // If target exists, update it, otherwise, add a new target
-          const updatedUnitTargets =
-            targetIndex !== -1
-              ? unit.unit_targets.map((target, index) => (index === targetIndex ? { ...target, weight: value } : target))
-              : [...unit.unit_targets, { parent_id: parent_id, target: '', weight: value }];
-
-          return { ...unit, unit_targets: updatedUnitTargets };
+          return { ...unit, child_weight: value };
         }
         return unit;
       })
     );
   };
 
-  const handleFetchingUnits = () => {
-    setUnitLoading(true);
+  const handleFetchingUnits = async () => {
     setUnits([]);
-    const token = localStorage.getItem('token');
-    const Api = Backend.api + Backend.childUnits + `?search=${search}`;
+    const token = await GetToken();
+    const Api = Backend.api + Backend.childUnits;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -194,300 +185,411 @@ export const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => 
       .then((response) => {
         if (response.success) {
           setUnits(response.data);
-          setUnitLoading(false);
-          setUnitError(false);
         } else {
-          setUnitLoading(false);
-          setUnitError(false);
           toast.error(response.data.message);
         }
       })
       .catch((error) => {
         toast.error(error.message);
-        setUnitLoading(false);
-        setUnitError(false);
       });
   };
 
   const handleNext = () => {
-    if (currentIndex < targets.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+    if (currentIndex === 0 && assignTo === 'units') {
+      const validation = firstSlideUnit(unitPayload, targets[currentIndex].id);
+      if (validation.valid) {
+        setDirection('next');
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % targets.length);
+        setError({ ...error, state: false, message: '' });
+      } else {
+        setError({ ...error, state: true, message: validation.errors[0] });
+      }
+    }
+
+    if (currentIndex > 0 && assignTo === 'units') {
+      const validation = unitTargetValidation(unitPayload, targets[currentIndex].id);
+
+      if (validation.valid) {
+        setDirection('next');
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % targets.length);
+        setError({ ...error, state: false, message: '' });
+      } else {
+        setError({ ...error, state: true, message: validation.errors[0] });
+      }
+    }
+
+    if (currentIndex === 0 && assignTo === 'employees') {
+      const validation = firstSlideEmployee(employeePayload, targets[currentIndex].id);
+      if (validation.valid) {
+        setDirection('next');
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % targets.length);
+        setError({ ...error, state: false, message: '' });
+      } else {
+        setError({ ...error, state: true, message: validation.errors[0] });
+      }
+    }
+
+    if (currentIndex > 0 && assignTo === 'employees') {
+      const validation = unitTargetValidation(employeePayload, targets[currentIndex].id);
+      if (validation.valid) {
+        setDirection('next');
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % targets.length);
+        setError({ ...error, state: false, message: '' });
+      } else {
+        setError({ ...error, state: true, message: validation.errors[0] });
+      }
     }
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+      setDirection('prev');
+      setCurrentIndex((prevIndex) => (prevIndex - 1 + targets.length) % targets.length);
     }
   };
 
-  const handleSubmission = () => {
-    setIsAdding(true);
-    const token = localStorage.getItem('token');
-    const Api = Backend.api + Backend.distributeTarget;
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
+  const handleSubmissionValidation = () => {
+    const unitValidation = unitTargetValidation(unitPayload, targets[currentIndex].id);
+    const employeeValidation = unitTargetValidation(employeePayload, targets[currentIndex].id);
 
-    const data = {
-      plan_id: plan_id,
-      unit_target: unitPayload,
-      employee_target: employeePayload
-    };
+    if (!unitValidation.valid) {
+      setError({ ...error, state: true, message: unitValidation.errors[0] });
+      return false;
+    }
 
-    fetch(Api, {
-      method: 'POST',
-      headers: header,
-      body: JSON.stringify(data)
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setIsAdding(false);
-          toast.success(response.data?.message);
-          onClose();
-          setSelectedUnits([]);
-          setUnitPayload([]);
-          setSelectedEmployees([]);
-          setEmployeePayload([]);
-        } else {
-          setIsAdding(false);
-          toast.error(response.data?.message);
-        }
+    if (!employeeValidation.valid) {
+      setError({ ...error, state: true, message: employeeValidation.errors[0] });
+      return false;
+    }
+
+    if (unitValidation.valid && employeeValidation.valid) {
+      return true;
+    }
+  };
+
+  const handleSubmission = async () => {
+    if (handleSubmissionValidation()) {
+      setError({ ...error, state: false, message: '' });
+      setIsAdding(true);
+      const token = await GetToken();
+      const Api = Backend.api + Backend.distributeTarget;
+      const header = {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      const data = {
+        plan_id: plan_id,
+        unit_target: unitPayload,
+        employee_target: employeePayload
+      };
+
+      fetch(Api, {
+        method: 'POST',
+        headers: header,
+        body: JSON.stringify(data)
       })
-      .catch((error) => {
-        toast.error(error.message);
-        setIsAdding(false);
-      });
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            setIsAdding(false);
+            toast.success(response.data?.message);
+            onClose();
+            setSelectedUnits([]);
+            setUnitPayload([]);
+            setSelectedEmployees([]);
+            setEmployeePayload([]);
+          } else {
+            setIsAdding(false);
+            toast.error(response.data?.message);
+          }
+        })
+        .catch((error) => {
+          toast.error(error.message);
+          setIsAdding(false);
+        });
+    }
   };
 
   useEffect(() => {
     handleFetchingUnits();
+
     return () => {};
   }, []);
+
+  useEffect(() => {
+    prevIndex.current = currentIndex;
+  }, [currentIndex]);
 
   return (
     <React.Fragment>
       <Dialog open={add} onClose={onClose}>
-        <Grid container sx={{ display: 'flex', flexDirection: 'row' }}>
-          <Grid item xs={12} sx={{ minWidth: '600px', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-            <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <DialogTitle variant="h4">
-                    {naming} {currentIndex + 1}
-                  </DialogTitle>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      paddingX: 2,
-                      borderLeft: 1
-                    }}
-                  >
-                    <Typography variant="body2"> Target is</Typography>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{ backgroundColor: theme.palette.primary.light, paddingX: 1, borderRadius: 2, marginLeft: 1 }}
-                    >
-                      {targets[currentIndex].target}
-                    </Typography>
-                  </Box>
-                </Box>
-                <IconButton onClick={onClose}>
-                  <IconX size={20} />
-                </IconButton>
-              </Box>
-            </Box>
-
-            <Box sx={{ paddingX: 2, marginTop: 1.4 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', marginY: 1 }}>
-                {['units', 'employees'].map((item, index) => (
-                  <Chip
-                    key={index}
-                    label={item}
-                    sx={{ marginLeft: 1, cursor: 'pointer', textTransform: 'capitalize' }}
-                    color="primary"
-                    variant={assignTo === item ? 'filled' : 'outlined'}
-                    onClick={() => handleAssignTo(item)}
-                  >
-                    {item}
-                  </Chip>
-                ))}
-              </Box>
-
-              {assignTo === 'employees' ? (
-                <Autocomplete
-                  id="employee_list"
-                  multiple
-                  options={units?.employees || []}
-                  getOptionLabel={(option) => option.user?.name || ''}
-                  value={selectedEmployees}
-                  onChange={handleEmployeesChange}
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                      <Chip className="employee-chips" label={option.user?.name || ''} {...getTagProps({ index })} />
-                    ))
-                  }
-                  fullWidth
-                  renderInput={(params) => <TextField {...params} label="Select an employee" variant="outlined" />}
-                  sx={{ marginTop: 4 }}
-                />
-              ) : (
-                <Autocomplete
-                  id="unit_list"
-                  multiple
-                  options={units?.child_unit || []}
-                  getOptionLabel={(option) => option.name || ''}
-                  value={selectedUnits}
-                  onChange={handleUnitsChange}
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => <Chip className="unit-chips" label={option.name || ''} {...getTagProps({ index })} />)
-                  }
-                  fullWidth
-                  renderInput={(params) => <TextField {...params} label="Select a unit" variant="outlined" />}
-                  sx={{ marginTop: 4 }}
-                />
-              )}
-
-              {assignTo === 'employees' ? (
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ minWidth: 120 }}>Employee name</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Employee target</TableCell>
-                      {currentIndex === 0 && <TableCell sx={{ minWidth: 80 }}>Annum weight(%)</TableCell>}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {employeePayload.length === 0 ? (
-                      <TableRow>
-                        <TableCell sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 2 }} colSpan={2}>
-                          Please select employee
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      employeePayload?.map((unit, index) => {
-                        const targetIndex = unit.unit_targets?.findIndex((target) => target.parent_id === targets[currentIndex].id);
-                        const targetValue = targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].target : '';
-                        const targetWeight = targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].weight : '';
-                        return (
-                          <TableRow key={index}>
-                            <TableCell>{unit.unit_name}</TableCell>
-                            <TableCell>
-                              <InputBase
-                                sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                                value={targetValue}
-                                onChange={(event) => handleEmployeeTargetChange(event, targets[currentIndex].id, unit.unit_id)}
-                                inputProps={{ 'aria-label': 'target' }}
-                                type="number"
-                              />
-                            </TableCell>
-
-                            {currentIndex === 0 && (
-                              <TableCell>
-                                <InputBase
-                                  sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                                  value={targetWeight}
-                                  onChange={(event) => handleEmployeeWeightChange(event, targets[currentIndex].id, unit.unit_id)}
-                                  inputProps={{ 'aria-label': 'target' }}
-                                  type="number"
-                                />
-                              </TableCell>
-                            )}
-                          </TableRow>
-                        );
-                      })
-                    )}
-                  </TableBody>
-                </Table>
-              ) : (
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ minWidth: 120 }}>Unit name</TableCell>
-                      <TableCell sx={{ minWidth: 80 }}>Unit target</TableCell>
-                      {currentIndex === 0 && <TableCell sx={{ minWidth: 80 }}>Annum Weight(%)</TableCell>}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {unitPayload.length === 0 ? (
-                      <TableRow>
-                        <TableCell sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 2 }} colSpan={2}>
-                          Please select unit
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      unitPayload?.map((unit, index) => {
-                        const targetIndex = unit.unit_targets?.findIndex((target) => target.parent_id === targets[currentIndex].id);
-                        const targetValue = targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].target : '';
-                        const targetWeight = targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].weight : '';
-                        return (
-                          <TableRow key={index}>
-                            <TableCell>{unit.unit_name}</TableCell>
-                            <TableCell>
-                              <InputBase
-                                sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                                value={targetValue}
-                                onChange={(event) => handleUnitTargetChange(event, targets[currentIndex].id, unit.unit_id)}
-                                inputProps={{ 'aria-label': 'target' }}
-                                type="number"
-                              />
-                            </TableCell>
-                            {currentIndex === 0 && (
-                              <TableCell>
-                                <InputBase
-                                  sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                                  value={targetWeight}
-                                  onChange={(event) => handleUnitWeightChange(event, targets[currentIndex].id, unit.unit_id)}
-                                  inputProps={{ 'aria-label': 'target' }}
-                                  type="number"
-                                />
-                              </TableCell>
-                            )}
-                          </TableRow>
-                        );
-                      })
-                    )}
-                  </TableBody>
-                </Table>
-              )}
-            </Box>
-
-            <DialogActions sx={{ paddingX: 2 }}>
-              <Button sx={{ marginLeft: 10 }} onClick={() => handlePrev()}>
-                Back
-              </Button>
-
-              {currentIndex === targets.length - 1 ? (
-                <Button
-                  type="button"
-                  variant="contained"
-                  sx={{ paddingX: 6, boxShadow: 0 }}
-                  onClick={() => handleSubmission()}
-                  disabled={isAdding}
+        <Box sx={{ position: 'absolute', right: 6, top: 14 }}>
+          <motion.div
+            whileHover={{
+              rotate: 90
+            }}
+            transition={{ duration: 0.3 }}
+            style={{ cursor: 'pointer', marginRight: 12 }}
+            onClick={onClose}
+          >
+            <IconX size="1.2rem" stroke={2} />
+          </motion.div>
+        </Box>
+        {targets.length > 0 && (
+          <Grid container sx={{ display: 'flex', flexDirection: 'column', minWidth: '600px', padding: 1.2 }}>
+            <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'row' }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0, x: direction === 'next' ? 100 : -100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: direction === 'next' ? -100 : 100 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ width: '100%' }}
                 >
-                  {isAdding ? (
-                    <CircularProgress size={18} sx={{ color: 'white' }} />
-                  ) : (
-                    <Typography variant="subtitle1" color={theme.palette.background.default}>
-                      Submit
-                    </Typography>
-                  )}
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <DialogTitle variant="h4">
+                        {naming} {currentIndex + 1}
+                      </DialogTitle>
+
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          paddingX: 2,
+                          borderLeft: 1
+                        }}
+                      >
+                        <Typography variant="body2"> Total target is</Typography>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            backgroundColor: theme.palette.grey[100],
+                            paddingX: 2,
+                            borderRadius: 10,
+                            marginLeft: 1
+                          }}
+                        >
+                          {targets[currentIndex].target}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ paddingX: 2, marginTop: 1.4 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', marginY: 1 }}>
+                      {['units', 'employees'].map((item, index) => (
+                        <Chip
+                          key={index}
+                          label={item}
+                          sx={{ marginLeft: 1, cursor: 'pointer', textTransform: 'capitalize' }}
+                          color="primary"
+                          variant={assignTo === item ? 'filled' : 'outlined'}
+                          onClick={() => handleAssignTo(item)}
+                        />
+                      ))}
+                    </Box>
+                    {currentIndex === 0 && (
+                      <>
+                        {assignTo === 'employees' ? (
+                          <Autocomplete
+                            id="employee_list"
+                            multiple
+                            options={units?.employees || []}
+                            getOptionLabel={(option) => option.user?.name || ''}
+                            value={selectedEmployees}
+                            onChange={handleEmployeesChange}
+                            renderTags={(value, getTagProps) =>
+                              value.map((option, index) => (
+                                <Chip className="employee-chips" label={option.user?.name || ''} {...getTagProps({ index })} />
+                              ))
+                            }
+                            fullWidth
+                            renderInput={(params) => <TextField {...params} label="Select an employee" variant="outlined" />}
+                            sx={{ marginTop: 4 }}
+                            disableClearable
+                          />
+                        ) : (
+                          <Autocomplete
+                            id="unit_list"
+                            multiple
+                            options={units?.child_unit || []}
+                            getOptionLabel={(option) => option.name || ''}
+                            value={selectedUnits}
+                            onChange={handleUnitsChange}
+                            renderTags={(value, getTagProps) =>
+                              value.map((option, index) => (
+                                <Chip className="unit-chips" label={option.name || ''} {...getTagProps({ index })} />
+                              ))
+                            }
+                            fullWidth
+                            renderInput={(params) => <TextField {...params} label="Select a unit" variant="outlined" />}
+                            sx={{ marginTop: 4 }}
+                            disableClearable
+                          />
+                        )}
+                      </>
+                    )}
+                    {assignTo === 'employees' ? (
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell sx={{ minWidth: 120 }}>Employee name</TableCell>
+                            {currentIndex === 0 && <TableCell sx={{ minWidth: 80 }}>Annum weight(%)</TableCell>}
+                            <TableCell sx={{ minWidth: 80 }}>Employee target</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {employeePayload.length === 0 ? (
+                            <TableRow>
+                              <TableCell sx={{ display: 'flex', alignItems: 'center', padding: 2, border: 0 }} colSpan={3}>
+                                Please select employee
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            employeePayload?.map((unit, index) => {
+                              const targetIndex = unit.unit_targets?.findIndex((target) => target.parent_id === targets[currentIndex].id);
+                              const targetValue =
+                                targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].target : '';
+
+                              return (
+                                <TableRow key={index}>
+                                  <TableCell>{unit.unit_name}</TableCell>
+                                  {currentIndex === 0 && (
+                                    <TableCell>
+                                      <InputBase
+                                        sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: 'primary.main' }}
+                                        value={unit.child_weight}
+                                        onChange={(event) => handleEmployeeWeightChange(event, unit.unit_id)}
+                                        inputProps={{ 'aria-label': 'target' }}
+                                        type="number"
+                                      />
+                                    </TableCell>
+                                  )}
+                                  <TableCell>
+                                    <InputBase
+                                      sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: 'primary.main' }}
+                                      value={targetValue}
+                                      onChange={(event) => handleEmployeeTargetChange(event, targets[currentIndex].id, unit.unit_id)}
+                                      inputProps={{ 'aria-label': 'target' }}
+                                      type="number"
+                                    />
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })
+                          )}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell sx={{ minWidth: 120 }}>Unit name</TableCell>
+                            {currentIndex === 0 && <TableCell sx={{ minWidth: 80 }}>Annum Weight(%)</TableCell>}
+                            <TableCell sx={{ minWidth: 80 }}>Unit target</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {unitPayload.length === 0 ? (
+                            <TableRow>
+                              <TableCell sx={{ display: 'flex', alignItems: 'center', padding: 2, border: 0 }} colSpan={3}>
+                                Please select unit
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            unitPayload?.map((unit, index) => {
+                              const targetIndex = unit.unit_targets?.findIndex((target) => target.parent_id === targets[currentIndex].id);
+                              const targetValue =
+                                targetIndex !== -1 && targetIndex !== undefined ? unit.unit_targets[targetIndex].target : '';
+
+                              return (
+                                <TableRow key={index}>
+                                  <TableCell>{unit.unit_name}</TableCell>
+
+                                  {currentIndex === 0 && (
+                                    <TableCell>
+                                      <InputBase
+                                        sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: 'primary.main' }}
+                                        value={unit.child_weight}
+                                        onChange={(event) => handleUnitWeightChange(event, unit.unit_id)}
+                                        inputProps={{ 'aria-label': 'target' }}
+                                      />
+                                    </TableCell>
+                                  )}
+
+                                  <TableCell>
+                                    <InputBase
+                                      sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: 'primary.main' }}
+                                      value={targetValue}
+                                      onChange={(event) => handleUnitTargetChange(event, targets[currentIndex].id, unit.unit_id)}
+                                      inputProps={{ 'aria-label': 'target' }}
+                                      type="number"
+                                    />
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })
+                          )}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </Box>
+                </motion.div>
+              </AnimatePresence>
+            </Grid>
+
+            <DialogActions sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box> {error.state && <Alert severity="error"> {error.message}</Alert>}</Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingX: 2 }}>
+                <Button sx={{ marginRight: 3 }} onClick={() => handlePrev()}>
+                  Back
                 </Button>
-              ) : (
-                <Button type="button" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} onClick={() => handleNext()}>
-                  Next
-                </Button>
-              )}
+
+                {currentIndex === targets.length - 1 ? (
+                  <Button
+                    type="button"
+                    variant="contained"
+                    sx={{ py: 1, paddingX: 6, boxShadow: 0, borderRadius: 2 }}
+                    onClick={() => handleSubmission()}
+                    disabled={isAdding}
+                  >
+                    {isAdding ? (
+                      <CircularProgress size={18} sx={{ color: 'white' }} />
+                    ) : (
+                      <Typography variant="subtitle1" color={theme.palette.background.default}>
+                        Submit
+                      </Typography>
+                    )}
+                  </Button>
+                ) : (
+                  <DrogaButton
+                    title="Next"
+                    type="button"
+                    variant="contained"
+                    sx={{ paddingX: 6, boxShadow: 0 }}
+                    onPress={() => handleNext()}
+                  />
+                )}
+              </Box>
             </DialogActions>
           </Grid>
-        </Grid>
+        )}
       </Dialog>
-      <ToastContainer />
     </React.Fragment>
   );
 };
+
+DistributeTarget.propTypes = {
+  add: PropTypes.bool,
+  onClose: PropTypes.func,
+  plan: PropTypes.array,
+  plan_id: PropTypes.number,
+  targets: PropTypes.array,
+  naming: PropTypes.string
+};
+
+export default DistributeTarget;

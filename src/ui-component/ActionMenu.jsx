@@ -3,7 +3,6 @@ import Popover from '@mui/material/Popover';
 import { IconButton, useTheme } from '@mui/material';
 
 export default function ActionMenu({ icon, children }) {
-  const theme = useTheme();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = (event) => {

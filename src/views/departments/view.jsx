@@ -8,17 +8,12 @@ import {
   IconCalendar,
   IconChairDirector,
   IconChartDonut,
-  IconCircle,
   IconDirection,
   IconDotsVertical,
   IconEdit,
-  IconGenderMale,
-  IconList,
   IconMail,
-  IconPhone,
   IconReplace,
   IconTargetArrow,
-  IconTie,
   IconTrash,
   IconUser
 } from '@tabler/icons-react';

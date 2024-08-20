@@ -1,8 +1,6 @@
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, StyledEngineProvider } from '@mui/material';
 
@@ -17,6 +15,7 @@ import NavigationScroll from 'layout/NavigationScroll';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthContext } from 'context/AuthContext';
 import { useMemo, useState } from 'react';
+import { KPIProvider } from 'context/KPIProvider';
 
 // ==============================|| APP ||============================== //
 
@@ -42,12 +41,14 @@ const App = () => {
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={themes(customization)}>
         <AuthContext.Provider value={authContext}>
-          <QueryClientProvider client={queryClient}>
-            <CssBaseline />
-            <NavigationScroll>
-              <RouterProvider router={router} />
-            </NavigationScroll>
-          </QueryClientProvider>
+          <KPIProvider>
+            <QueryClientProvider client={queryClient}>
+              <CssBaseline />
+              <NavigationScroll>
+                <RouterProvider router={router} />
+              </NavigationScroll>
+            </QueryClientProvider>
+          </KPIProvider>
         </AuthContext.Provider>
       </ThemeProvider>
     </StyledEngineProvider>

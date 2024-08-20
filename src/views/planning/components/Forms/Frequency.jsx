@@ -1,30 +1,32 @@
 import { useEffect, useState } from 'react';
-import { Box, Table, TableBody, TableCell, TableHead, TableRow, useTheme } from '@mui/material';
+import { Box, Grid, Table, TableBody, TableCell, TableHead, TableRow, useTheme } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
+import { useKPI } from 'context/KPIProvider';
 import Backend from 'services/backend';
 import FrequencyMenu from './FrequencyMenu';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import ErrorPrompt from 'utils/components/ErrorPrompt';
+import noresult from '../../../../assets/images/no_result.png';
+import GetToken from 'utils/auth-token';
 
 const FrequencySelection = () => {
   const theme = useTheme();
-
+  const { selectedKpi, updateKPI } = useKPI();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
 
   const getFiscalYear = localStorage.getItem('selectFiscal');
   const SelectFiscalYear = JSON.parse(getFiscalYear);
-  const [selectedKpi, setSelectedKpi] = useState([]);
 
   const handleFrequencySelection = (item, id) => {
-    setSelectedKpi((prevSelectedKpi) =>
-      prevSelectedKpi.map((kpi, i) => (kpi.kpi_id === id ? { ...kpi, frequency_id: item.id, f_name: item.name, f_value: item.value } : kpi))
-    );
+    updateKPI(id, { frequency_id: item.id, f_name: item.name, f_value: item.value });
   };
 
   useEffect(() => {
-    const handleFetchingPeriods = () => {
-      const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.frequencies;
+    const handleFetchingPeriods = async () => {
+      const token = await GetToken();
+      const Api = Backend.api + Backend.planningFrequiencies;
       const header = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',
@@ -38,7 +40,7 @@ const FrequencySelection = () => {
         .then((response) => response.json())
         .then((response) => {
           if (response.success) {
-            setData(response.data.data);
+            setData(response.data);
             setLoading(false);
             setError(false);
           } else {
@@ -58,26 +60,30 @@ const FrequencySelection = () => {
     return () => {};
   }, [SelectFiscalYear.id]);
 
-  useEffect(() => {
-    const kpiSelected = localStorage.getItem('selectedKPI');
-    const parseKPI = kpiSelected ? JSON.parse(kpiSelected) : [];
-
-    setSelectedKpi(parseKPI);
-  }, []);
-
-  useEffect(() => {
-    if (selectedKpi.length > 0) {
-      localStorage.setItem('selectedKPI', JSON.stringify(selectedKpi));
-    }
-  }, [selectedKpi]);
-
   return (
     <Box>
-      <Box sx={{ padding: 1 }}>
-        <Table>
+      {loading ? (
+        <Grid container>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 8
+            }}
+          >
+            <ActivityIndicator size={20} />
+          </Grid>
+        </Grid>
+      ) : error ? (
+        <ErrorPrompt image={noresult} title="Server Error" message="Unable to retrive frequency" />
+      ) : (
+        <Table sx={{ borderRadius: theme.shape.borderRadius }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ minWidth: 60 }}>Fiscal Year</TableCell>
               <TableCell sx={{ minWidth: 170 }}>KPI Name</TableCell>
               <TableCell sx={{ minWidth: 60 }}>Frequency</TableCell>
             </TableRow>
@@ -85,18 +91,16 @@ const FrequencySelection = () => {
           <TableBody>
             {selectedKpi?.map((kpi, index) => (
               <TableRow key={index}>
-                <TableCell>{SelectFiscalYear ? SelectFiscalYear.year : 'Not selected'}</TableCell>
                 <TableCell>{kpi.name}</TableCell>
                 <TableCell>
                   {' '}
-                  <FrequencyMenu menu={data} selected={kpi?.f_name} onSelect={(menu) => handleFrequencySelection(menu, kpi.kpi_id)} />
+                  <FrequencyMenu menu={data} selected={kpi?.f_name} onSelect={(menu) => handleFrequencySelection(menu, kpi.id)} />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </Box>
-
+      )}
       <ToastContainer />
     </Box>
   );

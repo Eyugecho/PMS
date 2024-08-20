@@ -1,25 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Grid, Typography, useTheme } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { IconCircleCheckFilled } from '@tabler/icons-react';
 import Backend from 'services/backend';
-import { IconCheck } from '@tabler/icons-react';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import ErrorPrompt from 'utils/components/ErrorPrompt';
+import noresult from '../../../../assets/images/no_result.png';
+import { Storage } from 'configration/storage';
+import GetToken from 'utils/auth-token';
 
 const FiscalYear = () => {
   const theme = useTheme();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState();
+  const [selectedYearId, setSelectedYearId] = useState(null);
 
-  const handleYearSelection = (year, index) => {
-    setSelectedIndex(index);
-
-    localStorage.setItem('selectFiscal', JSON.stringify({ id: year.id, year: year.year }));
+  const handleYearSelection = (year) => {
+    if (selectedYearId === year.id) {
+      setSelectedYearId(null);
+      Storage.removeItem('selectFiscal');
+    } else {
+      setSelectedYearId(year.id);
+      Storage.setItem('selectFiscal', JSON.stringify({ id: year.id, year: year.year }));
+    }
   };
 
-  const handleFetchFiscalYear = () => {
-    const token = localStorage.getItem('token');
+  const handleFetchFiscalYear = async () => {
+    const token = await GetToken();
     const Api = Backend.api + Backend.fiscalYear;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -35,63 +43,92 @@ const FiscalYear = () => {
       .then((response) => {
         if (response.success) {
           setData(response.data);
-          setLoading(false);
           setError(false);
+          Storage.setItem('fiscalYear', JSON.stringify(response.data));
         } else {
-          setLoading(false);
           setError(false);
         }
       })
       .catch((error) => {
         toast(error.message);
         setError(true);
+      })
+      .finally(() => {
         setLoading(false);
       });
   };
 
   useEffect(() => {
-    handleFetchFiscalYear();
-    return () => {};
+    const getFiscalYear = Storage.getItem('fiscalYear');
+    const getSelectedFiscal = Storage.getItem('selectFiscal');
+
+    let fiscalYear = null;
+    let selectedFiscalYear = null;
+
+    try {
+      if (getFiscalYear) {
+        fiscalYear = JSON.parse(getFiscalYear);
+        setData(fiscalYear);
+      }
+
+      if (getSelectedFiscal) {
+        selectedFiscalYear = JSON.parse(getSelectedFiscal);
+        if (selectedFiscalYear?.id) {
+          setSelectedYearId(selectedFiscalYear.id);
+        }
+      }
+    } catch (error) {
+      handleFetchFiscalYear();
+    }
+    if (!fiscalYear) {
+      handleFetchFiscalYear();
+    }
   }, []);
   return (
     <React.Fragment>
-      {data?.map((year, index) => (
-        <Box
-          key={index}
-          sx={
-            selectedIndex === index
-              ? {
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingY: 1,
-                  paddingX: 2,
-                  border: 0.6,
-                  borderRadius: 2,
-                  borderColor: theme.palette.primary.main,
-                  backgroundColor: theme.palette.grey[50],
-                  cursor: 'pointer',
-                  marginY: 0.4
-                }
-              : {
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  borderRadius: 2,
-                  paddingY: 1,
-                  paddingX: 2,
-                  cursor: 'pointer',
-                  backgroundColor: theme.palette.grey[50],
-                  marginY: 0.4
-                }
-          }
-          onClick={() => handleYearSelection(year, index)}
-        >
-          <Typography variant="subtitle1">{year.year}</Typography>
+      {loading ? (
+        <Grid container>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 8
+            }}
+          >
+            <ActivityIndicator size={20} />
+          </Grid>
+        </Grid>
+      ) : error ? (
+        <ErrorPrompt image={noresult} title="Server Error" message="Unable to retrive fiscal years" />
+      ) : (
+        data?.map((year, index) => (
+          <Box
+            key={index}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingY: 2.2,
+              paddingX: 2,
+              border: 0.6,
+              borderRadius: 2,
+              borderColor: theme.palette.primary.main,
+              backgroundColor: theme.palette.grey[50],
+              cursor: 'pointer',
+              marginY: 1.6
+            }}
+            onClick={() => handleYearSelection(year)}
+          >
+            <Typography variant="h4">{year.year}</Typography>
 
-          {selectedIndex === index && <IconCheck size={18} />}
-        </Box>
-      ))}
+            {selectedYearId === year.id && <IconCircleCheckFilled size={24} style={{ color: theme.palette.primary.main }} />}
+          </Box>
+        ))
+      )}
 
       <ToastContainer />
     </React.Fragment>

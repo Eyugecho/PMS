@@ -1,5 +1,6 @@
-import { Button, Grid, Typography } from '@mui/material';
 import React from 'react';
+import { Button, Grid, Typography } from '@mui/material';
+import noresult from '../../assets/images/no_result.png';
 import PropTypes from 'prop-types';
 
 const ErrorPrompt = ({ image, title, message, buttontitle, onPress }) => {
@@ -17,7 +18,7 @@ const ErrorPrompt = ({ image, title, message, buttontitle, onPress }) => {
           borderRadius: 4
         }}
       >
-        <img src={image} alt="No result found" width="240px" height="240px" />
+        <img src={noresult} alt="No result found" width="240px" height="240px" />
         <Typography variant="h3" marginY={0.5}>
           {title}
         </Typography>

@@ -44,6 +44,7 @@ const Search = ({ title, filter, children, value, onChange }) => {
         onChange={onChange}
         placeholder="Search..."
         inputProps={{ 'aria-label': 'search' }}
+        
       />
 
       {filter && (

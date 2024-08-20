@@ -26,11 +26,6 @@ const DeletePrompt = ({ type, open, title, description, handleClose, onNo, onYes
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const Icon = DialogTypes.find((types) => types.name == type);
 
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleOpen = () => {
-    setIsOpen(!isOpen);
-  };
   return (
     <React.Fragment>
       <Dialog fullScreen={fullScreen} open={open} onClose={handleClose} aria-labelledby="responsive-dialog-title">

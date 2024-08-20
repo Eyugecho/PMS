@@ -15,6 +15,7 @@ import UpdateKPI from './components/UpdateKPI';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import ErrorPrompt from 'utils/components/ErrorPrompt';
 import noresult from '../../assets/images/no_result.png';
+import GetToken from 'utils/auth-token';
 
 const KPIManagement = () => {
   const theme = useTheme();
@@ -178,7 +179,7 @@ const KPIManagement = () => {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = await GetToken();
       const Api = Backend.api + Backend.kpi + `/${selectedKPI?.id}`;
       const response = await axios.delete(Api, {
         headers: {
@@ -468,7 +469,7 @@ const KPIManagement = () => {
           type="Delete"
           open={deleteKPI}
           title="Deleting KPI"
-          description={`Are you sure you want to remove ` + selectedKPI?.name}
+          description={`Are you sure you want to delete ` + selectedKPI?.name}
           onNo={() => setDeleteKPI(false)}
           onYes={() => handleDelete()}
           deleting={deleting}

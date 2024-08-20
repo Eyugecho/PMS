@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/material';
+import { Box, Button, CircularProgress, IconButton, Typography, useTheme } from '@mui/material';
 import OTPCodes from './OTPCodes';
 import PropTypes from 'prop-types';
 import Backend from 'services/backend';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { IconX } from '@tabler/icons-react';
 
-const Verification = ({ phone, onWrong, onResend, isResending }) => {
+const Verification = ({ phone, onWrong, onResend, isResending, onClose }) => {
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -76,7 +77,10 @@ const Verification = ({ phone, onWrong, onResend, isResending }) => {
 
   return (
     <>
-      <Box sx={{ textAlign: 'center', padding: 2, marginBottom: 2 }}>
+      <Box sx={{ position: 'relative', textAlign: 'center', padding: 2, marginBottom: 2 }}>
+        <IconButton onClick={onClose} sx={{ position: 'absolute', top: -2, right: -1, color: theme.palette.primary.main }}>
+          <IconX size={22} />
+        </IconButton>
         <Typography variant="h3" sx={{ marginTop: 1 }}>
           Phone Verification
         </Typography>

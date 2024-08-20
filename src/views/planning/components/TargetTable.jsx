@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Button,
   Collapse,
   IconButton,
   Paper,
@@ -15,17 +14,21 @@ import {
 } from '@mui/material';
 import { PeriodNaming } from 'utils/function';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
+import { DotMenu } from 'ui-component/menu/DotMenu';
 import Backend from 'services/backend';
+import GetToken from 'utils/auth-token';
+import axios from 'axios';
+import DeletePrompt from 'ui-component/modal/DeletePrompt';
 
 const TargetTable = ({ plans }) => {
   const theme = useTheme();
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
-  const [targetId, setTargetId] = useState(null);
 
-  const [add, setAdd] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState();
+  const [deletePlan, setDeletePlan] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleRowClick = (index) => {
     if (selectedRow === index) {
@@ -37,57 +40,36 @@ const TargetTable = ({ plans }) => {
     }
   };
 
-  const handleTargetSelection = (targetId) => {
-    selectedTarget === targetId ? setSelectedTarget(null) : setSelectedTarget(targetId);
+  const handleDeleteClick = (plan) => {
+    setSelectedPlan(plan);
+    setDeletePlan(true);
   };
 
-  const handleEvaluationClick = (targetId) => {
-    handleTargetSelection(targetId);
-    setTargetId(targetId);
-    setAdd(true);
-  };
-
-  const handleEvaluation = (value) => {
-    setIsAdding(true);
-    const token = localStorage.getItem('token');
-    const Api = Backend.api + Backend.evaluate;
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
-
-    const data = {
-      target_setting_id: targetId,
-      actual_value: value?.actual_value,
-      description: value?.description
-    };
-
-    fetch(Api, {
-      method: 'POST',
-      headers: header,
-      body: JSON.stringify(data)
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setIsAdding(false);
-          handleEvaluateModalClose();
-          toast.success(response.data.message);
-        } else {
-          setIsAdding(false);
-          toast.error(response.message);
+  const handleDeleteChildPlan = async () => {
+    setDeleting(true);
+    try {
+      const token = await GetToken();
+      const Api = Backend.api + Backend.deletePlan + `/${selectedPlan?.id}`;
+      const response = await axios.delete(Api, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      })
-      .catch((error) => {
-        toast.error(error.message);
-        setIsAdding(false);
       });
+
+      if (response.data.success) {
+        setDeletePlan(false);
+        toast.success(response.data.data.message);
+      } else {
+        toast.error(response.data.data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setDeleting(false);
+    }
   };
 
-  const handleEvaluateModalClose = () => {
-    setAdd(false);
-  };
   return (
     <React.Fragment>
       <TableContainer
@@ -98,6 +80,7 @@ const TargetTable = ({ plans }) => {
           <TableHead>
             <TableRow>
               <TableCell>Unit name</TableCell>
+              <TableCell>Inherited Weights(%)</TableCell>
               <TableCell>KPI Weights(%)</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
@@ -126,13 +109,11 @@ const TargetTable = ({ plans }) => {
                       {plan?.unit ? plan?.unit?.name : plan?.employee?.user?.name}
                     </Typography>
                   </TableCell>
-
+                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.inherit_weight).toFixed(2)}%</TableCell>
                   <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(2)}%</TableCell>
 
                   <TableCell sx={{ border: 0 }}>
-                    <Button variant="outlined" onClick={() => handleRowClick(index)}>
-                      Show Targets
-                    </Button>
+                    <DotMenu onView={() => handleRowClick(index)} onDelete={() => handleDeleteClick(plan)} />
                   </TableCell>
                 </TableRow>
 
@@ -199,7 +180,18 @@ const TargetTable = ({ plans }) => {
         </Table>
       </TableContainer>
 
-      <ToastContainer />
+      {deletePlan && (
+        <DeletePrompt
+          type="Delete"
+          open={deletePlan}
+          title="Deleting child plan"
+          description={`Are you sure you want to delete ${selectedPlan?.unit ? selectedPlan?.unit?.name + ' unit' : selectedPlan?.employee?.user?.name}`}
+          onNo={() => setDeletePlan(false)}
+          onYes={() => handleDeleteChildPlan()}
+          deleting={deleting}
+          handleClose={() => setDeletePlan(false)}
+        />
+      )}
     </React.Fragment>
   );
 };

@@ -30,6 +30,7 @@ import config from '../../../../configration/config';
 import { decodeToken, hasRole } from '../../../../store/permissionUtils';
 import { setUser } from '../../../../store/actions';
 import { AuthContext } from 'context/AuthContext';
+import { Storage } from 'configration/storage';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
@@ -55,7 +56,7 @@ const AuthLogin = ({ ...others }) => {
       });
 
       if (response.data.success) {
-        const { access_token } = response.data.data;
+        const { access_token, expires_in } = response.data.data;
 
         if (typeof access_token !== 'string') {
           throw new Error('Invalid token format');
@@ -70,7 +71,11 @@ const AuthLogin = ({ ...others }) => {
           permissions: decodedToken.roles.flatMap((role) => role.permissions)
         };
 
-        localStorage.setItem('token', access_token);
+        const ttl = new Date(expires_in * 1000);
+        const expirationTime = ttl.getTime();
+        Storage.setItem('token', access_token);
+        Storage.setItem('tokenExpiration', expirationTime);
+
         dispatch(setUser(user));
         signin();
         toast.success('Login successful!');
@@ -84,7 +89,7 @@ const AuthLogin = ({ ...others }) => {
         }
       } else {
         setStatus({ success: false });
-        setErrors({ submit: response.data.message });
+        setErrors({ submit: response.data.data.message });
         setSubmitting(false);
       }
     } catch (error) {

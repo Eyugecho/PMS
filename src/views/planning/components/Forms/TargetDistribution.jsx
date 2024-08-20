@@ -1,39 +1,27 @@
-import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Grid, IconButton, TextField, Typography, useTheme } from '@mui/material';
+import { useState } from 'react';
+import { Box, CircularProgress, Grid, IconButton, Paper, TextField, Typography, useTheme } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
-import Backend from 'services/backend';
 import { IconChevronRight, IconChevronUp } from '@tabler/icons-react';
+import { useKPI } from 'context/KPIProvider';
+import { MeasuringUnitConverter, PeriodNaming } from 'utils/function';
+import Backend from 'services/backend';
+import GetToken from 'utils/auth-token';
 
 const TargetDistribution = () => {
   const theme = useTheme();
-
+  const { selectedKpi, distributeTarget } = useKPI();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
+  const [expand, setExpand] = useState();
 
   const getFiscalYear = localStorage.getItem('selectFiscal');
   const SelectFiscalYear = JSON.parse(getFiscalYear);
-  const [selectedKpi, setSelectedKpi] = useState([]);
-  const [expand, setExpand] = useState(null);
 
   const handleFrequencySelection = (event, kpi_id, period_id) => {
     const value = event.target.value;
-    setSelectedKpi((prevSelectedKpi) =>
-      prevSelectedKpi.map((kpi) => {
-        if (kpi.kpi_id === kpi_id) {
-          if (kpi.targets) {
-            const periodExists = kpi.targets.some((targeted) => targeted.period_id === period_id);
-            const newTargetPeriod = periodExists
-              ? kpi.targets.map((targeted) => (targeted.period_id === period_id ? { ...targeted, target: value } : targeted))
-              : [...kpi.targets, { period_id: period_id, target: value }];
-            return { ...kpi, targets: newTargetPeriod };
-          } else {
-            return { ...kpi, targets: [{ period_id: period_id, target: value }] };
-          }
-        }
-        return kpi;
-      })
-    );
+
+    distributeTarget(value, kpi_id, period_id);
   };
 
   const handleAccordion = (index, frequency_id) => {
@@ -45,53 +33,17 @@ const TargetDistribution = () => {
     }
   };
 
-  const handleTargetNaming = (name) => {
-    if (name) {
-      let f_name;
-      switch (name) {
-        case 'Monthly':
-          f_name = 'Month';
-          break;
-
-        case 'Annually':
-          f_name = 'Annum';
-          break;
-
-        case 'Quarterly':
-          f_name = 'Quarter';
-          break;
-
-        case 'Weekly':
-          f_name = 'Week';
-          break;
-
-        case 'Bi-weekly':
-          f_name = 'Bi-weekly';
-          break;
-
-        case 'Daily':
-          f_name = 'Day';
-          break;
-
-        default:
-          f_name = 'Season';
-          break;
-      }
-      return f_name;
-    }
-  };
-
-  const handleAnnumName = (index, frequencies) => {
+  const handlePeriodCounts = (index, frequencies) => {
     if (frequencies > 1) {
       return index + 1;
     }
     return '';
   };
 
-  const handleFetchingPeriods = (frequency_id) => {
+  const handleFetchingPeriods = async (frequency_id) => {
     setLoading(true);
     setData([]);
-    const token = localStorage.getItem('token');
+    const token = await GetToken();
     const Api = Backend.api + Backend.planningPeriods + `?fiscal_year=${SelectFiscalYear?.id}&frequency_id=${frequency_id}&type=planning`;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -121,24 +73,11 @@ const TargetDistribution = () => {
       });
   };
 
-  useEffect(() => {
-    const kpiSelected = localStorage.getItem('selectedKPI');
-    const parseKPI = kpiSelected ? JSON.parse(kpiSelected) : [];
-
-    setSelectedKpi(parseKPI);
-  }, []);
-
-  useEffect(() => {
-    if (selectedKpi.length > 0) {
-      localStorage.setItem('selectedKPI', JSON.stringify(selectedKpi));
-    }
-  }, [selectedKpi]);
-
   return (
     <Box>
       {selectedKpi?.map((kpi, index) => (
         <Box key={index} sx={{ marginY: 2 }}>
-          <Box
+          <Paper
             sx={{
               width: '100%',
               display: 'flex',
@@ -146,21 +85,24 @@ const TargetDistribution = () => {
               justifyContent: 'space-between',
               padding: 1.6,
               border: 0.6,
-              borderRadius: 2,
-              borderColor: theme.palette.primary.main,
-              backgroundColor: theme.palette.grey[50],
+              borderColor: theme.palette.divider,
+              backgroundColor: theme.palette.primary.light,
               cursor: 'pointer',
               marginY: 0.4
             }}
             onClick={() => handleAccordion(index, kpi.frequency_id)}
           >
-            <Typography variant="body2">{kpi?.name}</Typography>
+            <Typography variant="h4">{kpi?.name}</Typography>
             <Box>
               <Typography variant="caption"> Total target</Typography>
-              <Typography variant="subtitle1"> {kpi?.total_target}</Typography>
+              <Typography variant="subtitle1">
+                {' '}
+                {kpi?.total_target}
+                {MeasuringUnitConverter(kpi?.mu)}
+              </Typography>
             </Box>
             <IconButton> {expand === index ? <IconChevronUp size={18} /> : <IconChevronRight size={18} />} </IconButton>
-          </Box>
+          </Paper>
 
           {expand === index && (
             <Box
@@ -196,7 +138,6 @@ const TargetDistribution = () => {
                 ) : data.length === 0 ? (
                   <Typography variant="subtitle1">Please set period first</Typography>
                 ) : (
-                  //   <TargetInputField count={kpi?.f_value} name={handleTargetNaming(kpi?.f_name)} />
                   <Grid container spacing={2}>
                     {data?.map((period, index) => {
                       const targetPeriod = kpi.targets?.find((target) => target.period_id === period.id);
@@ -205,12 +146,12 @@ const TargetDistribution = () => {
                         <Grid item xs={12} sm={6} md={4} key={period.id}>
                           <TextField
                             type="number"
-                            label={`${handleTargetNaming(kpi?.f_name)} ${handleAnnumName(index, kpi.f_value)}`}
+                            label={`${PeriodNaming(kpi?.f_name)} ${handlePeriodCounts(index, kpi.f_value)}`}
                             variant="outlined"
                             fullWidth
                             margin="normal"
                             value={targetPeriod ? targetPeriod.target : ''}
-                            onChange={(event) => handleFrequencySelection(event, kpi?.kpi_id, period.id)}
+                            onChange={(event) => handleFrequencySelection(event, kpi?.id, period.id)}
                           />
                         </Grid>
                       );

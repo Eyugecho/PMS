@@ -80,3 +80,25 @@ export const formattedDate = (dateString) => {
     return dateString;
   }
 };
+
+export const MeasuringUnitConverter = (mu) => {
+  let MeasuredBy = '';
+
+  switch (mu) {
+    case 'Percentage':
+      MeasuredBy = '%';
+      break;
+
+    case 'Money':
+      MeasuredBy = 'ETB';
+      break;
+
+    case 'Time':
+      MeasuredBy = 'Hour';
+      break;
+
+    default:
+      MeasuredBy = '';
+  }
+  return MeasuredBy;
+};

@@ -1,26 +1,102 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Chip, CircularProgress, CssBaseline, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material';
-import { IconCircleCheckFilled, IconDotsVertical, IconTargetArrow } from '@tabler/icons-react';
-import { useLocation } from 'react-router-dom';
+import { Box, Chip, CircularProgress, Grid, Typography, useTheme } from '@mui/material';
+import { IconTargetArrow } from '@tabler/icons-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { PeriodNaming } from 'utils/function';
+import { gridSpacing } from 'store/constant';
+import { useKPI } from 'context/KPIProvider';
+import { UpdatePlan } from './components/UpdatePlan';
+import { Storage } from 'configration/storage';
+import { toast, ToastContainer } from 'react-toastify';
+import DistributeTarget from './components/DistributeTarget';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
-import Fallbacks from 'utils/components/Fallbacks';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { DistributeTarget } from './components/DistributeTarget';
-import { PeriodNaming } from 'utils/function';
-import PlanTable from 'views/evaluation/components/PlanTable';
 import TargetTable from './components/TargetTable';
+import PlanCard from './components/PlanCard';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
+import Search from 'ui-component/search';
+import DeletePrompt from 'ui-component/modal/DeletePrompt';
+import GetToken from 'utils/auth-token';
+import axios from 'axios';
 
 const ViewPlan = () => {
-  const { state } = useLocation();
-
   const theme = useTheme();
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const { handleUpdatePlan } = useKPI();
+
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [plan, setPlan] = useState(state);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [tab, setTab] = useState('units');
   const [open, setOpen] = useState(false);
+  const [update, setUpdate] = useState(false);
+  const [deletePlan, setDeletePlan] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [search, setSearch] = useState();
 
+  /*** Update plan functionality implemented below  this*/
+  const handleUpdateModalClose = () => {
+    handleUpdatePlan([]);
+    setUpdate(false);
+  };
+
+  const handleSettingUP = (selected) => {
+    const newKPI = {
+      id: selected?.kpi_id,
+      f_name: selected?.frequency?.name,
+      f_value: selected?.frequency?.value,
+      frequency_id: selected?.frequency_id,
+      mu: selected?.kpi?.measuring_unit?.name,
+      name: selected?.kpi?.name,
+      total_target: selected?.total_target,
+      weight: selected?.weight
+    };
+
+    const targets = selected?.target?.map((prevTarget) => ({ period_id: prevTarget?.period_id, target: prevTarget?.target }));
+    handleUpdatePlan([{ ...newKPI, targets: targets }]);
+    Storage.setItem('selectFiscal', JSON.stringify({ id: selected?.fiscal_year_id, year: '' }));
+    setUpdate(true);
+  };
+
+  const handleUpdatingPlan = (plan) => {
+    handleSettingUP(plan);
+  };
+
+  /** Delete plan functionality implemented below this */
+  const handleDeletePlan = () => {
+    setDeletePlan(true);
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const token = await GetToken();
+      const Api = Backend.api + Backend.deletePlan + `/${state?.id}`;
+      const response = await axios.delete(Api, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.success) {
+        setDeletePlan(false);
+        toast.success(response.data.data.message);
+        navigate(-1);
+      } else {
+        toast.error(response.data.data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  /** Target distribution functionality implemented below this */
   const handleDistributeClick = () => {
     setOpen(true);
   };
@@ -29,245 +105,200 @@ const ViewPlan = () => {
     setOpen(false);
   };
 
-  const handleTargetNaming = (name) => {
-    if (name) {
-      let f_name;
-      switch (name) {
-        case 'Monthly':
-          f_name = 'Month';
-          break;
+  /** The child unit and employee searching functionality implemented below this */
 
-        case 'Annually':
-          f_name = 'Annum';
-          break;
-
-        case 'Quarterly':
-          f_name = 'Quarter';
-          break;
-
-        case 'Weekly':
-          f_name = 'Week';
-          break;
-
-        case 'Bi-weekly':
-          f_name = 'Bi-weekly';
-          break;
-
-        case 'Daily':
-          f_name = 'Day';
-          break;
-
-        default:
-          f_name = 'Season';
-          break;
-      }
-      return f_name;
-    }
+  const handleSearchFieldChange = (event) => {
+    const value = event.target.value;
+    setSearch(value);
   };
 
+  /**The functionality that switch the tabs from unit to employee and vice versa is implemented below this */
   const handleTabChange = (value) => {
     setTab(value);
   };
 
-  useEffect(() => {
-    const handleFetchingDistribution = () => {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.childTarget + state?.id + `?unit_type=${tab}`;
-      const header = {
-        Authorization: `Bearer ${token}`,
-        accept: 'application/json',
-        'Content-Type': 'application/json'
-      };
-
-      fetch(Api, {
-        method: 'GET',
-        headers: header
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          if (response.success) {
-            setData(response.data);
-            console.log(response.data);
-            setLoading(false);
-            setError(false);
-          } else {
-            setLoading(false);
-            setError(false);
-          }
-        })
-        .catch((error) => {
-          toast(error.message);
-          setError(true);
-          setLoading(false);
-        });
+  const handleGettingPlanDetails = async () => {
+    const token = await GetToken();
+    const Api = Backend.api + Backend.showPlan + '/' + state?.id;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
     };
 
-    handleFetchingDistribution();
-
-    return () => {};
-  }, [state?.id, tab]);
-  return (
-    <div>
-      <CssBaseline />
-      <PageContainer
-        back={true}
-        title={`${state ? state?.kpi?.name : 'Plan Details'}`}
-        rightOption={
-          <IconButton>
-            <IconDotsVertical size={20} />
-          </IconButton>
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setPlan(response.data);
+          setError(false);
+        } else {
+          setError(false);
         }
-      >
+      })
+      .catch((error) => {
+        toast(error.message);
+        setError(true);
+      });
+  };
+
+  const handleFetchingDistribution = async () => {
+    setLoading(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.childTarget + state?.id + `?unit_type=${tab}&search=${search}`;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setData(response.data);
+          setError(false);
+        } else {
+          setError(true);
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+        setError(true);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      handleFetchingDistribution();
+    }, 800);
+
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [search]);
+
+  useEffect(() => {
+    handleGettingPlanDetails();
+    if (mounted) {
+      handleFetchingDistribution();
+    } else {
+      setMounted(true);
+    }
+  }, [state?.id, tab]);
+
+  return (
+    <React.Fragment>
+      <PageContainer back={true} title={`${state ? plan?.kpi?.name : 'Plan Details'}`}>
         <Grid
           container
-          sx={{
-            borderRadius: 2,
-            marginTop: 2,
-            paddingY: 2
-          }}
+          spacing={gridSpacing}
+          sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 2, padding: 2 }}
         >
-          <TableContainer component={Paper} sx={{ border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 2 }}>
-            <Table sx={{ minWidth: 650 }} aria-label="KPI table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Fiscal Year</TableCell>
-                  <TableCell>KPI Name</TableCell>
-                  <TableCell>KPI Weights(%)</TableCell>
-                  <TableCell>Total Targets</TableCell>
-                  <TableCell>Measuring Unit</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell sx={{ display: 'flex', alignItems: 'center', border: 0 }}>
-                    <IconCircleCheckFilled size={20} />
-                    <Typography variant="body2" sx={{ marginLeft: 2 }}>
-                      {state?.fiscal_year.year}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ border: 0 }}>
-                    <Typography variant="subtitle1">{state?.kpi.name}</Typography>
-                  </TableCell>
-                  <TableCell sx={{ border: 0 }}>{state?.weight}</TableCell>
-                  <TableCell sx={{ border: 0 }}>{state?.total_target}</TableCell>
-                  <TableCell sx={{ border: 0 }}>{state?.kpi?.measuring_unit?.name}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Grid container sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
-            <Grid
-              xs={12}
-              sm={12}
-              md={3.8}
-              lg={2.9}
-              xl={2}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-            >
-              {state?.target?.map((target, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    margin: 0.5,
-                    paddingY: 0.8,
-                    paddingX: 2,
-                    border: 0.4,
-                    borderColor: theme.palette.grey[300],
-                    borderRadius: 2,
-                    backgroundColor: theme.palette.background.default
-                  }}
-                >
-                  <Typography variant="body2">
-                    {handleTargetNaming(state?.frequency?.name)} {index + 1}
-                  </Typography>
-                  <Box sx={{ paddingX: 2 }}>
-                    <Typography variant="h4" sx={{ marginY: 2 }}>
-                      {target.target}
-                    </Typography>
-                  </Box>
-                </Box>
-              ))}
-              <Button
-                variant="contained"
-                sx={{ marginY: 2, marginX: 1, padding: 1.2, boxShadow: 0 }}
-                onClick={() => handleDistributeClick()}
-              >
-                Distribute Targets
-              </Button>
-            </Grid>
+          <Grid item xs={12} sm={12} md={11} lg={3.7} xl={2.8}>
+            <PlanCard plan={plan} onEdit={() => handleUpdatingPlan(plan)} onDelete={() => handleDeletePlan(plan)} />
 
-            <Grid
-              xs={12}
-              sm={12}
-              md={8}
-              lg={9}
-              xl={9.9}
-              sx={{
-                border: 0.4,
-                borderColor: theme.palette.grey[300],
-                borderRadius: 2,
-                padding: 2,
-                marginTop: 0.5,
-                backgroundColor: theme.palette.background.default
-              }}
-            >
+            <DrogaButton
+              fullWidth
+              title={'Cascade Targets'}
+              onPress={() => handleDistributeClick()}
+              sx={{ marginY: 2, padding: 1.6, boxShadow: 0 }}
+            />
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={11}
+            lg={8}
+            xl={9}
+            sx={{
+              border: 1,
+              borderColor: theme.palette.divider,
+              backgroundColor: theme.palette.background.default,
+              borderRadius: 3,
+              padding: 2,
+              marginTop: 3
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2.4 }}>
               <Typography variant="h4">Target Distributed</Typography>
-              <Box sx={{ marginBottom: 2.4 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', marginY: 3 }}>
-                  {['units', 'employees'].map((item, index) => (
-                    <Chip
-                      key={index}
-                      label={item}
-                      sx={{ marginLeft: index > 0 && 2, cursor: 'pointer', textTransform: 'capitalize', paddingX: 2, paddingY: 0.4 }}
-                      color="primary"
-                      variant={tab === item ? 'filled' : 'outlined'}
-                      onClick={() => handleTabChange(item)}
-                    >
-                      {item}
-                    </Chip>
-                  ))}
-                </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {['units', 'employees'].map((item, index) => (
+                  <Chip
+                    key={index}
+                    label={item}
+                    sx={{ marginLeft: index > 0 && 2, cursor: 'pointer', textTransform: 'capitalize', paddingX: 2, paddingY: 0.4 }}
+                    color="primary"
+                    variant={tab === item ? 'filled' : 'outlined'}
+                    onClick={() => handleTabChange(item)}
+                  >
+                    {item}
+                  </Chip>
+                ))}
               </Box>
-
-              {loading ? (
-                <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CircularProgress size={20} />
-                </Box>
-              ) : error ? (
-                <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="body2">There is error fetching the targets</Typography>
-                </Box>
-              ) : data.length === 0 ? (
-                <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <IconTargetArrow size={80} color={theme.palette.grey[400]} />
-                  <Typography variant="h4" sx={{ marginTop: 1.6 }}>
-                    Target is not found
-                  </Typography>
-                  <Typography variant="caption">The list of distributed target will be listed here</Typography>
-                </Box>
-              ) : (
-                <TargetTable plans={data} />
-              )}
+            </Box>
+            <Grid container>
+              <Grid item xs={12} md={11} sm={8} lg={4} xl={4}>
+                <Search title="Search" value={search} onChange={(event) => handleSearchFieldChange(event)} />
+              </Grid>
             </Grid>
+
+            {loading ? (
+              <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress size={20} />
+              </Box>
+            ) : error ? (
+              <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="body2">There is error fetching the targets</Typography>
+              </Box>
+            ) : data.length === 0 ? (
+              <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <IconTargetArrow size={80} color={theme.palette.grey[400]} />
+                <Typography variant="h4" sx={{ marginTop: 1.6 }}>
+                  Target is not found
+                </Typography>
+                <Typography variant="caption">The list of distributed target will be listed here</Typography>
+              </Box>
+            ) : (
+              <TargetTable plans={data} />
+            )}
           </Grid>
         </Grid>
       </PageContainer>
 
+      <UpdatePlan add={update} onClose={handleUpdateModalClose} onSucceed={() => handleGettingPlanDetails()} />
+      {deletePlan && (
+        <DeletePrompt
+          type="Delete"
+          open={deletePlan}
+          title="Deleting Plan"
+          description={`Are you sure you want to delete ` + plan?.kpi?.name}
+          onNo={() => setDeletePlan(false)}
+          onYes={() => handleDelete()}
+          deleting={deleting}
+          handleClose={() => setDeletePlan(false)}
+        />
+      )}
+
       <DistributeTarget
         add={open}
         onClose={handleModalClose}
-        plan_id={state?.id}
-        targets={state?.target}
-        naming={PeriodNaming(state?.frequency?.name)}
+        plan_id={plan?.id}
+        targets={plan?.target}
+        naming={PeriodNaming(plan?.frequency?.name)}
       />
-    </div>
+      <ToastContainer />
+    </React.Fragment>
   );
 };
 

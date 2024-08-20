@@ -95,18 +95,12 @@ const ForgotPassword = () => {
           <MainCard>
             {verification ? (
               <Box>
-                <IconButton
-                  onClick={() => setVerification(false)}
-                  sx={{ position: 'absolute', top: 8, left: 8, color: theme.palette.grey[500] }}
-                >
-                  <IconArrowLeft size={22} />
-                </IconButton>
-
                 <Verification
                   phone={formik.values.phone}
                   onWrong={() => setVerification(false)}
                   onResend={() => handleSubmission(formik.values)}
                   isResending={isSubmitting}
+                  onClose={() => setVerification(false)}
                 />
               </Box>
             ) : (

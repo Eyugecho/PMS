@@ -1,6 +1,6 @@
 import React from 'react';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useTheme } from '@mui/material';
-import { IconMenu } from 'ui-component/menu/IconMenu';
+import IconMenu from 'ui-component/menu/IconMenu';
 import { useNavigate } from 'react-router-dom';
 
 const UnitsTable = ({ units }) => {
