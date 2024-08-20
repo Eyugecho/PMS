@@ -7,10 +7,10 @@
     "email": "contact@drogaconsulting.com",
     "url": "https://drogaconsulting.com/"
   },
-  "homepage": "https://droga-pms.netlify.app/all",
+  "homepage": "https://droga-pms.netlify.app",
   "scripts": {
-    "start": "env-cmd -f .env vite",
-    "build": "vite build",
+    "start": "npm start",
+    "build": "npm run build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
