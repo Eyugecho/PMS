@@ -91,13 +91,13 @@ const Customization = () => {
   return (
     <>
       {/* toggle button */}
-      {/* <Tooltip title="Live Customize">
+      <Tooltip title="Live Customize">
         <Fab
           component="div"
           onClick={handleToggle}
           size="medium"
           variant="circular"
-          color="secondary"
+          color="primary"
           sx={{
             borderRadius: 0,
             borderTopLeftRadius: '50%',
@@ -116,7 +116,7 @@ const Customization = () => {
             </IconButton>
           </AnimateButton>
         </Fab>
-      </Tooltip> */}
+      </Tooltip>
 
       <Drawer
         anchor="right"
@@ -176,7 +176,7 @@ const Customization = () => {
               <SubCard title="Border Radius">
                 <Grid item xs={12} container spacing={2} alignItems="center" sx={{ mt: 2.5 }}>
                   <Grid item>
-                    <Typography variant="h6" color="secondary">
+                    <Typography variant="h6" color="primary">
                       4px
                     </Typography>
                   </Grid>
@@ -192,7 +192,7 @@ const Customization = () => {
                       step={2}
                       min={4}
                       max={24}
-                      color="secondary"
+                      color="primary"
                       sx={{
                         '& .MuiSlider-valueLabel': {
                           color: 'secondary.light'

@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { CreatePlan } from './components/CreatePlan';
 import { toast } from 'react-toastify';
 import Backend from 'services/backend';
-import { IconTargetArrow } from '@tabler/icons-react';
 import PageContainer from 'ui-component/MainPage';
 
 const Planning = () => {

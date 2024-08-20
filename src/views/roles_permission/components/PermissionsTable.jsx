@@ -71,11 +71,31 @@ const handleFetchingPermissions = () => {
   }, []);
 
   return (
-    <TableContainer component={Paper} sx={{ minHeight: '5dvh', border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 1.6, margin: 0, marginTop: 7.5 }}>
+    <TableContainer
+      component={Paper}
+      sx={{ minHeight: '5dvh', border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 1.6, margin: 0, marginTop: 7.5 }}
+    >
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell variant="contained" color="primary" sx={{backgroundColor: theme.palette.primary.main, color: '#fff'}}>List of Menus</TableCell>
+            <TableCell
+              variant="contained"
+              color="primary"
+              sx={{
+                background: theme.palette.grey[100],
+                color: '#000',
+                fontWeight: 'bold',
+                fontSize: '0.9rem',
+                borderBottom: `2px solid ${theme.palette.divider}`,
+                position: 'relative',
+                padding: '12px 16px',
+                '&:not(:last-of-type)': {
+                  borderRight: `1px solid ${theme.palette.divider}`
+                }
+              }}
+            >
+              List of Menus
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -96,29 +116,24 @@ const handleFetchingPermissions = () => {
             Object.keys(groupedPermissions).map((type) => (
               <React.Fragment key={type}>
                 <Accordion>
-                  
                   <AccordionSummary>
-                    
                     <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-                      
-                      <Typography variant="h5">
-                        
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </Typography>
+                      <Typography variant="h5">{type.charAt(0).toUpperCase() + type.slice(1)}</Typography>
                       <IconButton>
                         <ExpandMoreIcon size={10} />
                       </IconButton>
                     </Box>
-                    
                   </AccordionSummary>
                   <AccordionDetails>
-                    
-          <Typography variant="h5" sx={{ padding: 1 }}>Assigned Permissions</Typography>
+                    <Typography variant="h5" sx={{ padding: 1 }}>
+                      Assigned Permissions
+                    </Typography>
 
                     <Table>
                       <TableBody>
                         {groupedPermissions[type].map((perm) => (
-                          <TableRow key={perm.id}
+                          <TableRow
+                            key={perm.id}
                             sx={{
                               ':hover': {
                                 backgroundColor: theme.palette.grey[100],
@@ -129,8 +144,6 @@ const handleFetchingPermissions = () => {
                             }}
                           >
                             <TableCell>{perm.name}</TableCell>
-                            
-                    
                           </TableRow>
                         ))}
                       </TableBody>

@@ -42,16 +42,9 @@ const dashboard = {
     {
       id: 'kpi-management',
       title: 'KPI Managment',
-      type: 'collapse',
-      icon: icons.IconGauge,
-      children: [
-        {
-          id: 'kpi',
-          title: 'Register KPI',
-          type: 'item',
-          url: '/kpi/kpi-managment'
-        }
-      ]
+      type: 'item',
+      url: '/kpi/kpi-managment',
+      icon: icons.IconGauge
     },
     {
       id: 'planning',

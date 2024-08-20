@@ -68,3 +68,15 @@ export const formatDate = (createdAt) => {
     formattedDate: formattedDate
   };
 };
+
+export const formattedDate = (dateString) => {
+  if (dateString) {
+    const [datePart] = dateString.split(' ');
+
+    const [year, month, day] = datePart.split('-');
+
+    return `${day}/${month}/${year}`;
+  } else {
+    return dateString;
+  }
+};

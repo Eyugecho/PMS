@@ -178,17 +178,36 @@ const handleSaveEdit = () => {
     <TableContainer
       component={Paper}
       sx={{
-        minHeight: '59dvh',
+        minHeight: '40dvh',
+        width: '100%',
         border: 0.4,
         borderColor: theme.palette.grey[300],
-        borderRadius: 2,
+        borderRadius: 2
       }}
     >
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Role</TableCell>
-            <TableCell align="right">Actions</TableCell>
+            {['Role', 'Action'].map((header) => (
+              <TableCell
+                key={header}
+                sx={{
+                  background: theme.palette.grey[100],
+                  color: '#000',
+                  fontWeight: 'bold',
+                  
+                  fontSize: '0.9rem',
+                  borderBottom: `2px solid ${theme.palette.divider}`,
+                  position: 'relative',
+                  padding: '12px 16px',
+                  '&:not(:last-of-type)': {
+                    borderRight: `1px solid ${theme.palette.divider}`
+                  }
+                }}
+              >
+                {header}
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -198,17 +217,13 @@ const handleSaveEdit = () => {
                 padding: 2,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
               }}
             >
               <CircularProgress size={20} />
             </Box>
           ) : error ? (
-            <Fallbacks
-              severity="error"
-              title="Server error"
-              description="There is error fetching Roles"
-            />
+            <Fallbacks severity="error" title="Server error" description="There is error fetching Roles" />
           ) : filteredRoles.length === 0 ? (
             <Fallbacks
               severity="info"
@@ -221,33 +236,30 @@ const handleSaveEdit = () => {
               <TableRow
                 key={index}
                 sx={{
-                  ':hover': {
-                    backgroundColor: theme.palette.grey[100],
-                    color: theme.palette.background.default,
-                    cursor: 'pointer',
-                    borderRadius: 2,
+                  backgroundColor: theme.palette.background.paper,
+                  borderRadius: 2,
+                  '&:nth-of-type(odd)': {
+                    backgroundColor: theme.palette.grey[50]
                   },
+                  '&:hover': {
+                    backgroundColor: theme.palette.grey[100]
+                  }
                 }}
               >
-                <TableCell>{role.name}</TableCell>
-                <TableCell align="right">
+                <TableCell >{role.name}</TableCell>
+                <TableCell >
                   <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
                     <MoreHoriz />
                   </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl) && selectedIndex === index}
-                    onClose={handleCloseMenu}
-                    
-                  >
+                  <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedIndex === index} onClose={handleCloseMenu}>
                     <ListItem onClick={() => handleOpenDetailModal(index)}>
-                      <InfoIcon fontSize="small" style={{paddingRight:'4px' ,color:'gray'}} /> Details
+                      <InfoIcon fontSize="small" style={{ paddingRight: '4px', color: 'gray' }} /> Details
                     </ListItem>
                     <ListItem onClick={() => handleOpenEditModal(role)}>
-                      <EditIcon fontSize="small" style={{paddingRight:'4px' ,color:'#11365A'}} /> Edit
+                      <EditIcon fontSize="small" style={{ paddingRight: '4px', color: '#11365A' }} /> Edit
                     </ListItem>
                     <ListItem onClick={() => handleDelete(role.uuid)}>
-                      <DeleteIcon fontSize="small" style={{paddingRight:'4px' ,color:'red'}} /> Delete
+                      <DeleteIcon fontSize="small" style={{ paddingRight: '4px', color: 'red' }} /> Delete
                     </ListItem>
                   </Menu>
                 </TableCell>
@@ -266,7 +278,7 @@ const handleSaveEdit = () => {
             margin: 'auto',
             mt: '2%',
             width: 600,
-            borderRadius: '10px',
+            borderRadius: '10px'
           }}
         >
           {selectedRole && (
@@ -282,24 +294,18 @@ const handleSaveEdit = () => {
                   </TableHead>
                   <TableBody>
                     {selectedRole.permissions.length > 0 ? (
-                      Object.entries(groupPermissionsByType(selectedRole.permissions)).map(
-                        ([type, perms], i) => (
-                          perms.map((perm, index) => (
-                            <TableRow key={index}>
-                              <TableCell>{perm.name}</TableCell>
-                              {/* <TableCell>{type}</TableCell> */}
-                            </TableRow>
-                          ))
-                        )
+                      Object.entries(groupPermissionsByType(selectedRole.permissions)).map(([type, perms], i) =>
+                        perms.map((perm, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{perm.name}</TableCell>
+                            {/* <TableCell>{type}</TableCell> */}
+                          </TableRow>
+                        ))
                       )
                     ) : (
                       <TableRow>
                         <TableCell colSpan={2}>
-                          <Fallbacks
-                            severity="info"
-                            title="No Data"
-                            description="No Permission Found"
-                          />
+                          <Fallbacks severity="info" title="No Data" description="No Permission Found" />
                         </TableCell>
                       </TableRow>
                     )}
@@ -317,7 +323,9 @@ const handleSaveEdit = () => {
       </Dialog>
 
       <Dialog open={openEditModal} onClose={handleCloseEditModal}>
-        <Typography variant="subtitle1" p={1}>Edit Role</Typography>
+        <Typography variant="subtitle1" p={1}>
+          Edit Role
+        </Typography>
         <DialogContent
           sx={{
             p: 3,
@@ -325,19 +333,12 @@ const handleSaveEdit = () => {
             margin: 'auto',
             mt: '2%',
             width: 400,
-            borderRadius: '10px',
+            borderRadius: '10px'
           }}
         >
           {selectedRole && (
             <Box component="form" noValidate autoComplete="off">
-              <TextField
-                fullWidth
-                label="Role Name"
-                name="name"
-                value={editedRole.name}
-                onChange={handleEditChange}
-                sx={{ mb: 2 }}
-              />
+              <TextField fullWidth label="Role Name" name="name" value={editedRole.name} onChange={handleEditChange} sx={{ mb: 2 }} />
             </Box>
           )}
         </DialogContent>

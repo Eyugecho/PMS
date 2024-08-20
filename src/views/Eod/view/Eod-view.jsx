@@ -15,14 +15,15 @@ import {
   Tabs,
   Tab,
   Typography,
+  Grid,
   Menu,
   MenuItem
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
 import config from '../../../configration/config';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { decodeToken, hasRole } from '../../../store/permissionUtils'; // Import the helper functions
+import MoreVertIcon from '@mui/icons-material/MoreVert'; // Import MoreVertIcon
+import Iconify from '../../../ui-component/iconify/iconify';
 
 function EodActivity() {
   const [page, setPage] = useState(0);
@@ -34,6 +35,8 @@ function EodActivity() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [formErrors, setFormErrors] = useState({});
+
   const [formValues, setFormValues] = useState({
     date: new Date().toISOString().split('T')[0], // Current date by default
     revenue: '',
@@ -42,18 +45,14 @@ function EodActivity() {
     customer_satisfaction: '',
     plan: '',
     completed: '',
-    challenge_faced: '',
+    challenge_faced: ''
   });
-  const [tabIndex, setTabIndex] = useState(0);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [currentRecord, setCurrentRecord] = useState(null);
-
-  const token = localStorage.getItem('token');
-  const user = decodeToken(token); // Decode the token
-  const isCeo = hasRole(user.roles, 'CEO'); // Check if the user is a CEO
-  const isAdmin = hasRole(user.roles, 'Admin'); // Check if the user is an Admin
+  const [tabIndex, setTabIndex] = useState(0); // New state for tabs
+  const [detailOpen, setDetailOpen] = useState(false); // State for detail modal
+  const [selectedRecord, setSelectedRecord] = useState(null); // State for selected record details
+  const [anchorEl, setAnchorEl] = useState(null); // State for the menu anchor
+  const [currentRecord, setCurrentRecord] = useState(null); // State for the current record
+  const employeeName = localStorage.getItem('employee_name') || '';
 
   // Fetch data on page or rowsPerPage change
   useEffect(() => {
@@ -63,15 +62,22 @@ function EodActivity() {
   // Fetch EOD activities
   const fetchData = async (pageNumber) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.get(`${config.API_URL_Units}/end-of-day-activities?page=${pageNumber}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
+      console.log(response.data);
 
       if (response.data.success) {
-        setData(response.data.data.data);
+        setData(
+          response.data.data.data.map((item) => ({
+            ...item,
+            employee_name: employeeName // Add employee name to each item
+          }))
+        );
         setTotal(response.data.data.total);
       } else {
         console.error('Failed to fetch data:', response.data.message);
@@ -82,75 +88,129 @@ function EodActivity() {
   };
 
   // Save or update record
-  const handleSave = async () => {
-    try {
-      const method = editIndex !== null ? 'PATCH' : 'POST';
-      const url = editIndex !== null 
-        ? `${config.API_URL_Units}/end-of-day-activities/${data[editIndex].id}` 
+  // const handleSave = async () => {
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const method = editIndex !== null ? 'PATCH' : 'POST';
+  //     const url =
+  //       editIndex !== null
+  //         ? `${config.API_URL_Units}/end-of-day-activities/${data[editIndex].id}`
+  //         : `${config.API_URL_Units}/end-of-day-activities`;
+
+
+  //     const response = await axios({
+  //       method,
+  //       url,
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         'Content-Type': 'application/json'
+  //       },
+  //       data: formValues
+  //     });
+
+
+  //     if (response.data.success) {
+  //       setData((prevData) => {
+  //         if (editIndex !== null) {
+  //           return prevData.map((item, index) => (index === editIndex ? response.data.data : item));
+  //         } else {
+  //           return [...prevData, response.data.data];
+  //         }
+  //       });
+  //       handleClose();
+  //       setSnackbarMessage('Record saved successfully!');
+  //       setSnackbarSeverity('success');
+  //     } else {
+  //       setSnackbarMessage(response.data.message || 'Error occurred');
+  //       setSnackbarSeverity('error');
+  //     }
+  //     setSnackbarOpen(true);
+  //   } catch (error) {
+  //     setSnackbarMessage('Error saving record: ' + error.message);
+  //     setSnackbarSeverity('error');
+  //     setSnackbarOpen(true);
+  //   }
+  // };
+
+const handleSave = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const method = editIndex !== null ? 'PATCH' : 'POST';
+    const url =
+      editIndex !== null
+        ? `${config.API_URL_Units}/end-of-day-activities/${data[editIndex].id}`
         : `${config.API_URL_Units}/end-of-day-activities`;
 
-      const response = await axios({
-        method,
-        url,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        data: formValues,
+    const response = await axios({
+      method,
+      url,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      data: formValues
+    });
+
+    if (response.data.success) {
+      setData((prevData) => {
+        if (editIndex !== null) {
+          return prevData.map((item, index) => (index === editIndex ? response.data.data : item));
+        } else {
+          return [...prevData, response.data.data];
+        }
       });
-
-       if (!response.data.success) {
-         const errorResponse = await response.json();
-         const errorMessage = errorResponse.data?.message || 'Failed to delete';
-         throw new Error(errorMessage);
-       }
-       const data = await response.json();
-
-       if (data.success) {
-         toast(`${type === 'unit' ? 'Unit' : 'Unit Type'} deleted successfully`);
-         if (type === 'unit') {
-           handleFetchingUnits();
-           handleClose();
-         } else {
-           handleFetchingTypes();
-           handleClose();
-         }
-       } else {
-         throw new Error(data.message || 'Failed to delete');
-       }
-      if (response.data.success) {
-        setData((prevData) => {
-          if (editIndex !== null) {
-            return prevData.map((item, index) =>
-              index === editIndex ? response.data.data : item
-            );
-          } else {
-            return [...prevData, response.data.data];
-          }
-        });
-        handleClose();
-        setSnackbarMessage('Record saved successfully!');
-        setSnackbarSeverity('success');
-      } else {
-        setSnackbarMessage(response.data.message || 'Error occurred');
-        setSnackbarSeverity('error');
-      }
-      setSnackbarOpen(true);
-    } catch (error) {
-      setSnackbarMessage('Error saving record: ' + error.message);
+      handleClose();
+      setSnackbarMessage('Record saved successfully!');
+      setSnackbarSeverity('success');
+    } else {
+      setSnackbarMessage(response.data.message || 'Error occurred');
       setSnackbarSeverity('error');
-      setSnackbarOpen(true);
     }
-  };
+    setSnackbarOpen(true);
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 422) {
+        // Handle validation error (422 Unprocessable Content)
+        const { message, errors } = error.response.data.data;
+
+        // Handle specific error messages
+        if (message) {
+          setSnackbarMessage(message);
+        } else {
+          // Handle other validation errors if any
+          const errorMessages = Object.values(errors).flat().join(', '); // Combine all error messages
+          setSnackbarMessage(errorMessages || 'Validation error occurred.');
+        }
+      } else if (error.response.data && error.response.data.message) {
+        // Handle other specific cases where the message field is present
+        setSnackbarMessage(error.response.data.message);
+      } else {
+        // Handle other errors
+        setSnackbarMessage('Error saving record: ' + error.message);
+      }
+    } else {
+      // Handle cases where error.response is undefined
+      setSnackbarMessage('Error saving record: ' + error.message);
+    }
+    setSnackbarSeverity('error');
+    setSnackbarOpen(true);
+  } finally {
+    // Optionally, reset loading state if you have one
+    setIsLoading(false);
+  }
+};
+
+
 
   // Delete record
   const handleDelete = async (id) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.delete(`${config.API_URL_Units}/end-of-day-activities/${id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (response.status === 204 || response.data.success) {
@@ -174,7 +234,7 @@ function EodActivity() {
     setFormValues(record);
     setEditIndex(data.indexOf(record));
     setOpen(true);
-    handleCloseMenu();
+    handleCloseMenu(); // Close the menu when editing
   };
 
   // Handle page change
@@ -199,10 +259,10 @@ function EodActivity() {
       customer_satisfaction: '',
       plan: '',
       completed: '',
-      challenge_faced: '',
+      challenge_faced: ''
     });
     setEditIndex(null);
-    setTabIndex(0);
+    setTabIndex(0); // Reset to first tab
   };
 
   // Handle form field change
@@ -210,7 +270,7 @@ function EodActivity() {
     const { name, value } = event.target;
     setFormValues((prevValues) => ({
       ...prevValues,
-      [name]: value,
+      [name]: value
     }));
   };
 
@@ -223,7 +283,7 @@ function EodActivity() {
   const handleShowDetails = (record) => {
     setSelectedRecord(record);
     setDetailOpen(true);
-    handleCloseMenu();
+    handleCloseMenu(); // Close the menu when viewing details
   };
 
   // Close details modal
@@ -258,6 +318,7 @@ function EodActivity() {
 
   // Define table columns
   const columns = [
+    // { field: 'employee_name', headerName: 'Employee Name', flex: 1 },
     { field: 'plan', headerName: 'Plan', flex: 1 },
     { field: 'completed', headerName: 'Completed', flex: 1 },
     { field: 'challenge_faced', headerName: 'Challenge Faced', flex: 1 },
@@ -267,149 +328,165 @@ function EodActivity() {
       headerName: 'Actions',
       flex: 1,
       renderCell: (params) => (
-        <IconButton onClick={(event) => handleClickMenu(event, params.row)} disabled={isCeo}>
+        <IconButton onClick={(event) => handleClickMenu(event, params.row)}>
           <MoreVertIcon />
         </IconButton>
-      ),
-    },
+      )
+    }
   ];
+
+  // Define the detail modal columns
+  const detailColumns = [
+    { field: 'field', headerName: 'Field', flex: 1 },
+    { field: 'value', headerName: 'Value', flex: 1 }
+  ];
+
+  // Prepare data for detail modal table
+  const detailRows = selectedRecord
+    ? [
+        { id: 1, field: 'Revenue', value: `${selectedRecord.revenue} Birr` },
+        { id: 2, field: 'Expenses', value: `${selectedRecord.expenses} Birr` },
+        { id: 3, field: 'Profit', value: `${selectedRecord.profit} Birr` },
+        { id: 4, field: 'Customer Satisfaction', value: selectedRecord.customer_satisfaction }
+      ]
+    : [];
+  // Define detail rows based on selected record
+  // const detailRows = selectedRecord
+  // ? Object.entries(selectedRecord).map(([field, value], index) => ({
+  //     id: index,
+  //     field,
+  //     value: value !== null && value !== undefined ? value.toString() : '', // Handle null or undefined values
+  //   }))
+  // : [];
 
   return (
     <Card>
       <CardContent>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h4">EOD Activities</Typography>
-          {!isCeo && (
-            <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
-              Add
-            </Button>
-          )}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
+            Add
+          </Button>
         </Box>
-        <div style={{ height: 400, width: '100%' }}>
+        <Box mt={2}>
           <DataGrid
             rows={data}
             columns={columns}
             pageSize={rowsPerPage}
             page={page}
-            onPageChange={handleChangePage}
-            onPageSizeChange={handleChangeRowsPerPage}
             rowCount={total}
             paginationMode="server"
+            onPageChange={handleChangePage}
+            getRowId={(row) => row.id || row.employee_id || row.k_p_i_id}
+            onPageSizeChange={handleChangeRowsPerPage}
+            autoHeight
           />
-        </div>
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{editIndex !== null ? 'Edit' : 'Add'} EOD Activity</DialogTitle>
-          <DialogContent>
-            <Tabs value={tabIndex} onChange={handleTabChange}>
-              <Tab label="Details" />
-              <Tab label="Financial" />
-            </Tabs>
-            {tabIndex === 0 && (
-              <Box mt={2}>
-                <TextField
-                  margin="normal"
-                  name="date"
-                  label="Date"
-                  type="date"
-                  fullWidth
-                  value={formValues.date}
-                  onChange={handleChange}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-                <TextField
-                  margin="normal"
-                  name="plan"
-                  label="Plan"
-                  fullWidth
-                  value={formValues.plan}
-                  onChange={handleChange}
-                />
-                <TextField
-                  margin="normal"
-                  name="completed"
-                  label="Completed"
-                  fullWidth
-                  value={formValues.completed}
-                  onChange={handleChange}
-                />
-                <TextField
-                  margin="normal"
-                  name="challenge_faced"
-                  label="Challenge Faced"
-                  fullWidth
-                  value={formValues.challenge_faced}
-                  onChange={handleChange}
-                />
-              </Box>
-            )}
-            {tabIndex === 1 && (
-              <Box mt={2}>
-                <TextField
-                  margin="normal"
-                  name="revenue"
-                  label="Revenue"
-                  fullWidth
-                  value={formValues.revenue}
-                  onChange={handleChange}
-                />
-                <TextField
-                  margin="normal"
-                  name="expenses"
-                  label="Expenses"
-                  fullWidth
-                  value={formValues.expenses}
-                  onChange={handleChange}
-                />
-                <TextField
-                  margin="normal"
-                  name="profit"
-                  label="Profit"
-                  fullWidth
-                  value={formValues.profit}
-                  onChange={handleChange}
-                />
-                <TextField
-                  margin="normal"
-                  name="customer_satisfaction"
-                  label="Customer Satisfaction"
-                  fullWidth
-                  value={formValues.customer_satisfaction}
-                  onChange={handleChange}
-                />
-              </Box>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleSave} color="primary" disabled={isCeo}>
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
-          <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+        </Box>
       </CardContent>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>{editIndex !== null ? 'Edit EOD Activity' : 'Add EOD Activity'}</DialogTitle>
+        <DialogContent>
+          <Tabs value={tabIndex} onChange={handleTabChange}>
+            <Tab label="EOD Activity" />
+            {editIndex !== null && <Tab label="EOD Revenue" />}
+          </Tabs>
+          <Box mt={2}>
+            {tabIndex === 0 && (
+              <Grid container spacing={2}>
+                {editIndex === null && (
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Date"
+                      name="date"
+                      type="date"
+                      value={formValues.date}
+                      onChange={handleChange}
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                    />
+                  </Grid>
+                )}
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Plan"
+                    name="plan"
+                    value={formValues.plan}
+                    onChange={handleChange}
+                    InputProps={{
+                      readOnly: editIndex !== null // Read-only when editing
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  {editIndex !== null && (
+                    <TextField fullWidth label="Completed" name="completed" value={formValues.completed} onChange={handleChange} />
+                  )}
+                </Grid>
+                <Grid item xs={12}>
+                  {editIndex !== null && (
+                    <TextField
+                      fullWidth
+                      label="Challenge Faced"
+                      name="challenge_faced"
+                      value={formValues.challenge_faced}
+                      onChange={handleChange}
+                    />
+                  )}
+                </Grid>
+              </Grid>
+            )}
+            {tabIndex === 1 && editIndex !== null && (
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField fullWidth label="Revenue" name="revenue" value={formValues.revenue} onChange={handleChange} />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField fullWidth label="Expenses" name="expenses" value={formValues.expenses} onChange={handleChange} />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Customer Satisfaction"
+                    name="customer_satisfaction"
+                    value={formValues.customer_satisfaction}
+                    onChange={handleChange}
+                    error={!!formErrors.customer_satisfaction} // Show error state if there's an error
+                    helperText={formErrors.customer_satisfaction ? formErrors.customer_satisfaction[0] : ''}
+                  />
+                </Grid>
+              </Grid>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Dialog open={detailOpen} onClose={handleCloseDetails}>
-        <DialogTitle>Activity Details</DialogTitle>
+        <DialogTitle>Record Details</DialogTitle>
         <DialogContent>
           {selectedRecord && (
-            <Box>
-              <Typography variant="body1"><strong>Plan:</strong> {selectedRecord.plan}</Typography>
-              <Typography variant="body1"><strong>Completed:</strong> {selectedRecord.completed}</Typography>
-              <Typography variant="body1"><strong>Challenge Faced:</strong> {selectedRecord.challenge_faced}</Typography>
-              <Typography variant="body1"><strong>Date:</strong> {selectedRecord.date}</Typography>
-              <Typography variant="body1"><strong>Revenue:</strong> {selectedRecord.revenue}</Typography>
-              <Typography variant="body1"><strong>Expenses:</strong> {selectedRecord.expenses}</Typography>
-              <Typography variant="body1"><strong>Profit:</strong> {selectedRecord.profit}</Typography>
-              <Typography variant="body1"><strong>Customer Satisfaction:</strong> {selectedRecord.customer_satisfaction}</Typography>
-            </Box>
+            <DataGrid
+              getRowId={(row) => row.id || row.employee_id || row.k_p_i_id}
+              rows={detailRows}
+              columns={detailColumns}
+              pageSize={5}
+              autoHeight
+              disableSelectionOnClick
+            />
           )}
         </DialogContent>
         <DialogActions>
@@ -418,19 +495,16 @@ function EodActivity() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Menu
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-      >
-        {!isCeo && (
-          <>
-            <MenuItem onClick={() => handleMenuAction('edit')}>Edit</MenuItem>
-            <MenuItem onClick={() => handleMenuAction('delete')}>Delete</MenuItem>
-          </>
-        )}
-        <MenuItem onClick={() => handleMenuAction('details')}>Details</MenuItem>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
+        <MenuItem onClick={() => handleMenuAction('edit')}>
+          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+          Update
+        </MenuItem>
+        {/* <MenuItem onClick={() => handleMenuAction('delete')}>Delete</MenuItem> */}
+        <MenuItem onClick={() => handleMenuAction('details')}>
+          <Iconify icon="eva:eye-fill" sx={{ mr: 2 }} />
+          View Revenue
+        </MenuItem>
       </Menu>
     </Card>
   );

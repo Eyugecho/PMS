@@ -102,15 +102,15 @@ function Perceptive() {
    
       } else {
         if (result.success) {
-          // Update the state with new or updated perspective
+         
           setPerceptives((prevPerceptives) => {
             if (editIndex !== null) {
-              // If updating, replace the old perspective with the new one
+             
               return prevPerceptives.map((p, i) =>
                 i === editIndex ? result.data : p
               );
             } else {
-              // If creating, add the new perspective
+              
               return [...prevPerceptives, result.data];
             }
           });
@@ -118,14 +118,14 @@ function Perceptive() {
           setSnackbarMessage('Perspective saved successfully!');
           setSnackbarSeverity('success');
         } else {
-          console.error('Error creating/updating perspective:', result.message);
+          
           setSnackbarMessage('Error creating/updating perspective: ' + result.message);
           setSnackbarSeverity('error');
         }
       }
       setSnackbarOpen(true);
     } catch (error) {
-      console.error('Error creating/updating perspective:', error);
+
       setSnackbarMessage('Error creating/updating perspective: ' + error.message);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -154,16 +154,15 @@ function Perceptive() {
         },
       });
   
-      // Check if the response is empty
-      if (response.status === 204) { // No Content
-        // Successfully deleted, no response body
+
+      if (response.status === 204) { 
         setPerceptives((prevPerceptives) => 
           prevPerceptives.filter((p) => p.id !== id)
         );
         setSnackbarMessage('Perspective deleted successfully!');
         setSnackbarSeverity('success');
       } else {
-        // Try to parse response as JSON if not empty
+        
         const data = await response.json();
         if (data.success) {
           setPerceptives((prevPerceptives) => 
@@ -174,14 +173,14 @@ function Perceptive() {
         } else {
           setSnackbarMessage('Failed to delete perspective: ' + data.message);
           setSnackbarSeverity('error');
-          console.error('Failed to delete perspective:', data.message);
+          
         }
       }
     } catch (error) {
-      // Handle JSON parse error or other errors
+     
       setSnackbarMessage('Error deleting perspective: ' + error.message);
       setSnackbarSeverity('error');
-      console.error('Error deleting perspective:', error);
+      
     }
     setSnackbarOpen(true);
     handleCloseMenu();

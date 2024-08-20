@@ -13,7 +13,10 @@ const Backend = {
   units: 'units',
   types: 'unit-types',
   employees: 'employees',
+  employeeExcel: 'import-employee-excel',
   kpi: 'kpis',
+  getStats: 'get-counts',
+  preSetups: 'kpi-pre-setups',
   fiscalYear: 'get-fiscal-year',
   periods: 'periods',
   frequencies: 'frequencies',
@@ -33,6 +36,9 @@ const Backend = {
   permissi: 'permissions',
 
   role: 'roles',
-
+  fiscal_years: 'fiscal-years',
+  planning_periods: 'create-planning-period',
+  frequency_period_values: 'create-frequency-definition-period',
+  evaluation_periods: 'create-evaluation-period',
 };
 export default Backend;

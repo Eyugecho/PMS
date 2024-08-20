@@ -16,11 +16,11 @@ export default defineConfig({
 
   server: {
     open: true,
-    // host: '192.168.1.9',
-    port: 3000
+    // host: '192.168.1.13',
+    port: 4000
   },
   preview: {
     open: true,
-    port: 3000
+    port: 4000
   }
 });

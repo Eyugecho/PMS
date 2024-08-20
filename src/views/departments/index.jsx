@@ -339,8 +339,8 @@ const Units = () => {
   };
 
   return (
-    <Container title="Units">
-      <Paper elevation={2}  style={{ padding: '0px', backgroundColor: '#fff', boxShadow: '0 4px 6px rgba(0.5, 0, 0, 0.1)' }}>
+    <PageContainer maxWidth="lg" title={'Units Managment'}>
+      <Paper elevation={2}  style={{ marginLeft:'10px',padding: '0px', backgroundColor: '#fff', boxShadow: '0 4px 6px rgba(0.5, 0, 0, 0.1)' }}>
         <Grid
           container
           sx={{
@@ -519,7 +519,7 @@ const Units = () => {
           onUpdate={handleUpdateUnitType}
         />
       </Paper>
-    </Container>
+    </PageContainer>
   );
 };
 

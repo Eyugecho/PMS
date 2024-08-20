@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Card, CardContent, Grid } from '@mui/material';
+import { Box, Button, Card, CardContent, Grid,useTheme } from '@mui/material';
 import AddRole from './components/AddRoles';
 import RoleTable from './components/RoleTable';
 import PermissionsTable from './components/PermissionsTable';
@@ -7,6 +7,8 @@ import { Container, Paper } from '@mui/material';
 import Search from 'ui-component/search';
 import Backend from 'services/backend'; // Assuming you have a backend service file
 import { toast } from 'react-toastify';
+import PageContainer from 'ui-component/MainPage';
+
 
 const Page = () => {
   const [roles, setRoles] = useState([]);
@@ -14,6 +16,7 @@ const Page = () => {
   const [openRoleModal, setOpenRoleModal] = useState(false);
   const [permissionMap, setPermissionMap] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const theme = useTheme();
 
 
   useEffect(() => {
@@ -126,24 +129,24 @@ const handlePermissionsFetch = (fetchedPermissions) => {
 
 
   return (
-    <Container maxWidth="lg" style={{ paddingTop: '10px' }}>
-      <Paper elevation={2} style={{ padding: '0px', backgroundColor: '#fff' }}>
+    <PageContainer maxWidth="lg" title={'Role and Permission'}>
+      <Paper
+        elevation={2}
+        style={{ marginLeft: '10px', padding: '0px', backgroundColor: '#fff', boxShadow: '0 4px 6px rgba(0.5, 0, 0, 0.1)' }}
+      >
         <Box p={3}>
           <Grid container spacing={3}>
             <Grid item xs={10} md={6}>
               <Card>
                 <CardContent>
                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Search
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                    <Search value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     <Button variant="contained" color="primary" onClick={() => setOpenRoleModal(true)}>
                       Add
                     </Button>
                   </Box>
 
-                  <RoleTable roles={roles} onDelete={handleDeleteRole} searchQuery={searchQuery}/>
+                  <RoleTable roles={roles} onDelete={handleDeleteRole} searchQuery={searchQuery} />
                 </CardContent>
               </Card>
             </Grid>
@@ -156,15 +159,10 @@ const handlePermissionsFetch = (fetchedPermissions) => {
             </Grid>
           </Grid>
 
-          <AddRole
-            open={openRoleModal}
-            handleClose={() => setOpenRoleModal(false)}
-            permissions={permissions}
-            onSave={handleAddRole}
-          />
+          <AddRole open={openRoleModal} handleClose={() => setOpenRoleModal(false)} permissions={permissions} onSave={handleAddRole} />
         </Box>
       </Paper>
-    </Container>
+    </PageContainer>
   );
 };
 

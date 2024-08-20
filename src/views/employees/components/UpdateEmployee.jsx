@@ -24,7 +24,7 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import { IconInfoCircle, IconX } from '@tabler/icons-react';
+import { IconX } from '@tabler/icons-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Backend from 'services/backend';
@@ -37,10 +37,10 @@ const validationSchema = Yup.object().shape({
   phone: Yup.string().required('Phone number is required'),
   unit: Yup.string().required('Unit is required'),
   position: Yup.string().required('The employee position is required'),
-  start_date: Yup.date().required('Stat date is required')
+  start_date: Yup.date().required('Employee start date is required')
 });
 
-export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
+const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmission }) => {
   const theme = useTheme();
 
   const [units, setUnits] = React.useState([]);
@@ -52,16 +52,18 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
     setSelectedRoles(value);
 
     const addedRole = value.find((role) => !selectedRoles.some((selectedRole) => selectedRole.uuid === role.uuid));
-
     const removeRole = selectedRoles.find((role) => !value.some((selectedRole) => selectedRole.uuid === role.uuid));
 
     if (addedRole) {
       setRoleIds((prevRoleIds) => [...prevRoleIds, addedRole.uuid]);
     }
-
     if (removeRole) {
       setRoleIds((prevRoleIds) => prevRoleIds.filter((id) => id !== removeRole.uuid));
     }
+  };
+
+  const getUUIDsFromSelectedRoles = () => {
+    return selectedRoles.map((role) => role.uuid);
   };
 
   const formik = useFormik({
@@ -77,7 +79,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      handleSubmission(values, roleIds);
+      handleSubmission(values, getUUIDsFromSelectedRoles());
     }
   });
 
@@ -105,7 +107,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       });
   };
 
-  const handleFetchingRoles = () => {
+  const handleFetchingRoles = async () => {
     const token = localStorage.getItem('token');
     const Api = Backend.auth + Backend.roles;
     const header = {
@@ -122,6 +124,8 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       .then((response) => {
         if (response.success) {
           setRoles(response.data);
+        } else {
+          toast.error(response.data.message);
         }
       })
       .catch((error) => {
@@ -129,14 +133,31 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       });
   };
 
+  const setFormInitialValues = () => {
+    formik.setValues({
+      ...formik.values,
+      name: EmployeeData?.user?.name,
+      gender: EmployeeData?.gender,
+      email: EmployeeData?.user?.email,
+      phone: EmployeeData?.user?.phone,
+      unit: EmployeeData?.unit?.unit?.id,
+      position: EmployeeData?.position,
+      start_date: EmployeeData?.unit?.started_date?.split(' ')[0]
+    });
+
+    setSelectedRoles(EmployeeData?.user?.roles || []);
+  };
+
   React.useEffect(() => {
     handleFetchingManagers();
     handleFetchingRoles();
+    setFormInitialValues();
+
     return () => {};
-  }, []);
+  }, [update]);
   return (
     <React.Fragment>
-      <Dialog open={add} onClose={onClose}>
+      <Dialog open={update} onClose={onClose}>
         <Box
           sx={{
             position: 'sticky',
@@ -152,7 +173,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
           }}
         >
           <DialogTitle variant="h4" color={theme.palette.background.default}>
-            Add Employee
+            Update Employee
           </DialogTitle>
           <IconButton onClick={onClose}>
             <IconX size={20} color={theme.palette.background.default} />
@@ -245,23 +266,16 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
               id="roles"
               multiple
               options={roles || []}
-              getOptionLabel={(option) => option.name || ''}
+              getOptionLabel={(option) => option?.name || ''}
               value={selectedRoles}
               onChange={handleRoleSelection}
               renderTags={(value, getTagProps) =>
-                value.map((option, index) => (
-                  <Chip key={index} className="employee-chips" label={option.name || ''} {...getTagProps({ index })} />
-                ))
+                value.map((option, index) => <Chip className="roles-chip" label={option?.name || ''} {...getTagProps({ index })} />)
               }
               fullWidth
               renderInput={(params) => <TextField {...params} label="Select Roles" variant="outlined" />}
               sx={{ marginTop: 4 }}
             />
-
-            <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', paddingX: 1, marginTop: 0.8 }}>
-              <IconInfoCircle size={14} style={{ paddingRight: 2 }} /> The default role for employee is{' '}
-              <b style={{ paddingLeft: 3 }}>Employee</b>
-            </Typography>
 
             <FormControl fullWidth error={formik.touched.position && Boolean(formik.errors.position)} sx={{ marginTop: 3 }}>
               <InputLabel htmlFor="position">Position</InputLabel>
@@ -304,13 +318,14 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
             <Button onClick={onClose} sx={{ marginLeft: 10 }}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={isAdding}>
-              {isAdding ? <CircularProgress size={18} sx={{ color: 'white' }} /> : 'Done'}
+            <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={isUpdating}>
+              {isUpdating ? <CircularProgress size={18} sx={{ color: 'white' }} /> : 'Done'}
             </Button>
           </DialogActions>
         </form>
       </Dialog>
-      <ToastContainer />
     </React.Fragment>
   );
 };
+
+export default UpdateEmployee;

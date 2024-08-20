@@ -51,55 +51,56 @@ function Measuring() {
       const response = await fetch(`${config.API_URL_Units}/measuring-units`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       const data = await response.json();
       if (data.success) {
-        setMeasuringUnits(data.data.data); // Extract the array from nested data
+        setMeasuringUnits(data.data.data);
       } else {
-        console.error('Failed to fetch measuring units:', data.message);
+       
         toast.error(`Failed to fetch measuring units: ${data.message}`);
       }
     } catch (error) {
-      console.error('Error fetching measuring units:', error);
+     
       toast.error(`Error fetching measuring units: ${error.message}`);
     }
   };
 
   const handleSave = async (values) => {
     const method = editIndex !== null ? 'PATCH' : 'POST';
-    const url = editIndex !== null
-      ? `${config.API_URL_Units}/measuring-units/${measuringUnits[editIndex].id}`
-      : `${config.API_URL_Units}/measuring-units`;
+    const url =
+      editIndex !== null
+        ? `${config.API_URL_Units}/measuring-units/${measuringUnits[editIndex].id}`
+        : `${config.API_URL_Units}/measuring-units`;
 
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(url, {
         method,
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           name: values.measuringUnit,
-          description: values.measuringType,
-        }),
+          description: values.measuringType
+        })
       });
 
       const data = await response.json();
       if (data.success) {
-        fetchMeasuringUnits(); // Refresh the list
+        fetchMeasuringUnits(); 
         handleClose();
         toast.success('Measuring unit saved successfully!');
       } else {
-        console.error('Failed to save measuring unit:', data.message);
+       
         toast.error(`Error saving measuring unit: ${data.message}`);
       }
     } catch (error) {
-      console.error('Error saving measuring unit:', error);
+     
       toast.error(`Error saving measuring unit: ${error.message}`);
     }
   };
@@ -117,43 +118,40 @@ function Measuring() {
       const response = await fetch(`${config.API_URL_Units}/measuring-units/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
-      if (response.status === 204) { // No Content
-        setMeasuringUnits((prevUnits) => 
-          prevUnits.filter((unit) => unit.id !== id)
-        );
+      if (response.status === 204) {
+     
+        setMeasuringUnits((prevUnits) => prevUnits.filter((unit) => unit.id !== id));
         toast.success('Measuring unit deleted successfully!');
       } else {
         const data = await response.json();
         if (data.success) {
-          setMeasuringUnits((prevUnits) => 
-            prevUnits.filter((unit) => unit.id !== id)
-          );
+          setMeasuringUnits((prevUnits) => prevUnits.filter((unit) => unit.id !== id));
           toast.success('Measuring unit deleted successfully!');
         } else {
           toast.error(`Failed to delete measuring unit: ${data.message}`);
-          console.error('Failed to delete measuring unit:', data.message);
+          
         }
       }
     } catch (error) {
       toast.error(`Error deleting measuring unit: ${error.message}`);
-      console.error('Error deleting measuring unit:', error);
+     
     }
   };
 
   const formik = useFormik({
     initialValues: {
       measuringUnit: '',
-      measuringType: '',
+      measuringType: ''
     },
     onSubmit: (values, { resetForm }) => {
       handleSave(values);
       resetForm();
-    },
+    }
   });
 
   const handleMenuOpen = (event, index) => {
@@ -181,7 +179,7 @@ function Measuring() {
     <Box p={0}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Grid item xs={12}  style={{padding:'2px 2px 2px 25px'}}>
+          <Grid item xs={12} style={{ padding: '2px 2px 2px 25px' }}>
             <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={handleOpen}>
               Add Measuring Unit
             </Button>

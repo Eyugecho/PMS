@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme } from '@mui/material';
-import { IconMenu } from 'ui-component/menu/IconMenu';
+import IconMenu from 'ui-component/menu/IconMenu';
 
 const PlanColumns = [
   {

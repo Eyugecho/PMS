@@ -1,352 +1,3 @@
-// import React, { useState, useEffect } from 'react';
-// import { useFormik } from 'formik';
-// import {
-//   Box,
-//   Typography,
-//   TextField,
-//   Button,
-//   Grid,
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableContainer,
-//   TableHead,
-//   TableRow,
-//   Paper,
-//   IconButton,
-//   Card,
-//   CardContent,
-//   FormControl,
-//   InputLabel,
-//   Select,
-//   MenuItem,
-// } from '@mui/material';
-// import DeleteIcon from '@mui/icons-material/Delete';
-// import EditIcon from '@mui/icons-material/Edit';
-// import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
-// import { ToastContainer, toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
-
-// // Configuration URL (Ensure you have config setup properly)
-// import config from '../../configration/config';
-
-// function Period() {
-//   const [periods, setPeriods] = useState([]);
-//   const [frequencies, setFrequencies] = useState([]);
-//   const [activities, setActivities] = useState([]);
-//   const [editIndex, setEditIndex] = useState(null);
-
-//   useEffect(() => {
-//     fetchData();
-//   }, []);
-
-//   const fetchData = async () => {
-//     try {
-//       const token = localStorage.getItem('token');
-
-//       // Fetch frequencies
-//       const responseFrequencies = await fetch(`${config.API_URL_Units}/frequencies`, {
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//         },
-//       });
-//       const dataFrequencies = await responseFrequencies.json();
-//       if (dataFrequencies.success) {
-//         setFrequencies(dataFrequencies.data.data);
-//       } else {
-//         toast.error('Failed to fetch frequencies');
-//       }
-
-//       // Fetch activities
-//       const responseActivities = await fetch(`${config.API_URL_Units}/get-period-activities`, {
-//         method: 'GET',
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//         },
-//       });
-//       const dataActivities = await responseActivities.json();
-//       if (dataActivities.success) {
-//         setActivities(dataActivities.data);
-//       } else {
-//         toast.error('Failed to fetch activities');
-//       }
-
-//       // Fetch periods
-//       const responsePeriods = await fetch(`${config.API_URL_Units}/periods`, {
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//         },
-//       });
-//       const dataPeriods = await responsePeriods.json();
-//       if (dataPeriods.success) {
-//         setPeriods(dataPeriods.data.periods);
-//       } else {
-//         toast.error('Failed to fetch periods');
-//       }
-//     } catch (error) {
-//       toast.error('Error occurred while fetching data');
-//     }
-//   };
-
-//   const formik = useFormik({
-//     initialValues: {
-//       fiscalYear: '',
-//       frequency: '',
-//       activity: '',
-//       dates: [],
-//     },
-//     onSubmit: async (values, { resetForm }) => {
-//       const frequency = frequencies.find((freq) => freq.id === values.frequency);
-//       if (values.fiscalYear && frequency && values.activity) {
-//         const newPeriod = {
-//           fiscal_year: values.fiscalYear,
-//           frequency_id: frequency.id,
-//           type: values.activity,
-//           dates: values.dates,
-//         };
-
-//         try {
-//           const token = localStorage.getItem('token');
-//           const method = editIndex !== null ? 'PATCH' : 'POST';
-//           const url = editIndex !== null
-//             ? `${config.API_URL_Units}/periods/${periods[editIndex].id}`
-//             : `${config.API_URL_Units}/periods`;
-
-//           const response = await fetch(url, {
-//             method: method,
-//             headers: {
-//               'Authorization': `Bearer ${token}`,
-//               'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(newPeriod),
-//           });
-//           console.log(response);
-          
-//           const result = await response.json();
-//           if (result.success) {
-//             toast.success(editIndex !== null ? 'Period updated' : 'Period created');
-//             fetchData(); // Refresh the list
-//             handleClose();
-//           } else {
-//             toast.error(result.message || 'Failed to save period');
-//           }
-//         } catch (error) {
-//           // toast.error('Error occurred while saving period');
-//         }
-
-//         resetForm();
-//       }
-//     },
-//   });
-
-//   const handleEdit = (index) => {
-//     const period = periods[index];
-//     formik.setFieldValue('fiscalYear', period.fiscal_year_id);
-//     formik.setFieldValue('frequency', period.frequency_id);
-//     formik.setFieldValue('activity', period.type);
-//     formik.setFieldValue('dates', [{ startDate: period.start_date, endDate: period.end_date }]);
-//     setEditIndex(index);
-//     handleOpen();
-//   };
-
-//   const handleDelete = async (index) => {
-//     try {
-//       const token = localStorage.getItem('token');
-//       const response = await fetch(`${config.API_URL_Units}/periods/${periods[index].id}`, {
-//         method: 'DELETE',
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//         },
-//       });
-
-//       const result = await response.json();
-//       if (result.success) {
-//         toast.success('Period deleted');
-//         fetchData(); // Refresh the list
-//       } else {
-//         toast.error(result.message || 'Failed to delete period');
-//       }
-//     } catch (error) {
-//       toast.error('Error occurred while deleting period');
-//     }
-//   };
-
-//   const handleOpen = () => {
-//     setOpen(true);
-//   };
-
-//   const handleClose = () => {
-//     setOpen(false);
-//     formik.resetForm();
-//   };
-
-//   const renderDateFields = () => {
-//     const frequency = frequencies.find((freq) => freq.id === formik.values.frequency);
-//     if (!frequency) return null;
-
-//     const numOfFields = frequency.value; // Number of date fields
-
-//     return Array.from({ length: numOfFields }, (_, i) => (
-//       <Grid container spacing={2} key={i}>
-//         <Grid item xs={6}>
-//           <TextField
-//             fullWidth
-//             id={`startDate-${i}`}
-//             name={`dates[${i}].start_date`}
-//             label={`Start Date ${i + 1}`}
-//             type="date"
-//             InputLabelProps={{ shrink: true }}
-//             value={formik.values.dates[i]?.startDate || ''}
-//             onChange={formik.handleChange}
-//           />
-//         </Grid>
-//         <Grid item xs={6}>
-//           <TextField
-//             fullWidth
-//             id={`endDate-${i}`}
-//             name={`dates[${i}].end_date`}
-//             label={`End Date ${i + 1}`}
-//             type="date"
-//             InputLabelProps={{ shrink: true }}
-//             value={formik.values.dates[i]?.endDate || ''}
-//             onChange={formik.handleChange}
-//           />
-//         </Grid>
-//       </Grid>
-//     ));
-//   };
-
-//   return (
-//     <Box p={3}>
-//       <Grid container spacing={3}>
-//         <Grid item xs={12}>
-//           <Card variant="outlined">
-//             <CardContent>
-//               <Typography variant="h6" gutterBottom>
-//                 Create New Period
-//               </Typography>
-//               <Box component="form" onSubmit={formik.handleSubmit}>
-//                 <Grid container spacing={2}>
-//                   <Grid item xs={12} sm={6}>
-//                     <TextField
-//                       fullWidth
-//                       id="fiscalYear"
-//                       name="fiscalYear"
-//                       label="Fiscal Year"
-//                       value={formik.values.fiscalYear}
-//                       onChange={formik.handleChange}
-//                       error={formik.touched.fiscalYear && Boolean(formik.errors.fiscalYear)}
-//                       helperText={formik.touched.fiscalYear && formik.errors.fiscalYear}
-//                     />
-//                   </Grid>
-//                   <Grid item xs={12} sm={6}>
-//                     <FormControl fullWidth>
-//                       <InputLabel id="frequency-label">Frequency</InputLabel>
-//                       <Select
-//                         labelId="frequency-label"
-//                         id="frequency"
-//                         name="frequency"
-//                         value={formik.values.frequency}
-//                         onChange={formik.handleChange}
-//                         error={formik.touched.frequency && Boolean(formik.errors.frequency)}
-//                       >
-//                         <MenuItem value="">None</MenuItem>
-//                         {frequencies.map((frequency) => (
-//                           <MenuItem key={frequency.id} value={frequency.id}>
-//                             {frequency.name} ({frequency.value})
-//                           </MenuItem>
-//                         ))}
-//                       </Select>
-//                     </FormControl>
-//                   </Grid>
-//                   <Grid item xs={12} sm={6}>
-//                     <FormControl fullWidth>
-//                       <InputLabel id="activity-label">Activity</InputLabel>
-//                       <Select
-//                         labelId="activity-label"
-//                         id="activity"
-//                         name="activity"
-//                         value={formik.values.activity}
-//                         onChange={formik.handleChange}
-//                         error={formik.touched.activity && Boolean(formik.errors.activity)}
-//                       >
-//                         <MenuItem value="">None</MenuItem>
-//                         {activities.map((activity, index) => (
-//                           <MenuItem key={index} value={activity}>
-//                             {activity}
-//                           </MenuItem>
-//                         ))}
-//                       </Select>
-//                     </FormControl>
-//                   </Grid>
-//                 </Grid>
-//                 <Box mt={2}>
-//                   {renderDateFields()}
-//                 </Box>
-//                 <Box mt={2}>
-//                   <Button color="primary" variant="contained"  type="submit">
-//                     {editIndex !== null ? 'Update Period' : 'Create Period'}
-//                   </Button>
-//                 </Box>
-//               </Box>
-//             </CardContent>
-//           </Card>
-//         </Grid>
-//         <Grid item xs={12}>
-//           <Card variant="outlined">
-//             <CardContent>
-//               <TableContainer component={Paper}>
-//                 <Table>
-//                   <TableHead>
-//                     <TableRow>
-//                       <TableCell>Fiscal Year</TableCell>
-//                       <TableCell>Activity</TableCell>
-//                       <TableCell>Start Date</TableCell>
-//                       <TableCell>End Date</TableCell>
-//                       <TableCell>Actions</TableCell>
-//                     </TableRow>
-//                   </TableHead>
-//                   <TableBody>
-//                     {periods.length === 0 ? (
-//                       <TableRow>
-//                         <TableCell colSpan={7} align="center">
-//                           <SentimentDissatisfiedIcon />
-//                           No Periods Found
-//                         </TableCell>
-//                       </TableRow>
-//                     ) : (
-//                       periods.map((period, index) => (
-//                         <TableRow key={index}>
-//                           <TableCell>{period.fiscal_year.year}</TableCell>
-//                           <TableCell>{period.fiscal_year.type}</TableCell>
-//                           <TableCell>{period.start_date}</TableCell>
-//                           <TableCell>{period.end_date}</TableCell>
-//                           <TableCell>
-//                             <IconButton onClick={() => handleEdit(index)}>
-//                               <EditIcon />
-//                             </IconButton>
-//                             <IconButton onClick={() => handleDelete(index)}>
-//                               <DeleteIcon />
-//                             </IconButton>
-//                           </TableCell>
-//                         </TableRow>
-//                       ))
-//                     )}
-//                   </TableBody>
-//                 </Table>
-//               </TableContainer>
-//             </CardContent>
-//           </Card>
-//         </Grid>
-//       </Grid>
-//       <ToastContainer />
-//     </Box>
-//   );
-// }
-
-// export default Period;
-
-
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled, keyframes } from '@mui/material/styles';
@@ -356,20 +7,23 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Check from '@mui/icons-material/Check';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Input from '@mui/material/Input';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';  
+import Backend from 'services/backend';
+import { useEffect } from 'react';
+import config from '../../configration/config';
+import { Grid, Card, CardContent, Typography } from '@mui/material';
+import { toast } from 'react-toastify';
+import Fallbacks from 'utils/components/Fallbacks';
+
+
+
 
 const blinkAnimation = keyframes`
   50% {
@@ -382,9 +36,7 @@ const BlinkingStepLabel = styled(StepLabel)(({ theme }) => ({
   padding: theme.spacing(1)
 }));
 
-const FallbackMessage = styled(Typography)(({ theme }) => ({
-  textAlign: 'center'
-}));
+
 
 const QontoConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -446,7 +98,7 @@ QontoStepIcon.propTypes = {
   completed: PropTypes.bool
 };
 
-const steps = [ 'Fiscal Year', 'Planning Period', 'Frequency Period Value', 'Evaluation Period'];
+const steps = ['Fiscal Year', 'Planning Period', 'Frequency Period Value', 'Evaluation Period'];
 
 export default function CustomizedSteppers() {
   const [activeStep, setActiveStep] = React.useState(0);
@@ -454,30 +106,116 @@ export default function CustomizedSteppers() {
   const [stepData, setStepData] = React.useState({});
   const [tableData, setTableData] = React.useState([]);
   const [fiscalYears, setFiscalYears] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(false);
   const [frequencies, setFrequencies] = React.useState([]);
+  const [allStepData, setAllStepData] = React.useState([]);
   const [savedFiscalYear, setSavedFiscalYear] = React.useState(null);
-
-  const handleSaveFrequency = (data) => {
-    setFrequencies((prev) => [...prev, data]);
-  };
+  const [selectedFrequency, setSelectedFrequency] = React.useState(null);
+  const [savedData, setSavedData] = React.useState([]);
+  const [stepCompleted, setStepCompleted] = React.useState([false, false, false]);
+  
 
   const handleSaveFiscalYear = (data) => {
     setFiscalYears((prev) => [...prev, data]);
   };
 
+  const handleSavePlanningPeriod = (data) => {
+    setTableData((prev) => [
+      ...prev,
+      {
+        ...data,
+        type: 'Planning Period'
+      }
+    ]);
+  };
+  const handleSaveFrequencyPeriodValue = (data) => {
+    setTableData((prev) => [
+      ...prev,
+      {
+        ...data,
+        type: 'Frequency Period Value'
+      }
+    ]);
+  };
+
+  const handleSaveEvaluationPeriod = (data) => {
+    setTableData((prev) => [
+      ...prev,
+      {
+        ...data,
+        type: 'Evaluation Period'
+      }
+    ]);
+  };
+
   const handleStepClick = (index) => {
     setActiveStep(index);
+    if (index === 0 || stepCompleted[index - 1]) {
+      setActiveStep(index);
+    } else {
+      toast.error('Please complete all required fields.');
+    }
     setOpen(true);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    const isValid = validateCurrentStep();
+    if (isValid) {
+      // Mark the current step as completed
+      const newStepCompleted = [...stepCompleted];
+      newStepCompleted[activeStep] = true;
+      setStepCompleted(newStepCompleted);
+
+      // Proceed to the next step
+      setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
+    } else {
+      toast.error('Please complete all required fields.');
+
+    }
+
+    if (steps[activeStep] === 'Fiscal Year') {
+      const fiscalYearData = await handleFiscalYearSubmit();
+      if (!fiscalYearData) return; // Prevent proceeding if submission failed
+      setSavedFiscalYear(fiscalYearData);
+    }
+
+    if (steps[activeStep] === 'Planning Period') {
+      const planningPeriodData = await handlePlanningPeriodSubmit();
+      if (!planningPeriodData) return; // Prevent proceeding if submission failed
+    }
+
+    if (steps[activeStep] === 'Frequency Period Value') {
+      const frequencyPeriodValueData = await handleFrequencyPeriodValueSubmit();
+      if (!frequencyPeriodValueData) return; // Prevent proceeding if submission failed
+      setSelectedFrequency(frequencyPeriodValueData);
+    }
+
     if (activeStep < steps.length - 1) {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
       setOpen(true);
     }
   };
+  const validateCurrentStep = () => {
+    switch (activeStep) {
+      case 0:
+        return stepData['Fiscal Year']?.year && stepData['Fiscal Year']?.startDate && stepData['Fiscal Year']?.endDate;
+      case 1:
+        return stepData['Planning Period']?.startDate && stepData['Planning Period']?.endDate;
+      case 2:
+        return (
+          stepData['Frequency Period Value']?.frequency &&
+          stepData['Frequency Period Value']?.dates?.every((date) => date.start_date && date.end_date)
+        );
+      case 3:
+        return stepData['Evaluation Period']?.startDate && stepData['Evaluation Period']?.endDate;
+      default:
+        return false;
+    }
+  };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Filter out the data for the current step
     const filteredData = steps.reduce((acc, step) => {
       if (step !== 'Frequency' && step !== 'Fiscal Year') {
         acc[step] = stepData[step] || '';
@@ -485,6 +223,7 @@ export default function CustomizedSteppers() {
       return acc;
     }, {});
 
+    // Handle Fiscal Year separately
     if (steps[activeStep] === 'Fiscal Year') {
       setFiscalYears((prevFiscalYears) => [
         ...prevFiscalYears,
@@ -494,8 +233,47 @@ export default function CustomizedSteppers() {
       ]);
     }
 
-    setTableData((prevTableData) => [...prevTableData, filteredData]);
+    // Map the frequency ID to its name
+    if (steps[activeStep] === 'Frequency Period Value' && stepData[steps[activeStep]]) {
+      filteredData['Frequency Period Value'] = {
+        ...stepData[steps[activeStep]],
+        frequency: stepData[steps[activeStep]].frequencyName // Include frequencyName here
+      };
+    }
+
+    // Get the current step data
+    const currentStepData = stepData[steps[activeStep]] || '';
+
+    // Add current step data to allStepData
+    setAllStepData((prevData) => [
+      ...prevData,
+      {
+        step: steps[activeStep],
+        data: currentStepData
+      }
+    ]);
+
+    // Add Fiscal Year data if it exists
+    if (stepData['Fiscal Year']) {
+      filteredData['Fiscal Year'] = stepData['Fiscal Year'];
+    }
+
+    // Save the Evaluation Period to the backend
+    if (steps[activeStep] === 'Evaluation Period') {
+      await handleEvaluaionPeriodSubmit();
+    }
+
+    // Add the filtered data to savedData and save to localStorage
+    setSavedData((prevSavedData) => {
+      const updatedSavedData = [...prevSavedData, filteredData];
+      localStorage.setItem('savedData', JSON.stringify(updatedSavedData)); // Save to localStorage
+      return updatedSavedData;
+    });
+
+    // Reset the stepData only after saving
     setStepData({});
+
+    // Reset activeStep and close the modal
     setActiveStep(0);
     setOpen(false);
   };
@@ -521,9 +299,146 @@ export default function CustomizedSteppers() {
     }
   };
 
+  const handleEvaluaionPeriodSubmit = async () => {
+    const token = localStorage.getItem('token');
+    const Api = `${Backend.api}${Backend.evaluation_periods}`;
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const parentId = stepData['Evaluation Period']?.frequency_period_value_id || stepData['Frequency Period Value']?.frequency || '';
+
+
+    // Validation: Ensure parentId, startDate, and endDate are not empty
+    if (!parentId) {
+      setError((prev) => ({ ...prev, parent_id: 'Parent ID is invalid or missing' }));
+      toast.error('Parent ID is invalid or missing.');
+      return;
+    }
+
+    const startDate = stepData['Evaluation Period']?.startDate;
+    const endDate = stepData['Evaluation Period']?.endDate;
+
+    if (!startDate || !endDate) {
+      setError((prev) => ({
+        ...prev,
+        start_date: 'Start date is required',
+        end_date: 'End date is required'
+      }));
+      toast.error('Start date and End date are required.');
+      return;
+    }
+
+    const evaluationPeriodData = {
+      fiscal_year_id: savedFiscalYear.id || '',
+      dates: [
+        {
+          parent_id: parentId,
+          start_date: startDate,
+          end_date: endDate
+        }
+      ]
+    };
+
+    try {
+      setLoading(true);
+      setError({}); // Clear previous errors
+
+      const response = await fetch(Api, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(evaluationPeriodData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Evaluation period created successfully');
+        handleSaveEvaluationPeriod(data.data);
+
+        return data.data;
+      } else {
+        console.error('Backend errors:', data.data.errors);
+        toast.error(`Evaluation period submission failed: ${data.message}`);
+        setError(data.data.errors || {});
+      }
+    } catch (error) {
+      toast.error('An error occurred while submitting evaluation period');
+      console.error('An error occurred while submitting evaluation period:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFrequencyPeriodValueSubmit = async () => {
+    const token = localStorage.getItem('token');
+    const Api = `${Backend.api}${Backend.frequency_period_values}`;
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const frequencyPeriodValueData = {
+      frequency_id: stepData['Frequency Period Value']?.frequency || '',
+      fiscal_year_id: stepData['Frequency Period Value']?.fiscal_year_id || savedFiscalYear?.id || '',
+      dates: stepData['Frequency Period Value']?.dates || []
+    };
+
+    // Check if dates are properly populated before submission
+    if (frequencyPeriodValueData.dates.length === 0 || frequencyPeriodValueData.dates.some((date) => !date.start_date || !date.end_date)) {
+      toast.error('Please fill in all start and end dates.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError({}); // Clear previous errors
+
+      const response = await fetch(Api, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(frequencyPeriodValueData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Frequency period value created successfully');
+        handleSaveFrequencyPeriodValue(data.data);
+        return data.data;
+      } else {
+        // Handle specific errors
+        if (data.status === 422) {
+          const { message, errors } = data.data;
+
+          // Handle the specific "frequency_id" error
+          if (errors && errors.frequency_id) {
+            toast.error(errors.frequency_id[0] || 'Frequency ID error');
+          } else {
+            toast.error(message || 'Frequency period value submission failed');
+          }
+
+          setError(errors || {});
+        } else {
+          toast.error(`Frequency period value submission failed: ${data.message}`);
+        }
+      }
+    } catch (error) {
+      toast.error('An error occurred while submitting the frequency period value');
+      console.error('An error occurred while submitting the frequency period value:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFiscalYearSubmit = async () => {
     const token = localStorage.getItem('token');
-    const Api = `${Backend.api}${Backend.fiscal-years}`;
+    const Api = `${Backend.api}${Backend.fiscal_years}`;
 
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -532,14 +447,14 @@ export default function CustomizedSteppers() {
     };
 
     const fiscalYearData = {
-      year: stepData['Fiscal Year'].year,
-      start_date: stepData['Fiscal Year'].startDate,
-      end_date: stepData['Fiscal Year'].endDate
+      year: stepData['Fiscal Year']?.year || '',
+      start_date: stepData['Fiscal Year']?.startDate || '',
+      end_date: stepData['Fiscal Year']?.endDate || ''
     };
 
     try {
       setLoading(true);
-      setError(false);
+      setError({}); // Clear previous errors
 
       const response = await fetch(Api, {
         method: 'POST',
@@ -550,64 +465,198 @@ export default function CustomizedSteppers() {
       const data = await response.json();
 
       if (data.success) {
-        // Handle successful submission, e.g., show a success message or update UI
-        console.log('Fiscal year created successfully:', data.data);
-        // Optionally, clear form or update state
-        setStepData((prevData) => ({
-          ...prevData,
-          'Fiscal Year': {
-            year: '',
-            startDate: '',
-            endDate: ''
-          }
-        }));
+        toast.success('Fiscal year created successfully');
+        handleSaveFiscalYear(data.data);
+        return data.data;
       } else {
-        // Handle errors returned from the API
-        setError(true);
-        console.error('Fiscal year submission failed:', data.message);
+        toast.error(`Fiscal year submission failed: ${data.message}`);
+        // Handle specific validation errors
+        if (data.data.message.includes('The end date must be at least 360 days after the start date')) {
+          toast.error('The end date must be at least 360 days after the start date.');
+
+          setError({
+            end_date: [data.data.message]
+          });
+        } else {
+          setError(data.data.errors || {});
+        }
       }
     } catch (error) {
-      // Handle any unexpected errors
-      setError(true);
+      toast.error('An error occurred while submitting fiscal year');
       console.error('An error occurred while submitting fiscal year:', error);
     } finally {
       setLoading(false);
     }
   };
-const handleSubmit = (event) => {
-  event.preventDefault();
-  handleFiscalYearSubmit();
-};
 
+  const handlePlanningPeriodSubmit = async () => {
+    const token = localStorage.getItem('token');
+    const Api = `${Backend.api}${Backend.planning_periods}`;
 
-  const handleFrequencyChange = (e) => {
-    const value = Number(e.target.value);
-    const dates = Array.from({ length: value }, (_, index) => ({
-      [`startDate_${index + 1}`]: '',
-      [`endDate_${index + 1}`]: ''
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const planningPeriodData = {
+      fiscal_year_id: savedFiscalYear.id,
+      start_date: stepData['Planning Period']?.startDate || '',
+      end_date: stepData['Planning Period']?.endDate || ''
+    };
+
+    try {
+      setLoading(true);
+      setError({}); // Clear previous errors
+
+      const response = await fetch(Api, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(planningPeriodData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Planning period created successfully');
+        handleSavePlanningPeriod(data.data);
+        return data.data;
+      } else {
+        toast.error(`Planning period submission failed: ${data.message}`);
+
+        // Handle the specific fiscal year date range error
+        if (data.status === 422 && data.data?.message === 'Start and End dates must be within the fiscal year range.') {
+          setError({
+            start_date: ['Start date must be within the fiscal year range.'],
+            end_date: ['End date must be within the fiscal year range.']
+          });
+          toast.error('Start and End dates must be within the fiscal year range.');
+        } else {
+          // Handle other errors
+          setError(data.data.errors || {});
+        }
+      }
+    } catch (error) {
+      toast.error('An error occurred while submitting the planning period.');
+      console.error('An error occurred while submitting the planning period:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFrequencies = async () => {
+    const token = localStorage.getItem('token');
+    const Api = `${config.API_URL_Units}/frequencies`;
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      setLoading(true);
+      setError({}); 
+
+      const response = await fetch(Api, {
+        method: 'GET',
+        headers: headers
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setFrequencies(result.data.data);
+      } else {
+        toast.error(`Failed to fetch frequencies: ${result.message}`);
+        // Handle specific errors if needed
+        setError(result.errors || {});
+      }
+    } catch (error) {
+      toast.error('An error occurred while fetching frequencies');
+      console.error('An error occurred while fetching frequencies:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFrequencies();
+  }, []);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('savedData');
+    if (savedData) {
+      setSavedData(JSON.parse(savedData));
+    }
+  }, []);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (steps[activeStep] === 'Fiscal Year') {
+      await handleFiscalYearSubmit();
+    } else if (steps[activeStep] === 'Planning Period') {
+      await handlePlanningPeriodSubmit();
+    } else if (steps[activeStep] === 'Frequency Period Value') {
+      await handleFrequencyPeriodValueSubmit();
+    } else if (steps[activeStep] === 'Evaluation Period') {
+      await handleEvaluaionPeriodSubmit();
+    }
+  };
+
+  const handleFrequencyChange = (event) => {
+    const selectedId = event.target.value;
+
+    // Find the frequency object by ID
+    const selectedFrequency = frequencies.find((f) => f.id === selectedId);
+
+    // Extract frequency name and value
+    const frequency = selectedFrequency?.name || '';
+    const frequencyValue = selectedFrequency?.value || 1;
+
+    // Generate the appropriate number of date fields
+    const periods = Array.from({ length: frequencyValue }, () => ({
+      start_date: '',
+      end_date: ''
     }));
 
+    // Update stepData with the new dates and frequency name
     setStepData((prevData) => ({
       ...prevData,
       [steps[activeStep]]: {
-        ...prevData[steps[activeStep]],
-        frequency: value,
-        dates
+        ...(prevData[steps[activeStep]] || {}),
+        frequency: selectedId,
+        frequencyName: frequency,
+        dates: periods
       }
     }));
   };
 
-  const handleDateChange = (e, index, type) => {
-    const value = e.target.value;
+  const handleDateChange = (event, index, dateType) => {
+    const { value } = event.target;
+
+    console.log(`Updating ${dateType} for period ${index} with value: ${value}`);
 
     setStepData((prevData) => {
-      const newDates = prevData[steps[activeStep]].dates.map((date, i) => (i === index ? { ...date, [type]: value } : date));
+      const currentStepData = prevData[steps[activeStep]] || { dates: [] };
+
+      const updatedDates = [...currentStepData.dates];
+      if (!updatedDates[index]) {
+        updatedDates[index] = { start_date: '', end_date: '' };
+      }
+
+      if (dateType === 'start_date') {
+        updatedDates[index].start_date = value;
+      } else if (dateType === 'end_date') {
+        updatedDates[index].end_date = value;
+      }
 
       return {
         ...prevData,
         [steps[activeStep]]: {
-          ...prevData[steps[activeStep]],
-          dates: newDates
+          ...currentStepData,
+          dates: updatedDates
         }
       };
     });
@@ -635,13 +684,14 @@ const handleSubmit = (event) => {
         <Box
           sx={{
             position: 'absolute',
-            top: '64%',
+            top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '50%',
             bgcolor: 'background.paper',
             boxShadow: 24,
-            p: 4
+            p: 4,
+            borderRadius: 2
           }}
         >
           <Card variant="outlined">
@@ -651,44 +701,17 @@ const handleSubmit = (event) => {
               </Typography>
               {steps[activeStep] === 'Fiscal Year' ? (
                 <>
-                <form onSubmit={handleSubmit}>
-                  <TextField
-                    name="year"
-                    label="Year"
-                    value={stepData[steps[activeStep]]?.year || ''}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                  <TextField
-                    name="startDate"
-                    label="Start Date"
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
-                    value={stepData[steps[activeStep]]?.startDate || ''}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-                  <TextField
-                    name="endDate"
-                    label="End Date"
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
-                    value={stepData[steps[activeStep]]?.endDate || ''}
-                    onChange={handleInputChange}
-                    fullWidth
-                    margin="normal"
-                  />
-
-                  </form>
-                </>
-              ) : steps[activeStep] === 'Planning Period' ? (
-                <>
-                  <Typography variant="body1">
-                    Fiscal Year: {fiscalYears.find((fy) => fy.year === stepData['Fiscal Year']?.year)?.year || 'N/A'}
-                  </Typography>
-                  <>
+                  <form onSubmit={handleSubmit}>
+                    <TextField
+                      name="year"
+                      label="Year"
+                      value={stepData[steps[activeStep]]?.year || ''}
+                      onChange={handleInputChange}
+                      fullWidth
+                      margin="normal"
+                      error={Boolean(error.year)}
+                      helperText={error.year?.join(', ')}
+                    />
                     <TextField
                       name="startDate"
                       label="Start Date"
@@ -698,6 +721,8 @@ const handleSubmit = (event) => {
                       onChange={handleInputChange}
                       fullWidth
                       margin="normal"
+                      error={Boolean(error.start_date)}
+                      helperText={error.start_date?.join(', ')}
                     />
                     <TextField
                       name="endDate"
@@ -708,76 +733,193 @@ const handleSubmit = (event) => {
                       onChange={handleInputChange}
                       fullWidth
                       margin="normal"
+                      error={Boolean(error.end_date)}
+                      helperText={error.end_date?.join(', ')}
                     />
+                  </form>
+                </>
+              ) : steps[activeStep] === 'Planning Period' ? (
+                <>
+   
+                  <>
+                    <form onSubmit={handleSubmit}>
+                      <TextField
+                        name="fiscal_year_id"
+                        label="Fiscal Year"
+                        value={stepData['Fiscal Year']?.year || ''}
+                        InputProps={{
+                          readOnly: true
+                        }}
+                        fullWidth
+                        margin="normal"
+                      />
+                      <TextField
+                        name="startDate"
+                        label="Start Date"
+                        type="date"
+                        InputLabelProps={{ shrink: true }}
+                        value={stepData[steps[activeStep]]?.startDate || ''}
+                        onChange={handleInputChange}
+                        fullWidth
+                        margin="normal"
+                        error={Boolean(error.start_date)}
+                        helperText={error.start_date?.join(', ')}
+                      />
+                      <TextField
+                        name="endDate"
+                        label="End Date"
+                        type="date"
+                        InputLabelProps={{ shrink: true }}
+                        value={stepData[steps[activeStep]]?.endDate || ''}
+                        onChange={handleInputChange}
+                        fullWidth
+                        margin="normal"
+                        error={Boolean(error.end_date)}
+                        helperText={error.end_date?.join(', ')}
+                      />
+                    </form>
                   </>
                 </>
               ) : steps[activeStep] === 'Frequency Period Value' ? (
                 <>
-                  <Typography variant="body1">
-                    Fiscal Year: {fiscalYears.find((fy) => fy.year === stepData['Fiscal Year']?.year)?.year || 'N/A'}
-                  </Typography>
                   <>
-                    <Select
-                      name="frequency"
-                      value={stepData[steps[activeStep]]?.frequency || ''}
-                      onChange={handleFrequencyChange}
-                      fullWidth
-                      margin="normal"
-                    >
-                      <MenuItem value={12}>Monthly</MenuItem>
-                      <MenuItem value={4}>Quarterly</MenuItem>
-                      <MenuItem value={2}>Semi-Annually</MenuItem>
-                      <MenuItem value={1}>Annually</MenuItem>
-                    </Select>
-                    {stepData[steps[activeStep]]?.dates?.map((date, index) => (
-                      <Stack key={index} spacing={1}>
+                    <Box sx={{ mb: 0, maxHeight: '50vh', overflowY: 'auto' }}>
+                      <form onSubmit={handleSubmit}>
+                        {/* Fiscal Year  */}
+
                         <TextField
-                          name={`startDate_${index + 1}`}
-                          label={`Start Date ${index + 1}`}
-                          type="date"
-                          InputLabelProps={{ shrink: true }}
-                          value={date[`startDate_${index + 1}`] || ''}
-                          onChange={(e) => handleDateChange(e, index, `startDate_${index + 1}`)}
+                          name="fiscal_year_id"
+                          label="Fiscal Year"
+                          value={stepData['Fiscal Year']?.year || ''}
+                          InputProps={{
+                            readOnly: true
+                          }}
                           fullWidth
+                          margin="normal"
                         />
-                        <TextField
-                          name={`endDate_${index + 1}`}
-                          label={`End Date ${index + 1}`}
-                          type="date"
-                          InputLabelProps={{ shrink: true }}
-                          value={date[`endDate_${index + 1}`] || ''}
-                          onChange={(e) => handleDateChange(e, index, `endDate_${index + 1}`)}
-                          fullWidth
-                        />
-                      </Stack>
-                    ))}
+                        {/* Frequency  */}
+                        <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
+                          <InputLabel id="frequency-label">Select Frequency</InputLabel>
+                          <Select
+                            name="frequency"
+                            value={stepData[steps[activeStep]]?.frequency || ''}
+                            onChange={handleFrequencyChange}
+                            fullWidth
+                            margin="normal"
+                            label="Select Frequency"
+                            sx={{ mb: 2 }}
+                          >
+                            {frequencies.map((frequency) => (
+                              <MenuItem key={frequency.id} value={frequency.id}>
+                                {frequency.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+
+                        <>
+                          {/* Dynamic Date Fields */}
+                          {stepData[steps[activeStep]]?.dates?.map((date, index) => (
+                            <Grid container key={index} spacing={2} sx={{ mb: 2, maxHeight: '80vh', overflowY: 'auto' }}>
+                              <Grid item xs={6}>
+                                <TextField
+                                  name={`start_date_${index}`}
+                                  label={`Start Date ${index + 1}`}
+                                  type="date"
+                                  fullWidth
+                                  InputLabelProps={{ shrink: true }}
+                                  value={date.start_date || ''}
+                                  onChange={(e) => handleDateChange(e, index, 'start_date')}
+                                />
+                              </Grid>
+                              <Grid item xs={6}>
+                                <TextField
+                                  name={`end_date_${index}`}
+                                  label={`End Date ${index + 1}`}
+                                  type="date"
+                                  fullWidth
+                                  InputLabelProps={{ shrink: true }}
+                                  value={date.end_date || ''}
+                                  onChange={(e) => handleDateChange(e, index, 'end_date')}
+                                  error={Boolean(error.end_date)}
+                                  helperText={error.end_date?.join(', ')}
+                                />
+                              </Grid>
+                            </Grid>
+                          ))}
+                        </>
+                      </form>
+                    </Box>
                   </>
                 </>
               ) : steps[activeStep] === 'Evaluation Period' ? (
                 <>
-                  <Typography variant="body1">
-                    Fiscal Year: {fiscalYears.find((fy) => fy.year === stepData['Fiscal Year']?.year)?.year || 'N/A'}
-                  </Typography>
+              
                   <>
-                    <TextField
-                      name="evaluation"
-                      label="Evaluation"
-                      value={stepData[steps[activeStep]]?.evaluation || ''}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                    />
+                    <>
+                      <form onSubmit={handleSubmit}>
+                        <TextField
+                          name="fiscal_year_id"
+                          label="Fiscal Year"
+                          value={stepData['Fiscal Year']?.year || ''}
+                          InputProps={{
+                            readOnly: true
+                          }}
+                          fullWidth
+                          margin="normal"
+                        />
+                        <TextField
+                          name="frequency_name"
+                          value={
+                            frequencies.find(
+                              (frequency) =>
+                                frequency.id ===
+                                (stepData[steps[activeStep]]?.frequency_period_value_id || stepData['Frequency Period Value']?.frequency)
+                            )?.name || ''
+                          }
+                          InputProps={{
+                            readOnly: true
+                          }}
+                          fullWidth
+                          margin="normal"
+                          error={Boolean(error.frequency_period_value_id)}
+                          helperText={error.frequency_period_value_id?.join(', ')}
+                          sx={{ mb: 2 }}
+                        />
+
+                        <TextField
+                          name="startDate"
+                          label="Start Date"
+                          type="date"
+                          InputLabelProps={{ shrink: true }}
+                          value={stepData[steps[activeStep]]?.startDate || ''}
+                          onChange={handleInputChange}
+                          fullWidth
+                          margin="normal"
+                        />
+                        <TextField
+                          name="endDate"
+                          label="End Date"
+                          type="date"
+                          InputLabelProps={{ shrink: true }}
+                          value={stepData[steps[activeStep]]?.endDate || ''}
+                          onChange={handleInputChange}
+                          fullWidth
+                          margin="normal"
+                        />
+                      </form>
+                    </>
                   </>
                 </>
               ) : null}
               <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
                 {activeStep < steps.length - 1 && (
-                  <Button variant="contained" color="primary" type='submit' onClick={handleNext}>
+                  <Button variant="contained" color="primary" type="submit" onClick={handleNext}>
                     Next
                   </Button>
                 )}
                 {activeStep === steps.length - 1 && (
-                  <Button variant="contained" color="secondary" onClick={handleSave}>
+                  <Button variant="contained" color="primary" onClick={handleSave}>
                     Save
                   </Button>
                 )}
@@ -787,38 +929,67 @@ const handleSubmit = (event) => {
         </Box>
       </Modal>
 
-      <Stack spacing={2}>
-        {tableData.length === 0 ? (
-          <FallbackMessage variant="h6">No data available. Please save data from each step.</FallbackMessage>
-        ) : (
-          tableData.map((data, index) => (
-            <Card
-              key={index}
-              variant="outlined"
-              sx={{
-                mb: 2,
-                // width: '1050px',
-                boxShadow: 1, // Add shadow for more depth
-                borderRadius: 2, // Rounded corners
-                padding: 2, // Padding inside the card
-                '&:hover': {
-                  boxShadow: 2, // Increase shadow on hover
-                  transform: 'scale(1.02)', // Slight scale effect on hover
-                  transition: '0.3s ease-in-out' // Smooth transition
-                }
-              }}
-            >
-              <CardContent>
-                {Object.entries(data).map(([key, value]) => (
+<Card sx={{ margin: 2 }}>
+  <CardContent>
+    {/* <Typography variant="h5">Defined Periods</Typography> */}
+    {savedData.length === 0 ? (
+      <Fallbacks
+        severity="info"
+        title="No Data Available"
+        description="There is no data available to display."
+        sx={{ paddingTop: 6 }}
+      />
+    ) : (
+      savedData.map((data, index) => (
+        <Card key={index} variant="outlined" sx={{ margin: 5 }}>
+          <CardContent>
+            {/* Display Fiscal Year first */}
+            {data['Fiscal Year'] && (
+              <React.Fragment key="Fiscal Year">
+                <Typography variant="h4" marginBottom={1} marginTop={1}>
+                  Fiscal Year
+                </Typography>
+                {Object.entries(data['Fiscal Year']).map(([key, value]) => (
                   <Typography key={key} variant="body2">
-                    <strong>{key}:</strong> {value}
+                    <strong>{key.replace(/([A-Z])/g, ' $1').trim()}:</strong> {value}
                   </Typography>
                 ))}
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </Stack>
+              </React.Fragment>
+            )}
+
+            {/* Display the rest of the steps */}
+            {Object.entries(data).map(([step, stepData]) =>
+              step !== 'Fiscal Year' ? (
+                <React.Fragment key={step}>
+                  <Typography variant="h4" marginBottom={1} marginTop={1}>
+                    {step.replace(/([A-Z])/g, ' $1').trim()}
+                  </Typography>
+                  {Object.entries(stepData).map(
+                    ([key, value]) =>
+                      key !== 'frequency' && (
+                        <Typography key={key} variant="body2">
+                          <strong>{key.replace(/([A-Z])/g, ' $1').trim()}:</strong>{' '}
+                          {Array.isArray(value)
+                            ? value.map((date, idx) => (
+                                <div key={idx}>
+                                  Start Date: {date.start_date} <br />
+                                  End Date: {date.end_date}
+                                </div>
+                              ))
+                            : value}
+                        </Typography>
+                      )
+                  )}
+                </React.Fragment>
+              ) : null
+            )}
+          </CardContent>
+        </Card>
+      ))
+    )}
+  </CardContent>
+</Card>
+
     </Stack>
   );
 }

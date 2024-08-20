@@ -12,18 +12,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   IconButton,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Card,
   CardContent,
-  CardActions,
   Menu,
   MenuItem,
-  Divider,
   useTheme
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -34,9 +30,6 @@ import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
-
-// Configuration URL (Ensure you have config setup properly)
 import config from '../../configration/config';
 
 function EvalType() {
@@ -56,9 +49,9 @@ function EvalType() {
       const response = await fetch(`${config.API_URL_Units}/evaluation-types`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       const result = await response.json();
       if (result.success) {
@@ -74,22 +67,23 @@ function EvalType() {
   const formik = useFormik({
     initialValues: {
       name: '',
-      description: '',
+      description: ''
     },
     onSubmit: async (values, { resetForm }) => {
       try {
         const method = editIndex !== null ? 'PATCH' : 'POST';
-        const url = editIndex !== null
-          ? `${config.API_URL_Units}/evaluation-types/${evalTypes[editIndex].id}`
-          : `${config.API_URL_Units}/evaluation-types`;
+        const url =
+          editIndex !== null
+            ? `${config.API_URL_Units}/evaluation-types/${evalTypes[editIndex].id}`
+            : `${config.API_URL_Units}/evaluation-types`;
         const token = localStorage.getItem('token');
         const response = await fetch(url, {
           method: method,
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(values)
         });
 
         const result = await response.json();
@@ -104,7 +98,7 @@ function EvalType() {
         toast.error('Error occurred while saving evaluation type');
       }
       resetForm();
-    },
+    }
   });
 
   const handleEdit = (index) => {
@@ -120,9 +114,9 @@ function EvalType() {
       const response = await fetch(`${config.API_URL_Units}/evaluation-types/${evalTypes[index].id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       const result = await response.json();
@@ -156,7 +150,7 @@ function EvalType() {
     formik.resetForm();
     setEditIndex(null);
   };
-const theme = useTheme();
+  const theme = useTheme();
   return (
     <Box p={0}>
       <Grid container spacing={3}>

@@ -1,11 +1,10 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 import { Box, Typography, TextField, Button, Grid, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 
 function Catagory() {
   const [categories, setCategories] = useState([]);
   useEffect(() => {
-    // Load categories from localStorage when the component mounts
     const storedCategories = localStorage.getItem('categories');
     if (storedCategories) {
       setCategories(JSON.parse(storedCategories));
@@ -13,19 +12,18 @@ function Catagory() {
   }, []);
 
   useEffect(() => {
-    // Save categories to localStorage whenever they change
     localStorage.setItem('categories', JSON.stringify(categories));
   }, [categories]);
   const formik = useFormik({
     initialValues: {
-      newCategory: '',
+      newCategory: ''
     },
     onSubmit: (values, { resetForm }) => {
       if (values.newCategory) {
         setCategories([...categories, values.newCategory]);
         resetForm();
       }
-    },
+    }
   });
 
   return (
@@ -54,11 +52,13 @@ function Catagory() {
           </Grid>
         </Grid>
       </form>
-      <Box mt={4} >
+      <Box mt={4}>
         <FormControl fullWidth>
           <InputLabel id="categories-label">Category</InputLabel>
-          <Select labelId="categories-label" id="categories" value="" label="Category" >
-            <MenuItem value="" disabled>Category</MenuItem>
+          <Select labelId="categories-label" id="categories" value="" label="Category">
+            <MenuItem value="" disabled>
+              Category
+            </MenuItem>
             {categories.map((category, index) => (
               <MenuItem key={index} value={category}>
                 {category}

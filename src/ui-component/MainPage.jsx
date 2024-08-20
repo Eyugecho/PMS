@@ -17,7 +17,8 @@ const PageContainer = ({ back, title, rightOption, children }) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           borderRadius: 2,
-          paddingX: 1.4
+          paddingX: 1.4,
+          paddingTop: 2
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -27,7 +28,7 @@ const PageContainer = ({ back, title, rightOption, children }) => {
             </IconButton>
           )}
 
-          <Typography variant="h3" sx={{ marginLeft: 2, color: theme.palette.text.primary }}>
+          <Typography variant="h2" sx={{ marginLeft: 2, color: theme.palette.text.primary }}>
             {title ? title : 'No title'}
           </Typography>
         </Box>

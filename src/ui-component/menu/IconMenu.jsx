@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, IconButton } from '@mui/material';
 import { IconEye, IconPencil, IconTrash } from '@tabler/icons-react';
 
-export const IconMenu = ({ onView, onEdit, onDelete }) => {
+const IconMenu = ({ onView, onEdit, onDelete }) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <IconButton onClick={onView}>
@@ -17,3 +17,5 @@ export const IconMenu = ({ onView, onEdit, onDelete }) => {
     </Box>
   );
 };
+
+export default IconMenu;

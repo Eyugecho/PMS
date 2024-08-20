@@ -1,122 +1,25 @@
 import React from 'react';
-import { Container, Grid, Box, Typography, Paper, Stepper, Step, StepLabel, Stack, Accordion, Divider,Tabs,Tab ,AccordionSummary,AccordionDetails} from '@mui/material';
+import { Grid, Box, Typography, Stack, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import Measuring from '../Measuring-Units';
 import Perceptive from '../Perceptive';
 import EvalType from '../Evaluation-Type';
 import Frequency from '../Frequency';
 import Period from '../Period';
-import { styled } from '@mui/material/styles';
-import Check from '@mui/icons-material/Check';
-import StraightenIcon from '@mui/icons-material/Straighten';
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
-import ChromeReaderModeIcon from '@mui/icons-material/ChromeReaderMode';
-import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
-import SettingsIcon from '@mui/icons-material/Settings';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import VideoLabelIcon from '@mui/icons-material/VideoLabel';
-import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
-import PropTypes from 'prop-types';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Page } from 'views/roles_permission';
 import PageContainer from 'ui-component/MainPage';
 
-
-
-const ColorlibStepIconRoot = styled('div')(({ theme, ownerState }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : '#ccc',
-  zIndex: 1,
-  color: '#fff',
-  width: 50,
-  height: 50,
-  display: 'flex',
-  borderRadius: '50%',
-  justifyContent: 'center',
-  alignItems: 'center',
-  ...(ownerState.active && {
-    backgroundImage: 'linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)',
-    boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)'
-  }),
-  ...(ownerState.completed && {
-    backgroundImage: 'linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)'
-  })
-}));
-
-function ColorlibStepIcon(props) {
-  const { active, completed, className, icon } = props;
-
-
-  const icons = {
-    // 1: <ChromeReaderModeIcon />,
-    // 2: <StraightenIcon />,
-    // 3: <CreditScoreIcon />,
-    1: <StraightenIcon />,
-    2: <AccessTimeFilledIcon />,
-    
-
-  };
-
-  
-
-  return (
-    <ColorlibStepIconRoot ownerState={{ completed, active }} className={className}>
-      {icons[String(icon)]}
-    </ColorlibStepIconRoot>
-  );
-}
-
-ColorlibStepIcon.propTypes = {
-  active: PropTypes.bool,
-  className: PropTypes.string,
-  completed: PropTypes.bool,
-  icon: PropTypes.node
-};
-
-const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
-  [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 22
-  },
-  [`&.${stepConnectorClasses.active}`]: {
-    [`& .${stepConnectorClasses.line}`]: {
-      backgroundImage: 'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)'
-    }
-  },
-  [`&.${stepConnectorClasses.completed}`]: {
-    [`& .${stepConnectorClasses.line}`]: {
-      backgroundImage: 'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)'
-    }
-  },
-  [`& .${stepConnectorClasses.line}`]: {
-    height: 3,
-    border: 0,
-    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#eaeaf0',
-    borderRadius: 1
-  }
-}));
-
-const steps = [ 'Frequency', 'Period'];
+const steps = ['Frequency', 'Period'];
 
 function App() {
   const [activeStep, setActiveStep] = React.useState(0);
-  
-  const [tabIndex, setTabIndex] = React.useState(0); // state for managing tabs
 
-  const steps = ['Frequency', 'Step 2']; // Example steps
+  const [tabIndex, setTabIndex] = React.useState(0);
 
+  const [expanded, setExpanded] = React.useState(false);
 
-
-  const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
   };
-
-  const handleStepChange = (step) => () => {
-    setActiveStep(step);
-    setActiveStep(index);
-  };
-    const [expanded, setExpanded] = React.useState(false);
-
-    const handleChange = (panel) => (event, isExpanded) => {
-      setExpanded(isExpanded ? panel : false);
-    };
 
   const tabLabels = ['Frequency', 'Period'];
   return (

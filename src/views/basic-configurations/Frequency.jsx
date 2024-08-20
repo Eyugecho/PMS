@@ -23,7 +23,7 @@ import {
   CardActions,
   Menu,
   MenuItem,
-  useTheme,
+  useTheme
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -33,7 +33,6 @@ import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Configuration URL (Ensure you have config setup properly)
 import config from '../../configration/config';
 
 function Frequency() {
@@ -54,9 +53,9 @@ function Frequency() {
       const response = await fetch(`${config.API_URL_Units}/frequencies`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       const result = await response.json();
       if (result.success) {
@@ -72,31 +71,30 @@ function Frequency() {
   const formik = useFormik({
     initialValues: {
       name: '',
-      value: '',
+      value: ''
     },
     onSubmit: async (values, { resetForm }) => {
       try {
         const method = editIndex !== null ? 'PATCH' : 'POST';
-        const url = editIndex !== null
-          ? `${config.API_URL_Units}/frequencies/${frequencies[editIndex].id}`
-          : `${config.API_URL_Units}/frequencies`;
+        const url =
+          editIndex !== null ? `${config.API_URL_Units}/frequencies/${frequencies[editIndex].id}` : `${config.API_URL_Units}/frequencies`;
         const token = localStorage.getItem('token');
         const response = await fetch(url, {
           method: method,
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             name: values.name,
-            value: values.value,
-          }),
+            value: values.value
+          })
         });
 
         const result = await response.json();
         if (result.success) {
           toast.success(editIndex !== null ? 'Frequency updated' : 'Frequency created');
-          fetchFrequencies(); // Refresh the list
+          fetchFrequencies();
           handleClose();
         } else {
           toast.error(result.message || 'Failed to save frequency');
@@ -105,7 +103,7 @@ function Frequency() {
         toast.error('Error occurred while saving frequency');
       }
       resetForm();
-    },
+    }
   });
 
   const handleEdit = (index) => {
@@ -121,9 +119,9 @@ function Frequency() {
       const response = await fetch(`${config.API_URL_Units}/frequencies/${frequencies[index].id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       const result = await response.json();
@@ -322,7 +320,7 @@ function Frequency() {
           </Box>
         </DialogContent>
       </Dialog>
-      <ToastContainer /> {/* Add ToastContainer here */}
+      <ToastContainer />
     </Box>
   );
 }

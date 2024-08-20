@@ -1,13 +1,12 @@
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
-import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
-import { useTheme } from '@mui/material';
+import { IconFilter, IconSearch, IconX } from '@tabler/icons-react';
+import { Box, ClickAwayListener, Popper, Typography, useTheme } from '@mui/material';
 import PropTypes from 'prop-types';
 import { keyframes } from '@emotion/react';
+import SearchIcon from '@mui/icons-material/Search';
 
 const pulseAnimation = keyframes`
   0%, 100% { transform: scale(1); }
@@ -61,10 +60,65 @@ const Search = ({ filter, onFilter, search, setSearch, onSubmit, value, onChange
       </IconButton>
       {filter && (
         <>
-          <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-          <IconButton color="primary" sx={{ p: '10px' }} aria-label="filter" onClick={onFilter}>
-            <IconAdjustmentsHorizontal />
+          <IconButton
+            ref={anchorRef}
+            aria-controls={open ? 'filter-list-grow' : undefined}
+            aria-haspopup="true"
+            color="inherit"
+            variant="outlined"
+            aria-label="filter"
+            onClick={handleOpenFilter}
+          >
+            <IconFilter stroke={1.4} color={theme.palette.grey[500]} size="1.6rem" />
           </IconButton>
+
+          <Popper
+            placement="bottom-end"
+            open={open}
+            anchorEl={anchorRef.current}
+            transition
+            disablePortal
+            popperOptions={{
+              modifiers: [
+                {
+                  name: 'offset',
+                  options: {
+                    offset: [0, 6]
+                  }
+                }
+              ]
+            }}
+          >
+            {({ TransitionProps }) => (
+              <Transitions in={open} {...TransitionProps}>
+                <Paper>
+                  <ClickAwayListener onClickAway={handleClose}>
+                    <MainCard border={true} content={false} shadow={theme.shadows[1]}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          px: 1.2,
+                          py: 0.4,
+                          borderBottom: 0.6,
+                          borderColor: theme.palette.divider
+                        }}
+                      >
+                        <Typography variant="h4" ml={0.6} color={theme.palette.text.primary}>
+                          {title}
+                        </Typography>
+                        <IconButton onClick={handleClose}>
+                          <IconX stroke={1.6} size="1.4rem" />
+                        </IconButton>
+                      </Box>
+                      {children}
+                    </MainCard>
+                  </ClickAwayListener>
+                </Paper>
+              </Transitions>
+            )}
+          </Popper>
         </>
       )}
     </Paper>
