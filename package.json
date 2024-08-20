@@ -9,8 +9,8 @@
   },
   "homepage": "https://droga-pms.netlify.app",
   "scripts": {
-    "start": "npm start",
-    "build": "npm run build",
+    "start": "env-cmd -f .env vite",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
