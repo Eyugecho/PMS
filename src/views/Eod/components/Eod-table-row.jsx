@@ -17,7 +17,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 
-import Iconify from '../../ui-component/iconify/iconify';
+import Iconify from '../../../ui-component/iconify/iconify';
 
 export default function EodTableRow({
   selected,

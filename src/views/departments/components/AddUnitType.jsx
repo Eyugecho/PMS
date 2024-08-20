@@ -42,11 +42,12 @@ export default function AddUnitType({ isAdding, handleSubmission }) {
     validationSchema: validationSchema,
     onSubmit: (values) => {
       handleSubmission(values);
+      handleClose();
     }
   });
 
   return (
-    <div>
+    <div >
       <IconButton aria-describedby={id} onClick={handleClick} sx={{ backgroundColor: theme.palette.grey[50] }}>
         <IconPlus size={18} />
       </IconButton>
@@ -60,9 +61,17 @@ export default function AddUnitType({ isAdding, handleSubmission }) {
           vertical: 'bottom',
           horizontal: 'left'
         }}
+          sx={{
+           '& .MuiPaper-root': {
+              backdropFilter: 'blur(10px)', 
+              backgroundColor: 'rgba(255, 255, 255, 0.5)', 
+              borderRadius: 2,
+              boxShadow: theme.shadows[1],
+                              },
+              }}
       >
         <Box sx={{ padding: 2 }}>
-          <Typography variant="subtitle1">Add Unit Type</Typography>
+          <Typography variant="subtitle1">New Unit Type</Typography>
           <form noValidate onSubmit={formik.handleSubmit}>
             <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)} sx={{ marginY: 3 }}>
               <InputLabel htmlfor="name">Type name</InputLabel>

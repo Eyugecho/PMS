@@ -35,8 +35,14 @@ const Backend = {
   getManagers: 'get-managers',
   getUnitTarget: 'get-tasks-by-unit/',
   getEmployeeTarget: 'get-tasks-by-employee/',
-  evaluate: 'evaluate'
+  evaluate: 'evaluate',
 
-  // -----------------------------------------------
+  /**Eyuel Endpoints */
+  permissi: 'permissions',
+  role: 'roles',
+  fiscal_years: 'fiscal-years',
+  planning_periods: 'create-planning-period',
+  frequency_period_values: 'create-frequency-definition-period',
+  evaluation_periods: 'create-evaluation-period'
 };
 export default Backend;

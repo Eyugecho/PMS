@@ -30,13 +30,12 @@ const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
 const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
-const EodActivityPage = Loadable(lazy(() => import('views/Eod/view')));
+const EodActivityPage = Loadable(lazy(() => import('views/Eod')));
+const RolePermission = Loadable(lazy(() => import('views/roles_permission/Page')));
 
-// const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
-// const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
-
-// sample page routing
+// sample page routingkpiMange-view
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
+const Testpage = Loadable(lazy(() => import('views/sample-page/test')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -64,6 +63,15 @@ const MainRoutes = {
           )
         }
       ]
+    },
+
+    {
+      path: 'account',
+      element: (
+        <Protected>
+          <Account />
+        </Protected>
+      )
     },
 
     {
@@ -255,10 +263,18 @@ const MainRoutes = {
       )
     },
     {
-      path: 'account',
+      path: 'rolePermission',
       element: (
         <Protected>
-          <Account />
+          <RolePermission />
+        </Protected>
+      )
+    },
+    {
+      path: 'test',
+      element: (
+        <Protected>
+          <Testpage />
         </Protected>
       )
     },

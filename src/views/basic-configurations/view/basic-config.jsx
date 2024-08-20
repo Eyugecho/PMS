@@ -1,68 +1,105 @@
-import React from "react";
-import { Container, Grid, Tabs, Tab, Box, Typography, AppBar, Paper } from "@mui/material";
-import Measuring from "../Measuring-Units";
-import Perceptive from "../Perceptive";
-import Catagory from "../Catagory";
-import EvalType from "../Evaluation-Type";
-import Frequency from "../Frequency";
-import Period from "../Period";
+import React from 'react';
+import { Grid, Box, Typography, Stack, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import Measuring from '../Measuring-Units';
+import Perceptive from '../Perceptive';
+import EvalType from '../Evaluation-Type';
+import Frequency from '../Frequency';
+import Period from '../Period';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PageContainer from 'ui-component/MainPage';
+
+const steps = ['Frequency', 'Period'];
 
 function App() {
-  const [value, setValue] = React.useState(0);
+  const [activeStep, setActiveStep] = React.useState(0);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const [tabIndex, setTabIndex] = React.useState(0);
+
+  const [expanded, setExpanded] = React.useState(false);
+
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
   };
 
+  const tabLabels = ['Frequency', 'Period'];
   return (
-    <Container maxWidth="lg" style={{ paddingTop: '10px' }}>
-      <Paper elevation={3} style={{ padding: '0px', backgroundColor: '#fff' }}>
-        <AppBar position="static" style={{ backgroundColor: '#E6F6F8', boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.2)' }}>
-          <Tabs 
-            value={value} 
-            onChange={handleChange} 
-            variant="fullWidth" 
-            textColor="secondary" 
-            indicatorColor="secondary"
-          >
-            <Tab label="Perspective Type" />
-            <Tab label="Measuring Units" />
-            <Tab label="Evaluation Type" />
-            <Tab label="Frequency" />
-            <Tab label="Period" />
-          </Tabs>
-        </AppBar>
-        <Grid container spacing={3} style={{ marginTop: '10px' }}>
+    <PageContainer maxWidth="lg" title={'Basic Configurations'}>
+      <Box style={{ padding: '50px', boxShadow: '0 4px 6px rgba(0.5, 0, 0, 0.1)', marginLeft: '10px' }}>
+        <Grid container spacing={3}>
+          {/* Left Grid containing Stepper and content */}
           <Grid item xs={12}>
-            <TabPanel value={value} index={0}>
-              <Perceptive />
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-              <Measuring />
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-              <EvalType />
-            </TabPanel>
-            <TabPanel value={value} index={3}>
-              <Frequency />
-            </TabPanel>
-            <TabPanel value={value} index={4}>
-              <Period />
-            </TabPanel>
+            <Stack sx={{ width: '80%', paddingTop: '0px', marginLeft: '20px' }} spacing={2}>
+              <Box sx={{ padding: '10px' }}>
+                <Accordion
+                  expanded={expanded === 'panel1'}
+                  onChange={handleChange('panel1')}
+                  style={{ padding: '5px', marginBottom: '10px' }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
+                    <Typography sx={{ fontWeight: 'bold' }}>Frequency</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Frequency />
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion
+                  expanded={expanded === 'panel2'}
+                  onChange={handleChange('panel2')}
+                  style={{ padding: '5px', marginBottom: '10px' }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel2bh-content" id="panel2bh-header">
+                    <Typography sx={{ fontWeight: 'bold' }}>Period</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Period />
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion
+                  expanded={expanded === 'panel3'}
+                  onChange={handleChange('panel3')}
+                  style={{ padding: '5px', marginBottom: '10px' }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
+                    <Typography sx={{ fontWeight: 'bold' }}>Measuring</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Measuring />
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion
+                  expanded={expanded === 'panel4'}
+                  onChange={handleChange('panel4')}
+                  style={{ padding: '5px', marginBottom: '10px' }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel2bh-content" id="panel2bh-header">
+                    <Typography sx={{ fontWeight: 'bold' }}>Perspective</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Perceptive />
+                  </AccordionDetails>
+                </Accordion>
+                <Accordion
+                  expanded={expanded === 'panel5'}
+                  onChange={handleChange('panel5')}
+                  style={{ padding: '5px', marginBottom: '10px' }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel3bh-content" id="panel3bh-header">
+                    <Typography sx={{ fontWeight: 'bold' }}>Evaluation Type</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <EvalType />
+                  </AccordionDetails>
+                </Accordion>
+              </Box>
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Box sx={{ padding: ' 1px' }}></Box>
           </Grid>
         </Grid>
-      </Paper>
-    </Container>
-  );
-}
-
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && <Box p={3}><Typography>{children}</Typography></Box>}
-    </div>
+      </Box>
+    </PageContainer>
   );
 }
 
