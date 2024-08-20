@@ -87,51 +87,7 @@ function EodActivity() {
     }
   };
 
-  // Save or update record
-  // const handleSave = async () => {
-  //   try {
-  //     const token = localStorage.getItem('token');
-  //     const method = editIndex !== null ? 'PATCH' : 'POST';
-  //     const url =
-  //       editIndex !== null
-  //         ? `${config.API_URL_Units}/end-of-day-activities/${data[editIndex].id}`
-  //         : `${config.API_URL_Units}/end-of-day-activities`;
-
-
-  //     const response = await axios({
-  //       method,
-  //       url,
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         'Content-Type': 'application/json'
-  //       },
-  //       data: formValues
-  //     });
-
-
-  //     if (response.data.success) {
-  //       setData((prevData) => {
-  //         if (editIndex !== null) {
-  //           return prevData.map((item, index) => (index === editIndex ? response.data.data : item));
-  //         } else {
-  //           return [...prevData, response.data.data];
-  //         }
-  //       });
-  //       handleClose();
-  //       setSnackbarMessage('Record saved successfully!');
-  //       setSnackbarSeverity('success');
-  //     } else {
-  //       setSnackbarMessage(response.data.message || 'Error occurred');
-  //       setSnackbarSeverity('error');
-  //     }
-  //     setSnackbarOpen(true);
-  //   } catch (error) {
-  //     setSnackbarMessage('Error saving record: ' + error.message);
-  //     setSnackbarSeverity('error');
-  //     setSnackbarOpen(true);
-  //   }
-  // };
-
+  
 const handleSave = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -350,14 +306,6 @@ const handleSave = async () => {
         { id: 4, field: 'Customer Satisfaction', value: selectedRecord.customer_satisfaction }
       ]
     : [];
-  // Define detail rows based on selected record
-  // const detailRows = selectedRecord
-  // ? Object.entries(selectedRecord).map(([field, value], index) => ({
-  //     id: index,
-  //     field,
-  //     value: value !== null && value !== undefined ? value.toString() : '', // Handle null or undefined values
-  //   }))
-  // : [];
 
   return (
     <Card>
@@ -382,7 +330,14 @@ const handleSave = async () => {
           />
         </Box>
       </CardContent>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        sx={{
+          backdropFilter: 'blur(10px)', // Frosted glass effect
+          backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Lightens the backdrop
+        }}
+      >
         <DialogTitle>{editIndex !== null ? 'Edit EOD Activity' : 'Add EOD Activity'}</DialogTitle>
         <DialogContent>
           <Tabs value={tabIndex} onChange={handleTabChange}>

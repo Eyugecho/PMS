@@ -82,7 +82,14 @@ export const CreatePlan = ({ add, onClose, onSucceed }) => {
 
   return (
     <React.Fragment>
-      <Dialog open={add} onClose={onClose}>
+      <Dialog
+        open={add}
+        onClose={onClose}
+        sx={{
+          backdropFilter: 'blur(10px)', // Frosted glass effect
+          backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Lightens the backdrop
+        }}
+      >
         <Box sx={{ minWidth: '600px', minHeight: '50dvh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 1 }}>
