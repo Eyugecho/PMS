@@ -18,6 +18,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthContext } from 'context/AuthContext';
 import { useMemo, useState } from 'react';
 
+
 // ==============================|| APP ||============================== //
 
 const queryClient = new QueryClient();

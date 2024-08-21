@@ -38,9 +38,7 @@ const KpiManagePage = Loadable(lazy(() => import('views/kpi-managment/view/kpiMa
 const KpiTrackingPage = Loadable(lazy(() => import('views/kpi-tracking/view/kpiTrack-view')));
 const EodActivityPage = Loadable(lazy(() => import('views/Eod/view/Eod-view')));
 const RolePermission = Loadable(lazy(() => import('views/roles_permission/Page')));
-
-// const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
-// const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
+const Unauthorized = Loadable(lazy(() => import('utils/unautorized')));
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
@@ -77,7 +75,7 @@ const MainRoutes = {
     {
       path: 'employees',
       element: (
-        <Protected>
+        <Protected requiredPermission="create:users">
           <Employees />
         </Protected>
       )
@@ -343,29 +341,15 @@ const MainRoutes = {
       path: 'test',
       element: (
         <Protected>
-          <Testpage/>
+          <Testpage />
         </Protected>
       )
     },
 
-    // {
-    //   path: 'icons',
-    //   children: [
-    //     {
-    //       path: 'tabler-icons',
-    //       element: <UtilsTablerIcons />
-    //     }
-    //   ]
-    // },
-    // {
-    //   path: 'icons',
-    //   children: [
-    //     {
-    //       path: 'material-icons',
-    //       element: <UtilsMaterialIcons />
-    //     }
-    //   ]
-    // },
+    {
+      path: 'unauthorized',
+      element: <Unauthorized />
+    },
     {
       path: 'sample-page',
       element: (

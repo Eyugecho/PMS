@@ -2,7 +2,7 @@ import { Button, IconButton } from '@mui/material';
 import { IconMoon, IconSun } from '@tabler/icons-react';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_SYSTEM_THEME } from 'store/actions';
+import { SET_SYSTEM_THEME } from 'store/actions/actions';
 
 const ToggleTheme = () => {
   const [isDark, setIsDark] = useState('light');

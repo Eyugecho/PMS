@@ -85,21 +85,7 @@ const Menus = {
         }
       ]
     },
-    // {
-    //   id: 'mointoring',
-    //   title: 'Monitoring',
-    //   type: 'collapse',
-    //   url: 'monitoring/daily',
-    //   icon: icons.IconBrandCampaignmonitor,
-    //   children: [
-    //     {
-    //       id: 'daily-activity',
-    //       title: 'Daily Activity',
-    //       type: 'item',
-    //       url: 'placeholder'
-    //     }
-    //   ]
-    // },
+
 
     {
       id: 'evaluation',
