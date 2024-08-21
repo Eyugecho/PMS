@@ -41,7 +41,8 @@ const Employees = () => {
   const [pagination, setPagination] = useState({
     page: 0,
     perPage: 10,
-    last_page: 1
+    last_page: 0,
+    total: 0
   });
 
   const [add, setAdd] = useState(false);
@@ -288,7 +289,7 @@ const Employees = () => {
       .then((response) => {
         if (response.success) {
           setData(response.data.data);
-          setPagination({ ...pagination, last_page: response.data.last_page });
+          setPagination({ ...pagination, last_page: response.data.last_page, total: response.data.total });
           setLoading(false);
           setError(false);
         } else {
@@ -412,7 +413,7 @@ const Employees = () => {
           <TablePagination
             component="div"
             rowsPerPageOptions={[10, 25, 50, 100]}
-            count={pagination.last_page}
+            count={pagination.total}
             rowsPerPage={pagination.perPage}
             page={pagination.page}
             onPageChange={handleChangePage}

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Box,
   Button,
-  CircularProgress,
   Collapse,
   IconButton,
   Paper,
@@ -19,6 +17,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import Backend from 'services/backend';
 import { toast } from 'react-toastify';
 import PlanTable from './PlanTable';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 const EmployeeTable = ({ employees }) => {
   const theme = useTheme();
@@ -83,9 +82,8 @@ const EmployeeTable = ({ employees }) => {
         </TableHead>
         <TableBody>
           {employees?.map((employee, index) => (
-            <>
+            <React.Fragment key={index}>
               <TableRow
-                key={index}
                 sx={{
                   backgroundColor: selectedRow == index ? theme.palette.grey[100] : theme.palette.background.default,
                   ':hover': {
@@ -119,7 +117,7 @@ const EmployeeTable = ({ employees }) => {
                       {loading ? (
                         <TableRow sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
                           <TableCell colSpan={7} sx={{ border: 0 }}>
-                            <CircularProgress size={20} />
+                            <ActivityIndicator size={20} />
                           </TableCell>
                         </TableRow>
                       ) : error ? (
@@ -145,7 +143,7 @@ const EmployeeTable = ({ employees }) => {
                   </TableCell>
                 </TableRow>
               )}
-            </>
+            </React.Fragment>
           ))}
         </TableBody>
       </Table>
