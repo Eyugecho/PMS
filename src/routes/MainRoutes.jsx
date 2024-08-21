@@ -29,13 +29,7 @@ const KPIManagement = Loadable(lazy(() => import('views/kpi')));
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
 const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
-const UserCreation = Loadable(lazy(() => import('views/newuser-creation/view/user-view')));
-const PrevilageCreation = Loadable(lazy(() => import('views/newprevilage-creation/view/previlage-view')));
-const RoleCreation = Loadable(lazy(() => import('views/newrole-creation/view/role-view')));
-const ResetPage = Loadable(lazy(() => import('views/password-reset/view/reset-view')));
 const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
-const KpiManagePage = Loadable(lazy(() => import('views/kpi-managment/view/kpiMange-view')));
-const KpiTrackingPage = Loadable(lazy(() => import('views/kpi-tracking/view/kpiTrack-view')));
 const EodActivityPage = Loadable(lazy(() => import('views/Eod/view/Eod-view')));
 const RolePermission = Loadable(lazy(() => import('views/roles_permission/Page')));
 const Unauthorized = Loadable(lazy(() => import('utils/unautorized')));
@@ -224,58 +218,6 @@ const MainRoutes = {
         }
       ]
     },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'user-creation',
-          element: (
-            <Protected>
-              <UserCreation />
-            </Protected>
-          )
-        }
-      ]
-    },
-    {
-      path: 'previlage',
-      children: [
-        {
-          path: 'previlage-creation',
-          element: (
-            <Protected>
-              <PrevilageCreation />
-            </Protected>
-          )
-        }
-      ]
-    },
-    {
-      path: 'role',
-      children: [
-        {
-          path: 'role-creation',
-          element: (
-            <Protected>
-              <RoleCreation />
-            </Protected>
-          )
-        }
-      ]
-    },
-    {
-      path: 'reset',
-      children: [
-        {
-          path: 'reset-password',
-          element: (
-            <Protected>
-              <ResetPage />
-            </Protected>
-          )
-        }
-      ]
-    },
 
     {
       path: 'basic-config',
@@ -303,19 +245,7 @@ const MainRoutes = {
         }
       ]
     },
-    {
-      path: 'kpi-tracking',
-      children: [
-        {
-          path: 'kpi-track',
-          element: (
-            <Protected>
-              <KpiTrackingPage />
-            </Protected>
-          )
-        }
-      ]
-    },
+
     {
       path: 'Eod',
       children: [
