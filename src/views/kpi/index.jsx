@@ -28,9 +28,9 @@ const KPIManagement = () => {
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
   const [pagination, setPagination] = useState({
-    page: 1,
+    page: 0,
     per_page: 10,
-    last_page: 1,
+    last_page: 0,
     total: 0
   });
 
@@ -371,7 +371,7 @@ const KPIManagement = () => {
                 </Grid>
               )}
 
-              {pagination.last_page > 1 && (
+              {!loading && (
                 <Pagination
                   sx={{ marginTop: 2 }}
                   count={pagination.last_page}

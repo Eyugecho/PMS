@@ -78,15 +78,8 @@ const AuthLogin = ({ ...others }) => {
 
         dispatch(setUser(user));
         signin();
-        toast.success('Login successful!');
 
-        if (hasRole(user.roles, 'CEO')) {
-          navigate('/');
-        } else if (hasRole(user.roles, 'Admin')) {
-          navigate('/');
-        } else {
-          navigate('/');
-        }
+        navigate('/');
       } else {
         setStatus({ success: false });
         setErrors({ submit: response.data.data.message });

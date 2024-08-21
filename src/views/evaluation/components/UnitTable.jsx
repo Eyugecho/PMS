@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Box,
   Button,
   CircularProgress,
   Collapse,
@@ -17,8 +16,8 @@ import {
 } from '@mui/material';
 
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
-import Backend from 'services/backend';
 import { toast } from 'react-toastify';
+import Backend from 'services/backend';
 import PlanTable from './PlanTable';
 
 const UnitTable = ({ units }) => {
@@ -30,10 +29,10 @@ const UnitTable = ({ units }) => {
   const [error, setError] = useState(false);
 
   const handleRowClick = (index, unitId) => {
-    if (selectedRow === index) {
+    if (selectedRow === unitId) {
       setSelectedRow(null);
     } else {
-      setSelectedRow(index);
+      setSelectedRow(unitId);
       handleFetchingUnitPlan(unitId);
     }
   };
@@ -84,11 +83,10 @@ const UnitTable = ({ units }) => {
         </TableHead>
         <TableBody>
           {units?.map((unit, index) => (
-            <>
+            <React.Fragment key={unit.id}>
               <TableRow
-                key={index}
                 sx={{
-                  backgroundColor: selectedRow == index ? theme.palette.grey[100] : theme.palette.background.default,
+                  backgroundColor: selectedRow == unit?.id ? theme.palette.grey[100] : theme.palette.background.default,
                   ':hover': {
                     backgroundColor: theme.palette.grey[100],
                     color: theme.palette.background.default,
@@ -99,7 +97,7 @@ const UnitTable = ({ units }) => {
               >
                 <TableCell sx={{ display: 'flex', alignItems: 'center', border: 0 }}>
                   <IconButton aria-label="expand row" size="small" onClick={() => handleRowClick(index, unit.id)}>
-                    {selectedRow === index ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                    {selectedRow === unit?.id ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                   </IconButton>
 
                   <Typography variant="subtitle1">{unit?.name}</Typography>
@@ -115,7 +113,7 @@ const UnitTable = ({ units }) => {
                 </TableCell>
               </TableRow>
 
-              {selectedRow == index && (
+              {selectedRow == unit?.id && (
                 <TableRow sx={{ border: 0 }}>
                   <TableCell colSpan={7}>
                     <Collapse in={selectedRow !== null} timeout="auto" unmountOnExit>
@@ -138,9 +136,15 @@ const UnitTable = ({ units }) => {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        <TableRow sx={{}}>
+                        <TableRow>
                           <TableCell colSpan={7} sx={{ width: '100%', border: 0 }}>
-                            <PlanTable plans={data} unitName={unit?.name} unitType={unit?.unit_type?.name} page="evaluation" />
+                            <PlanTable
+                              plans={data}
+                              unitName={unit?.name}
+                              unitType={unit?.unit_type?.name}
+                              page="evaluation"
+                              onRefresh={() => handleFetchingUnitPlan(selectedRow)}
+                            />
                           </TableCell>
                         </TableRow>
                       )}
@@ -148,7 +152,7 @@ const UnitTable = ({ units }) => {
                   </TableCell>
                 </TableRow>
               )}
-            </>
+            </React.Fragment>
           ))}
         </TableBody>
       </Table>

@@ -18,8 +18,9 @@ import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { EvaluateModal } from './EvaluateModal';
 import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
+import GetToken from 'utils/auth-token';
 
-const PlanTable = ({ plans, unitName, unitType, page }) => {
+const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
   const theme = useTheme();
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
@@ -48,9 +49,9 @@ const PlanTable = ({ plans, unitName, unitType, page }) => {
     setAdd(true);
   };
 
-  const handleEvaluation = (value) => {
+  const handleEvaluation = async (value) => {
     setIsAdding(true);
-    const token = localStorage.getItem('token');
+    const token = await GetToken();
     const Api = Backend.api + Backend.evaluate;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -75,9 +76,10 @@ const PlanTable = ({ plans, unitName, unitType, page }) => {
           setIsAdding(false);
           handleEvaluateModalClose();
           toast.success(response.data.message);
+          onRefresh();
         } else {
           setIsAdding(false);
-          toast.error(response.message);
+          toast.error(response.data.message);
         }
       })
       .catch((error) => {
@@ -106,9 +108,8 @@ const PlanTable = ({ plans, unitName, unitType, page }) => {
           </TableHead>
           <TableBody>
             {plans?.map((plan, index) => (
-              <>
+              <React.Fragment key={index}>
                 <TableRow
-                  key={index}
                   sx={{
                     backgroundColor: selectedRow == index ? theme.palette.primary[200] : theme.palette.background.default,
                     ':hover': {
@@ -151,7 +152,7 @@ const PlanTable = ({ plans, unitName, unitType, page }) => {
                               <TableCell>Periods</TableCell>
                               <TableCell>Targets</TableCell>
                               <TableCell>Actuals</TableCell>
-                              {page === 'evaluation' && <TableCell>Action</TableCell>}
+                              {plan?.target.some((target) => target.can_be_evaluate === true) && <TableCell>Action</TableCell>}
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -183,7 +184,7 @@ const PlanTable = ({ plans, unitName, unitType, page }) => {
                                 <TableCell sx={{ border: 0 }}>{PeriodNaming(plan?.frequency?.name) + ' ' + (index + 1)}</TableCell>
                                 <TableCell sx={{ border: 0 }}>{target?.target}</TableCell>
                                 <TableCell sx={{ border: 0 }}>{target?.actual_value}</TableCell>
-                                {page === 'evaluation' &&
+                                {target?.can_be_evaluate &&
                                   (target?.actual_value == 0 ? (
                                     <TableCell sx={{ border: 0 }}>
                                       <Button variant="contained" sx={{ boxShadow: 0 }} onClick={() => handleEvaluationClick(target.id)}>
@@ -205,7 +206,7 @@ const PlanTable = ({ plans, unitName, unitType, page }) => {
                     </TableCell>
                   </TableRow>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </TableBody>
         </Table>
