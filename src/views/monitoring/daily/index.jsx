@@ -1,7 +1,7 @@
-import {Grid, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import React from 'react';
 
-export const DailyActivity = () => {
+const DailyActivity = () => {
   return (
     <Grid>
       <Grid item={12}>
@@ -10,3 +10,5 @@ export const DailyActivity = () => {
     </Grid>
   );
 };
+
+export default DailyActivity;

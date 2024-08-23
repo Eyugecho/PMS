@@ -93,7 +93,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
   };
   return (
     <React.Fragment>
-      <TableContainer component={Paper} sx={{ minHeight: '64dvh', border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 2 }}>
+      <TableContainer component={Paper} sx={{ minHeight: '64dvh', border: 0.4, borderColor: theme.palette.divider, borderRadius: 2 }}>
         <Table sx={{ minWidth: 650 }} aria-label="Organization plan table">
           <TableHead>
             <TableRow>
@@ -129,7 +129,9 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                     </Typography>
                   </TableCell>
                   <TableCell sx={{ border: 0 }}>
-                    <Typography variant="subtitle1">{plan?.kpi?.name}</Typography>
+                    <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                      {plan?.kpi?.name}
+                    </Typography>
                   </TableCell>
                   <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(2)}</TableCell>
                   <TableCell sx={{ border: 0 }}>{plan?.total_target}</TableCell>

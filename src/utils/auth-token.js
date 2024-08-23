@@ -2,7 +2,7 @@ import { Storage } from 'configration/storage';
 import Backend from 'services/backend';
 
 export const RefreshToken = async () => {
-  var Api = Backend.auth + Backend.refreshToken;
+  const Api = Backend.auth + Backend.refreshToken;
   const token = Storage.getItem('token');
 
   fetch(Api, {

@@ -53,25 +53,25 @@ const dashboard = {
       url: '/planning',
       icon: icons.IconLayoutCards
     },
-    {
-      id: 'eod_activity',
-      title: 'EOD Activity',
-      type: 'item',
-      icon: icons.IconHazeMoon,
-      url: '/Eod'
-    },
+
     {
       id: 'mointoring',
       title: 'Monitoring',
       type: 'collapse',
-      url: 'monitoring/daily',
+      url: 'monitoring',
       icon: icons.IconStethoscope,
       children: [
         {
           id: 'daily-activity',
           title: 'Daily Activity',
           type: 'item',
-          url: 'placeholder'
+          url: '/monitoring/daily'
+        },
+        {
+          id: 'eod_activity',
+          title: 'EOD Activity',
+          type: 'item',
+          url: '/Eod'
         }
       ]
     },
@@ -84,16 +84,17 @@ const dashboard = {
       icon: icons.IconListCheck
     },
     {
-      id: 'approval-settings',
+      id: 'approvals',
       title: 'Approval Managment',
       type: 'collapse',
+      url: 'approvals',
       icon: icons.IconCircleCheck,
       children: [
         {
           id: 'approvals',
           title: 'Approvals',
           type: 'item',
-          url: 'placeholder'
+          url: 'approvals'
         },
         {
           id: 'feedbacks',
@@ -104,10 +105,10 @@ const dashboard = {
       ]
     },
     {
-      id: 'grading-ranking',
-      title: 'Grading & Ranking',
+      id: 'performance',
+      title: 'Performance',
       type: 'item',
-      url: 'placeholder',
+      url: 'performance',
       icon: icons.IconTrophy
     }
   ]

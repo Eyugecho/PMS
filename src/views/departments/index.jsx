@@ -2,7 +2,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Button,
   Card,
   CircularProgress,
   Divider,
@@ -14,8 +13,11 @@ import {
   useTheme,
   MenuItem,
   ListItemIcon,
-  CardContent
+  CardContent,
+  TablePagination
 } from '@mui/material';
+import { MoreVertOutlined } from '@mui/icons-material';
+import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
 import Fallbacks from 'utils/components/Fallbacks';
 import Search from 'ui-component/search';
@@ -23,13 +25,12 @@ import AddUnitType from './components/AddUnitType';
 import AddUnit from './components/AddUnit';
 import PageContainer from 'ui-component/MainPage';
 import UnitsTable from './components/UnitsTable';
-import { MoreVertOutlined } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { toast, ToastContainer } from 'react-toastify';
 import EditUnit from './components/EditUnit';
 import EditUnitType from './components/EditUnitType';
 import AddButton from 'ui-component/buttons/AddButton';
+import GetToken from 'utils/auth-token';
 
 //================================ UNITS MANAGEMENT PAGE=====================
 const Units = () => {
@@ -42,7 +43,8 @@ const Units = () => {
   const [pagination, setPagination] = useState({
     page: 0,
     per_page: 10,
-    last_page: 1
+    last_page: 0,
+    total: 0
   });
 
   const [unitLoading, setUnitLoading] = useState(true);
@@ -73,9 +75,9 @@ const Units = () => {
     setPagination({ ...pagination, page: 0 });
   };
 
-  const handleFetchingTypes = () => {
+  const handleFetchingTypes = async () => {
     setUnitLoading(true);
-    const token = localStorage.getItem('token');
+    const token = await GetToken();
     const Api = Backend.api + Backend.types;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -102,8 +104,8 @@ const Units = () => {
       });
   };
 
-  const handleFetchingManagers = () => {
-    const token = localStorage.getItem('token');
+  const handleFetchingManagers = async () => {
+    const token = await GetToken();
     const Api = Backend.api + Backend.employees + `?role=manager`;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -118,8 +120,6 @@ const Units = () => {
       .then((response) => response.json())
 
       .then((response) => {
-        console.log(response);
-
         if (response.success) {
           setManagers(response.data.data);
         }
@@ -139,9 +139,9 @@ const Units = () => {
     setAdd(false);
   };
 
-  const handleUnitAddition = (value) => {
+  const handleUnitAddition = async (value) => {
     setIsAdding(true);
-    const token = localStorage.getItem('token');
+    const token = await GetToken();
     const Api = Backend.api + Backend.units;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -153,7 +153,6 @@ const Units = () => {
       parent_id: value?.parent_id,
       unit_type_id: value?.type,
       name: value?.name,
-      manager: value?.manager,
       description: value?.description
     };
 
@@ -179,9 +178,9 @@ const Units = () => {
       });
   };
 
-  const handleTypeAddition = (value) => {
+  const handleTypeAddition = async (value) => {
     setIsAdding(true);
-    const token = localStorage.getItem('token');
+    const token = await GetToken();
     const Api = Backend.api + Backend.types;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -251,11 +250,6 @@ const Units = () => {
     setSelectedUnitType(null);
   };
 
-  const handleSearchChange = (value) => {
-    setSearch(value);
-    setPagination({ ...pagination, page: 0 });
-  };
-
   const handleDelete = async (id, type = 'unit') => {
     const token = localStorage.getItem('token');
     const Api = type === 'unit' ? `${Backend.api}${Backend.units}/${id}` : `${Backend.api}${Backend.types}/${id}`;
@@ -296,8 +290,8 @@ const Units = () => {
     }
   };
 
-  const handleFetchingUnits = () => {
-    const token = localStorage.getItem('token');
+  const handleFetchingUnits = async () => {
+    const token = await GetToken();
     const Api = Backend.api + Backend.units + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -315,7 +309,8 @@ const Units = () => {
           setData(response.data.data);
           setPagination({
             ...pagination,
-            last_page: response.data.last_page
+            last_page: response.data.last_page,
+            total: response.data.total
           });
 
           setLoading(false);
@@ -397,14 +392,25 @@ const Units = () => {
                   sx={{ paddingTop: 6 }}
                 />
               ) : (
-                <UnitsTable
-                  units={data}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                  pagination={pagination}
-                />
+                <React.Fragment>
+                  <UnitsTable
+                    units={data}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    pagination={pagination}
+                  />
+                  <TablePagination
+                    component="div"
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    count={pagination.total}
+                    rowsPerPage={pagination.per_page}
+                    page={pagination.page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </React.Fragment>
               )}
             </Grid>
 

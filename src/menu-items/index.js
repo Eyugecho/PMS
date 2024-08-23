@@ -9,16 +9,5 @@ import Accounts from './account';
 const menuItems = {
   items: [dashboard, OrgStructure, ReportsAndAnalysis, Accounts, settings]
 };
-// const adminMenu = {
-//   items: [dashboard, Menus, report]
-// };
-
-// const managerMenu = {
-//   items: [dashboard, Menus]
-// };
-
-// const employeeMenu = {
-//   items: [dashboard, Menus]
-// };
 
 export default menuItems;

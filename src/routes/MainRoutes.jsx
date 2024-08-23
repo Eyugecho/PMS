@@ -16,6 +16,7 @@ const ViewEmployee = Loadable(lazy(() => import('views/employees/view')));
 
 const PagePlaceholder = Loadable(lazy(() => import('views/sample-page/Placeholder')));
 const Ranking = Loadable(lazy(() => import('views/ranking')));
+const Perfomance = Loadable(lazy(() => import('views/performance')));
 const Feedbacks = Loadable(lazy(() => import('views/approvals/feedback')));
 const Approvals = Loadable(lazy(() => import('views/approvals')));
 const DailyActivity = Loadable(lazy(() => import('views/monitoring/daily')));
@@ -24,9 +25,9 @@ const Monitoring = Loadable(lazy(() => import('views/monitoring')));
 const ViewPlan = Loadable(lazy(() => import('views/planning/View')));
 const Account = Loadable(lazy(() => import('views/account')));
 const KPIManagement = Loadable(lazy(() => import('views/kpi')));
+const Users = Loadable(lazy(() => import('views/users')));
 
 // utilities routing
-const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
 const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
@@ -183,6 +184,14 @@ const MainRoutes = {
     },
 
     {
+      path: 'performance',
+      element: (
+        <Protected>
+          <Perfomance />
+        </Protected>
+      )
+    },
+    {
       path: 'ranking',
       element: (
         <Protected>
@@ -263,7 +272,16 @@ const MainRoutes = {
       )
     },
     {
-      path: 'rolePermission',
+      path: 'users',
+      element: (
+        <Protected>
+          <Users />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'role-permission',
       element: (
         <Protected>
           <RolePermission />

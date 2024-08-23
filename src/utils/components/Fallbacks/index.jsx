@@ -6,7 +6,7 @@ const Fallbacks = ({ severity, title, description, children, sx }) => {
   return (
     <Grid container sx={{ alignItems: 'center', justifyContent: 'center', ...sx }}>
       <Grid item xs={8} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <img src={FallbackImages(severity)} alt={severity} style={{ width: 160, height: 160, aspectRatio: 1, resize: 'inherit' }} />
+        <img src={FallbackImages(severity)} alt={severity} style={{ width: 120, height: 120, aspectRatio: 1, resize: 'inherit' }} />
         <Typography variant="h4" sx={{ marginTop: 1 }}>
           {title}
         </Typography>

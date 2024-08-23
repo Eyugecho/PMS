@@ -104,7 +104,7 @@ const TargetTable = ({ plans }) => {
                     <IconButton aria-label="expand row" size="small" onClick={() => handleRowClick(index)}>
                       {selectedRow === index ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                     </IconButton>
-                    <Typography variant="subtitle1" sx={{ marginLeft: 2 }}>
+                    <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginLeft: 2 }}>
                       {' '}
                       {plan?.unit ? plan?.unit?.name : plan?.employee?.user?.name}
                     </Typography>

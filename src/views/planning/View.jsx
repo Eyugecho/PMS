@@ -8,6 +8,7 @@ import { useKPI } from 'context/KPIProvider';
 import { UpdatePlan } from './components/UpdatePlan';
 import { Storage } from 'configration/storage';
 import { toast, ToastContainer } from 'react-toastify';
+import { useSelector } from 'react-redux';
 import DistributeTarget from './components/DistributeTarget';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
@@ -24,6 +25,7 @@ const ViewPlan = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { handleUpdatePlan } = useKPI();
+  const customization = useSelector((state) => state.customization);
 
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -225,7 +227,7 @@ const ViewPlan = () => {
               border: 1,
               borderColor: theme.palette.divider,
               backgroundColor: theme.palette.background.default,
-              borderRadius: 3,
+              borderRadius: `${customization.borderRadius}px`,
               padding: 2,
               marginTop: 3
             }}

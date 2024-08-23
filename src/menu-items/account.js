@@ -26,13 +26,13 @@ const Accounts = {
           id: 'users',
           title: 'Users',
           type: 'item',
-          url: 'placeholder'
+          url: 'users'
         },
         {
           id: 'role',
           title: 'Role and Permission',
           type: 'item',
-          url: '/rolePermission'
+          url: '/role-permission'
         },
 
         {

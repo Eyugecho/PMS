@@ -1,12 +1,17 @@
-import {Grid, Typography } from '@mui/material';
 import React from 'react';
+import { Grid, Typography } from '@mui/material';
+import PageContainer from 'ui-component/MainPage';
 
-export const Approvals = () => {
+const Approvals = () => {
   return (
-    <Grid>
-      <Grid item={12}>
-        <Typography variant="subtitle1">Approvals page</Typography>
+    <PageContainer title="Approval Management">
+      <Grid container>
+        <Grid item={12} padding={3}>
+          <Typography variant="subtitle1">Approvals page</Typography>
+        </Grid>
       </Grid>
-    </Grid>
+    </PageContainer>
   );
 };
+
+export default Approvals;

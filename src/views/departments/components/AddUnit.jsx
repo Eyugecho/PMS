@@ -22,17 +22,16 @@ import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Unit name is required'),
-  parent_id: Yup.string().required('Unit is required'),
+  parent_id: Yup.string().required('Parent Unit is required'),
   type: Yup.string().required('Unit type is required')
 });
 
-export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handleSubmission }) => {
+export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmission }) => {
   const formik = useFormik({
     initialValues: {
       name: '',
       parent_id: '',
       type: '',
-      manager: null,
       unit: null,
       description: ''
     },
@@ -53,7 +52,7 @@ export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handl
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 2 }}>
-          <DialogTitle variant="h4">Add Unit</DialogTitle>
+          <DialogTitle variant="h3">Add Unit</DialogTitle>
           <IconButton onClick={onClose}>
             <IconX size={20} />
           </IconButton>
@@ -61,10 +60,10 @@ export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handl
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.unit && Boolean(formik.errors.unit)}>
-              <InputLabel htmlfor="unit">Select unit</InputLabel>
+            <FormControl fullWidth error={formik.touched.parent_id && Boolean(formik.errors.parent_id)}>
+              <InputLabel htmlfor="unit">Select parent unit</InputLabel>
 
-              <Select id="unit" name="parent_id" label="Select unit" value={formik.values.unit} onChange={formik.handleChange}>
+              <Select id="unit" name="parent_id" label="Select parent unit" value={formik.values.parent_id} onChange={formik.handleChange}>
                 {unitss.length === 0 ? (
                   <Typography variant="body2" sx={{ padding: 1 }}>
                     Unit is not found
@@ -117,30 +116,6 @@ export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handl
                   {formik.errors.name}
                 </FormHelperText>
               )}
-            </FormControl>
-
-            <FormControl fullWidth error={formik.touched.manager && Boolean(formik.errors.manager)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlfor="manager">Unit manager (optional)</InputLabel>
-
-              <Select
-                id="manager"
-                name="manager"
-                label="Unit manager (optional)"
-                value={formik.values.manager}
-                onChange={formik.handleChange}
-              >
-                {managers.length === 0 ? (
-                  <Typography variant="body2" sx={{ padding: 1 }}>
-                    Manager not found
-                  </Typography>
-                ) : (
-                  managers?.map((manager, index) => (
-                    <MenuItem key={index} value={manager.id}>
-                      {manager.user.name}
-                    </MenuItem>
-                  ))
-                )}
-              </Select>
             </FormControl>
 
             <FormControl fullWidth error={formik.touched.description && Boolean(formik.errors.description)} sx={{ marginTop: 3 }}>

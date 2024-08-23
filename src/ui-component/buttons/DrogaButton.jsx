@@ -8,8 +8,8 @@ const DrogaButton = ({ title, sx, onPress, icon, type, ...props }) => {
     <AnimateButton>
       <Button
         type={type ? type : 'button'}
-        {...props}
         variant="contained"
+        {...props}
         sx={{ borderRadius: 2, padding: 1, px: 2, ...sx }}
         onClick={onPress}
       >
@@ -20,7 +20,7 @@ const DrogaButton = ({ title, sx, onPress, icon, type, ...props }) => {
 };
 
 DrogaButton.propTypes = {
-  title: PropTypes.oneOf([PropTypes.string, PropTypes.object]),
+  title: PropTypes.string,
   sx: PropTypes.object,
   onPress: PropTypes.func
 };

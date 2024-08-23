@@ -12,7 +12,7 @@ const icons = {
   IconUsersGroup
 };
 
-// ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
+// ==============================|| ORGANIZATION PAGES MENU ITEMS ||============================== //
 
 const OrgStructure = {
   id: 'dep',

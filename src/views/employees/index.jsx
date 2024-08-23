@@ -369,7 +369,7 @@ const Employees = () => {
                 ) : data.length === 0 ? (
                   <TableRow sx={{ padding: 4 }}>
                     <TableCell colSpan={7} sx={{ border: 0 }}>
-                      <Typography variant="body2">Employees not found</Typography>
+                      <Typography variant="body2">Employee not found</Typography>
                     </TableCell>
                   </TableRow>
                 ) : (

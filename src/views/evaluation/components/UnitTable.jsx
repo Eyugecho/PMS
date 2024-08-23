@@ -19,6 +19,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import Backend from 'services/backend';
 import PlanTable from './PlanTable';
+import GetToken from 'utils/auth-token';
 
 const UnitTable = ({ units }) => {
   const theme = useTheme();
@@ -37,9 +38,9 @@ const UnitTable = ({ units }) => {
     }
   };
 
-  const handleFetchingUnitPlan = (unitId) => {
+  const handleFetchingUnitPlan = async (unitId) => {
     setLoading(true);
-    const token = localStorage.getItem('token');
+    const token = await GetToken();
     const Api = Backend.api + Backend.getUnitTarget + unitId;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -55,10 +56,8 @@ const UnitTable = ({ units }) => {
       .then((response) => {
         if (response.success) {
           setData(response.data);
-          setLoading(false);
           setError(false);
         } else {
-          setLoading(false);
           setError(false);
           toast.warning(response.data.message);
         }
@@ -66,12 +65,14 @@ const UnitTable = ({ units }) => {
       .catch((error) => {
         toast.warning(error.message);
         setError(true);
+      })
+      .finally(() => {
         setLoading(false);
       });
   };
 
   return (
-    <TableContainer component={Paper} sx={{ minHeight: '66dvh', border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 2 }}>
+    <TableContainer component={Paper} sx={{ minHeight: '66dvh', border: 0.4, borderColor: theme.palette.divider, borderRadius: 2 }}>
       <Table sx={{ minWidth: 650 }} aria-label="Organization unit table">
         <TableHead>
           <TableRow>
@@ -100,7 +101,9 @@ const UnitTable = ({ units }) => {
                     {selectedRow === unit?.id ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                   </IconButton>
 
-                  <Typography variant="subtitle1">{unit?.name}</Typography>
+                  <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                    {unit?.name}
+                  </Typography>
                 </TableCell>
                 <TableCell sx={{ border: 0 }}>
                   {unit?.manager?.user?.name} <Typography variant="body2">{unit?.manager?.position}</Typography>

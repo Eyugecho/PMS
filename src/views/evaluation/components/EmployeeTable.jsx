@@ -14,10 +14,11 @@ import {
   useTheme
 } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
-import Backend from 'services/backend';
 import { toast } from 'react-toastify';
+import Backend from 'services/backend';
 import PlanTable from './PlanTable';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import GetToken from 'utils/auth-token';
 
 const EmployeeTable = ({ employees }) => {
   const theme = useTheme();
@@ -27,18 +28,18 @@ const EmployeeTable = ({ employees }) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
 
-  const handleRowClick = (index, employeeId) => {
-    if (selectedRow === index) {
+  const handleRowClick = (employeeId) => {
+    if (selectedRow === employeeId) {
       setSelectedRow(null);
     } else {
-      setSelectedRow(index);
+      setSelectedRow(employeeId);
       handleFetchingUnitPlan(employeeId);
     }
   };
 
-  const handleFetchingUnitPlan = (employeeId) => {
+  const handleFetchingUnitPlan = async (employeeId) => {
     setLoading(true);
-    const token = localStorage.getItem('token');
+    const token = await GetToken();
     const Api = Backend.api + Backend.getEmployeeTarget + employeeId;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -70,7 +71,7 @@ const EmployeeTable = ({ employees }) => {
   };
 
   return (
-    <TableContainer component={Paper} sx={{ minHeight: '66dvh', border: 0.4, borderColor: theme.palette.grey[300], borderRadius: 2 }}>
+    <TableContainer component={Paper} sx={{ minHeight: '66dvh', border: 0.4, borderColor: theme.palette.divider, borderRadius: 2 }}>
       <Table sx={{ minWidth: 650 }} aria-label="Organization unit table">
         <TableHead>
           <TableRow>
@@ -85,7 +86,7 @@ const EmployeeTable = ({ employees }) => {
             <React.Fragment key={index}>
               <TableRow
                 sx={{
-                  backgroundColor: selectedRow == index ? theme.palette.grey[100] : theme.palette.background.default,
+                  backgroundColor: selectedRow == employee.id ? theme.palette.grey[100] : theme.palette.background.default,
                   ':hover': {
                     backgroundColor: theme.palette.grey[100],
                     color: theme.palette.background.default,
@@ -95,22 +96,24 @@ const EmployeeTable = ({ employees }) => {
                 }}
               >
                 <TableCell sx={{ display: 'flex', alignItems: 'center', border: 0 }}>
-                  <IconButton aria-label="expand row" size="small" onClick={() => handleRowClick(index, employee.id)}>
-                    {selectedRow === index ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                  <IconButton aria-label="expand row" size="small" onClick={() => handleRowClick(employee.id)}>
+                    {selectedRow === employee.id ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                   </IconButton>
 
-                  <Typography variant="subtitle1">{employee?.user?.name}</Typography>
+                  <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                    {employee?.user?.name}
+                  </Typography>
                 </TableCell>
                 <TableCell sx={{ border: 0 }}>{employee?.position}</TableCell>
                 <TableCell sx={{ border: 0 }}>{employee?.user?.email}</TableCell>
                 <TableCell sx={{ border: 0 }}>
-                  <Button variant="outlined" onClick={() => handleRowClick(index, employee.id)}>
+                  <Button variant="outlined" onClick={() => handleRowClick(employee.id)}>
                     View
                   </Button>
                 </TableCell>
               </TableRow>
 
-              {selectedRow == index && (
+              {selectedRow == employee.id && (
                 <TableRow sx={{ border: 0 }}>
                   <TableCell colSpan={7}>
                     <Collapse in={selectedRow !== null} timeout="auto" unmountOnExit>
@@ -135,7 +138,13 @@ const EmployeeTable = ({ employees }) => {
                       ) : (
                         <TableRow>
                           <TableCell colSpan={7} sx={{ width: '100%', border: 0 }}>
-                            <PlanTable plans={data} unitName={employee?.user.name} unitType={employee?.position} page="evaluation" />
+                            <PlanTable
+                              plans={data}
+                              unitName={employee?.user.name}
+                              unitType={employee?.position}
+                              page="evaluation"
+                              onRefresh={() => handleFetchingUnitPlan(selectedRow)}
+                            />
                           </TableCell>
                         </TableRow>
                       )}

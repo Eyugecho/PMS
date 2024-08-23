@@ -14,7 +14,9 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete }) => {
         <Typography variant="body1">KPI Name</Typography>
         {!plan?.is_distributed && <DotMenu orientation="horizontal" onEdit={onEdit} onDelete={onDelete}></DotMenu>}
       </Box>
-      <Typography variant="h3">{plan?.kpi?.name}</Typography>
+      <Typography variant="h3" color={theme.palette.text.primary} sx={{ marginTop: 0.6 }}>
+        {plan?.kpi?.name}
+      </Typography>
 
       <Grid container sx={{ paddingTop: 2 }}>
         <Grid item xs={6} sx={{ paddingY: 2.4 }}>
@@ -31,7 +33,7 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete }) => {
 
         <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 2 }}>
           <DrogaDonutChart value={plan?.weight} />
-          <Typography variant="subtitle1" sx={{ marginTop: 2 }}>
+          <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginTop: 2 }}>
             Weight
           </Typography>
         </Grid>
@@ -40,7 +42,9 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete }) => {
       <Grid container marginTop={1}>
         <Grid item xs={6}>
           <Box>
-            <Typography variant="body1">Frequency</Typography>
+            <Typography variant="body1" color={theme.palette.text.primary}>
+              Frequency
+            </Typography>
             <Typography variant="h4">{plan?.frequency?.name}</Typography>
           </Box>
         </Grid>
@@ -55,7 +59,9 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete }) => {
               backgroundColor: theme.palette.grey[50]
             }}
           >
-            <Typography variant="subtitle1">Target</Typography>
+            <Typography variant="subtitle1" color={theme.palette.text.primary}>
+              Target
+            </Typography>
             <Typography variant="h4">
               {plan?.total_target}
               {MeasuringUnitConverter(plan?.kpi?.measuring_unit?.name)}

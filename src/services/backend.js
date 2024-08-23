@@ -1,7 +1,7 @@
 const Backend = {
-  //   api: 'https://localhost:8000/api/',
-  api: 'https://droga-pms.amanueld.info/api/',
-  auth: 'https://droga-auth.amanueld.info/api/',
+  api: import.meta.env.VITE_PMS_URL,
+  auth: import.meta.env.VITE_AUTH_URL,
+  users: 'users',
   refreshToken: 'refresh',
   resetPassword: 'reset-password',
   setPassword: 'create-password',
@@ -12,6 +12,7 @@ const Backend = {
   removeProfileImage: 'remove-profile-image',
   roles: 'roles',
   units: 'units',
+  unitByTypes: 'unit-by-type/',
   types: 'unit-types',
   employees: 'employees',
   employeeExcel: 'import-employee-excel',
@@ -36,6 +37,10 @@ const Backend = {
   getUnitTarget: 'get-tasks-by-unit/',
   getEmployeeTarget: 'get-tasks-by-employee/',
   evaluate: 'evaluate',
+  employeePerformance: 'employee-performance/',
+  unitPerformance: 'unit-performance/',
+  myPerformance: 'my-performance',
+  myUnitPerformance: 'my-unit-performance',
 
   /**Eyuel Endpoints */
   permissi: 'permissions',

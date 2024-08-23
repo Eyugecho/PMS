@@ -16,6 +16,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthContext } from 'context/AuthContext';
 import { useMemo, useState } from 'react';
 import { KPIProvider } from 'context/KPIProvider';
+import FiscalYearProvider from 'context/FiscalYearContext';
+import GetFiscalYear from 'utils/components/GetFiscalYear';
 
 // ==============================|| APP ||============================== //
 
@@ -43,6 +45,7 @@ const App = () => {
         <AuthContext.Provider value={authContext}>
           <KPIProvider>
             <QueryClientProvider client={queryClient}>
+              <GetFiscalYear />
               <CssBaseline />
               <NavigationScroll>
                 <RouterProvider router={router} />

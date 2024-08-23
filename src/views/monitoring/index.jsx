@@ -1,7 +1,7 @@
 import { Grid, Typography } from '@mui/material';
 import React from 'react';
 
-export const Monitoring = () => {
+const Monitoring = () => {
   return (
     <Grid>
       <Grid item={12}>
@@ -10,3 +10,5 @@ export const Monitoring = () => {
     </Grid>
   );
 };
+
+export default Monitoring;

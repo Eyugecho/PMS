@@ -2,13 +2,11 @@ import { Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
-import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 // project imports
-import { CssBaseline, styled, useTheme } from '@mui/material';
+import { styled, useTheme } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Customization from '../Customization';
@@ -75,7 +73,7 @@ const MainLayout = () => {
             width: {
               xl: leftDrawerOpened ? `calc(100% - ${drawerWidth}px)` : '100%',
               lg: leftDrawerOpened ? `calc(100% - ${drawerWidth}px)` : '100%',
-              md: '100%',
+              md: leftDrawerOpened ? `calc(100% - ${drawerWidth}px)` : '100%',
               sm: '100%',
               xs: '100%'
             },

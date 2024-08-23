@@ -24,6 +24,7 @@ import Transitions from 'ui-component/extended/Transitions';
 
 // assets
 import { IconPaperclip, IconShield, IconUser } from '@tabler/icons-react';
+import { Storage } from 'configration/storage';
 
 // ==============================|| PROFILE MENU ||============================== //
 
@@ -37,7 +38,7 @@ const ProfileSection = () => {
   const anchorRef = useRef(null);
 
   const handleLogout = async () => {
-    localStorage.clear();
+    Storage.clear();
     navigate('/login');
   };
 
@@ -110,7 +111,7 @@ const ProfileSection = () => {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard elevation={8} border={true} content={false} boxShadow shadow={theme.shadows[4]}>
-                  <Box sx={{ p: 2.6, pb: 2, borderBottom: 1.3, borderColor: theme.palette.grey[200] }}>
+                  <Box sx={{ p: 2.6, pb: 2, borderBottom: 1.3, borderColor: theme.palette.divider }}>
                     <Stack>
                       <Stack direction="row" spacing={0.5} alignItems="center">
                         <Typography variant="h4"> Abebe Bikila</Typography>
@@ -145,9 +146,15 @@ const ProfileSection = () => {
                           onClick={(event) => handleListItemClick(event, 0, '/account')}
                         >
                           <ListItemIcon>
-                            <IconUser stroke={1.8} size="1.4rem" color="black" />
+                            <IconUser stroke={1.8} size="1.4rem" style={{ color: theme.palette.text.primary }} />
                           </ListItemIcon>
-                          <ListItemText primary={<Typography variant="subtitle1">Account</Typography>} />
+                          <ListItemText
+                            primary={
+                              <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                                Account
+                              </Typography>
+                            }
+                          />
                         </ListItemButton>
 
                         <ListItemButton
@@ -158,9 +165,15 @@ const ProfileSection = () => {
                           onClick={(event) => handleListItemClick(event, 1, '#')}
                         >
                           <ListItemIcon>
-                            <IconPaperclip stroke={1.8} size="1.4rem" color="black" />
+                            <IconPaperclip stroke={1.8} size="1.4rem" style={{ color: theme.palette.text.primary }} />
                           </ListItemIcon>
-                          <ListItemText primary={<Typography variant="subtitle1">Terms and Conditions</Typography>} />
+                          <ListItemText
+                            primary={
+                              <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                                Terms and Conditions
+                              </Typography>
+                            }
+                          />
                         </ListItemButton>
 
                         <ListItemButton
@@ -171,12 +184,18 @@ const ProfileSection = () => {
                           onClick={(event) => handleListItemClick(event, 2, '#')}
                         >
                           <ListItemIcon>
-                            <IconShield stroke={1.8} size="1.4rem" color="black" />
+                            <IconShield stroke={1.8} size="1.4rem" style={{ color: theme.palette.text.primary }} />
                           </ListItemIcon>
-                          <ListItemText primary={<Typography variant="subtitle1">Privacy policy</Typography>} />
+                          <ListItemText
+                            primary={
+                              <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                                Privacy policy
+                              </Typography>
+                            }
+                          />
                         </ListItemButton>
                       </Box>
-                      <Box sx={{ mt: 2, px: 1, borderTop: 1.3, borderColor: theme.palette.grey[200] }}>
+                      <Box sx={{ mt: 2, px: 1, borderTop: 1.3, borderColor: theme.palette.divider }}>
                         <ListItemButton
                           sx={{
                             textAlign: 'center',
@@ -186,7 +205,13 @@ const ProfileSection = () => {
                           }}
                           onClick={handleLogout}
                         >
-                          <ListItemText primary={<Typography variant="body2">Sign out</Typography>} />
+                          <ListItemText
+                            primary={
+                              <Typography variant="body2" color={theme.palette.text.primary}>
+                                Sign out
+                              </Typography>
+                            }
+                          />
                         </ListItemButton>
                       </Box>
                     </List>

@@ -11,7 +11,9 @@ export const initialState = {
   borderRadius: config.borderRadius,
   backdropFilter: config.backdropFilter,
   opened: true,
-  systemTheme: 'light'
+  systemTheme: 'light',
+  fiscalYears: [],
+  selectedFiscalYear: ''
 };
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -49,6 +51,17 @@ const customizationReducer = (state = initialState, action) => {
       return {
         ...state,
         systemTheme: action.systemTheme
+      };
+    case actionTypes.SET_FISCAL_YEARS:
+      return {
+        ...state,
+        fiscalYears: action.fiscalYears
+      };
+
+    case actionTypes.SET_SELECTED_FISCAL_YEAR:
+      return {
+        ...state,
+        selectedFiscalYear: action.selectedFiscalYear
       };
     default:
       return state;

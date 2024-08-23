@@ -9,23 +9,19 @@ import {
   TableRow,
   Typography,
   useTheme,
-  TablePagination,
   IconButton,
   Menu,
   MenuItem,
   ListItemIcon,
   Avatar
 } from '@mui/material';
-import MoreHoriz from '@mui/icons-material/MoreHoriz';
+import { useNavigate } from 'react-router-dom';
+import { MoreVert } from '@mui/icons-material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useNavigate } from 'react-router-dom';
-import { MoreVert } from '@mui/icons-material';
 
-import { MoreVertOutlined } from '@mui/icons-material';
-
-const UnitsTable = ({ units, onEdit, onDelete, onPageChange, onRowsPerPageChange, pagination }) => {
+const UnitsTable = ({ units, onEdit, onDelete }) => {
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -82,7 +78,7 @@ const UnitsTable = ({ units, onEdit, onDelete, onPageChange, onRowsPerPageChange
         >
           <TableHead>
             <TableRow>
-              {['Unit Name', 'Unit Type', 'Manager', 'Actions'].map((header) => (
+              {['Unit Name', 'Parent Unit', 'Unit Type', 'Manager', 'Actions'].map((header) => (
                 <TableCell
                   key={header}
                   sx={{
@@ -130,6 +126,16 @@ const UnitsTable = ({ units, onEdit, onDelete, onPageChange, onRowsPerPageChange
                     {unit.name}
                   </Typography>
                 </TableCell>
+
+                <TableCell
+                  sx={{
+                    border: 0,
+                    padding: '12px 16px'
+                  }}
+                >
+                  {unit?.parent ? unit?.parent?.name : 'No Parent'}
+                </TableCell>
+
                 <TableCell
                   sx={{
                     border: 0,
@@ -200,15 +206,6 @@ const UnitsTable = ({ units, onEdit, onDelete, onPageChange, onRowsPerPageChange
             ))}
           </TableBody>
         </Table>
-        <TablePagination
-          component="div"
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          count={pagination.total}
-          rowsPerPage={pagination.per_page}
-          page={pagination.page}
-          onPageChange={onPageChange}
-          onRowsPerPageChange={onRowsPerPageChange}
-        />
       </TableContainer>
     </Paper>
   );

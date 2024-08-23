@@ -86,6 +86,7 @@ const AuthLogin = ({ ...others }) => {
         setSubmitting(false);
       }
     } catch (error) {
+      // if (response.status == 401)
       setStatus({ success: false });
       setErrors({ submit: error.message });
       setSubmitting(false);
