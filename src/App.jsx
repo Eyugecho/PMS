@@ -48,6 +48,7 @@ const App = () => {
             <NavigationScroll>
               <RouterProvider router={router} />
             </NavigationScroll>
+            <ToastContainer />
           </QueryClientProvider>
         </AuthContext.Provider>
       </ThemeProvider>

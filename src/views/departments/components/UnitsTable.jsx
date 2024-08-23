@@ -188,12 +188,12 @@ const UnitsTable = ({ units, onEdit, onDelete, onPageChange, onRowsPerPageChange
                       </ListItemIcon>
                       Edit
                     </MenuItem>
-                    <MenuItem onClick={handleDelete}>
+                    {/* <MenuItem onClick={handleDelete}>
                       <ListItemIcon>
                         <DeleteIcon fontSize="small" style={{ paddingRight: '4px', color: 'red' }} />
                       </ListItemIcon>
                       Delete
-                    </MenuItem>
+                    </MenuItem> */}
                   </Menu>
                 </TableCell>
               </TableRow>

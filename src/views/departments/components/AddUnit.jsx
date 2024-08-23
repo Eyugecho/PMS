@@ -65,7 +65,7 @@ export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handl
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
             <FormControl fullWidth error={formik.touched.unit && Boolean(formik.errors.unit)}>
-              <InputLabel htmlfor="unit">Select unit</InputLabel>
+              <InputLabel htmlfor="unit">Parent Unit</InputLabel>
 
               <Select id="unit" name="parent_id" label="Select unit" value={formik.values.unit} onChange={formik.handleChange}>
                 {unitss.length === 0 ? (
@@ -122,7 +122,7 @@ export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handl
               )}
             </FormControl>
 
-            <FormControl fullWidth error={formik.touched.manager && Boolean(formik.errors.manager)} sx={{ marginTop: 3 }}>
+            {/* <FormControl fullWidth error={formik.touched.manager && Boolean(formik.errors.manager)} sx={{ marginTop: 3 }}>
               <InputLabel htmlfor="manager">Unit manager (optional)</InputLabel>
 
               <Select
@@ -144,7 +144,7 @@ export const AddUnit = ({ add, isAdding, unitss, types, managers, onClose, handl
                   ))
                 )}
               </Select>
-            </FormControl>
+            </FormControl> */}
 
             <FormControl fullWidth error={formik.touched.description && Boolean(formik.errors.description)} sx={{ marginTop: 3 }}>
               <InputLabel htmlfor="description">Description (optional)</InputLabel>

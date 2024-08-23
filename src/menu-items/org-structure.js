@@ -25,50 +25,32 @@ const icons = {
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
 
-const OrgStructure = {
-  id: 'dep',
-  title: 'Organization Structure',
-  type: 'group',
-  children: [
 
-    {
-      id: 'units',
-      title: 'Units',
-      type: 'item',
-      icon: icons.IconBuildingSkyscraper,
-      url: '/units'
-    },
 
-    {
-      id: 'employees',
-      title: 'Employees',
-      requiredRole: 'Admin',
-      type: 'item',
-      url: '/employees',
-      requiredRoles: ['Admin'],
-      icon: icons.IconUsersGroup
-
-    }
-  ]
-};
 const auth = getRolesAndPermissionsFromToken()
 
 export const getOrgStructure = () => {
   let childrenTemp = []
+  auth.forEach(role => {
 
-  childrenTemp.push({
-    id: 'units',
-    title: 'Units',
-    type: 'item',
-    icon: icons.IconBuildingSkyscraper,
-    url: '/units'
+
+
+    if (role.permissions.find(per => per.name == "read:unit")) {
+      childrenTemp.push({
+        id: 'units',
+        title: 'Units',
+        type: 'item',
+        icon: icons.IconBuildingSkyscraper,
+        url: '/units'
+      })
+    }
   })
 
   auth.forEach(role => {
-    console.log("---------->", role.permissions)
 
 
-    if (role.permissions.find(per => per.name == "create:user")) {
+
+    if (role.permissions.find(per => per.name == "read:employee")) {
       childrenTemp.push({
         id: 'employees',
         title: 'Employees',
@@ -95,5 +77,3 @@ export const getOrgStructure = () => {
     ]
   }
 }
-
-export default OrgStructure;

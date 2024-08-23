@@ -1,20 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Table, TableBody, TableCell, Menu, MenuItem, Dialog, DialogTitle,
-  DialogActions, Button, DialogContent, TableHead, TableRow, IconButton,
-  TableContainer, Paper, useTheme, Box, CircularProgress, Typography, TextField,
-  ListItem
+  Table,
+  TableBody,
+  TableCell,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Button,
+  DialogContent,
+  TableHead,
+  TableRow,
+  IconButton,
+  TableContainer,
+  Paper,
+  useTheme,
+  Box,
+  CircularProgress,
+  Typography,
+  TextField,
+  ListItem,
+  ListItemIcon
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { toast } from 'react-toastify';
+import { MoreHoriz, MoreVert } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
 import Backend from 'services/backend';
 import Fallbacks from 'utils/components/Fallbacks';
-import { toast } from 'react-toastify';
-import { MoreHoriz } from '@mui/icons-material';
+import DeletePrompt from 'ui-component/modal/DeletePrompt';
 
-const RoleTable = ({ searchQuery}) => {
+const RoleTable = ({ searchQuery }) => {
   const theme = useTheme();
   const [roleLoading, setRoleLoading] = useState(true);
   const [roles, setRoles] = useState([]);
@@ -25,13 +43,10 @@ const RoleTable = ({ searchQuery}) => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const [editedRole, setEditedRole] = useState({ name: '' });
-
-  const filteredRoles = roles.filter((role) =>
-    role.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [deleteRole, setDeleteRole] = useState(false);
 
 
-
+  const filteredRoles = roles.filter((role) => role.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleFetchingRole = () => {
     setRoleLoading(true);
@@ -40,12 +55,12 @@ const RoleTable = ({ searchQuery}) => {
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     };
 
     fetch(Api, {
       method: 'GET',
-      headers: header,
+      headers: header
     })
       .then((response) => response.json())
       .then((response) => {
@@ -62,10 +77,6 @@ const RoleTable = ({ searchQuery}) => {
         toast(error.message);
       });
   };
-
-  useEffect(() => {
-    handleFetchingRole();
-  }, []);
 
   const handleMenuOpen = (event, index) => {
     setAnchorEl(event.currentTarget);
@@ -105,35 +116,34 @@ const RoleTable = ({ searchQuery}) => {
     setEditedRole((prev) => ({ ...prev, [name]: value }));
   };
 
-const handleSaveEdit = () => {
-  const token = localStorage.getItem('token');
-  const Api = Backend.auth + Backend.roles + `/${selectedRole.uuid}`;
-  const header = {
-    Authorization: `Bearer ${token}`,
-    accept: 'application/json',
-    'Content-Type': 'application/json',
-  };
+  const handleSaveEdit = () => {
+    const token = localStorage.getItem('token');
+    const Api = Backend.auth + Backend.roles + `/${selectedRole.uuid}`;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
 
-  fetch(Api, {
-    method: 'PATCH',
-    headers: header,
-    body: JSON.stringify(editedRole),
-  })
-    .then((response) => response.json())
-    .then((response) => {
-      if (response.success) {
-        toast('Role updated successfully');
-        handleFetchingRole();  // Re-fetch roles to update the table
-        handleCloseEditModal(); // Close the modal after successful update
-      } else {
-        toast('Error updating role');
-      }
+    fetch(Api, {
+      method: 'PATCH',
+      headers: header,
+      body: JSON.stringify(editedRole)
     })
-    .catch((error) => {
-      toast(error.message);
-    });
-};
-
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast('Role updated successfully');
+          handleFetchingRole(); // Re-fetch roles to update the table
+          handleCloseEditModal(); // Close the modal after successful update
+        } else {
+          toast('Error updating role');
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+      });
+  };
 
   const handleDelete = (roleId) => {
     const token = localStorage.getItem('token');
@@ -141,18 +151,19 @@ const handleSaveEdit = () => {
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     };
 
     fetch(Api, {
       method: 'DELETE',
-      headers: header,
+      headers: header
     })
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
-          setRoles((prevRoles) => prevRoles.filter(role => role.uuid !== roleId));
+          setRoles((prevRoles) => prevRoles.filter((role) => role.uuid !== roleId));
           toast('Role deleted successfully');
+          handleFetchingRole();
         } else {
           toast('Error deleting role');
         }
@@ -162,10 +173,9 @@ const handleSaveEdit = () => {
       });
   };
 
-  // Function to group permissions by their type
   const groupPermissionsByType = (permissions) => {
     return permissions.reduce((groups, permission) => {
-      const { type } = permission; // Assuming each permission object has a "type" property
+      const { type } = permission;
       if (!groups[type]) {
         groups[type] = [];
       }
@@ -173,6 +183,15 @@ const handleSaveEdit = () => {
       return groups;
     }, {});
   };
+
+    const handleRemoveEmployee = (role) => {
+      // setSelectedRow(role);
+      setDeleteRole(true);
+    };
+
+  useEffect(() => {
+    handleFetchingRole();
+  }, []);
 
   return (
     <TableContainer
@@ -195,7 +214,7 @@ const handleSaveEdit = () => {
                   background: theme.palette.grey[100],
                   color: '#000',
                   fontWeight: 'bold',
-                  
+
                   fontSize: '0.9rem',
                   borderBottom: `2px solid ${theme.palette.divider}`,
                   position: 'relative',
@@ -246,21 +265,39 @@ const handleSaveEdit = () => {
                   }
                 }}
               >
-                <TableCell >{role.name}</TableCell>
-                <TableCell >
+                <TableCell>{role.name}</TableCell>
+                <TableCell>
                   <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
-                    <MoreHoriz />
+                    <MoreVert />
                   </IconButton>
-                  <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedIndex === index} onClose={handleCloseMenu}>
-                    <ListItem onClick={() => handleOpenDetailModal(index)}>
-                      <InfoIcon fontSize="small" style={{ paddingRight: '4px', color: 'gray' }} /> Details
-                    </ListItem>
-                    <ListItem onClick={() => handleOpenEditModal(role)}>
-                      <EditIcon fontSize="small" style={{ paddingRight: '4px', color: '#11365A' }} /> Edit
-                    </ListItem>
-                    <ListItem onClick={() => handleDelete(role.uuid)}>
-                      <DeleteIcon fontSize="small" style={{ paddingRight: '4px', color: 'red' }} /> Delete
-                    </ListItem>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl) && selectedIndex === index}
+                    onClose={handleCloseMenu}
+                    sx={{
+                      '& .MuiPaper-root': {
+                        backdropFilter: 'blur(10px)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        borderRadius: 2,
+                        boxShadow: theme.shadows[1]
+                      }
+                    }}
+                  >
+                    <MenuItem onClick={() => handleOpenDetailModal(index)}>
+                      <ListItemIcon>
+                        <InfoIcon fontSize="small" style={{ paddingRight: '4px', color: 'gray' }} /> Details
+                      </ListItemIcon>
+                    </MenuItem>
+                    <MenuItem onClick={() => handleOpenEditModal(role)}>
+                      <ListItemIcon>
+                        <EditIcon fontSize="small" style={{ paddingRight: '4px', color: '#11365A' }} /> Edit
+                      </ListItemIcon>
+                    </MenuItem>
+                    <MenuItem onClick={() => handleDelete(role.uuid)}>
+                      <ListItemIcon>
+                        <DeleteIcon fontSize="small" style={{ paddingRight: '4px', color: 'red' }} /> Delete
+                      </ListItemIcon>
+                    </MenuItem>
                   </Menu>
                 </TableCell>
               </TableRow>
@@ -289,7 +326,6 @@ const handleSaveEdit = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Assigned Permission</TableCell>
-                      {/* <TableCell>Assigned User</TableCell> */}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -298,7 +334,6 @@ const handleSaveEdit = () => {
                         perms.map((perm, index) => (
                           <TableRow key={index}>
                             <TableCell>{perm.name}</TableCell>
-                            {/* <TableCell>{type}</TableCell> */}
                           </TableRow>
                         ))
                       )
@@ -351,6 +386,19 @@ const handleSaveEdit = () => {
           </Button>
         </DialogActions>
       </Dialog>
+{/* 
+      {deleteRole && (
+        <DeletePrompt
+          type="Delete"
+          open={deleteRole}
+          title="Removing Role"
+          description={`Are you sure you want to remove ` + `/${roleId}`}
+          onNo={() => setDeleteRole(false)}
+          onYes={() => handleDelete()}
+          deleting={deleting}
+          handleClose={() => setDelete(false)}
+        />
+      )} */}
     </TableContainer>
   );
 };

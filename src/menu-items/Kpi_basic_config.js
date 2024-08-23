@@ -28,21 +28,15 @@ const icons = {
 
 // ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
 
+
+
 const Kpi_basic_config = {
   id: 'Kpi_basic_config',
   title: 'Planning',
   type: 'group',
-  // requiredRoles: ['Admin'],
-  children: [
-    // {
-    //   id: 'basic-config',
-    //   title: 'Pre-Setups',
-    //   type: 'item',
-    //   url: '/basic-config/basic-config-creation',
-    //   icon: icons.IconSettingsStar
 
-    //   // target: true
-    // },
+  children: [
+
     {
       id: 'kpi',
       title: 'Kpi Managment',
@@ -50,7 +44,6 @@ const Kpi_basic_config = {
       url: '/kpi/kpi-managment',
       icon: icons.IconFileReport,
 
-      // target: true
     },
 
 
@@ -67,24 +60,17 @@ const Kpi_basic_config = {
       title: 'Monitoring',
       type: 'collapse',
       icon: icons.IconBrandCampaignmonitor,
-      children: [
-        {
+      children: [{
           id: 'daily-activity',
           title: 'Daily Activity Settings',
           type: 'item'
-          // url: '/kpi/kpi-managment',
-          // icon: icons.IconReport,
 
-          // target: true
         },
         {
           id: 'moitoring-evaluation',
           title: 'Mointoring & Evaluation',
           type: 'item'
-          // url: '/kpi/kpi-managment',
-          // icon: icons.IconReport,
 
-          // target: true
         }
       ]
     },
@@ -94,24 +80,23 @@ const Kpi_basic_config = {
       title: 'Approval Managment',
       type: 'collapse',
       icon: icons.IconDashboard,
-      children: [
-        {
+      children: [{
           id: 'approvals',
           title: 'Approvals',
           type: 'item',
-          // url: '/kpi/kpi-managment',
+
           icon: icons.IconReport
 
-          // target: true
+
         },
         {
           id: 'feedbacks',
           title: 'Feedbacks',
           type: 'item',
-          // url: '/kpi/kpi-managment',
+
           icon: icons.IconReport
 
-          // target: true
+
         }
       ]
     },
@@ -119,10 +104,10 @@ const Kpi_basic_config = {
       id: 'grading-ranking',
       title: 'Grading & Ranking',
       type: 'item',
-      // url: '/basic-config/basic-config-creation',
+
       icon: icons.IconReport
 
-      // target: true
+
     }
   ]
 };
