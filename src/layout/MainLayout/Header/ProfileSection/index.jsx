@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import {
   Box,
+  Chip,
   ClickAwayListener,
   IconButton,
   List,
@@ -31,6 +32,7 @@ import { Storage } from 'configration/storage';
 const ProfileSection = () => {
   const theme = useTheme();
   const customization = useSelector((state) => state.customization);
+  const user = useSelector((state) => state.user.user); // signed in user information
   const navigate = useNavigate();
 
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -114,9 +116,13 @@ const ProfileSection = () => {
                   <Box sx={{ p: 2.6, pb: 2, borderBottom: 1.3, borderColor: theme.palette.divider }}>
                     <Stack>
                       <Stack direction="row" spacing={0.5} alignItems="center">
-                        <Typography variant="h4"> Abebe Bikila</Typography>
+                        <Typography variant="h4"> {`${user ? user.name : 'Your name'}`}</Typography>
                       </Stack>
-                      <Typography variant="caption">Admin</Typography>
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ marginTop: 1.6 }}>
+                        {user?.roles?.map((role, index) => (
+                          <Chip key={index} label={role?.name} />
+                        ))}
+                      </Stack>
                     </Stack>
                   </Box>
 

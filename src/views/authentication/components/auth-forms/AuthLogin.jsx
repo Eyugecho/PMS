@@ -21,7 +21,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import config from '../../../../configration/config';
 import { decodeToken, hasRole } from '../../../../store/permissionUtils';
-import { setUser } from '../../../../store/actions/actions';
+import { SET_USER, setUser } from '../../../../store/actions/actions';
 import { AuthContext } from 'context/AuthContext';
 import { Storage } from 'configration/storage';
 
@@ -71,7 +71,7 @@ const AuthLogin = ({ ...others }) => {
             Storage.setItem('token', access_token);
             Storage.setItem('tokenExpiration', expirationTime);
 
-            dispatch(setUser(user));
+            dispatch(setUser({ type: SET_USER, user: user }));
             signin();
             navigate('/');
           } else {
