@@ -1,12 +1,26 @@
-import React ,{useEffect, useState}from 'react';
-import { Modal, Box, Button, TextField, Checkbox, FormControlLabel,CircularProgress, Typography, Card, Grid, useTheme } from '@mui/material';
-import { Formik, Form, Field } from 'formik';
+import React, { useEffect, useState } from 'react';
+import {
+  Modal,
+  Box,
+  Button,
+  TextField,
+  Checkbox,
+  FormControlLabel,
+  CircularProgress,
+  Typography,
+  Card,
+  Grid,
+  useTheme
+} from '@mui/material';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Formik, Form, Field, FieldArray } from 'formik';
 import Fallbacks from 'utils/components/Fallbacks';
 import * as Yup from 'yup';
 
 const roleSchema = Yup.object().shape({
   roleName: Yup.string().required('Role name is required'),
-  permissions: Yup.array().of(Yup.string()).min(1, 'At least one permission is required'),
+  permissions: Yup.array().of(Yup.string()).min(1, 'At least one permission is required')
 });
 
 const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
@@ -17,13 +31,10 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
     if (Object.keys(permissions).length === 0) {
       // fetchPermissions();
       setPermissionLoading(false);
-
     } else {
       setPermissionLoading(false);
     }
-  }
-  , []);
-
+  }, [permissions]);
 
   const theme = useTheme();
 
@@ -55,19 +66,36 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
         <Formik
           initialValues={{ roleName: '', permissions: [] }}
           validationSchema={roleSchema}
-          onSubmit={(values, { resetForm }) => {
-            onSave(values);
-            resetForm();
-            handleClose(); // Close the modal after saving
+          onSubmit={(values, { resetForm, setSubmitting, setFieldError }) => {
+            // Check if no permissions are selected
+            if (values.permissions.length === 0) {
+              setFieldError('permissions', 'Please select at least one permission.');
+              setSubmitting(false); // Stop the form submission
+              return;
+            }
+
+            // If permissions are selected, proceed with saving
+            onSave(values)
+              .then(() => {
+                resetForm();
+                handleClose(); // Close the modal after saving
+                toast.success('Role saved successfully!');
+              })
+              .catch(() => {
+                toast.error('Failed to save role. Please try again.');
+              })
+              .finally(() => {
+                setSubmitting(false); // Stop loading
+              });
           }}
         >
-          {({ values, handleChange, errors, touched }) => (
+          {({ values, setFieldValue, errors, touched }) => (
             <Form>
               <TextField
                 name="roleName"
                 label="New Role"
                 value={values.roleName}
-                onChange={handleChange}
+                onChange={(e) => setFieldValue('roleName', e.target.value)}
                 error={touched.roleName && Boolean(errors.roleName)}
                 helperText={touched.roleName && errors.roleName}
                 margin="normal"
@@ -86,8 +114,8 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
                     <CircularProgress size={20} />
                   </Box>
                 ) : error ? (
-                  <Fallbacks severity="error" title="Server error" description="There is error fetching Permissions" />
-                ) : permissions.length === 0 ? (
+                  <Fallbacks severity="error" title="Server error" description="There is an error fetching Permissions" />
+                ) : Object.keys(permissions).length === 0 ? (
                   <Fallbacks
                     severity="info"
                     title="No Permissions Found"
@@ -95,40 +123,69 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
                     sx={{ paddingTop: 6 }}
                   />
                 ) : (
-                  Object.keys(permissions).map((type) => (
-                    <Grid item xs={12} sm={6} md={3} key={type}>
-                      <Card sx={{ p: 0.5, mb: 1, backgroundColor: theme.palette.grey[100] }}>
-                        <Typography variant="h6">{type.charAt(0).toUpperCase() + type.slice(1)}</Typography>
-                        {Array.isArray(permissions[type]) &&
-                          permissions[type].map((perm) => (
-                            <FormControlLabel
-                              key={perm.id}
-                              control={
-                                <Field
-                                  type="checkbox"
-                                  name="permissions"
-                                  value={perm.name}
-                                  as={Checkbox}
-                                  checked={values.permissions.includes(perm.name)}
-                                  onChange={handleChange}
+                  <FieldArray
+                    name="permissions"
+                    render={({ push, remove }) =>
+                      Object.keys(permissions).map((type) => (
+                        <Grid item xs={12} sm={6} md={3} key={type}>
+                          <Card sx={{ p: 0.5, mb: 1, backgroundColor: theme.palette.grey[100] }}>
+                            <Typography variant="h6">{type.charAt(0).toUpperCase() + type.slice(1)}</Typography>
+                            {Array.isArray(permissions[type]) &&
+                              permissions[type].map((perm) => (
+                                <FormControlLabel
+                                  key={perm.id}
+                                  control={
+                                    <Field
+                                      type="checkbox"
+                                      name="permissions"
+                                      value={perm.name}
+                                      as={Checkbox}
+                                      checked={values.permissions.includes(perm.name)}
+                                      onChange={() => {
+                                        if (values.permissions.includes(perm.name)) {
+                                          setFieldValue(
+                                            'permissions',
+                                            values.permissions.filter((p) => p !== perm.name)
+                                          );
+                                        } else {
+                                          setFieldValue('permissions', [...values.permissions, perm.name]);
+                                        }
+                                      }}
+                                    />
+                                  }
+                                  label={perm.name}
                                 />
-                              }
-                              label={perm.name}
-                            />
-                          ))}
-                      </Card>
-                    </Grid>
-                  ))
+                              ))}
+                          </Card>
+                        </Grid>
+                      ))
+                    }
+                  />
                 )}
               </Grid>
               <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
                 Save
               </Button>
               <Button onClick={handleClose} variant="" sx={{ mt: 2, ml: 2 }}>
-                {' '}
-                {/* Close modal */}
                 Close
               </Button>
+
+              {errors.permissions && touched.permissions && (
+                <Typography
+                  variant="body2"
+                  color="error"
+                  sx={{
+                    mt: 2,
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red background
+                    padding: '8px', // Padding around the text
+                    borderRadius: '4px', // Rounded corners
+                    border: '1px solid red', // Red border
+                    textAlign: 'center' // Center the text
+                  }}
+                >
+                  {errors.permissions}
+                </Typography>
+              )}
             </Form>
           )}
         </Formik>

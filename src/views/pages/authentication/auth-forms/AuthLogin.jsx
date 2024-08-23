@@ -293,7 +293,7 @@ import Google from 'assets/images/icons/social-google.svg';
 // config
 import config from '../../../../configration/config';
 import { decodeToken, hasRole, hasPermission } from '../../../../store/permissionUtils';
-import { setUser } from '../../../../store/actions';
+import { setUser } from '../../../../store/actions/actions';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();

@@ -7,11 +7,11 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 // project imports
 import { styled, useTheme } from '@mui/material';
+import { SET_MENU } from 'store/actions/actions';
+import { drawerWidth } from 'store/constant';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Customization from '../Customization';
-import { SET_MENU } from 'store/actions';
-import { drawerWidth } from 'store/constant';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   ...theme.typography.mainContent,

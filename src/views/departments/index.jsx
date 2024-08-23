@@ -31,6 +31,7 @@ import EditUnit from './components/EditUnit';
 import EditUnitType from './components/EditUnitType';
 import AddButton from 'ui-component/buttons/AddButton';
 import GetToken from 'utils/auth-token';
+import DrogaCard from 'ui-component/cards/DrogaCard';
 
 //================================ UNITS MANAGEMENT PAGE=====================
 const Units = () => {
@@ -351,10 +352,7 @@ const Units = () => {
 
   return (
     <PageContainer maxWidth="lg" title={'Units Managment'}>
-      <Paper
-        elevation={2}
-        style={{ marginLeft: '10px', padding: '0px', backgroundColor: '#fff', boxShadow: '0 4px 6px rgba(0.5, 0, 0, 0.1)' }}
-      >
+      <DrogaCard  sx={{ marginLeft:'10px' }}>
         <Grid
           container
           sx={{
@@ -537,7 +535,7 @@ const Units = () => {
           onClose={handleEditUnitTypeModalClose}
           onUpdate={handleUpdateUnitType}
         />
-      </Paper>
+      </DrogaCard>
     </PageContainer>
   );
 };

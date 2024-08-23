@@ -48,6 +48,7 @@ const Backend = {
   fiscal_years: 'fiscal-years',
   planning_periods: 'create-planning-period',
   frequency_period_values: 'create-frequency-definition-period',
-  evaluation_periods: 'create-evaluation-period'
+  evaluation_periods: 'create-evaluation-period',
+  eodfetch: 'end-of-day-activities'
 };
 export default Backend;

@@ -22,38 +22,47 @@ const icons = {
   IconListCheck,
   IconHazeMoon
 };
+import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
+const auth = getRolesAndPermissionsFromToken();
 
-const dashboard = {
-  id: 'dashboard',
-  title: 'Dashboard',
-  type: 'group',
+export const dashboard = () => {
+  let childrenTemp = [];
 
-  children: [
-    {
-      id: 'default',
-      title: 'Home',
-      type: 'item',
-      url: '/planning',
-      icon: icons.IconHome,
-      breadcrumbs: false
-    },
-    {
-      id: 'kpi-management',
-      title: 'KPI Managment',
-      type: 'item',
-      url: '/kpi/kpi-managment',
-      icon: icons.IconGauge
-    },
-    {
-      id: 'planning',
-      title: 'Planning',
-      type: 'item',
-      url: '/planning',
-      icon: icons.IconLayoutCards
-    },
+  childrenTemp.push({
+    id: 'default',
+    title: 'Home',
+    type: 'item',
+    url: '/planning',
+    icon: icons.IconHome,
+    breadcrumbs: false
+  });
+  auth.forEach((role) => {
+    if (role.permissions.find((per) => per.name == 'read:kpi')) {
+      childrenTemp.push({
+        id: 'kpi-management',
+        title: 'KPI Managment',
+        type: 'item',
+        url: '/kpi/kpi-managment',
+        icon: icons.IconGauge
+      });
+    }
+  });
 
+  auth.forEach((role) => {
+    if (role.permissions.find((per) => per.name == 'read:targetsetting')) {
+      childrenTemp.push({
+        id: 'planning',
+        title: 'Planning',
+        type: 'item',
+        url: '/planning',
+        icon: icons.IconLayoutCards
+      });
+    }
+  });
+
+  childrenTemp.push(
     {
       id: 'mointoring',
       title: 'Monitoring',
@@ -65,14 +74,9 @@ const dashboard = {
           id: 'daily-activity',
           title: 'Daily Activity',
           type: 'item',
-          url: '/monitoring/daily'
+          url: 'placeholder'
         },
-        {
-          id: 'eod_activity',
-          title: 'EOD Activity',
-          type: 'item',
-          url: '/Eod'
-        }
+        { id: 'eod_activity', title: 'EOD Activity', type: 'item', url: '/Eod' }
       ]
     },
 
@@ -111,7 +115,12 @@ const dashboard = {
       url: 'performance',
       icon: icons.IconTrophy
     }
-  ]
-};
+  );
 
-export default dashboard;
+  return {
+    id: 'dashboard',
+    title: 'Dashboard',
+    type: 'group',
+    children: [...childrenTemp]
+  };
+};

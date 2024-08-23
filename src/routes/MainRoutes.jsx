@@ -33,6 +33,7 @@ const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
 const EodActivityPage = Loadable(lazy(() => import('views/Eod')));
 const RolePermission = Loadable(lazy(() => import('views/roles_permission/Page')));
+const Unauthorized = Loadable(lazy(() => import('utils/unautorized')));
 
 // sample page routingkpiMange-view
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
@@ -78,7 +79,7 @@ const MainRoutes = {
     {
       path: 'employees',
       element: (
-        <Protected>
+        <Protected >
           <Employees />
         </Protected>
       )
@@ -297,6 +298,10 @@ const MainRoutes = {
       )
     },
 
+    {
+      path: 'unauthorized',
+      element: <Unauthorized />
+    },
     {
       path: 'sample-page',
       element: (

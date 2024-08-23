@@ -14,6 +14,9 @@ const FiscalYearMenu = () => {
     dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: event.target.value });
   };
 
+  console.log(years);
+  console.log(selectedYear);
+
   return (
     <div>
       <FormControl variant="standard" sx={{ m: 1, ml: 4, minWidth: 120 }}>

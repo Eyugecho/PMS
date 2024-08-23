@@ -25,6 +25,8 @@ const GetFiscalYear = () => {
         const data = await response.json();
 
         if (data.success) {
+          console.log(data.data);
+          console.log(data.data[0]);
           dispatch({ type: SET_FISCAL_YEARS, fiscalYears: data.data });
           data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
         } else {

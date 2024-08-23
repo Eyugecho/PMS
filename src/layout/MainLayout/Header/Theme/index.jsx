@@ -2,7 +2,7 @@ import React from 'react';
 import { IconButton } from '@mui/material';
 import { IconMoon, IconSun } from '@tabler/icons-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_SYSTEM_THEME } from 'store/actions';
+import { SET_SYSTEM_THEME } from 'store/actions/actions';
 
 const ToggleTheme = () => {
   const systemTheme = useSelector((state) => state.customization.systemTheme);

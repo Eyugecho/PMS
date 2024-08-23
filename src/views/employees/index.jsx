@@ -26,6 +26,7 @@ import UpdateEmployee from './components/UpdateEmployee';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import UploadFile from 'ui-component/modal/UploadFile';
 import axios from 'axios';
+import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 const AddEmployeeOptions = ['Add Employee', 'Import From Excel'];
 
@@ -54,6 +55,9 @@ const Employees = () => {
   const [deleting, setDeleting] = useState(false);
   const [importExcel, setImportExcel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const auth = getRolesAndPermissionsFromToken();
+
+  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
 
   const handleOpenDialog = () => {
     setImportExcel(true);
@@ -334,8 +338,7 @@ const Employees = () => {
               <Search title="Filter Employees" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}>
                 <FilterEmployees />
               </Search>
-
-              <SplitButton options={AddEmployeeOptions} handleSelection={(value) => handleEmployeeAdd(value)} />
+              {hasPermission && <SplitButton options={AddEmployeeOptions} handleSelection={(value) => handleEmployeeAdd(value)} />}
             </Grid>
           </Grid>
 
