@@ -37,10 +37,10 @@ export const Accounts = () => {
   });
 
   childrenTemp.push({
-    id: 'reset-password',
-    title: 'Password Reset',
+    id: 'users',
+    title: 'Users',
     type: 'item',
-    url: '/reset-password'
+    url: '/users'
   });
   return {
     id: 'accounts',
