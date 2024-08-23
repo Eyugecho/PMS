@@ -13,7 +13,6 @@ export const decodeJWT = (token) => {
 
     return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error('Failed to decode token:', error);
     return null;
   }
 };
@@ -24,12 +23,9 @@ export const getRolesAndPermissionsFromToken = () => {
 
   try {
     const decodedToken = decodeJWT(token); // Decode the token
-    console.log('Decoded Token:', decodedToken); // Log the decoded token
     const roles = decodedToken.roles || []; // Extract roles
-    console.log('Extracted Roles:', roles); // Log the roles to confirm extraction
     return roles;
   } catch (error) {
-    console.error('Failed to decode token:', error);
     return null;
   }
 };

@@ -22,7 +22,7 @@ const KPICard = ({ kpi, target, actual, performance }) => {
           <Typography variant="caption">Actual</Typography>
         </Grid>
         <Grid item xs={12} sm={6} md={2} lg={2} xl={2}>
-          <DrogaDonutChart value={performance} size={26} />
+          <DrogaDonutChart value={performance} size={30} />
         </Grid>
       </Grid>
     </DrogaCard>

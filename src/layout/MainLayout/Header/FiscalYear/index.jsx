@@ -14,23 +14,22 @@ const FiscalYearMenu = () => {
     dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: event.target.value });
   };
 
-  console.log(years);
-  console.log(selectedYear);
-
   return (
     <div>
-      <FormControl variant="standard" sx={{ m: 1, ml: 4, minWidth: 120 }}>
-        <Typography variant="caption">Fiscal year</Typography>
-        <Select value={selectedYear} onChange={handleSelection} inputProps={{ 'aria-label': 'fiscal year' }}>
-          {years?.map((year) => (
-            <MenuItem key={year.id} value={year}>
-              <Typography variant="body2" sx={{ color: theme.palette.text.primary }}>
-                {year.year}
-              </Typography>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      {years && (
+        <FormControl variant="standard" sx={{ m: 1, ml: 4, minWidth: 120 }}>
+          <Typography variant="caption">Fiscal year</Typography>
+          <Select value={selectedYear} onChange={handleSelection} inputProps={{ 'aria-label': 'fiscal year' }}>
+            {years?.map((year) => (
+              <MenuItem key={year.id} value={year}>
+                <Typography variant="body2" sx={{ color: theme.palette.text.primary }}>
+                  {year.year}
+                </Typography>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
     </div>
   );
 };

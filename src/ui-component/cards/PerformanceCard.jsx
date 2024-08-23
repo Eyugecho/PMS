@@ -5,10 +5,10 @@ import PropTypes from 'prop-types';
 
 const PerformanceCard = ({ isEvaluated, performance, frequency }) => {
   const theme = useTheme();
-  console.log(isEvaluated);
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 2 }}>
-      <DrogaDonutChart value={performance} />
+      <DrogaDonutChart value={performance} size={42} />
 
       <Typography variant="h4" sx={{ textTransform: 'capitalize', color: theme.palette.text.primary, marginTop: 1 }}>
         {frequency}

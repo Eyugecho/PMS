@@ -3,7 +3,7 @@ import { useTheme } from '@mui/material';
 
 const DrogaDonutChart = ({ value, size }) => {
   const theme = useTheme();
-  const strokeWidth = size && size > 0 ? size / 2.4 : 16;
+  const strokeWidth = size && size > 0 ? size / 2.8 : 16;
   const radius = size && size > 0 ? size : 42;
   const normalizedRadius = radius - strokeWidth / 2;
   const circumference = normalizedRadius * 2 * Math.PI;
@@ -28,7 +28,7 @@ const DrogaDonutChart = ({ value, size }) => {
         y="50%"
         dy=".3em"
         textAnchor="middle"
-        fontSize={`${size && size > 0 ? size / 2 : 20}px`}
+        fontSize={`${size && size > 0 ? size / 2.4 : 20}px`}
         fill={theme.palette.text.primary}
       >
         {`${value}%`}

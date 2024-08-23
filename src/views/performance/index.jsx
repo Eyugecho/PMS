@@ -134,6 +134,14 @@ const Performance = () => {
   };
 
   useEffect(() => {
+    if (mounted) {
+      selectedUnit && handleFetchingPerformance(selectedUnit);
+    } else {
+      setMounted(true);
+    }
+  }, [selectedYear]);
+
+  useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       handleFetchingUnits(tab);
     }, 800);
@@ -219,7 +227,6 @@ const Performance = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       )}
-      <ToastContainer />
     </PageContainer>
   );
 };

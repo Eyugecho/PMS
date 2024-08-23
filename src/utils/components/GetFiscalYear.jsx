@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { SET_FISCAL_YEARS, SET_SELECTED_FISCAL_YEAR } from 'store/actions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Backend from 'services/backend';
 import GetToken from '../auth-token';
 
 const GetFiscalYear = () => {
+  const selectedFiscal = useSelector((state) => state.customization.selectedFiscalYear);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -25,10 +26,10 @@ const GetFiscalYear = () => {
         const data = await response.json();
 
         if (data.success) {
-          console.log(data.data);
-          console.log(data.data[0]);
           dispatch({ type: SET_FISCAL_YEARS, fiscalYears: data.data });
-          data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
+          if (!selectedFiscal) {
+            data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
+          }
         } else {
           toast.error('Failed to fetch fiscal year data');
         }

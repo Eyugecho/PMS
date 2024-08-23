@@ -21,8 +21,7 @@ const PerKPI = ({ isLoading, performance }) => {
                 const periodName = Object.keys(period)[0];
                 const [text, number] = periodName.match(/[a-zA-Z]+|[0-9]+/g);
                 const formattedQuarterName = `${text} ${number}`;
-                console.log(period[periodName]?.per_kpi);
-                
+
                 return (
                   <Box key={index} marginY={0.6}>
                     {period[periodName]?.per_kpi.length > 0 && (
@@ -37,7 +36,7 @@ const PerKPI = ({ isLoading, performance }) => {
                             kpi={kpi.name}
                             target={kpi.target}
                             actual={kpi.actual_value}
-                            performance={kpi.kpi_performance}
+                            performance={parseFloat(kpi.kpi_performance).toFixed(1)}
                           />
                         ))}
                       </React.Fragment>

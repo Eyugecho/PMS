@@ -23,8 +23,8 @@ export const SET_MENU_COLOR = 'SET_MENU_COLOR';
 export const SET_MENU_BACKGROUND = 'SET_MENU_BACKGROUND';
 export const SET_BORDER_RADIUS = 'SET_BORDER_RADIUS';
 export const SET_FONT_FAMILY = 'SET_FONT_FAMILY';
-export const SET_FISCAL_YEARS = 'SET_FISCAL_YEARS';
-export const SET_SELECTED_FISCAL_YEAR = 'SET_SELECTED_FISCAL_YEAR';
+export const SET_FISCAL_YEARS = '@customization/SET_FISCAL_YEARS';
+export const SET_SELECTED_FISCAL_YEAR = '@customization/SET_SELECTED_FISCAL_YEAR';
 
 export const setUser = (user) => ({
   type: SET_USER,

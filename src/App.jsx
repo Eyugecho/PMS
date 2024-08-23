@@ -18,7 +18,9 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthContext } from 'context/AuthContext';
 import { useEffect, useMemo, useState } from 'react';
 import { KPIProvider } from 'context/KPIProvider';
-import GetFiscalYear from 'utils/components/GetFiscalYear';
+import { toast, ToastContainer } from 'react-toastify';
+import Backend from 'services/backend';
+import GetToken from 'utils/auth-token';
 
 // ==============================|| APP ||============================== //
 
@@ -26,6 +28,8 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const customization = useSelector((state) => state.customization);
+  const selectedFiscal = useSelector((state) => state.customization.selectedFiscalYear);
+
   const [isSignedIn, setIsSignedIn] = useState(false);
   const dispatch = useDispatch();
 
@@ -59,10 +63,13 @@ const App = () => {
         const data = await response.json();
 
         if (data.success) {
-          console.log(data.data);
-          console.log(data.data[0]);
           dispatch({ type: SET_FISCAL_YEARS, fiscalYears: data.data });
-          data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
+          if (selectedFiscal) {
+            const selected = data?.data?.find((year, index) => year.id === selectedFiscal?.id);
+            console.log('we have selected year' + selected);
+
+            data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: selected });
+          }
         } else {
           toast.error('Failed to fetch fiscal year data');
         }
@@ -82,6 +89,7 @@ const App = () => {
               <CssBaseline />
               <NavigationScroll>
                 <RouterProvider router={router} />
+                <ToastContainer />
               </NavigationScroll>
             </QueryClientProvider>
           </KPIProvider>

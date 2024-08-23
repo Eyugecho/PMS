@@ -13,7 +13,7 @@ export const initialState = {
   opened: true,
   systemTheme: 'light',
   fiscalYears: [],
-  selectedFiscalYear: ''
+  selectedFiscalYear: {}
 };
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
