@@ -16,7 +16,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthContext } from 'context/AuthContext';
 import { useMemo, useState } from 'react';
 import { KPIProvider } from 'context/KPIProvider';
-import FiscalYearProvider from 'context/FiscalYearContext';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
 
 // ==============================|| APP ||============================== //

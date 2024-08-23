@@ -93,11 +93,10 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
   };
   return (
     <React.Fragment>
-      <TableContainer component={Paper} sx={{ minHeight: '64dvh', border: 0.4, borderColor: theme.palette.divider, borderRadius: 2 }}>
+      <TableContainer component={Paper} sx={{ minHeight: '42dvh' }}>
         <Table sx={{ minWidth: 650 }} aria-label="Organization plan table">
           <TableHead>
             <TableRow>
-              <TableCell>Fiscal Year</TableCell>
               <TableCell>KPI Name</TableCell>
               <TableCell>KPI Weights(%)</TableCell>
               <TableCell>Total Targets</TableCell>
@@ -124,11 +123,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                     <IconButton aria-label="expand row" size="small" onClick={() => handleRowClick(index)}>
                       {selectedRow === index ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                     </IconButton>
-                    <Typography variant="body2" sx={{ marginLeft: 2 }}>
-                      {plan?.fiscal_year.year}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ border: 0 }}>
+
                     <Typography variant="subtitle1" color={theme.palette.text.primary}>
                       {plan?.kpi?.name}
                     </Typography>

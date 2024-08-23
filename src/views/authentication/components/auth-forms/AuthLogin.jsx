@@ -50,46 +50,58 @@ const AuthLogin = ({ ...others }) => {
 
   const handleLogin = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
-      const response = await axios.post(`${config.API_URL}/login-with-email`, {
+      const data = {
         email: values.email,
         password: values.password
-      });
+      };
 
-      if (response.data.success) {
-        const { access_token, expires_in } = response.data.data;
+      fetch(`${config.API_URL}/login-with-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            const { access_token, expires_in } = response.data;
 
-        if (typeof access_token !== 'string') {
-          throw new Error('Invalid token format');
-        }
+            if (typeof access_token !== 'string') {
+              throw new Error('Invalid token format');
+            }
 
-        const decodedToken = decodeToken(access_token);
-        const user = {
-          id: decodedToken.sub,
-          name: decodedToken.name,
-          email: decodedToken.email,
-          roles: decodedToken.roles,
-          permissions: decodedToken.roles.flatMap((role) => role.permissions)
-        };
+            const decodedToken = decodeToken(access_token);
+            const user = {
+              id: decodedToken.sub,
+              name: decodedToken.name,
+              email: decodedToken.email,
+              roles: decodedToken.roles,
+              permissions: decodedToken.roles.flatMap((role) => role.permissions)
+            };
 
-        const ttl = new Date(expires_in * 1000);
-        const expirationTime = ttl.getTime();
-        Storage.setItem('token', access_token);
-        Storage.setItem('tokenExpiration', expirationTime);
+            const ttl = new Date(expires_in * 1000);
+            const expirationTime = ttl.getTime();
+            Storage.setItem('token', access_token);
+            Storage.setItem('tokenExpiration', expirationTime);
 
-        dispatch(setUser(user));
-        signin();
-
-        navigate('/');
-      } else {
-        setStatus({ success: false });
-        setErrors({ submit: response.data.data.message });
-        setSubmitting(false);
-      }
+            dispatch(setUser(user));
+            signin();
+            navigate('/');
+          } else {
+            setStatus({ success: false });
+            setErrors({ submit: response.data.message });
+            setSubmitting(false);
+          }
+        })
+        .catch((error) => {
+          setStatus({ success: false });
+          setErrors({ submit: error.message });
+          setSubmitting(false);
+        });
     } catch (error) {
-      // if (response.status == 401)
       setStatus({ success: false });
       setErrors({ submit: error.message });
       setSubmitting(false);
+      console.log(error);
     }
   };
 

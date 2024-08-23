@@ -208,7 +208,7 @@ const Performance = () => {
           )}
         </Grid>
       </Grid>
-      {!loading && (
+      {!loading && data.length > 0 && (
         <TablePagination
           component="div"
           rowsPerPageOptions={[10, 25, 50, 100]}

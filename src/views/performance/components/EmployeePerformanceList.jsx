@@ -39,7 +39,14 @@ const EmployeePerformanceList = ({ employees, onView, selected, isLoading, perfo
                     const [text, number] = periodName.match(/[a-zA-Z]+|[0-9]+/g);
                     const formattedQuarterName = `${text} ${number}`;
 
-                    return <PerformanceCard key={index} performance={period[periodName]?.overall} frequency={formattedQuarterName} />;
+                    return (
+                      <PerformanceCard
+                        key={index}
+                        isEvaluated={period[periodName].is_evaluated}
+                        performance={period[periodName]?.overall}
+                        frequency={formattedQuarterName}
+                      />
+                    );
                   })}
                 </Grid>
               </Grid>

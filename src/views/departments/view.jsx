@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, CircularProgress, Grid, IconButton, MenuItem, Typography, useTheme } from '@mui/material';
+import { Box, CircularProgress, Grid, MenuItem, Typography, useTheme } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import PageContainer from 'ui-component/MainPage';
 import Backend from 'services/backend';
@@ -10,32 +10,40 @@ import {
   IconChartDonut,
   IconDirection,
   IconDotsVertical,
-  IconEdit,
   IconMail,
   IconReplace,
   IconTargetArrow,
-  IconTrash,
   IconUser
 } from '@tabler/icons-react';
 import { formatDate } from 'utils/function';
 import { DetailInfo } from 'views/employees/components/DetailInfo';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
+import { AssignManager } from './components/AssignManager';
+import { useSelector } from 'react-redux';
+import { gridSpacing } from 'store/constant';
 import PlanTable from 'views/evaluation/components/PlanTable';
 import ActionMenu from 'ui-component/ActionMenu';
-import { AssignManager } from './components/AssignManager';
+import GetFiscalYear from 'utils/components/GetFiscalYear';
+import PerformanceCard from 'ui-component/cards/PerformanceCard';
+import DrogaCard from 'ui-component/cards/DrogaCard';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import Fallbacks from 'utils/components/Fallbacks';
+import PerKPI from 'ui-component/performance/PerKPI';
+import GetToken from 'utils/auth-token';
 
 const IconColor = 'black';
 
 const ViewUnit = () => {
   const { state } = useLocation();
   const theme = useTheme();
+  const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
-    pageSize: 20,
-    page: 1
+    page: 1,
+    per_page: 20
   });
 
   const [managers, setManagers] = useState([]);
@@ -110,6 +118,49 @@ const ViewUnit = () => {
         handlePrompts(error, 'error');
       });
   };
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [performance, setPerformance] = useState([]);
+
+  useEffect(() => {
+    const handleFetchingPerformance = async () => {
+      if (selectedYear) {
+        setIsLoading(true);
+        const token = await GetToken();
+        const Api = Backend.api + Backend.unitPerformance + `${state?.id}?fiscal_year_id=${selectedYear?.id}`;
+
+        const header = {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        };
+
+        fetch(Api, {
+          method: 'GET',
+          headers: header
+        })
+          .then((response) => response.json())
+          .then((response) => {
+            if (response.success) {
+              setPerformance(response.data.performance);
+            } else {
+              setPerformance([]);
+              toast.warning(response.data.message);
+            }
+          })
+          .catch((error) => {
+            setPerformance([]);
+            toast.warning(error.message);
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      } else {
+        return <GetFiscalYear />;
+      }
+    };
+    handleFetchingPerformance();
+  }, [selectedYear]);
 
   useEffect(() => {
     const handleFetchingUnitDetails = () => {
@@ -193,13 +244,6 @@ const ViewUnit = () => {
                     {state?.manager ? 'Change manager' : 'Assign Manager'}
                   </Typography>
                 </MenuItem>
-
-                <MenuItem sx={{ borderRadius: 2, padding: 1, paddingX: 2 }}>
-                  <IconEdit size={20} style={{ paddingRight: 2 }} />{' '}
-                  <Typography variant="body2" marginLeft={1}>
-                    Edit
-                  </Typography>
-                </MenuItem>
               </Box>
             </ActionMenu>
           </Box>
@@ -263,10 +307,6 @@ const ViewUnit = () => {
             }}
           >
             <Typography variant="h4">Unit KPI's and Targets</Typography>
-
-            <IconButton>
-              <IconDotsVertical size={18} />
-            </IconButton>
           </Box>
 
           <Box>
@@ -293,6 +333,58 @@ const ViewUnit = () => {
         </Grid>
       </Grid>
 
+      <Grid container sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: 2 }} spacing={gridSpacing}>
+        <Grid item xs={12} sm={12} md={4} lg={6} xl={6}>
+          <DrogaCard>
+            <Typography variant="h4">Overall Performance</Typography>
+
+            <Grid container>
+              <Grid item xs={12}>
+                {isLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 2 }}>
+                    <ActivityIndicator size={20} />
+                  </Box>
+                ) : performance.length > 0 ? (
+                  <Grid container sx={{ marginTop: 2, borderTop: 0.8, borderColor: theme.palette.divider, padding: 1 }}>
+                    <Grid item xs={12} sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                      {performance?.map((period, index) => {
+                        const periodName = Object.keys(period)[0];
+                        const [text, number] = periodName.match(/[a-zA-Z]+|[0-9]+/g);
+                        const formattedQuarterName = `${text} ${number}`;
+
+                        return (
+                          <PerformanceCard
+                            key={index}
+                            isEvaluated={period[periodName].is_evaluated}
+                            performance={period[periodName]?.overall}
+                            frequency={formattedQuarterName}
+                          />
+                        );
+                      })}
+                    </Grid>
+                  </Grid>
+                ) : (
+                  <Fallbacks
+                    severity="performance"
+                    title={`No employee performance report`}
+                    description={`The employee performances will be listed here`}
+                    sx={{ paddingTop: 2 }}
+                  />
+                )}
+              </Grid>
+            </Grid>
+          </DrogaCard>
+        </Grid>
+
+        <Grid item xs={12} sm={12} md={8} lg={6} xl={6}>
+          <DrogaCard>
+            <Typography variant="h4">Per KPI performance</Typography>
+
+            <PerKPI isLoading={isLoading} performance={performance} />
+          </DrogaCard>
+        </Grid>
+      </Grid>
+
       <AssignManager
         open={open}
         handleDialogClose={() => handleClose()}
@@ -304,7 +396,6 @@ const ViewUnit = () => {
         onTextChange={(event) => setSearch(event.target.value)}
         onSubmit={() => handleSearchingManager()}
       />
-      <ToastContainer />
     </PageContainer>
   );
 };

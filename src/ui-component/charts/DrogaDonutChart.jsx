@@ -1,10 +1,10 @@
-import { useTheme } from '@mui/material';
 import React from 'react';
+import { useTheme } from '@mui/material';
 
-const DrogaDonutChart = ({ value }) => {
+const DrogaDonutChart = ({ value, size }) => {
   const theme = useTheme();
-  const strokeWidth = 13;
-  const radius = 42;
+  const strokeWidth = size && size > 0 ? size / 2.4 : 16;
+  const radius = size && size > 0 ? size : 42;
   const normalizedRadius = radius - strokeWidth / 2;
   const circumference = normalizedRadius * 2 * Math.PI;
   const strokeDashoffset = circumference - (value / 100) * circumference;
@@ -23,7 +23,14 @@ const DrogaDonutChart = ({ value }) => {
         cy={radius}
         style={{ transition: 'stroke-dashoffset 0.5s ease' }}
       />
-      <text x="50%" y="50%" dy=".3em" textAnchor="middle" fontSize="20px" fill={theme.palette.grey[800]}>
+      <text
+        x="50%"
+        y="50%"
+        dy=".3em"
+        textAnchor="middle"
+        fontSize={`${size && size > 0 ? size / 2 : 20}px`}
+        fill={theme.palette.text.primary}
+      >
         {`${value}%`}
       </text>
     </svg>
