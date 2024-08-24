@@ -31,7 +31,7 @@ const Users = Loadable(lazy(() => import('views/users')));
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
 const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
-const EodActivityPage = Loadable(lazy(() => import('views/Eod')));
+const EodActivityPage = Loadable(lazy(() => import('views/Eod/EodActivity')));
 const RolePermission = Loadable(lazy(() => import('views/roles_permission/Page')));
 const Unauthorized = Loadable(lazy(() => import('utils/unautorized')));
 
