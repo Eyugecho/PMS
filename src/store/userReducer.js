@@ -13,8 +13,8 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         user: action.payload.user,
-        roles: action.payload.roles,
-        permissions: action.payload.permissions
+        roles: action.payload.user.roles,
+        permissions: action.payload.user.permissions
       };
 
     default:
