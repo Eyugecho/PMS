@@ -10,6 +10,7 @@ import {
   IconListCheck,
   IconHazeMoon
 } from '@tabler/icons-react';
+import { useSelector } from 'react-redux';
 
 // constant
 const icons = {
@@ -38,29 +39,31 @@ export const dashboard = () => {
     icon: icons.IconHome,
     breadcrumbs: false
   });
-  auth.forEach((role) => {
-    if (role.permissions.find((per) => per.name == 'read:kpi')) {
-      childrenTemp.push({
-        id: 'kpi-management',
-        title: 'KPI Managment',
-        type: 'item',
-        url: '/kpi/kpi-managment',
-        icon: icons.IconGauge
-      });
-    }
-  });
+  auth &&
+    auth.forEach((role) => {
+      if (role.permissions.find((per) => per.name == 'read:kpi')) {
+        childrenTemp.push({
+          id: 'kpi-management',
+          title: 'KPI Managment',
+          type: 'item',
+          url: '/kpi/kpi-managment',
+          icon: icons.IconGauge
+        });
+      }
+    });
 
-  auth.forEach((role) => {
-    if (role.permissions.find((per) => per.name == 'read:targetsetting')) {
-      childrenTemp.push({
-        id: 'planning',
-        title: 'Planning',
-        type: 'item',
-        url: '/planning',
-        icon: icons.IconLayoutCards
-      });
-    }
-  });
+  auth &&
+    auth.forEach((role) => {
+      if (role.permissions.find((per) => per.name == 'read:targetsetting')) {
+        childrenTemp.push({
+          id: 'planning',
+          title: 'Planning',
+          type: 'item',
+          url: '/planning',
+          icon: icons.IconLayoutCards
+        });
+      }
+    });
 
   childrenTemp.push(
     {

@@ -24,6 +24,7 @@ export const getRolesAndPermissionsFromToken = () => {
   try {
     const decodedToken = decodeJWT(token); // Decode the token
     const roles = decodedToken.roles || []; // Extract roles
+
     return roles;
   } catch (error) {
     return null;
