@@ -23,38 +23,34 @@ const icons = {
 
 // ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
 
-const auth = getRolesAndPermissionsFromToken()
+const auth = getRolesAndPermissionsFromToken();
 
 export const settings = () => {
+  let childrenTemp = [];
 
-  let childrenTemp = []
-
-  auth.forEach(role => {
-
-
-
-    if (role.permissions.find(per => per.name == "read:fiscalyear") || role.permissions.find(per => per.name == "read:frequency") || role.permissions.find(per => per.name == "read:evaluationtype") || role.permissions.find(per => per.name == "read:measuringunit") || role.permissions.find(per => per.name == "read:period") || role.permissions.find(per => per.name == "read:perspectivetype")) {
-      childrenTemp.push({
-        id: 'basic-config',
-        title: 'Pre-Setups',
-        type: 'item',
-        url: '/basic-config/basic-config-creation',
-        icon: icons.IconSettingsStar
-      })
-    }
-  })
+  auth &&
+    auth.forEach((role) => {
+      if (
+        role.permissions.find((per) => per.name == 'read:fiscalyear') ||
+        role.permissions.find((per) => per.name == 'read:frequency') ||
+        role.permissions.find((per) => per.name == 'read:evaluationtype') ||
+        role.permissions.find((per) => per.name == 'read:measuringunit') ||
+        role.permissions.find((per) => per.name == 'read:period') ||
+        role.permissions.find((per) => per.name == 'read:perspectivetype')
+      ) {
+        childrenTemp.push({
+          id: 'basic-config',
+          title: 'Pre-Setups',
+          type: 'item',
+          url: '/basic-config/basic-config-creation',
+          icon: icons.IconSettingsStar
+        });
+      }
+    });
   return {
     id: 'settings',
     title: 'Settings',
     type: 'group',
-    children: [
-
-
-
-      ...childrenTemp
-
-
-    ]
-  }
-}
-
+    children: [...childrenTemp]
+  };
+};
