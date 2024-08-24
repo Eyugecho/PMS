@@ -60,30 +60,15 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.parent_id && Boolean(formik.errors.parent_id)}>
-              <InputLabel htmlfor="unit">Select parent unit</InputLabel>
-
-              <Select id="unit" name="parent_id" label="Select parent unit" value={formik.values.parent_id} onChange={formik.handleChange}>
-                {unitss.length === 0 ? (
-                  <Typography variant="body2" sx={{ padding: 1 }}>
-                    Unit is not found
-                  </Typography>
-                ) : (
-                  unitss?.map((unitt, index) => (
-                    <MenuItem key={index} value={unitt.id}>
-                      {unitt.name}
-                    </MenuItem>
-                  ))
-                )}
-              </Select>
-
-              {formik.touched.parent_id && formik.errors.parent_id && (
-                <FormHelperText error id="standard-weight-helper-text-parent_id">
-                  {formik.errors.parent_id}
+            <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)} sx={{ marginTop: 3 }}>
+              <InputLabel htmlfor="name">Name</InputLabel>
+              <OutlinedInput id="name" name="name" label="name" value={formik.values.name} onChange={formik.handleChange} fullWidth />
+              {formik.touched.name && formik.errors.name && (
+                <FormHelperText error id="standard-weight-helper-text-name">
+                  {formik.errors.name}
                 </FormHelperText>
               )}
             </FormControl>
-
             <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
               <InputLabel htmlfor="type">Unit type</InputLabel>
 
@@ -107,13 +92,26 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
                 </FormHelperText>
               )}
             </FormControl>
+            <FormControl fullWidth error={formik.touched.parent_id && Boolean(formik.errors.parent_id)} sx={{ marginTop: 3 }}>
+              <InputLabel htmlfor="unit">Select parent unit</InputLabel>
 
-            <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlfor="name">Name</InputLabel>
-              <OutlinedInput id="name" name="name" label="name" value={formik.values.name} onChange={formik.handleChange} fullWidth />
-              {formik.touched.name && formik.errors.name && (
-                <FormHelperText error id="standard-weight-helper-text-name">
-                  {formik.errors.name}
+              <Select id="unit" name="parent_id" label="Select parent unit" value={formik.values.parent_id} onChange={formik.handleChange}>
+                {unitss.length === 0 ? (
+                  <Typography variant="body2" sx={{ padding: 1 }}>
+                    Unit is not found
+                  </Typography>
+                ) : (
+                  unitss?.map((unitt, index) => (
+                    <MenuItem key={index} value={unitt.id}>
+                      {unitt.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+
+              {formik.touched.parent_id && formik.errors.parent_id && (
+                <FormHelperText error id="standard-weight-helper-text-parent_id">
+                  {formik.errors.parent_id}
                 </FormHelperText>
               )}
             </FormControl>
