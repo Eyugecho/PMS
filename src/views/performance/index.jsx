@@ -54,8 +54,8 @@ const Performance = () => {
   const handleFetchingUnits = async (value) => {
     setLoading(true);
     const token = await GetToken();
-    const units = Backend.api + Backend.getDepartments + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
-    const employee = Backend.api + Backend.getEmployees + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+    const units = Backend.api + Backend.getActiveDepartments + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+    const employee = Backend.api + Backend.getActiveEmployees + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
     const Api = value == 'employees' ? employee : units;
     const header = {
       Authorization: `Bearer ${token}`,

@@ -45,10 +45,10 @@ export default function themePalette(theme) {
       dark: isDarkMode === 'dark' ? theme.colors?.warning800 : theme.colors?.warningDark
     },
     success: {
-      light: isDarkMode === 'dark' ? theme.colors?.successDark : theme.colors?.successLight,
+      light:theme.colors?.successLight,
       200: theme.colors?.success200,
       main: theme.colors?.successMain,
-      dark: isDarkMode === 'dark' ? theme.colors?.success800 : theme.colors?.successDark
+      dark: theme.colors?.successDark
     },
     grey: {
       50: isDarkMode === 'dark' ? theme.colors?.grey900 : theme.colors?.grey50,

@@ -94,20 +94,14 @@ export const dashboard = () => {
       id: 'approvals',
       title: 'Approval Managment',
       type: 'collapse',
-      url: 'approvals',
+      url: 'taks',
       icon: icons.IconCircleCheck,
       children: [
         {
-          id: 'approvals',
-          title: 'Approvals',
+          id: 'tasks',
+          title: 'Tasks',
           type: 'item',
-          url: 'approvals'
-        },
-        {
-          id: 'feedbacks',
-          title: 'Feedbacks',
-          type: 'item',
-          url: 'placeholder'
+          url: 'tasks'
         }
       ]
     },

@@ -4,6 +4,7 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
+import ViewTask from 'views/tasks/view';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
@@ -18,6 +19,7 @@ const PagePlaceholder = Loadable(lazy(() => import('views/sample-page/Placeholde
 const Ranking = Loadable(lazy(() => import('views/ranking')));
 const Perfomance = Loadable(lazy(() => import('views/performance')));
 const Feedbacks = Loadable(lazy(() => import('views/approvals/feedback')));
+const Tasks = Loadable(lazy(() => import('views/tasks')));
 const Approvals = Loadable(lazy(() => import('views/approvals')));
 const DailyActivity = Loadable(lazy(() => import('views/monitoring/daily')));
 const Evaluations = Loadable(lazy(() => import('views/evaluation')));
@@ -26,6 +28,7 @@ const ViewPlan = Loadable(lazy(() => import('views/planning/View')));
 const Account = Loadable(lazy(() => import('views/account')));
 const KPIManagement = Loadable(lazy(() => import('views/kpi')));
 const Users = Loadable(lazy(() => import('views/users')));
+const Workflows = Loadable(lazy(() => import('views/workflows')));
 
 // utilities routing
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
@@ -79,7 +82,7 @@ const MainRoutes = {
     {
       path: 'employees',
       element: (
-        <Protected >
+        <Protected>
           <Employees />
         </Protected>
       )
@@ -167,10 +170,37 @@ const MainRoutes = {
     },
 
     {
+      path: 'tasks',
+      element: (
+        <Protected>
+          <Tasks />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'task/detail',
+      element: (
+        <Protected>
+          <ViewTask />
+        </Protected>
+      )
+    },
+
+    {
       path: 'approvals',
       element: (
         <Protected>
           <Approvals />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'workflows',
+      element: (
+        <Protected>
+          <Workflows />
         </Protected>
       )
     },

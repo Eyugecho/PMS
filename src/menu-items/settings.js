@@ -6,7 +6,8 @@ import {
   IconActivity,
   IconSettingsStar,
   IconFileReport,
-  IconBrandCampaignmonitor
+  IconBrandCampaignmonitor,
+  IconRoute
 } from '@tabler/icons-react';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
@@ -18,7 +19,8 @@ const icons = {
   IconActivity,
   IconSettingsStar,
   IconFileReport,
-  IconBrandCampaignmonitor
+  IconBrandCampaignmonitor,
+  IconRoute
 };
 
 // ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
@@ -51,6 +53,6 @@ export const settings = () => {
     id: 'settings',
     title: 'Settings',
     type: 'group',
-    children: [...childrenTemp]
+    children: [...childrenTemp, { id: 'workflows', title: 'Approval Workflows', type: 'item', url: '/workflows', icon: icons.IconRoute }]
   };
 };

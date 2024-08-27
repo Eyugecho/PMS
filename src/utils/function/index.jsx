@@ -102,3 +102,20 @@ export const MeasuringUnitConverter = (mu) => {
   }
   return MeasuredBy;
 };
+
+export const getStatusColor = (status) => {
+  switch (status.toLowerCase()) {
+    case 'approved':
+      return 'green';
+    case 'pending':
+      return '#FFA500';
+    case 'rejected':
+      return 'red';
+    case 'in-progress':
+      return 'blue';
+    case 'completed':
+      return 'purple';
+    default:
+      return 'gray';
+  }
+};

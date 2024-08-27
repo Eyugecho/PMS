@@ -3,7 +3,7 @@ import { Button, Grid, Typography } from '@mui/material';
 import noresult from '../../assets/images/no_result.png';
 import PropTypes from 'prop-types';
 
-const ErrorPrompt = ({ image, title, message, buttontitle, onPress }) => {
+const ErrorPrompt = ({ image, size, title, message, buttontitle, onPress }) => {
   return (
     <Grid container>
       <Grid
@@ -18,8 +18,8 @@ const ErrorPrompt = ({ image, title, message, buttontitle, onPress }) => {
           borderRadius: 4
         }}
       >
-        <img src={noresult} alt="No result found" width="240px" height="240px" />
-        <Typography variant="h3" marginY={0.5}>
+        <img src={noresult} alt="No result found" width={`${size ? size + 'px' : '240px'}`} height={`${size ? size + 'px' : '240px'}`} />
+        <Typography variant="h4" marginY={0.5}>
           {title}
         </Typography>
         <Typography variant="subtitle2"> {message} </Typography>
@@ -35,6 +35,7 @@ const ErrorPrompt = ({ image, title, message, buttontitle, onPress }) => {
 
 ErrorPrompt.propTypes = {
   image: PropTypes.string,
+  size: PropTypes.number,
   title: PropTypes.string,
   message: PropTypes.string,
   buttontitle: PropTypes.string,

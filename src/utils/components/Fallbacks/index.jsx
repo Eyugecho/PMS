@@ -2,11 +2,15 @@ import { Grid, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import FallbackImages from '../FallbackImages';
 
-const Fallbacks = ({ severity, title, description, children, sx }) => {
+const Fallbacks = ({ severity, title, description, children, size, sx }) => {
   return (
     <Grid container sx={{ alignItems: 'center', justifyContent: 'center', ...sx }}>
       <Grid item xs={8} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <img src={FallbackImages(severity)} alt={severity} style={{ width: 120, height: 120, aspectRatio: 1, resize: 'inherit' }} />
+        <img
+          src={FallbackImages(severity)}
+          alt={severity}
+          style={{ width: size ? size : 120, height: size ? size : 120, aspectRatio: 1, resize: 'inherit' }}
+        />
         <Typography variant="h4" sx={{ marginTop: 1 }}>
           {title}
         </Typography>

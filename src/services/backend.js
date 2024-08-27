@@ -32,7 +32,9 @@ const Backend = {
   childUnits: 'get-my-child-units',
   childTarget: 'get-my-child-targets/',
   getDepartments: 'get-departments',
+  getActiveDepartments: 'get-active-departments',
   getEmployees: 'get-employees',
+  getActiveEmployees: 'get-active-employees',
   getManagers: 'get-managers',
   getUnitTarget: 'get-tasks-by-unit/',
   getEmployeeTarget: 'get-tasks-by-employee/',
@@ -41,6 +43,11 @@ const Backend = {
   unitPerformance: 'unit-performance/',
   myPerformance: 'my-performance',
   myUnitPerformance: 'my-unit-performance',
+
+  workflows: 'workflows',
+  createWorkflow: 'create-workflow',
+  updateWorkflow: 'update-workflow',
+  deleteWorkflow: 'delete-workflow',
 
   /**Eyuel Endpoints */
   permissi: 'permissions',
