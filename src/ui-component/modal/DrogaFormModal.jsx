@@ -9,7 +9,7 @@ import DrogaCard from 'ui-component/cards/DrogaCard';
 
 const DrogaFormModal = ({ open, title, handleClose, children, onCancel, onSubmit, submitting }) => {
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <React.Fragment>

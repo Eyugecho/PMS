@@ -13,7 +13,6 @@ import NavCollapse from '../NavCollapse';
 const NavGroup = ({ item }) => {
   const theme = useTheme();
 
-
   // menu list collapse & items
   const items = item.children?.map((menu) => {
     switch (menu.type) {
@@ -37,7 +36,7 @@ const NavGroup = ({ item }) => {
           item.title && (
             <Typography
               variant="caption"
-              sx={{ ...theme.typography.menuCaption, color: theme.palette.text.primary }}
+              sx={{ ...theme.typography.menuCaption, color: 'inherit' }}
               display="block"
               gutterBottom
             >
@@ -53,9 +52,6 @@ const NavGroup = ({ item }) => {
       >
         {items}
       </List>
-
-      {/* group divider */}
-      {/* <Divider sx={{ mt: 0.25, mb: 1.25 }} /> */}
     </>
   );
 };

@@ -5,12 +5,11 @@ import {
   IconGauge,
   IconLayoutCards,
   IconTrophy,
-  IconStethoscope,
+  IconZoomScan,
   IconCircleCheck,
   IconListCheck,
   IconHazeMoon
 } from '@tabler/icons-react';
-import { useSelector } from 'react-redux';
 
 // constant
 const icons = {
@@ -18,7 +17,7 @@ const icons = {
   IconGauge,
   IconLayoutCards,
   IconTrophy,
-  IconStethoscope,
+  IconZoomScan,
   IconCircleCheck,
   IconListCheck,
   IconHazeMoon
@@ -35,7 +34,7 @@ export const dashboard = () => {
     id: 'default',
     title: 'Home',
     type: 'item',
-    url: '/planning',
+    url: '/',
     icon: icons.IconHome,
     breadcrumbs: false
   });
@@ -71,16 +70,8 @@ export const dashboard = () => {
       title: 'Monitoring',
       type: 'collapse',
       url: 'monitoring',
-      icon: icons.IconStethoscope,
-      children: [
-        {
-          id: 'daily-activity',
-          title: 'Daily Activity',
-          type: 'item',
-          url: 'placeholder'
-        },
-        { id: 'eod_activity', title: 'EOD Activity', type: 'item', url: '/Eod' }
-      ]
+      icon: icons.IconZoomScan,
+      children: [{ id: 'eod_activity', title: 'EOD Activity', type: 'item', url: '/Eod' }]
     },
 
     {

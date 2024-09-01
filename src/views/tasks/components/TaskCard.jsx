@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import TaskProgress from './TaskProgress';
 import { getStatusColor } from 'utils/function';
 
-const TaskCard = ({ type, status, title, description, image, username, position, step, date, onPress }) => {
+const TaskCard = ({ type, status, title, description, step, date, onPress }) => {
   const theme = useTheme();
   const belowMd = useMediaQuery(theme.breakpoints.down('sm'));
   return (
@@ -35,22 +35,9 @@ const TaskCard = ({ type, status, title, description, image, username, position,
         {description}
       </Typography>
 
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginTop: 3 }}>
-        <Box sx={{ width: '14%', marginTop: 0.8 }}>
-          <Avatar sx={{ width: 32, height: 32 }} src={image} alt={username} />
-        </Box>
-
-        <Box sx={{ width: '86%' }}>
-          <Typography variant="subtitle1" color={theme.palette.text.primary}>
-            {username}
-          </Typography>
-          <Typography variant="subtitle2">{position}</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <TaskProgress numberOfSteps={step} status={status} />
-
-            <Typography variant="subtitle2">{date}</Typography>
-          </Box>
-        </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3 }}>
+        <TaskProgress numberOfSteps={step} status={status} />
+        <Typography variant="subtitle2">{date}</Typography>
       </Box>
     </DrogaCard>
   );
@@ -61,9 +48,6 @@ TaskCard.propTypes = {
   status: PropTypes.string,
   title: PropTypes.string,
   description: PropTypes.string,
-  image: PropTypes.string,
-  username: PropTypes.string,
-  position: PropTypes.string,
   step: PropTypes.number,
   date: PropTypes.string,
   onPress: PropTypes.func

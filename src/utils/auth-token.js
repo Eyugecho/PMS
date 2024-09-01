@@ -28,7 +28,7 @@ const GetToken = async () => {
   const ttl = Storage.getItem('tokenExpiration');
 
   const currentTime = new Date().getTime();
-  if (currentTime >= ttl) {
+  if (currentTime <= ttl) {
     await RefreshToken();
     return token;
   } else {

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, IconButton, TablePagination, Typography } from '@mui/material';
+import { Box, Grid, IconButton, TablePagination, TextField, Typography, useTheme } from '@mui/material';
 import { gridSpacing } from 'store/constant';
-import { toast } from 'react-toastify';
-import { IconSortAscending, IconSortDescending } from '@tabler/icons-react';
+import { toast, ToastContainer } from 'react-toastify';
+import { IconDetails, IconSortAscending, IconSortDescending } from '@tabler/icons-react';
+import { useSelector } from 'react-redux';
+import { formatDate } from 'utils/function';
 import PageContainer from 'ui-component/MainPage';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 import Search from 'ui-component/search';
@@ -10,18 +12,16 @@ import TaskCard from './components/TaskCard';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import ErrorPrompt from 'utils/components/ErrorPrompt';
 import Fallbacks from 'utils/components/Fallbacks';
-import GetToken from 'utils/auth-token';
-import Backend from 'services/backend';
 import SelectorMenu from 'ui-component/menu/SelectorMenu';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-
-const taskTypes = [
-  { label: 'All Types', value: '' },
-  { label: 'Planning', value: 'planning' },
-  { label: 'Evaluation', value: 'evaluation' }
-];
+import DrogaButton from 'ui-component/buttons/DrogaButton';
+import ApprovalWorkflow from 'services/workflow';
+import GetToken from 'utils/auth-token';
+import Backend from 'services/backend';
+import PlanCard from 'views/planning/components/PlanCard';
+import DrogaModal from 'ui-component/modal/DrogaModal';
+import DrogaFormModal from 'ui-component/modal/DrogaFormModal';
+import { IconClipboardList } from '@tabler/icons-react';
 
 const taskStatuses = [
   { label: 'All Status', value: '' },
@@ -32,8 +32,9 @@ const taskStatuses = [
 ];
 
 const Tasks = () => {
+  const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
-  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.user);
 
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -46,19 +47,98 @@ const Tasks = () => {
     total: 0
   });
 
+  const [workflows] = useState([{ label: 'All Types', value: '' }]); //list of the app workflows
   const [filter, setFilter] = useState({
     type: '',
-    status: 'pending',
+    status: '',
     sort: false
   });
-
+  const [selected, setSelected] = useState();
   const handleFiltering = (event) => {
     const { value, name } = event.target;
     setFilter({ ...filter, [name]: value });
   };
 
-  const handleSorting = () => {
-    setFilter({ ...filter, sort: !filter.sort });
+  //task detail related code goes below
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [detailData, setDetailData] = useState([]);
+
+  const handleTaskDetail = (task) => {
+    if (task?.data?.id) {
+      setSelected(task);
+    } else {
+      toast.error('There is error fetching task detail');
+    }
+  };
+
+  // approve, ammend and reject task action button click is handled below
+  const [actionType, setActionType] = useState({
+    type: '',
+    comment: '',
+    openModal: false,
+    submitting: false
+  });
+
+  const handleTaskAction = (action) => {
+    setActionType({ ...actionType, type: action, openModal: true });
+  };
+
+  const handleCommentChange = (event) => {
+    const value = event.target.value;
+
+    setActionType({
+      ...actionType,
+      comment: value
+    });
+  };
+
+  const handleCloseModal = () => {
+    setActionType({ ...actionType, openModal: false });
+  };
+
+  const handleActionSubmission = (event) => {
+    event.preventDefault();
+
+    if (selected && user && actionType.type) {
+      setActionType({ ...actionType, submitting: true });
+      const Api = ApprovalWorkflow.api + ApprovalWorkflow.taskAction;
+      const header = {
+        Authorization: `${ApprovalWorkflow.API_KEY}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      const userRoles = [];
+      user?.roles?.forEach((role) => userRoles.push({ role_id: role.uuid, role_name: role.name }));
+
+      const data = {
+        result: actionType.type,
+        comments: actionType.comment,
+        roles: userRoles,
+        task_id: selected?.id,
+        user_id: user?.id
+      };
+
+      fetch(Api, {
+        method: 'POST',
+        headers: header,
+        body: JSON.stringify(data)
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            toast.success(response.message);
+          } else {
+            toast.warning(response.message);
+          }
+        })
+        .catch((error) => {
+          toast.warning(error.message);
+        })
+        .finally(() => {
+          setActionType({ ...actionType, submitting: false });
+        });
+    }
   };
 
   const handleSearchFieldChange = (event) => {
@@ -75,33 +155,72 @@ const Tasks = () => {
     setPagination({ ...pagination, per_page: event.target.value, page: 0 });
   };
 
+  const setupWorkflowState = (workflow) => {
+    workflows.length < 2 && workflow.forEach((workflow) => workflows.push({ label: workflow.name, value: workflow.id }));
+  };
+
+  const handleFetchingWorkflows = async () => {
+    const Api = ApprovalWorkflow.api + ApprovalWorkflow.id + '/workflows';
+    const header = {
+      Authorization: `${ApprovalWorkflow.API_KEY}`,
+      accept: 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          response?.data?.applicationWorkflows?.workflows && setupWorkflowState(response?.data?.applicationWorkflows?.workflows);
+        } else {
+          toast.warning(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   const handleFetchingTasks = async () => {
     if (selectedYear) {
       setLoading(true);
-      const token = await GetToken();
       const Api =
-        Backend.api +
-        Backend.getActiveEmployees +
-        `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}&type=${filter.type}&status${filter.status}&sort=${filter.sort}&?fiscal_year_id=${selectedYear?.id}`;
+        ApprovalWorkflow.api +
+        ApprovalWorkflow.tasks +
+        `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}&type=${filter.type}&status=${filter.status}`;
 
       const header = {
-        Authorization: `Bearer ${token}`,
+        Authorization: `${ApprovalWorkflow.API_KEY}`,
         accept: 'application/json',
         'Content-Type': 'application/json'
       };
 
+      const userRoles = [];
+      user?.roles?.forEach((role) => userRoles.push({ role_id: role.uuid, role_name: role.name }));
+
+      const data = {
+        user_id: user?.id,
+        roles: userRoles
+      };
+
       fetch(Api, {
-        method: 'GET',
-        headers: header
+        method: 'POST',
+        headers: header,
+        body: JSON.stringify(data)
       })
         .then((response) => response.json())
         .then((response) => {
           if (response.success) {
-            setData(response.data.data);
+            setData(response.data.tasks);
             setPagination({ ...pagination, total: response.data.total });
             setError(false);
           } else {
-            toast.warning(response.data.message);
+            toast.warning(response.message);
           }
         })
         .catch((error) => {
@@ -115,6 +234,48 @@ const Tasks = () => {
       <GetFiscalYear />;
     }
   };
+
+  const handleFetchingTaskDetail = async () => {
+    setLoadingDetail(true);
+
+    const token = await GetToken();
+    const Api = Backend.api + Backend.showPlan + `/${selected?.data?.id}`;
+
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setDetailData(response.data);
+        } else {
+          toast.warning(response.message);
+        }
+      })
+      .catch((error) => {
+        toast.warning(error.message);
+      })
+      .finally(() => {
+        setLoadingDetail(false);
+      });
+  };
+
+  useEffect(() => {
+    if (mounted) {
+      handleFetchingTaskDetail();
+    }
+  }, [selected]);
+
+  useEffect(() => {
+    handleFetchingWorkflows();
+  }, []);
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
@@ -137,24 +298,18 @@ const Tasks = () => {
   return (
     <PageContainer title="Tasks">
       <Grid container padding={2.4}>
-        <Grid item xs={12} marginTop={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          <Search value={search} onChange={(event) => handleSearchFieldChange(event)} />
-        </Grid>
-
         <Grid container spacing={gridSpacing} marginTop={0.2}>
           <Grid item xs={12} sm={12} md={8} lg={8} xl={8}>
-            <DrogaCard sx={{ minHeight: 400 }}>
+            <Box sx={{ minHeight: 400 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3, px: 2 }}>
-                <SelectorMenu name="type" options={taskTypes} selected={filter.type} handleSelection={handleFiltering} />
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Search value={search} onChange={(event) => handleSearchFieldChange(event)} />
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ marginRight: 2 }}>
+                    <SelectorMenu name="type" options={workflows} selected={filter.type} handleSelection={handleFiltering} />
+                  </Box>
                   <SelectorMenu name="status" options={taskStatuses} selected={filter.status} handleSelection={handleFiltering} />
-                  <IconButton
-                    sx={{ marginLeft: 2 }}
-                    onClick={() => handleSorting()}
-                    title={filter.sort ? 'Ascending order' : 'Descending order'}
-                  >
-                    {filter.sort ? <IconSortAscending size="1.2rem" /> : <IconSortDescending size="1.2rem" />}
-                  </IconButton>
                 </Box>
               </Box>
               <Grid container>
@@ -174,30 +329,19 @@ const Tasks = () => {
                     sx={{ paddingTop: 6 }}
                   />
                 ) : (
-                  <Grid item xs={12} sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                    <TaskCard
-                      type="planning"
-                      status="approved"
-                      title="Self Development"
-                      description="Yemisirach is waiting for your approval, don't forget to reflect on her task"
-                      image=""
-                      username="Yemisirach Abebe"
-                      position="Pharmacist"
-                      step={3}
-                      date="14/08/2024"
-                      onPress={() => navigate('/task/detail')}
-                    />
-                    <TaskCard
-                      type="planning"
-                      status="pending"
-                      title="Self Development"
-                      description="Yemisirach is waiting for your approval, don't forget to reflect on her task"
-                      image=""
-                      username="Yemisirach Abebe"
-                      position="Pharmacist"
-                      step={4}
-                      date="14/08/2024"
-                    />
+                  <Grid item xs={12} sm={12} sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                    {data?.map((task, index) => (
+                      <TaskCard
+                        key={index}
+                        type={task.workflow.name}
+                        status={task.status}
+                        title={task.title}
+                        description={task.description}
+                        step={task.step}
+                        date={formatDate(task.created_at).formattedDate}
+                        onPress={() => handleTaskDetail(task)}
+                      />
+                    ))}
                   </Grid>
                 )}
               </Grid>
@@ -213,16 +357,158 @@ const Tasks = () => {
                   labelRowsPerPage="Items per page"
                 />
               )}
-            </DrogaCard>
+            </Box>
           </Grid>
 
           <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
-            <DrogaCard>
-              <Typography variant="h4">Tasks Summary</Typography>
+            <DrogaCard sx={{ minHeight: 240 }}>
+              <Typography variant="h4">Task Details</Typography>
+
+              {selected && selected?.workflow?.name === 'Planning' ? (
+                <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {loadingDetail ? (
+                    <Grid container>
+                      <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
+                        <ActivityIndicator size={20} />
+                      </Grid>
+                    </Grid>
+                  ) : error ? (
+                    <ErrorPrompt title="Server Error" message={`There is error retriving task detail`} />
+                  ) : detailData.length === 0 ? (
+                    <Fallbacks
+                      severity="tasks"
+                      title={`Tasks details is not found`}
+                      description={`The detail of task is shown here`}
+                      sx={{ paddingTop: 6 }}
+                    />
+                  ) : (
+                    <Grid item xs={12}>
+                      {/* <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginTop: 3 }}>
+                      <Box sx={{ width: '14%', marginTop: 0.8 }}>
+                        <Avatar sx={{ width: 32, height: 32 }} src={image} alt={username} />
+                      </Box>
+
+                      <Box sx={{ width: '86%' }}>
+                        <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                          {username}
+                        </Typography>
+                        <Typography variant="subtitle2">{position}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <TaskProgress numberOfSteps={step} status={status} />
+
+                          <Typography variant="subtitle2">{date}</Typography>
+                        </Box>
+                      </Box>
+                    </Box> */}
+
+                      {detailData && <PlanCard plan={{ ...detailData }} sx={{ border: 0, p: 0.4, mt: 3 }} />}
+                      {selected?.status === 'pending' && (
+                        <React.Fragment>
+                          <DrogaButton
+                            title="Approve"
+                            variant="contained"
+                            sx={{
+                              backgroundColor: 'green',
+                              ':hover': { backgroundColor: 'green' },
+                              width: '100%',
+                              boxShadow: 0,
+                              p: 1.4,
+                              marginTop: 2
+                            }}
+                            onPress={() => handleTaskAction('approved')}
+                          />
+                          <Grid container mt={1} spacing={gridSpacing}>
+                            <Grid item xs={12}>
+                              {/* <SelectorMenu
+                            name="amendment"
+                            options={amendingOptions}
+                            selected={amendment}
+                            handleSelection={handleAmendment}
+                            sx={{ width: '100%', backgroundColor: theme.palette.grey[50], borderRadius: 2 }}
+                          /> */}
+
+                              <DrogaButton
+                                title="Amend"
+                                variant="text"
+                                sx={{ width: '100%' }}
+                                onPress={() => handleTaskAction('amended')}
+                              />
+                            </Grid>
+                            <Grid item xs={12}>
+                              <DrogaButton
+                                title="Reject"
+                                variant="text"
+                                color="error"
+                                sx={{ width: '100%' }}
+                                onPress={() => handleTaskAction('rejected')}
+                              />
+                            </Grid>
+                          </Grid>
+                        </React.Fragment>
+                      )}
+                    </Grid>
+                  )}
+                </Grid>
+              ) : selected && selected.workflow.name === 'Evaluation' ? (
+                <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Grid item xs={11}>
+                    <DrogaButton
+                      title={'Approve'}
+                      variant="contained"
+                      sx={{
+                        backgroundColor: 'green',
+                        ':hover': { backgroundColor: 'green' },
+                        width: '100%',
+                        boxShadow: 0,
+                        p: 1.4,
+                        marginTop: 2
+                      }}
+                    />
+
+                    <Grid container mt={2}>
+                      <Grid item xs={6}>
+                        <DrogaButton title={'Amend'} variant="text" sx={{ width: '100%' }} onPress={() => handleTaskAction('ammend')} />
+                      </Grid>
+                      <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <DrogaButton title={'Reject'} variant="text" color="error" sx={{ width: '100%' }} />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              ) : (
+                <Box sx={{ margin: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <IconClipboardList size="3rem" stroke="1.2" color="grey" />
+                  <Typography variant="h4" color={theme.palette.text.primary} mt={1.6}>
+                    Selected task detail view
+                  </Typography>
+
+                  <Typography variant="subtitle2">The detail of task you choosed shown here</Typography>
+                </Box>
+              )}
             </DrogaCard>
           </Grid>
         </Grid>
       </Grid>
+      <DrogaFormModal
+        open={actionType.openModal}
+        title="Remark"
+        handleClose={handleCloseModal}
+        onCancel={handleCloseModal}
+        onSubmit={handleActionSubmission}
+        submitting={actionType.submitting}
+      >
+        <TextField
+          multiline
+          minRows={5}
+          name="remark"
+          value={actionType.comment}
+          onChange={handleCommentChange}
+          placeholder="Write remark here"
+          variant="standard"
+          fullWidth
+        />
+      </DrogaFormModal>
+      <ToastContainer />
     </PageContainer>
   );
 };

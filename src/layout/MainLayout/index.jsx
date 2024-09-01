@@ -58,7 +58,7 @@ const MainLayout = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <Sidebar drawerOpen={!matchDownMd ? leftDrawerOpened : !leftDrawerOpened} drawerToggle={handleLeftDrawerToggle} />
-      <Main theme={theme} open={leftDrawerOpened} sx={{ backgroundColor: theme.palette.primary.light }}>
+      <Main theme={theme} open={leftDrawerOpened} sx={{ backgroundColor: theme.palette.background.default }}>
         <Box
           sx={{
             position: 'fixed',

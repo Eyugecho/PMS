@@ -7,7 +7,7 @@ import Protected from 'Protected';
 import ViewTask from 'views/tasks/view';
 
 // dashboard routing
-const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
+const Home = Loadable(lazy(() => import('views/dashboard')));
 const Units = Loadable(lazy(() => import('views/departments')));
 const ViewUnit = Loadable(lazy(() => import('views/departments/view')));
 const Planning = Loadable(lazy(() => import('views/planning')));
@@ -52,22 +52,17 @@ const MainRoutes = {
       path: '/',
       element: (
         <Protected>
-          <DashboardDefault />
+          <Home />
         </Protected>
       )
     },
     {
-      path: 'dashboard',
-      children: [
-        {
-          path: 'default',
-          element: (
-            <Protected>
-              <DashboardDefault />
-            </Protected>
-          )
-        }
-      ]
+      path: 'home',
+      element: (
+        <Protected>
+          <Home />
+        </Protected>
+      )
     },
 
     {

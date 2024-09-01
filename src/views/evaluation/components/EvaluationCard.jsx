@@ -1,39 +1,36 @@
 import React from 'react';
+import { Box, Grid, Paper, Typography, useTheme } from '@mui/material';
+import { MeasuringUnitConverter, PeriodNaming } from 'utils/function';
 import DrogaDataCard from 'ui-component/cards/DrogaDataCard';
 import PropTypes from 'prop-types';
-import { Box, Grid, Paper, Typography, useTheme } from '@mui/material';
-import { DotMenu } from 'ui-component/menu/DotMenu';
-import { MeasuringUnitConverter, PeriodNaming } from 'utils/function';
 import DrogaDonutChart from 'ui-component/charts/DrogaDonutChart';
-import DrogaCard from 'ui-component/cards/DrogaCard';
 
-const PlanCard = ({ plan, onPress, onEdit, onDelete, sx }) => {
+const EvaluationCard = ({ evaluation, onPress }) => {
   const theme = useTheme();
   return (
-    <DrogaCard onPress={onPress} sx={{ ...sx }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <DrogaDataCard onPress={onPress}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
         <Typography variant="body1">KPI Name</Typography>
-        {!plan?.is_distributed && <DotMenu orientation="horizontal" onEdit={onEdit} onDelete={onDelete}></DotMenu>}
       </Box>
       <Typography variant="h3" color={theme.palette.text.primary} sx={{ marginTop: 0.6 }}>
-        {plan?.kpi?.name}
+        {evaluation?.kpi?.name}
       </Typography>
 
       <Grid container sx={{ paddingTop: 2 }}>
         <Grid item xs={6} sx={{ paddingY: 2.4 }}>
           <Box>
             <Typography variant="body1">Perspective Type</Typography>
-            <Typography variant="h4">{plan?.kpi?.perspective_type?.name}</Typography>
+            <Typography variant="h4">{evaluation?.kpi?.perspective_type?.name}</Typography>
           </Box>
 
           <Box sx={{ paddingTop: 2 }}>
             <Typography variant="body1">Measuring Unit</Typography>
-            <Typography variant="h4">{plan?.kpi?.measuring_unit?.name}</Typography>
+            <Typography variant="h4">{evaluation?.kpi?.measuring_unit?.name}</Typography>
           </Box>
         </Grid>
 
         <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 2 }}>
-          <DrogaDonutChart value={plan?.weight} />
+          <DrogaDonutChart value={evaluation?.weight} />
           <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginTop: 2 }}>
             Weight
           </Typography>
@@ -46,7 +43,7 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx }) => {
             <Typography variant="body1" color={theme.palette.text.primary}>
               Frequency
             </Typography>
-            <Typography variant="h4">{plan?.frequency?.name}</Typography>
+            <Typography variant="h4">{evaluation?.frequency?.name}</Typography>
           </Box>
         </Grid>
 
@@ -64,8 +61,8 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx }) => {
               Target
             </Typography>
             <Typography variant="h4">
-              {plan?.total_target}
-              {MeasuringUnitConverter(plan?.kpi?.measuring_unit?.name)}
+              {evaluation?.total_target}
+              {MeasuringUnitConverter(evaluation?.kpi?.measuring_unit?.name)}
             </Typography>
           </Paper>
         </Grid>
@@ -82,41 +79,15 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx }) => {
           paddingTop: 2
         }}
       >
-        {plan?.target.map((target, index) => (
-          <Grid
-            item
-            xs={6}
-            key={index}
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 1, marginTop: 2 }}
-          >
-            <Typography variant="body2">
-              {PeriodNaming(plan?.frequency?.name)} {index + 1}
-            </Typography>
-            <Box
-              sx={{
-                paddingY: 0.8,
-                paddingX: 1.2,
-                backgroundColor: theme.palette.grey[50],
-                borderRadius: theme.shape.borderRadius
-              }}
-            >
-              <Typography variant="h4">
-                {target?.target}
-                {MeasuringUnitConverter(plan?.kpi?.measuring_unit?.name)}
-              </Typography>
-            </Box>
-          </Grid>
-        ))}
+        <Typography variant="body2">Target</Typography>
+
+        <Typography variant="body2">Evaluation</Typography>
       </Grid>
-    </DrogaCard>
+    </DrogaDataCard>
   );
 };
 
-PlanCard.propTypes = {
-  plan: PropTypes.object,
-  onPress: PropTypes.func,
-  onEdit: PropTypes.func,
-  onDelete: PropTypes.func,
-  sx: PropTypes.object
+EvaluationCard.propTypes = {
+  evaluation: PropTypes.object
 };
-export default PlanCard;
+export default EvaluationCard;

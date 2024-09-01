@@ -1,5 +1,5 @@
 export default function componentStyleOverrides(theme) {
-  const bgColor = theme.colors?.grey50;
+  const bgColor = theme.background.default;
   return {
     MuiButton: {
       styleOverrides: {
@@ -91,7 +91,6 @@ export default function componentStyleOverrides(theme) {
     MuiInputBase: {
       styleOverrides: {
         input: {
-          color: theme.textDark,
           '&::placeholder': {
             color: theme.darkTextSecondary,
             fontSize: '0.875rem'

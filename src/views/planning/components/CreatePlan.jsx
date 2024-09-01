@@ -112,7 +112,7 @@ export const CreatePlan = ({ add, onClose, onSucceed }) => {
         <Paper sx={{ minWidth: '600px', minHeight: '50dvh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 1 }}>
-              <DialogTitle variant="h3" color={theme.palette.text.primary} fontSize={theme.typography.h3}>
+              <DialogTitle variant="h3" color={theme.palette.text.primary}>
                 {CreatePlanForms[activeIndex].name}
               </DialogTitle>
 

@@ -1,6 +1,13 @@
 import React from 'react';
 import { Box, Stack, useTheme } from '@mui/material';
-import { IconCircle, IconCircleCheckFilled, IconCircleX, IconCircleXFilled } from '@tabler/icons-react';
+import {
+  IconCircle,
+  IconCircleCheckFilled,
+  IconCircleX,
+  IconCircleXFilled,
+  IconInfoCircle,
+  IconInfoCircleFilled
+} from '@tabler/icons-react';
 
 const TaskProgress = ({ numberOfSteps, status }) => {
   const theme = useTheme();
@@ -22,7 +29,9 @@ const TaskProgress = ({ numberOfSteps, status }) => {
     status === 'approved' ? (
       <IconCircleCheckFilled size="1.1rem" stroke="2" style={{ color: 'green' }} />
     ) : status === 'rejected' ? (
-      <IconCircleXFilled size="1.1rem" stroke="2" style={{ color: 'red' }} />
+      <IconCircleX size="1.1rem" stroke="2" style={{ color: 'red' }} />
+    ) : status === 'amended' ? (
+      <IconInfoCircle size="1.1rem" stroke="2" style={{ color: 'orange' }} />
     ) : (
       <IconCircle size="1.1rem" stroke="2" style={{ color: 'gray' }} />
     );
