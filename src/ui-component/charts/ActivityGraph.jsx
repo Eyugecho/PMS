@@ -1,67 +1,83 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import Fallbacks from 'utils/components/Fallbacks';
 
-const ActivityGraph = ({ data }) => {
-  // Check if data is provided and not empty
-  const isDataAvailable = data && data.length > 0;
+const statusColors = {
+  done: '#008000',
+  pending: '#FFA500',
+  cancelled: '#ff8c8c',
+  inprogress: '#0000FF',
+  blocked: '#A020F0'
+};
 
-  // Extract dates for the x-axis labels if data is available, otherwise use a placeholder
-  const dates = isDataAvailable ? data.map((item) => item.date) : ['No Data'];
+const getColorForStatus = (status) => statusColors[status.toLowerCase()] || 'gray';
 
-  // Extract task counts for each status across all dates if data is available, otherwise use placeholders
-  const statuses = ['pending', 'inprogress', 'done', 'blocked', 'cancelled'];
-  const series = isDataAvailable
-    ? statuses.map((status) => ({
+const ActivityGraph = ({ data, type }) => {
+  const getSeriesData = (data) => {
+    if (!data || data.length === 0) {
+      return ['pending', 'inprogress', 'done', 'blocked', 'cancelled'].map((status) => ({
         name: status,
-        data: data.map((item) => {
-          const statusObj = item.statuses.find((s) => s.status === status);
-          return statusObj ? parseInt(statusObj.task_count) : 0;
-        })
-      }))
-    : statuses.map((status) => ({
-        name: status,
-        data: [0] // Placeholder data
+        data: [0],
+        color: getColorForStatus(status)
       }));
-
-  const [chartState] = useState({
-    series: series,
-    options: {
-      chart: {
-        type: 'bar',
-        height: 380,
-        stacked: true
-      },
-      xaxis: {
-        categories: dates, // Dates on the x-axis or 'No Data'
-        labels: {
-          formatter: function (val) {
-            return val; // Display date as it is or 'No Data'
-          }
-        }
-      },
-      title: {
-        text: 'Task Status by Date'
-      },
-      tooltip: {
-        x: {
-          formatter: function (val) {
-            return val; // Tooltip also displays the date or 'No Data'
-          }
-        }
-      }
     }
+
+    return ['pending', 'inprogress', 'done', 'blocked', 'cancelled'].map((status) => ({
+      name: status,
+      data: data.map((item) => {
+        const statusObj = item.statuses.find((s) => s.status === status);
+        return statusObj ? parseInt(statusObj.task_count) : 0;
+      }),
+      color: getColorForStatus(status)
+    }));
+  };
+
+  const getDates = (data) => (data && data.length > 0 ? data.map((item) => item.date) : ['No Data']);
+
+  const getChartOptions = (type, data) => ({
+    chart: {
+      type: type,
+      height: 380,
+      stacked: type === 'line'
+    },
+    xaxis: {
+      categories: getDates(data),
+      labels: {
+        formatter: (val) => val
+      }
+    },
+    title: {
+      text: ''
+    },
+    tooltip: {
+      x: {
+        formatter: (val) => val
+      }
+    },
+    colors: getSeriesData(data).map((series) => series.color) // Use predefined colors
   });
+
+  const [chartState, setChartState] = useState({
+    series: getSeriesData(data),
+    options: getChartOptions(type, data)
+  });
+
+  useEffect(() => {
+    setChartState({
+      series: getSeriesData(data),
+      options: getChartOptions(type, data)
+    });
+  }, [data, type]);
 
   return (
     <div>
-      {isDataAvailable ? (
-        <ReactApexChart options={chartState.options} series={chartState.series} type="bar" height={380} />
+      {data && data.length > 0 ? (
+        <ReactApexChart options={chartState.options} series={chartState.series} type={type} height={380} />
       ) : (
         <Fallbacks
           severity="activities"
-          title={`The activity data is not found`}
-          description={`The graph of activities summary is shown here`}
+          title="No Activity Data Found"
+          description="There is no data available to display in the graph."
           sx={{ paddingTop: 6 }}
           size={100}
         />

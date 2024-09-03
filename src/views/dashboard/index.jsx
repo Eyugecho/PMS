@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // material-ui
 import Grid from '@mui/material/Grid';
 
@@ -18,22 +18,58 @@ import { toast } from 'react-toastify';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import Fallbacks from 'utils/components/Fallbacks';
+import DateRangePicker from './components/DateRange';
+import { startOfWeek, endOfDay, format } from 'date-fns';
+import SelectorMenu from 'ui-component/menu/SelectorMenu';
 
 // ==============================|| HOME DASHBOARD ||============================== //
+
+const ChartTypes = [
+  {
+    label: 'Line Graph',
+    value: 'line'
+  },
+  {
+    label: 'Area Graph',
+    value: 'area'
+  },
+  {
+    label: 'Bar Chart',
+    value: 'bar'
+  }
+];
 
 const Dashboard = () => {
   const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
+  const getMostRecentMonday = () => {
+    const today = new Date();
+    return startOfWeek(today, { weekStartsOn: 1 });
+  };
+
+  const [startDate, setStartDate] = useState(getMostRecentMonday());
+  const [endDate, setEndDate] = useState(endOfDay(new Date()));
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
+  const [statLoading, setStatLoading] = useState(true);
+  const [stats, setStats] = useState([]);
+  const [chartType, setChartType] = useState('line');
+
+  const handleChartSelection = (event) => {
+    const value = event.target.value;
+    setChartType(value);
+  };
 
   const handleFetchingActvities = async () => {
     if (selectedYear) {
       setLoading(true);
       const token = await GetToken();
 
-      const Api = Backend.api + Backend.employeesTaskGraph + `?fiscal_year_id=${selectedYear?.id}`;
+      const Api =
+        Backend.api +
+        Backend.employeesTaskGraph +
+        `?fiscal_year_id=${selectedYear?.id}&start_date=${format(startDate, 'yyyy-MM-dd')}&end_date=${format(endDate, 'yyyy-MM-dd')}`;
       const header = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',
@@ -63,9 +99,54 @@ const Dashboard = () => {
     }
   };
 
+  const handleFetchingStats = async () => {
+    if (selectedYear) {
+      setStatLoading(true);
+      const token = await GetToken();
+      const Api = Backend.api + Backend.getStats;
+
+      const header = {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      fetch(Api, {
+        method: 'GET',
+        headers: header
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            setStats(response.data);
+          } else {
+            toast.warning(response.message);
+          }
+        })
+        .catch((error) => {
+          toast.warning(error.message);
+        })
+        .finally(() => {
+          setStatLoading(false);
+        });
+    } else {
+      return <GetFiscalYear />;
+    }
+  };
+
+  useEffect(() => {
+    if (endDate < startDate) {
+      setEndDate(endOfDay(startDate));
+    }
+  }, [startDate]);
+
+  useEffect(() => {
+    handleFetchingStats();
+  }, [selectedYear]);
+
   useEffect(() => {
     handleFetchingActvities();
-  }, [selectedYear]);
+  }, [selectedYear, startDate, endDate]);
   return (
     <PageContainer title="Dashboard">
       <Grid container spacing={gridSpacing} sx={{ margin: 1 }}>
@@ -73,133 +154,165 @@ const Dashboard = () => {
           <Grid container spacing={gridSpacing} sx={{ display: 'flex', alignItems: 'center' }}>
             <Grid item xs={12} sm={6} md={6} lg={3} xl={3}>
               <DrogaCard sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <IconButton
-                    sx={{
-                      backgroundColor: theme.palette.primary[800],
-                      padding: 1,
-                      ':hover': { backgroundColor: theme.palette.primary[800] }
-                    }}
-                  >
-                    <IconRulerMeasure size="1.4rem" stroke="1.8" color="white" />
-                  </IconButton>
+                {statLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator size={20} />
+                  </Box>
+                ) : (
+                  <React.Fragment>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <IconButton
+                        sx={{
+                          backgroundColor: theme.palette.primary[800],
+                          padding: 1,
+                          ':hover': { backgroundColor: theme.palette.primary[800] }
+                        }}
+                      >
+                        <IconRulerMeasure size="1.4rem" stroke="1.8" color="white" />
+                      </IconButton>
 
-                  <Box sx={{ marginLeft: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography variant="h3" color={theme.palette.primary[800]}>
-                        50
-                      </Typography>
-                      <Typography variant="subtitle1" color={theme.palette.primary[800]} sx={{ marginLeft: 0.6 }}>
-                        KPI's
-                      </Typography>
+                      <Box sx={{ marginLeft: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="h3" color={theme.palette.primary[800]}>
+                            {stats?.kpis}
+                          </Typography>
+                          <Typography variant="subtitle1" color={theme.palette.primary[800]} sx={{ marginLeft: 0.6 }}>
+                            KPI's
+                          </Typography>
+                        </Box>
+
+                        <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                          {stats?.perspectiveTypes} Perspectives
+                        </Typography>
+                      </Box>
                     </Box>
 
-                    <Typography variant="subtitle1" color={theme.palette.text.primary}>
-                      25 Perspectives
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
+                    <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
+                  </React.Fragment>
+                )}
               </DrogaCard>
             </Grid>
 
             <Grid item xs={12} sm={6} md={6} lg={3} xl={3}>
               <DrogaCard sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <IconButton
-                    sx={{
-                      backgroundColor: 'green',
-                      padding: 1,
-                      ':hover': { backgroundColor: 'green' }
-                    }}
-                  >
-                    <IconCheck size="1.4rem" stroke="1.8" color="white" />
-                  </IconButton>
+                {statLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator size={20} />
+                  </Box>
+                ) : (
+                  <React.Fragment>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <IconButton
+                        sx={{
+                          backgroundColor: 'green',
+                          padding: 1,
+                          ':hover': { backgroundColor: 'green' }
+                        }}
+                      >
+                        <IconCheck size="1.4rem" stroke="1.8" color="white" />
+                      </IconButton>
 
-                  <Box sx={{ marginLeft: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography variant="h3" color="green">
-                        12
-                      </Typography>
-                      <Typography variant="subtitle1" color="green" sx={{ marginLeft: 0.6 }}>
-                        Planned KPI's
-                      </Typography>
+                      <Box sx={{ marginLeft: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="h3" color="green">
+                            {stats?.used_kpis}
+                          </Typography>
+                          <Typography variant="subtitle1" color="green" sx={{ marginLeft: 0.6 }}>
+                            Planned KPI's
+                          </Typography>
+                        </Box>
+
+                        <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginLeft: 0.4 }}>
+                          KPI Used this year
+                        </Typography>
+                      </Box>
                     </Box>
 
-                    <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginLeft: 0.4 }}>
-                      KPI Used this year
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
+                    <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
+                  </React.Fragment>
+                )}
               </DrogaCard>
             </Grid>
 
             <Grid item xs={12} sm={6} md={6} lg={3} xl={3}>
               <DrogaCard sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <IconButton
-                    sx={{
-                      backgroundColor: '#8000ff',
-                      padding: 1,
-                      ':hover': { backgroundColor: '#8000ff' }
-                    }}
-                  >
-                    <IconBuilding size="1.4rem" stroke="1.8" style={{ color: '#fff' }} />
-                  </IconButton>
+                {statLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator size={20} />
+                  </Box>
+                ) : (
+                  <React.Fragment>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <IconButton
+                        sx={{
+                          backgroundColor: '#8000ff',
+                          padding: 1,
+                          ':hover': { backgroundColor: '#8000ff' }
+                        }}
+                      >
+                        <IconBuilding size="1.4rem" stroke="1.8" style={{ color: '#fff' }} />
+                      </IconButton>
 
-                  <Box sx={{ marginLeft: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography variant="h3" color="#8000ff">
-                        56
-                      </Typography>
-                      <Typography variant="subtitle1" color="#8000ff" sx={{ marginLeft: 0.6 }}>
-                        Units
-                      </Typography>
+                      <Box sx={{ marginLeft: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="h3" color="#8000ff">
+                            {stats?.units}
+                          </Typography>
+                          <Typography variant="subtitle1" color="#8000ff" sx={{ marginLeft: 0.6 }}>
+                            Units
+                          </Typography>
+                        </Box>
+
+                        <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginLeft: 0.4 }}>
+                          Total
+                        </Typography>
+                      </Box>
                     </Box>
 
-                    <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginLeft: 0.4 }}>
-                      Total
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
+                    <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
+                  </React.Fragment>
+                )}
               </DrogaCard>
             </Grid>
 
             <Grid item xs={12} sm={6} md={6} lg={3} xl={3}>
               <DrogaCard sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <IconButton
-                    sx={{
-                      backgroundColor: '#cc5d02',
-                      padding: 1,
-                      ':hover': { backgroundColor: '#cc5d02' }
-                    }}
-                  >
-                    <IconUsers size="1.4rem" stroke="1.8" style={{ color: '#fff' }} />
-                  </IconButton>
+                {statLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator size={20} />
+                  </Box>
+                ) : (
+                  <React.Fragment>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <IconButton
+                        sx={{
+                          backgroundColor: '#cc5d02',
+                          padding: 1,
+                          ':hover': { backgroundColor: '#cc5d02' }
+                        }}
+                      >
+                        <IconUsers size="1.4rem" stroke="1.8" style={{ color: '#fff' }} />
+                      </IconButton>
 
-                  <Box sx={{ marginLeft: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography variant="h3" color="#cc5d02">
-                        580
-                      </Typography>
-                      <Typography variant="subtitle1" color="#cc5d02" sx={{ marginLeft: 0.6 }}>
-                        Employees
-                      </Typography>
+                      <Box sx={{ marginLeft: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="h3" color="#cc5d02">
+                            {stats?.employees}
+                          </Typography>
+                          <Typography variant="subtitle1" color="#cc5d02" sx={{ marginLeft: 0.6 }}>
+                            Employees
+                          </Typography>
+                        </Box>
+
+                        <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginLeft: 0.4 }}>
+                          Total
+                        </Typography>
+                      </Box>
                     </Box>
 
-                    <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginLeft: 0.4 }}>
-                      Total
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
+                    <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
+                  </React.Fragment>
+                )}
               </DrogaCard>
             </Grid>
           </Grid>
@@ -207,8 +320,11 @@ const Dashboard = () => {
           <Grid container spacing={gridSpacing} marginY={2} sx={{ minHeight: 200 }}>
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography variant="h4">Daily Activities</Typography>
-                <Typography variant="subtitle1">All units</Typography>
+                <Box>
+                  <Typography variant="h4">Daily Activities</Typography>
+                  <SelectorMenu name="chart" options={ChartTypes} selected={chartType} handleSelection={handleChartSelection} />
+                </Box>
+                <DateRangePicker startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
               </Box>
 
               {loading ? (
@@ -218,7 +334,7 @@ const Dashboard = () => {
                   </Grid>
                 </Grid>
               ) : (
-                <ActivityGraph data={data} />
+                chartType && <ActivityGraph data={data} type={chartType} />
               )}
             </Grid>
           </Grid>

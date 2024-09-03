@@ -45,6 +45,7 @@ const Backend = {
   employeeTaskStatus: 'update-employee-task-status/',
   employeesTaskGraph: 'get-employee-task-graph',
   employeeEligiblity: 'employee-eligible/',
+  getEmployeeTask: 'get-employee-tasks/',
   evaluate: 'evaluate',
   unitPerformance: 'unit-performance/',
   myPerformance: 'my-performance',

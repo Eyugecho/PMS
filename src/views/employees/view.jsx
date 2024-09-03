@@ -209,8 +209,9 @@ const ViewEmployee = () => {
     const token = await GetToken();
     const Api =
       Backend.api +
-      Backend.employeeTasks +
-      `?date=${task.date}&fiscal_year_id=${selectedYear?.id}&?page=${pagination.page}&per_page=${pagination.per_page}`;
+      Backend.getEmployeeTask +
+      state?.id +
+      `?date=${task.date}&fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}`;
 
     const header = {
       Authorization: `Bearer ${token}`,

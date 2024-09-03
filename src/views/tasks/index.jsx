@@ -239,46 +239,46 @@ const Tasks = () => {
     }
   };
 
-  const handleFetchingTaskDetail = async () => {
-    setLoadingDetail(true);
+  const handleFetchingTaskDetail = async (task) => {
+    if (task?.data?.id) {
+      setSelected(task);
 
-    const token = await GetToken();
-    const plan = Backend.api + Backend.showPlan + `/${selected?.data?.id}`;
-    const evaluation = Backend.api + Backend.showTarget + `${selected?.data?.id}`;
-    const Api = selected.workflow?.name === 'Evaluation' ? evaluation : plan;
+      setLoadingDetail(true);
 
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
+      const token = await GetToken();
+      const plan = Backend.api + Backend.showPlan + `/${task?.data?.id}`;
+      const evaluation = Backend.api + Backend.showTarget + `${task?.data?.id}`;
+      const Api = task.workflow?.name === 'Evaluation' ? evaluation : plan;
 
-    fetch(Api, {
-      method: 'GET',
-      headers: header
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setDetailData(response.data);
-        } else {
-          // setDetailData([]);
-          toast.warning(response.message);
-        }
+      const header = {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      fetch(Api, {
+        method: 'GET',
+        headers: header
       })
-      .catch((error) => {
-        toast.warning(error.message);
-      })
-      .finally(() => {
-        setLoadingDetail(false);
-      });
-  };
-
-  useEffect(() => {
-    if (mounted) {
-      handleFetchingTaskDetail();
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            setDetailData(response.data);
+          } else {
+            setDetailData([]);
+            toast.warning(response.message);
+          }
+        })
+        .catch((error) => {
+          toast.warning(error.message);
+        })
+        .finally(() => {
+          setLoadingDetail(false);
+        });
+    } else {
+      toast.error('There is error fetching task detail');
     }
-  }, [selected]);
+  };
 
   useEffect(() => {
     handleFetchingWorkflows();
@@ -346,7 +346,7 @@ const Tasks = () => {
                         description={task.description}
                         step={task.step}
                         date={formatDate(task.created_at).formattedDate}
-                        onPress={() => handleTaskDetail(task)}
+                        onPress={() => handleFetchingTaskDetail(task)}
                       />
                     ))}
                   </Grid>
@@ -402,7 +402,7 @@ const Tasks = () => {
                       )}
                       <Divider sx={{ borderColor: theme.palette.divider, my: 1.4 }} />
 
-                      {detailData && <PlanCard plan={{ ...detailData }} sx={{ border: 0, p: 0.4, my: 3 }} />}
+                      {detailData?.target && <PlanCard plan={{ ...detailData }} sx={{ border: 0, p: 0.4, my: 3 }} />}
                       {selected?.status === 'pending' && (
                         <React.Fragment>
                           <DrogaButton
@@ -442,14 +442,17 @@ const Tasks = () => {
                     </Grid>
                   ) : selected.workflow?.name === 'Evaluation' ? (
                     <Grid item xs={12}>
-                      {detailData?.employee && (
-                        <EmployeeProfile name={detailData?.employee?.user?.name} position={detailData?.employee?.position} />
+                      {detailData?.kpi_tracker?.employee && (
+                        <EmployeeProfile
+                          name={detailData?.kpi_tracker?.employee?.user?.name}
+                          position={detailData?.kpi_tracker?.employee?.position}
+                        />
                       )}
-                      {detailData?.unit && (
+                      {detailData?.kpi_tracker?.unit && (
                         <UnitProfile
-                          name={detailData?.unit?.name}
-                          managerName={detailData?.unit?.manager?.user?.name}
-                          position={detailData?.unit?.manager?.position}
+                          name={detailData?.kpi_tracker?.unit?.name}
+                          managerName={detailData?.kpi_tracker?.unit?.manager?.user?.name}
+                          position={detailData?.kpi_tracker?.unit?.manager?.position}
                         />
                       )}
                       <Divider sx={{ borderColor: theme.palette.divider, my: 1.4 }} />

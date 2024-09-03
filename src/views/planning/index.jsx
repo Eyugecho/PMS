@@ -7,6 +7,7 @@ import { gridSpacing } from 'store/constant';
 import { UpdatePlan } from './components/UpdatePlan';
 import { useKPI } from 'context/KPIProvider';
 import { Storage } from 'configration/storage';
+import { useSelector } from 'react-redux';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
 import AddButton from 'ui-component/buttons/AddButton';
@@ -19,6 +20,7 @@ import GetToken from 'utils/auth-token';
 import axios from 'axios';
 
 const Planning = () => {
+  const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
   const navigate = useNavigate();
   const { handleUpdatePlan } = useKPI();
 
@@ -99,8 +101,9 @@ const Planning = () => {
   };
 
   const handleFetchingPlan = async () => {
+    setLoading(true);
     const token = await GetToken();
-    const Api = Backend.api + Backend.getOrgPlans;
+    const Api = Backend.api + Backend.getOrgPlans + `?fiscal_year_id=${selectedYear?.id}`;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -132,9 +135,7 @@ const Planning = () => {
 
   useEffect(() => {
     handleFetchingPlan();
-
-    return () => {};
-  }, []);
+  }, [selectedYear]);
   return (
     <PageContainer
       title={'Planning'}

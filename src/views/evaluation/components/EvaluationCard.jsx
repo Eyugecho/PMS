@@ -44,7 +44,7 @@ const EvaluationCard = ({ evaluation, onPress, sx }) => {
             <Typography variant="body1" color={theme.palette.text.primary}>
               Frequency
             </Typography>
-            <Typography variant="h4">{evaluation?.kpi_tracker?.frequency?.name}</Typography>
+            <Typography variant="h4">{evaluation?.period?.frequency?.name}</Typography>
           </Box>
         </Grid>
 
@@ -91,7 +91,7 @@ const EvaluationCard = ({ evaluation, onPress, sx }) => {
           </Typography>
           <Box sx={{ padding: 1, m: 1, backgroundColor: theme.palette.grey[50], borderRadius: 2 }}>
             <Typography variant="h4" color={theme.palette.text.primary}>
-              20
+              {evaluation?.target}
             </Typography>
           </Box>
         </Grid>
@@ -101,7 +101,7 @@ const EvaluationCard = ({ evaluation, onPress, sx }) => {
           </Typography>
           <Box sx={{ padding: 1, m: 1, backgroundColor: theme.palette.grey[50], borderRadius: 2 }}>
             <Typography variant="h4" color={theme.palette.text.primary}>
-              20
+              {evaluation?.actual_value}
             </Typography>
           </Box>
         </Grid>
