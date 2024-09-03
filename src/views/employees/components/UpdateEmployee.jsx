@@ -52,6 +52,8 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
   const [selectedRoles, setSelectedRoles] = React.useState([]);
   const [roleIds, setRoleIds] = React.useState([]);
 
+  console.log(EmployeeData);
+
   const handleRoleSelection = (event, value) => {
     setSelectedRoles(value);
 
@@ -175,7 +177,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
       email: EmployeeData?.user?.email,
       phone: EmployeeData?.user?.phone,
       type: EmployeeData?.unit?.unit?.unit_type_id,
-      unit: EmployeeData?.unit?.id,
+      unit: EmployeeData?.unit?.unit?.id,
       position: EmployeeData?.position,
       start_date: EmployeeData?.unit?.started_date?.split(' ')[0]
     });

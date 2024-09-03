@@ -119,3 +119,20 @@ export const getStatusColor = (status) => {
       return 'gray';
   }
 };
+
+export const taskStatusColor = (status) => {
+  switch (status.toLowerCase()) {
+    case 'done':
+      return 'green';
+    case 'pending':
+      return '#FFA500';
+    case 'cancelled':
+      return 'red';
+    case 'inprogress':
+      return 'blue';
+    case 'blocked':
+      return 'purple';
+    default:
+      return 'gray';
+  }
+};

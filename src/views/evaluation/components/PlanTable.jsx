@@ -110,9 +110,9 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
               <React.Fragment key={index}>
                 <TableRow
                   sx={{
-                    backgroundColor: selectedRow == index ? theme.palette.primary[200] : theme.palette.background.default,
+                    backgroundColor: selectedRow == index ? theme.palette.grey[50] : theme.palette.background.default,
                     ':hover': {
-                      backgroundColor: theme.palette.primary[200],
+                      backgroundColor: theme.palette.grey[50],
                       color: theme.palette.background.default,
                       cursor: 'pointer',
                       borderRadius: 2

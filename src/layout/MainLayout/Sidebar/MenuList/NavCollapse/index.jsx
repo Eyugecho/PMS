@@ -96,7 +96,10 @@ const NavCollapse = ({ menu, level }) => {
           mb: 0.5,
           alignItems: 'flex-start',
           py: level > 1 ? 1 : 1.25,
-          pl: `${level * 24}px`
+          pl: `${level * 24}px`,
+          ':hover': {
+            '& .MuiTypography-root': { color: 'white' }
+          }
         }}
         selected={selected === menu.id}
         onClick={handleClick}

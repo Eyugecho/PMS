@@ -1,5 +1,5 @@
 import React from 'react';
-import { Avatar, Box, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 import PropTypes from 'prop-types';
 import TaskProgress from './TaskProgress';

@@ -1,14 +1,15 @@
 import React from 'react';
 import { Box, Grid, Paper, Typography, useTheme } from '@mui/material';
-import { MeasuringUnitConverter, PeriodNaming } from 'utils/function';
-import DrogaDataCard from 'ui-component/cards/DrogaDataCard';
+import { MeasuringUnitConverter } from 'utils/function';
 import PropTypes from 'prop-types';
 import DrogaDonutChart from 'ui-component/charts/DrogaDonutChart';
+import DrogaCard from 'ui-component/cards/DrogaCard';
+import { gridSpacing } from 'store/constant';
 
-const EvaluationCard = ({ evaluation, onPress }) => {
+const EvaluationCard = ({ evaluation, onPress, sx }) => {
   const theme = useTheme();
   return (
-    <DrogaDataCard onPress={onPress}>
+    <DrogaCard onPress={onPress} sx={{ ...sx }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
         <Typography variant="body1">KPI Name</Typography>
       </Box>
@@ -71,23 +72,47 @@ const EvaluationCard = ({ evaluation, onPress }) => {
         container
         sx={{
           display: 'flex',
-          flexWrap: 'wrap',
+          flexDirection: 'column',
           marginTop: 3,
           borderTop: 0.8,
           borderColor: theme.palette.divider,
           padding: 0.8,
           paddingTop: 2
         }}
+        spacing={gridSpacing}
       >
-        <Typography variant="body2">Target</Typography>
-
-        <Typography variant="body2">Evaluation</Typography>
+        <Typography variant="h4" color={theme.palette.text.primary}>
+          Quarter 1
+        </Typography>
+        
+        <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="subtitle1" color={theme.palette.text.primary}>
+            Targeted
+          </Typography>
+          <Box sx={{ padding: 1, m: 1, backgroundColor: theme.palette.grey[50], borderRadius: 2 }}>
+            <Typography variant="h4" color={theme.palette.text.primary}>
+              20
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="subtitle1" color={theme.palette.text.primary}>
+            Evaluated
+          </Typography>
+          <Box sx={{ padding: 1, m: 1, backgroundColor: theme.palette.grey[50], borderRadius: 2 }}>
+            <Typography variant="h4" color={theme.palette.text.primary}>
+              20
+            </Typography>
+          </Box>
+        </Grid>
       </Grid>
-    </DrogaDataCard>
+    </DrogaCard>
   );
 };
 
 EvaluationCard.propTypes = {
-  evaluation: PropTypes.object
+  evaluation: PropTypes.object,
+  onPress: PropTypes.func,
+  sx: PropTypes.object
 };
 export default EvaluationCard;

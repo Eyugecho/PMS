@@ -20,7 +20,7 @@ const DrogaButton = ({ title, sx, onPress, icon, type, ...props }) => {
 };
 
 DrogaButton.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.oneOf([PropTypes.string, PropTypes.object]),
   sx: PropTypes.object,
   onPress: PropTypes.func
 };

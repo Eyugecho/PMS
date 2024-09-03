@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, IconButton, TablePagination, TextField, Typography, useTheme } from '@mui/material';
+import { Box, Divider, Grid, IconButton, TablePagination, TextField, Typography, useTheme } from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import { toast, ToastContainer } from 'react-toastify';
 import { IconDetails, IconSortAscending, IconSortDescending } from '@tabler/icons-react';
@@ -22,6 +22,10 @@ import PlanCard from 'views/planning/components/PlanCard';
 import DrogaModal from 'ui-component/modal/DrogaModal';
 import DrogaFormModal from 'ui-component/modal/DrogaFormModal';
 import { IconClipboardList } from '@tabler/icons-react';
+import EmployeeProfile from './components/EmployeeProfile';
+import UnitProfile from './components/UnitProfile';
+import { borderTopColor } from '@mui/system';
+import EvaluationCard from 'views/evaluation/components/EvaluationCard';
 
 const taskStatuses = [
   { label: 'All Status', value: '' },
@@ -120,7 +124,7 @@ const Tasks = () => {
       };
 
       fetch(Api, {
-        method: 'POST',
+        method: 'PUT',
         headers: header,
         body: JSON.stringify(data)
       })
@@ -239,7 +243,9 @@ const Tasks = () => {
     setLoadingDetail(true);
 
     const token = await GetToken();
-    const Api = Backend.api + Backend.showPlan + `/${selected?.data?.id}`;
+    const plan = Backend.api + Backend.showPlan + `/${selected?.data?.id}`;
+    const evaluation = Backend.api + Backend.showTarget + `${selected?.data?.id}`;
+    const Api = selected.workflow?.name === 'Evaluation' ? evaluation : plan;
 
     const header = {
       Authorization: `Bearer ${token}`,
@@ -256,6 +262,7 @@ const Tasks = () => {
         if (response.success) {
           setDetailData(response.data);
         } else {
+          // setDetailData([]);
           toast.warning(response.message);
         }
       })
@@ -364,7 +371,7 @@ const Tasks = () => {
             <DrogaCard sx={{ minHeight: 240 }}>
               <Typography variant="h4">Task Details</Typography>
 
-              {selected && selected?.workflow?.name === 'Planning' ? (
+              {selected && detailData ? (
                 <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {loadingDetail ? (
                     <Grid container>
@@ -381,27 +388,21 @@ const Tasks = () => {
                       description={`The detail of task is shown here`}
                       sx={{ paddingTop: 6 }}
                     />
-                  ) : (
+                  ) : selected?.workflow?.name === 'Planning' ? (
                     <Grid item xs={12}>
-                      {/* <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', marginTop: 3 }}>
-                      <Box sx={{ width: '14%', marginTop: 0.8 }}>
-                        <Avatar sx={{ width: 32, height: 32 }} src={image} alt={username} />
-                      </Box>
+                      {detailData?.employee && (
+                        <EmployeeProfile name={detailData?.employee?.user?.name} position={detailData?.employee?.position} />
+                      )}
+                      {detailData?.unit && (
+                        <UnitProfile
+                          name={detailData?.unit?.name}
+                          managerName={detailData?.unit?.manager?.user?.name}
+                          position={detailData?.unit?.manager?.position}
+                        />
+                      )}
+                      <Divider sx={{ borderColor: theme.palette.divider, my: 1.4 }} />
 
-                      <Box sx={{ width: '86%' }}>
-                        <Typography variant="subtitle1" color={theme.palette.text.primary}>
-                          {username}
-                        </Typography>
-                        <Typography variant="subtitle2">{position}</Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <TaskProgress numberOfSteps={step} status={status} />
-
-                          <Typography variant="subtitle2">{date}</Typography>
-                        </Box>
-                      </Box>
-                    </Box> */}
-
-                      {detailData && <PlanCard plan={{ ...detailData }} sx={{ border: 0, p: 0.4, mt: 3 }} />}
+                      {detailData && <PlanCard plan={{ ...detailData }} sx={{ border: 0, p: 0.4, my: 3 }} />}
                       {selected?.status === 'pending' && (
                         <React.Fragment>
                           <DrogaButton
@@ -419,14 +420,6 @@ const Tasks = () => {
                           />
                           <Grid container mt={1} spacing={gridSpacing}>
                             <Grid item xs={12}>
-                              {/* <SelectorMenu
-                            name="amendment"
-                            options={amendingOptions}
-                            selected={amendment}
-                            handleSelection={handleAmendment}
-                            sx={{ width: '100%', backgroundColor: theme.palette.grey[50], borderRadius: 2 }}
-                          /> */}
-
                               <DrogaButton
                                 title="Amend"
                                 variant="text"
@@ -447,33 +440,61 @@ const Tasks = () => {
                         </React.Fragment>
                       )}
                     </Grid>
-                  )}
-                </Grid>
-              ) : selected && selected.workflow.name === 'Evaluation' ? (
-                <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Grid item xs={11}>
-                    <DrogaButton
-                      title={'Approve'}
-                      variant="contained"
-                      sx={{
-                        backgroundColor: 'green',
-                        ':hover': { backgroundColor: 'green' },
-                        width: '100%',
-                        boxShadow: 0,
-                        p: 1.4,
-                        marginTop: 2
-                      }}
-                    />
+                  ) : selected.workflow?.name === 'Evaluation' ? (
+                    <Grid item xs={12}>
+                      {detailData?.employee && (
+                        <EmployeeProfile name={detailData?.employee?.user?.name} position={detailData?.employee?.position} />
+                      )}
+                      {detailData?.unit && (
+                        <UnitProfile
+                          name={detailData?.unit?.name}
+                          managerName={detailData?.unit?.manager?.user?.name}
+                          position={detailData?.unit?.manager?.position}
+                        />
+                      )}
+                      <Divider sx={{ borderColor: theme.palette.divider, my: 1.4 }} />
+                      {detailData && <EvaluationCard evaluation={{ ...detailData }} sx={{ border: 0, p: 0.4, my: 3 }} />}
 
-                    <Grid container mt={2}>
-                      <Grid item xs={6}>
-                        <DrogaButton title={'Amend'} variant="text" sx={{ width: '100%' }} onPress={() => handleTaskAction('ammend')} />
-                      </Grid>
-                      <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <DrogaButton title={'Reject'} variant="text" color="error" sx={{ width: '100%' }} />
-                      </Grid>
+                      {selected?.status === 'pending' && (
+                        <React.Fragment>
+                          <DrogaButton
+                            title="Approve"
+                            variant="contained"
+                            sx={{
+                              backgroundColor: 'green',
+                              ':hover': { backgroundColor: 'green' },
+                              width: '100%',
+                              boxShadow: 0,
+                              p: 1.4,
+                              marginTop: 2
+                            }}
+                            onPress={() => handleTaskAction('approved')}
+                          />
+                          <Grid container mt={1} spacing={gridSpacing}>
+                            <Grid item xs={12}>
+                              <DrogaButton
+                                title="Amend"
+                                variant="text"
+                                sx={{ width: '100%' }}
+                                onPress={() => handleTaskAction('amended')}
+                              />
+                            </Grid>
+                            <Grid item xs={12}>
+                              <DrogaButton
+                                title="Reject"
+                                variant="text"
+                                color="error"
+                                sx={{ width: '100%' }}
+                                onPress={() => handleTaskAction('rejected')}
+                              />
+                            </Grid>
+                          </Grid>
+                        </React.Fragment>
+                      )}
                     </Grid>
-                  </Grid>
+                  ) : (
+                    <Typography variant="subtitle1"> The task does not have categorized type</Typography>
+                  )}
                 </Grid>
               ) : (
                 <Box sx={{ margin: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

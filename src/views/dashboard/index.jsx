@@ -22,6 +22,7 @@ import {
 } from '@tabler/icons-react';
 import DrogaDonutChart from 'ui-component/charts/DrogaDonutChart';
 import NotificationCard from './components/Notification';
+import ActivityGraph from 'ui-component/charts/ActivityGraph';
 
 // ==============================|| HOME DASHBOARD ||============================== //
 
@@ -162,6 +163,17 @@ const Dashboard = () => {
 
                 <IconArrowsDiagonal size="1.4rem" stroke="1.8" color="#ccc" />
               </DrogaCard>
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={gridSpacing} marginTop={1}>
+            <Grid item xs={12}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography variant="h4">Daily Activities</Typography>
+                <Typography variant="subtitle1">All units</Typography>
+              </Box>
+
+              <ActivityGraph />
             </Grid>
           </Grid>
 

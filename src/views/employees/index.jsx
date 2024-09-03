@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import PageContainer from 'ui-component/MainPage';
 import Search from 'ui-component/search';
 import {
+  Box,
+  Chip,
   CircularProgress,
   Grid,
   Table,
@@ -165,16 +167,16 @@ const Employees = () => {
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
-          setIsAdding(false);
-          handleAddEmployeeModal();
+          handleAddEmployeeClose();
           toast.success(response.data.message);
         } else {
-          setIsAdding(false);
           toast.error(response.data.message);
         }
       })
       .catch((error) => {
         toast.error(error.message);
+      })
+      .finally(() => {
         setIsAdding(false);
       });
   };
@@ -398,7 +400,15 @@ const Employees = () => {
                       <TableCell sx={{ border: 0 }}>{employee?.user?.email}</TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.user?.phone ? employee?.user?.phone : 'N/A'}</TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.position ? employee?.position : 'N/A'}</TableCell>
-                      <TableCell sx={{ border: 0 }}>{employee?.user?.roles?.name ? employee?.user?.roles?.name : 'N/A'}</TableCell>
+                      <TableCell sx={{ border: 0 }}>
+                        {employee?.user?.roles.length > 0
+                          ? employee?.user?.roles?.map((role, index) => (
+                              <Box key={index}>
+                                <Chip label={role.name} sx={{ margin: 0.4 }} />
+                              </Box>
+                            ))
+                          : 'N/A'}
+                      </TableCell>
                       <TableCell sx={{ border: 0 }}>{formattedDate(employee?.unit?.started_date)}</TableCell>
                       <TableCell sx={{ border: 0 }}>
                         <DotMenu

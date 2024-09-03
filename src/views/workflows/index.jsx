@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import { IconCheck, IconDetails, IconPlus, IconX } from '@tabler/icons-react';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { DotMenu } from 'ui-component/menu/DotMenu';
 import PageContainer from 'ui-component/MainPage';
 import DrogaCard from 'ui-component/cards/DrogaCard';
@@ -730,6 +730,8 @@ const Workflows = () => {
           </Grid>
         </Grid>
       </Grid>
+
+      <ToastContainer />
     </PageContainer>
   );
 };

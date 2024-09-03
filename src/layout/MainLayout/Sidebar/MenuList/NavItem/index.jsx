@@ -73,7 +73,10 @@ const NavItem = ({ item, level }) => {
         alignItems: 'flex-start',
         py: level > 1 ? 1 : 1.25,
         pl: `${level * 24}px`,
-        backgroundColor: level > 1 && customization.isOpen.findIndex((id) => id === item.id) > -1 ? theme.palette.primary.light : 'inherit'
+        backgroundColor: level > 1 && customization.isOpen.findIndex((id) => id === item.id) > -1 ? theme.palette.primary.light : 'inherit',
+        ':hover': {
+          '& .MuiTypography-root': { color: 'white' }
+        }
       }}
       selected={customization.isOpen.findIndex((id) => id === item.id) > -1}
       onClick={() => itemHandler(item.id)}
