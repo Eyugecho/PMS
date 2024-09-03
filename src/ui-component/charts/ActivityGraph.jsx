@@ -1,50 +1,73 @@
 import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import Fallbacks from 'utils/components/Fallbacks';
 
-const ActivityGraph = () => {
+const ActivityGraph = ({ data }) => {
+  // Check if data is provided and not empty
+  const isDataAvailable = data && data.length > 0;
+
+  // Extract dates for the x-axis labels if data is available, otherwise use a placeholder
+  const dates = isDataAvailable ? data.map((item) => item.date) : ['No Data'];
+
+  // Extract task counts for each status across all dates if data is available, otherwise use placeholders
+  const statuses = ['pending', 'inprogress', 'done', 'blocked', 'cancelled'];
+  const series = isDataAvailable
+    ? statuses.map((status) => ({
+        name: status,
+        data: data.map((item) => {
+          const statusObj = item.statuses.find((s) => s.status === status);
+          return statusObj ? parseInt(statusObj.task_count) : 0;
+        })
+      }))
+    : statuses.map((status) => ({
+        name: status,
+        data: [0] // Placeholder data
+      }));
+
   const [chartState] = useState({
-    series: [
-      {
-        name: 'Tasks',
-        data: [
-          { x: '01/01', y: 400 },
-          { x: '04/01', y: 430 },
-          { x: '07/01', y: 448 },
-          { x: '10/01', y: 470 },
-          { x: '01/01', y: 540 },
-          { x: '04/01', y: 580 },
-          { x: '07/01', y: 690 },
-          { x: '10/01', y: 690 }
-        ]
-      }
-    ],
+    series: series,
     options: {
       chart: {
         type: 'bar',
-        height: 380
+        height: 380,
+        stacked: true
       },
       xaxis: {
-        type: 'category',
+        categories: dates, // Dates on the x-axis or 'No Data'
         labels: {
           formatter: function (val) {
-            return val;
+            return val; // Display date as it is or 'No Data'
           }
         }
       },
       title: {
-        text: ''
+        text: 'Task Status by Date'
       },
       tooltip: {
         x: {
           formatter: function (val) {
-            return val;
+            return val; // Tooltip also displays the date or 'No Data'
           }
         }
       }
     }
   });
 
-  return <ReactApexChart options={chartState.options} series={chartState.series} type="bar" height={380} />;
+  return (
+    <div>
+      {isDataAvailable ? (
+        <ReactApexChart options={chartState.options} series={chartState.series} type="bar" height={380} />
+      ) : (
+        <Fallbacks
+          severity="activities"
+          title={`The activity data is not found`}
+          description={`The graph of activities summary is shown here`}
+          sx={{ paddingTop: 6 }}
+          size={100}
+        />
+      )}
+    </div>
+  );
 };
 
 export default ActivityGraph;

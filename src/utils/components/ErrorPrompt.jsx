@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Grid, Typography } from '@mui/material';
-import noresult from '../../assets/images/no_result.png';
+import noresult from '../../assets/images/error.svg';
 import PropTypes from 'prop-types';
 
 const ErrorPrompt = ({ image, size, title, message, buttontitle, onPress }) => {

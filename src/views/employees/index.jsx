@@ -21,14 +21,15 @@ import { formattedDate } from 'utils/function';
 import { AddEmployee } from './components/AddEmployee';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { DotMenu } from 'ui-component/menu/DotMenu';
 import SplitButton from 'ui-component/buttons/SplitButton';
 import FilterEmployees from './components/FilterEmployees';
-import { DotMenu } from 'ui-component/menu/DotMenu';
 import UpdateEmployee from './components/UpdateEmployee';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import UploadFile from 'ui-component/modal/UploadFile';
 import axios from 'axios';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
+import GetToken from 'utils/auth-token';
 
 const AddEmployeeOptions = ['Add Employee', 'Import From Excel'];
 
@@ -230,6 +231,49 @@ const Employees = () => {
       });
   };
 
+  const handleEmployeeEligiblity = async (employee) => {
+    setIsUpdating(true);
+
+    const token = await GetToken();
+    if (!token) {
+      toast.error('Authorization token is missing.');
+      setIsUpdating(false);
+      return;
+    }
+
+    const Api = Backend.api + Backend.employeeEligiblity + employee?.id;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      eligible: employee?.is_eligible
+    };
+
+    fetch(Api, {
+      method: 'POST',
+      headers: header,
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast.success(response?.data?.message);
+          handleFetchingEmployees();
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
+        setIsUpdating(false);
+      });
+  };
+
   const handleRemoveEmployee = (employee) => {
     setSelectedRow(employee);
     setDeleteUser(true);
@@ -351,10 +395,11 @@ const Employees = () => {
                   <TableCell>Name</TableCell>
                   <TableCell>Gender</TableCell>
                   <TableCell>Email</TableCell>
-                  <TableCell>Phone</TableCell>
+
                   <TableCell>Position</TableCell>
                   <TableCell>Role</TableCell>
                   <TableCell>Starting date</TableCell>
+                  <TableCell>Eligiblity</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -398,7 +443,6 @@ const Employees = () => {
                       </TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.gender ? employee?.gender : 'N/A'}</TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.user?.email}</TableCell>
-                      <TableCell sx={{ border: 0 }}>{employee?.user?.phone ? employee?.user?.phone : 'N/A'}</TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.position ? employee?.position : 'N/A'}</TableCell>
                       <TableCell sx={{ border: 0 }}>
                         {employee?.user?.roles.length > 0
@@ -411,9 +455,30 @@ const Employees = () => {
                       </TableCell>
                       <TableCell sx={{ border: 0 }}>{formattedDate(employee?.unit?.started_date)}</TableCell>
                       <TableCell sx={{ border: 0 }}>
+                        {employee?.is_eligible ? (
+                          <Chip
+                            label="Eligible"
+                            sx={{
+                              backgroundColor: '#d8edd9',
+                              color: 'green'
+                            }}
+                          />
+                        ) : (
+                          <Chip
+                            label="Not Eligible"
+                            sx={{
+                              backgroundColor: '#f7e4e4',
+                              color: 'red'
+                            }}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell sx={{ border: 0 }}>
                         <DotMenu
                           onView={() => navigate('/employees/view', { state: employee })}
                           onEdit={() => handleEmployeeUpdate(employee)}
+                          eligiblity={employee?.is_eligible ? 'Not Eligible' : 'Eligible'}
+                          onEligible={() => handleEmployeeEligiblity(employee)}
                           onDelete={() => handleRemoveEmployee(employee)}
                         />
                       </TableCell>

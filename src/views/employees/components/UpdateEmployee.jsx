@@ -52,8 +52,6 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
   const [selectedRoles, setSelectedRoles] = React.useState([]);
   const [roleIds, setRoleIds] = React.useState([]);
 
-  console.log(EmployeeData);
-
   const handleRoleSelection = (event, value) => {
     setSelectedRoles(value);
 

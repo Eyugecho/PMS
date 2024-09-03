@@ -14,24 +14,24 @@ const EvaluationCard = ({ evaluation, onPress, sx }) => {
         <Typography variant="body1">KPI Name</Typography>
       </Box>
       <Typography variant="h3" color={theme.palette.text.primary} sx={{ marginTop: 0.6 }}>
-        {evaluation?.kpi?.name}
+        {evaluation?.kpi_tracker?.kpi?.name}
       </Typography>
 
       <Grid container sx={{ paddingTop: 2 }}>
         <Grid item xs={6} sx={{ paddingY: 2.4 }}>
           <Box>
             <Typography variant="body1">Perspective Type</Typography>
-            <Typography variant="h4">{evaluation?.kpi?.perspective_type?.name}</Typography>
+            <Typography variant="h4">{evaluation?.kpi_tracker?.kpi?.perspective_type?.name}</Typography>
           </Box>
 
           <Box sx={{ paddingTop: 2 }}>
             <Typography variant="body1">Measuring Unit</Typography>
-            <Typography variant="h4">{evaluation?.kpi?.measuring_unit?.name}</Typography>
+            <Typography variant="h4">{evaluation?.kpi_tracker?.kpi?.measuring_unit?.name}</Typography>
           </Box>
         </Grid>
 
         <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 2 }}>
-          <DrogaDonutChart value={evaluation?.weight} />
+          <DrogaDonutChart value={evaluation?.kpi_tracker?.weight} />
           <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginTop: 2 }}>
             Weight
           </Typography>
@@ -44,7 +44,7 @@ const EvaluationCard = ({ evaluation, onPress, sx }) => {
             <Typography variant="body1" color={theme.palette.text.primary}>
               Frequency
             </Typography>
-            <Typography variant="h4">{evaluation?.frequency?.name}</Typography>
+            <Typography variant="h4">{evaluation?.kpi_tracker?.frequency?.name}</Typography>
           </Box>
         </Grid>
 
@@ -62,8 +62,8 @@ const EvaluationCard = ({ evaluation, onPress, sx }) => {
               Target
             </Typography>
             <Typography variant="h4">
-              {evaluation?.total_target}
-              {MeasuringUnitConverter(evaluation?.kpi?.measuring_unit?.name)}
+              {evaluation?.kpi_tracker?.total_target}
+              {MeasuringUnitConverter(evaluation?.kpi_tracker?.kpi?.measuring_unit?.name)}
             </Typography>
           </Paper>
         </Grid>
@@ -84,7 +84,7 @@ const EvaluationCard = ({ evaluation, onPress, sx }) => {
         <Typography variant="h4" color={theme.palette.text.primary}>
           Quarter 1
         </Typography>
-        
+
         <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="subtitle1" color={theme.palette.text.primary}>
             Targeted

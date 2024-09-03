@@ -1,33 +1,71 @@
+import { useEffect, useState } from 'react';
 // material-ui
 import Grid from '@mui/material/Grid';
 
 // project imports
 import { gridSpacing } from 'store/constant';
-import { Box, Icon, IconButton, Typography, useTheme } from '@mui/material';
+import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import PageContainer from 'ui-component/MainPage';
 import DrogaCard from 'ui-component/cards/DrogaCard';
-import {
-  IconArrowsDiagonal,
-  IconBuilding,
-  IconCheck,
-  IconGauge,
-  IconList,
-  IconMenu,
-  IconMenu2,
-  IconRulerMeasure,
-  IconStar,
-  IconTrophyFilled,
-  IconUser,
-  IconUsers
-} from '@tabler/icons-react';
+import { IconArrowsDiagonal, IconBuilding, IconCheck, IconMenu2, IconRulerMeasure, IconUsers } from '@tabler/icons-react';
 import DrogaDonutChart from 'ui-component/charts/DrogaDonutChart';
 import NotificationCard from './components/Notification';
 import ActivityGraph from 'ui-component/charts/ActivityGraph';
+import { useSelector } from 'react-redux';
+import GetToken from 'utils/auth-token';
+import Backend from 'services/backend';
+import { toast } from 'react-toastify';
+import GetFiscalYear from 'utils/components/GetFiscalYear';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import Fallbacks from 'utils/components/Fallbacks';
 
 // ==============================|| HOME DASHBOARD ||============================== //
 
 const Dashboard = () => {
   const theme = useTheme();
+  const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
+
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
+
+  const handleFetchingActvities = async () => {
+    if (selectedYear) {
+      setLoading(true);
+      const token = await GetToken();
+
+      const Api = Backend.api + Backend.employeesTaskGraph + `?fiscal_year_id=${selectedYear?.id}`;
+      const header = {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      fetch(Api, {
+        method: 'GET',
+        headers: header
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            setData(response.data);
+          } else {
+            toast.warning(response.message);
+          }
+        })
+        .catch((error) => {
+          toast.warning(error.message);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      return <GetFiscalYear />;
+    }
+  };
+
+  useEffect(() => {
+    handleFetchingActvities();
+  }, [selectedYear]);
   return (
     <PageContainer title="Dashboard">
       <Grid container spacing={gridSpacing} sx={{ margin: 1 }}>
@@ -166,14 +204,22 @@ const Dashboard = () => {
             </Grid>
           </Grid>
 
-          <Grid container spacing={gridSpacing} marginTop={1}>
+          <Grid container spacing={gridSpacing} marginY={2} sx={{ minHeight: 200 }}>
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography variant="h4">Daily Activities</Typography>
                 <Typography variant="subtitle1">All units</Typography>
               </Box>
 
-              <ActivityGraph />
+              {loading ? (
+                <Grid container>
+                  <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
+                    <ActivityIndicator size={20} />
+                  </Grid>
+                </Grid>
+              ) : (
+                <ActivityGraph data={data} />
+              )}
             </Grid>
           </Grid>
 

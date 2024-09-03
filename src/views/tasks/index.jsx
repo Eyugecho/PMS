@@ -124,7 +124,7 @@ const Tasks = () => {
       };
 
       fetch(Api, {
-        method: 'PUT',
+        method: 'POST',
         headers: header,
         body: JSON.stringify(data)
       })

@@ -174,6 +174,7 @@ const Planning = () => {
                 onPress={() => navigate('/planning/view', { state: plan })}
                 onEdit={() => handleUpdatingPlan(plan)}
                 onDelete={() => handleDeletePlan(plan)}
+                editInitiative={true}
               />
             </Grid>
           ))}
