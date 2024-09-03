@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DrogaDataCard from 'ui-component/cards/DrogaDataCard';
 import PropTypes from 'prop-types';
-import { Box, Grid, Paper, Typography, useTheme } from '@mui/material';
+import { Box, Grid, IconButton, Paper, Typography, useTheme } from '@mui/material';
 import { DotMenu } from 'ui-component/menu/DotMenu';
 import { MeasuringUnitConverter, PeriodNaming } from 'utils/function';
 import DrogaDonutChart from 'ui-component/charts/DrogaDonutChart';
 import DrogaCard from 'ui-component/cards/DrogaCard';
+import { IconChevronDown, IconChevronRight, IconChevronUp } from '@tabler/icons-react';
 
 const PlanCard = ({ plan, onPress, onEdit, onDelete, sx }) => {
   const theme = useTheme();
+  const [expand, setExpand] = useState('');
+
+  const handleExpanding = (event, itemID) => {
+    event.stopPropagation();
+    if (expand) {
+      setExpand('');
+    } else {
+      setExpand(itemID);
+    }
+  };
+
   return (
     <DrogaCard onPress={onPress} sx={{ ...sx }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -107,6 +119,33 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx }) => {
             </Box>
           </Grid>
         ))}
+      </Grid>
+
+      <Grid container sx={{ marginTop: 2 }}>
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderTop: 0.8,
+              borderColor: theme.palette.divider,
+              padding: 0.8
+            }}
+          >
+            <Typography variant="h4">Initiatives</Typography>
+
+            <IconButton onClick={(event) => handleExpanding(event, plan.id)}>
+              {expand === plan.id ? <IconChevronUp size="1.2rem" stroke="1.8" /> : <IconChevronDown size="1.2rem" stroke="1.8" />}
+            </IconButton>
+          </Box>
+
+          {expand === plan.id && (
+            <Box>
+              <Typography variant="body2">The plan initiatives</Typography>
+            </Box>
+          )}
+        </Grid>
       </Grid>
     </DrogaCard>
   );
