@@ -12,6 +12,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import PropTypes from 'prop-types';
 import Backend from 'services/backend';
 import { toast } from 'react-toastify';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLoading, searchText, searching, onTextChange, onSubmit }) => {
   const [selectedCoordinator, setSelectedCoordinator] = useState(null);
@@ -149,9 +150,9 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
                           marginY: 1,
                           padding: 1.2,
                           border: 1,
-                          borderColor: theme.palette.primary[200],
+                          borderColor: theme.palette.divider,
                           borderRadius: 2,
-                          backgroundColor: selectedCoordinator && selectedCoordinator.id === manager.id && theme.palette.primary[200],
+                          backgroundColor: selectedCoordinator && selectedCoordinator.id === manager.id && theme.palette.grey[50],
                           cursor: 'pointer'
                         }}
                       >
@@ -179,11 +180,11 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
           <Button onClick={handleDialogClose}>Cancel</Button>
           <Button
             onClick={() => handleManagerAssignment()}
-            variant="outlined"
+            variant="contained"
             sx={{ paddingX: 6 }}
             disabled={selectedCoordinator ? false : true}
           >
-            {assigning ? <CircularProgress size={16} /> : 'Assign'}
+            {assigning ? <ActivityIndicator size={16} /> : 'Assign'}
           </Button>
         </DialogActions>
       </Dialog>
