@@ -233,7 +233,6 @@ const theme = useTheme();
             <Button
               variant="contained"
               color="primary"
-              startIcon={<AddCircleOutlineIcon />}
               onClick={() => {
                 formik.resetForm();
                 setEditIndex(false);

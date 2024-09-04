@@ -116,6 +116,8 @@ const Performance = () => {
         .then((response) => {
           if (response.success) {
             setPerformance(response.data.performance);
+            console.log(response.data.performance);
+            
           } else {
             setPerformance([]);
             toast.warning(response.data.message);

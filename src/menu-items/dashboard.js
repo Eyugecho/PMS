@@ -24,6 +24,7 @@ const icons = {
 };
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
+
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 const auth = getRolesAndPermissionsFromToken();
 
@@ -64,8 +65,7 @@ export const dashboard = () => {
       }
     });
 
-  childrenTemp.push(
-    {
+  childrenTemp.push({
       id: 'mointoring',
       title: 'Monitoring',
       type: 'collapse',
@@ -80,8 +80,7 @@ export const dashboard = () => {
       type: 'item',
       url: 'evaluations',
       icon: icons.IconListCheck
-    },
-    {
+    }, {
       id: 'approvals',
       title: 'Approval Managment',
       type: 'collapse',
@@ -95,8 +94,7 @@ export const dashboard = () => {
           url: 'tasks'
         }
       ]
-    },
-    {
+    }, {
       id: 'performance',
       title: 'Performance',
       type: 'item',

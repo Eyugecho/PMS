@@ -34,6 +34,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import config from '../../configration/config';
+import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 function Frequency() {
   const [frequencies, setFrequencies] = useState([]);
@@ -155,13 +156,15 @@ function Frequency() {
     formik.resetForm();
     setEditIndex(null);
   };
+  const auth = getRolesAndPermissionsFromToken();
+  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
 
   return (
     <Box p={0}>
       <Grid item xs={12}>
         <Card>
           <Grid item xs={12} style={{ padding: '2px 2px 15px 3px' }}>
-            <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={handleOpen}>
+            <Button variant="contained" color="primary" onClick={handleOpen}>
               Add Frequency
             </Button>
           </Grid>
@@ -260,7 +263,7 @@ function Frequency() {
                               handleMenuClose();
                             }}
                           >
-                            <EditIcon fontSize="small" /> Edit
+                            <EditIcon fontSize="small" disabled={!hasPermission} /> Edit
                           </MenuItem>
                           <MenuItem
                             onClick={() => {

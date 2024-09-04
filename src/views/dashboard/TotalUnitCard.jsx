@@ -13,16 +13,20 @@ import Typography from '@mui/material/Typography';
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import TotalIncomeCard from 'ui-component/cards/Skeleton/TotalIncomeCard';
+import DepartmentIcon from 'assets/images/icons/department.svg';
 
 // assets
-import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
+
+
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.dark,
-  color: theme.palette.primary.light,
+
   overflow: 'hidden',
   position: 'relative',
+  bgcolor: 'transparent',
+  backgroundImage: '#fff',
+  boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.1)',
   '&:after': {
     content: '""',
     position: 'absolute',
@@ -65,23 +69,24 @@ const TotalIncomeDarkCard = ({ isLoading }) => {
                     sx={{
                       ...theme.typography.commonAvatar,
                       ...theme.typography.largeAvatar,
-                      bgcolor: 'primary.800',
-                      color: '#fff'
+                      bgcolor: '#68A6F2',
+                      color: '#fff',
+                      mt: 0
                     }}
                   >
-                    <TableChartOutlinedIcon fontSize="inherit" />
+                    <img src={DepartmentIcon} alt="Notification" />
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                  sx={{ py: 0, my: 0.45 }}
+                  sx={{ py: 0, my: 0 }}
                   primary={
-                    <Typography variant="h4" sx={{ color: '#fff' }}>
-                      $203k
+                    <Typography variant="h4" sx={{ color: 'grey.500' }}>
+                      100+
                     </Typography>
                   }
                   secondary={
-                    <Typography variant="subtitle2" sx={{ color: 'primary.light', mt: 0.25 }}>
-                      Total Income
+                    <Typography variant="subtitle2" sx={{ color: 'grey.500', mt: 0.25 }}>
+                      Total Unit
                     </Typography>
                   }
                 />
