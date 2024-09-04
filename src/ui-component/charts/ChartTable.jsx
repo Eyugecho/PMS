@@ -8,7 +8,7 @@ const ChartTable = ({ view, data }) => {
     <TableContainer>
       <Table
         sx={{
-          minWidth: 720,
+          minWidth: 840,
           borderCollapse: 'collapse'
         }}
         aria-label="Organization unit table"

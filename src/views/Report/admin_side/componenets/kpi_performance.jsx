@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import { Divider } from '@mui/material';
-import { IconMenu2 } from '@tabler/icons-react';
+
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -15,9 +15,6 @@ import Typography from '@mui/material/Typography';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
-
-
-
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
@@ -174,7 +171,7 @@ const KpiPerformance = () => {
                   </Grid>
 
                   <Grid item sx={{ textAlign: 'right' }}>
-                    <FormControl variant="outlined" >
+                    <FormControl variant="outlined">
                       <InputLabel id="unit-select-label">Select Unit</InputLabel>
                       <Select
                         labelId="unit-select-label"

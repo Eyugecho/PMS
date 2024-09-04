@@ -17,7 +17,7 @@ import {
   Select,
   MenuItem,
   Paper,
-    InputLabel,
+  InputLabel,
   CardContent
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -127,8 +127,6 @@ const KpiTable = () => {
                 fullWidth
                 label="Select Quarter"
               >
-                <InputLabel id="unit-select-label">Select</InputLabel>
-
                 {['quarter1', 'quarter2', 'quarter3', 'quarter4'].map((quarter) => (
                   <MenuItem key={quarter} value={quarter}>
                     {`Q${quarter.replace('quarter', '')}`}
