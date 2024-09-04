@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Chip, Grid, TablePagination } from '@mui/material';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
 import UnitTable from './components/UnitTable';
@@ -46,8 +46,8 @@ const Evaluations = () => {
   const handleFetchingUnits = async (value) => {
     setLoading(true);
     const token = await GetToken();
-    const units = Backend.api + Backend.getDepartments + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
-    const employee = Backend.api + Backend.getEmployees + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+    const units = Backend.api + Backend.getActiveDepartments + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+    const employee = Backend.api + Backend.getActiveEmployees + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
     const Api = value == 'employees' ? employee : units;
     const header = {
       Authorization: `Bearer ${token}`,
@@ -155,6 +155,7 @@ const Evaluations = () => {
           )}
         </Grid>
       </Grid>
+      <ToastContainer />
     </PageContainer>
   );
 };
