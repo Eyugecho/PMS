@@ -24,6 +24,7 @@ import { decodeToken, hasRole } from '../../../../store/permissionUtils';
 import { SET_USER, setUser } from '../../../../store/actions/actions';
 import { AuthContext } from 'context/AuthContext';
 import { Storage } from 'configration/storage';
+import Backend from 'services/backend';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
@@ -38,12 +39,14 @@ const AuthLogin = ({ ...others }) => {
 
   const handleLogin = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
+      const Api = Backend.auth + Backend.login;
+
       const data = {
         email: values.email,
         password: values.password
       };
 
-      fetch(`${config.API_URL}/login-with-email`, {
+      fetch(Api, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)

@@ -157,9 +157,6 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
                         }}
                       >
                         <Box>
-                          {/* <Typography variant="subtitle2">
-                            Currently |<b> {manager.department ? manager.department.name : 'Not assigned'}</b>
-                          </Typography> */}
                           <IconLabel content={manager?.user?.name} label={manager?.user?.email} sx={{ paddinY: 3 }}>
                             <Person fontSize="small" />
                           </IconLabel>

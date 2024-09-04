@@ -1,6 +1,7 @@
 const Backend = {
   api: import.meta.env.VITE_PMS_URL,
   auth: import.meta.env.VITE_AUTH_URL,
+  login: 'login-with-email',
   users: 'users',
   refreshToken: 'refresh',
   resetPassword: 'reset-password',
@@ -68,7 +69,6 @@ const Backend = {
   getEmployeesInDep: 'my-child-units-employee-count',
   getRankings: 'rank-performance',
   unitKpiPerformance: 'show-performance-chart',
-  unitEmployeeEndpoint: 'get-unit-employees-with-performance/',
-
+  unitEmployeeEndpoint: 'get-unit-employees-with-performance/'
 };
 export default Backend;
