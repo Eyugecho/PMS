@@ -24,6 +24,7 @@ const icons = {
 };
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
+
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 const auth = getRolesAndPermissionsFromToken();
 
@@ -38,6 +39,7 @@ export const dashboard = () => {
     icon: icons.IconHome,
     breadcrumbs: false
   });
+
   auth.forEach((role) => {
     if (role.permissions.find((per) => per.name == 'read:kpi')) {
       childrenTemp.push({
@@ -62,21 +64,24 @@ export const dashboard = () => {
     }
   });
 
-  childrenTemp.push(
-    {
+  childrenTemp.push({
       id: 'mointoring',
       title: 'Monitoring',
       type: 'collapse',
       url: 'monitoring',
       icon: icons.IconStethoscope,
-      children: [
-        {
+      children: [{
           id: 'daily-activity',
           title: 'Daily Activity',
           type: 'item',
           url: 'placeholder'
         },
-        { id: 'eod_activity', title: 'EOD Activity', type: 'item', url: '/Eod' }
+        {
+          id: 'eod_activity',
+          title: 'EOD Activity',
+          type: 'item',
+          url: '/Eod'
+        }
       ]
     },
 
@@ -86,15 +91,13 @@ export const dashboard = () => {
       type: 'item',
       url: 'evaluations',
       icon: icons.IconListCheck
-    },
-    {
+    }, {
       id: 'approvals',
       title: 'Approval Managment',
       type: 'collapse',
       url: 'approvals',
       icon: icons.IconCircleCheck,
-      children: [
-        {
+      children: [{
           id: 'approvals',
           title: 'Approvals',
           type: 'item',
@@ -107,8 +110,7 @@ export const dashboard = () => {
           url: 'placeholder'
         }
       ]
-    },
-    {
+    }, {
       id: 'performance',
       title: 'Performance',
       type: 'item',

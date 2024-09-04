@@ -67,6 +67,7 @@ const App = () => {
           if (selectedFiscal) {
             const selected = data?.data?.find((year, index) => year.id === selectedFiscal?.id);
             console.log('we have selected year' + selected);
+            
 
             data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: selected });
           }

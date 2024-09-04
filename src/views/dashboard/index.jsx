@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 
 // project imports
-import EarningCard from './EarningCard';
+import EarningCard from './report_card';
 import PopularCard from './PopularCard';
-import TotalOrderLineChartCard from './TotalOrderLineChartCard';
-import TotalIncomeDarkCard from './TotalIncomeDarkCard';
-import TotalIncomeLightCard from './TotalIncomeLightCard';
+import TotalOrderLineChartCard from './report_card_3';
+import TotalIncomeDarkCard from './TotalUnitCard';
+import TotalIncomeLightCard from './TotalEmployeeCard';
 import TotalGrowthBarChart from './TotalGrowthBarChart';
 
 import { gridSpacing } from 'store/constant';
@@ -66,9 +66,9 @@ const Dashboard = () => {
         </Grid>
       </Grid> */}
 
-      <Grid item xs={12}>
+      {/* <Grid item xs={12}>
         <PagePlaceholder />
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 };

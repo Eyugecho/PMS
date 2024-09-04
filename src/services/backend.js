@@ -49,6 +49,12 @@ const Backend = {
   planning_periods: 'create-planning-period',
   frequency_period_values: 'create-frequency-definition-period',
   evaluation_periods: 'create-evaluation-period',
-  eodfetch: 'end-of-day-activities'
+  eodfetch: 'end-of-day-activities',
+  getCount: 'get-counts',
+  getEmployeesInDep: 'my-child-units-employee-count',
+  getRankings: 'rank-performance',
+  unitKpiPerformance: 'show-performance-chart',
+  unitEmployeeEndpoint: 'get-unit-employees-with-performance/',
+
 };
 export default Backend;

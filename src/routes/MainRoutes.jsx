@@ -26,6 +26,11 @@ const ViewPlan = Loadable(lazy(() => import('views/planning/View')));
 const Account = Loadable(lazy(() => import('views/account')));
 const KPIManagement = Loadable(lazy(() => import('views/kpi')));
 const Users = Loadable(lazy(() => import('views/users')));
+// const Report = Loadable(lazy(() => import('views/Report/admin_report/index')));
+const Report2 = Loadable(lazy(() => import('views/Report/admin_side/index')));
+const Viewoverallcompany = Loadable(lazy(() => import('views/Report/admin_side/UnitDetailView')));
+// const ViewUnitsPerformance = Loadable(lazy(() => import('views/Report/admin_report/sections/department_report')));
+const ViewKpiDetail = Loadable(lazy(() => import('views/Report/admin_side/KpiDetailView')));
 
 // utilities routing
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
@@ -38,6 +43,7 @@ const Unauthorized = Loadable(lazy(() => import('utils/unautorized')));
 // sample page routingkpiMange-view
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
 const Testpage = Loadable(lazy(() => import('views/sample-page/test')));
+const Fortest = Loadable(lazy(() => import('views/dashboard/index')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -79,7 +85,7 @@ const MainRoutes = {
     {
       path: 'employees',
       element: (
-        <Protected >
+        <Protected>
           <Employees />
         </Protected>
       )
@@ -289,11 +295,28 @@ const MainRoutes = {
         </Protected>
       )
     },
+    // {
+    //   path: 'report',
+    //   element: (
+    //     <Protected>
+    //       <Report />
+    //     </Protected>
+    //   )
+    // },
     {
-      path: 'test',
+      path: '/report/overall_company',
       element: (
         <Protected>
-          <Testpage />
+          <Viewoverallcompany />
+        </Protected>
+      )
+    },
+ 
+    {
+      path: '/report/KpiDetailView',
+      element: (
+        <Protected>
+          <ViewKpiDetail />
         </Protected>
       )
     },
@@ -303,10 +326,26 @@ const MainRoutes = {
       element: <Unauthorized />
     },
     {
-      path: 'sample-page',
+      path: 'test',
       element: (
         <Protected>
-          <SamplePage />
+          <Testpage />
+        </Protected>
+      )
+    },
+    {
+      path: 'fortest',
+      element: (
+        <Protected>
+          <Fortest />
+        </Protected>
+      )
+    },
+    {
+      path: 'report',
+      element: (
+        <Protected>
+          <Report2 />
         </Protected>
       )
     }

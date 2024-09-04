@@ -43,12 +43,12 @@ const PopularCard = ({ isLoading }) => {
         <SkeletonPopularCard />
       ) : (
         <MainCard content={false}>
-          <CardContent>
+          <CardContent >
             <Grid container spacing={gridSpacing}>
               <Grid item xs={12}>
                 <Grid container alignContent="center" justifyContent="space-between">
                   <Grid item>
-                    <Typography variant="h4">Popular Stocks</Typography>
+                    <Typography variant="h4">KPI List</Typography>
                   </Grid>
                   <Grid item>
                     <MoreHorizOutlinedIcon
@@ -84,9 +84,9 @@ const PopularCard = ({ isLoading }) => {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={12} sx={{ pt: '16px !important' }}>
+              {/* <Grid item xs={12} sx={{ pt: '12px !important' }}>
                 <BajajAreaChartCard />
-              </Grid>
+              </Grid> */}
               <Grid item xs={12}>
                 <Grid container direction="column">
                   <Grid item>

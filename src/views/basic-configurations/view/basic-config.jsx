@@ -8,7 +8,7 @@ import Period from '../Period';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PageContainer from 'ui-component/MainPage';
 import DrogaCard from 'ui-component/cards/DrogaCard';
-import { padding } from '@mui/system';
+
 
 const steps = ['Frequency', 'Period'];
 
@@ -24,9 +24,10 @@ function App() {
   };
 
   const tabLabels = ['Frequency', 'Period'];
+
   return (
     <PageContainer maxWidth="lg" title={'Basic Configurations'}>
-      <DrogaCard sx={{ marginLeft:'10px' ,padding:'50px'}}>
+      <DrogaCard sx={{ marginLeft: '10px', padding: '50px' }}>
         <Grid container spacing={3}>
           {/* Left Grid containing Stepper and content */}
           <Grid item xs={12}>
