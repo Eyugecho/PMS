@@ -38,12 +38,6 @@ export const Accounts = () => {
       }
     });
 
-  childrenTemp.push({
-    id: 'users',
-    title: 'Users',
-    type: 'item',
-    url: '/users'
-  });
   return {
     id: 'accounts',
     title: 'Account Managment',

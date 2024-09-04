@@ -38,8 +38,12 @@ const ActivityGraph = ({ data, type }) => {
     chart: {
       type: type,
       height: 380,
-      stacked: type === 'line'
+      stacked: type === 'line',
+      toolbar: {
+        show: false
+      }
     },
+
     xaxis: {
       categories: getDates(data),
       labels: {
