@@ -13,17 +13,22 @@ import Typography from '@mui/material/Typography';
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import TotalIncomeCard from 'ui-component/cards/Skeleton/TotalIncomeCard';
+import EmployeeIcon from 'assets/images/icons/person.svg';
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
   overflow: 'hidden',
   position: 'relative',
+  bgcolor: 'transparent',
+  backgroundImage: '#fff',
+  boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.1)',
+  color: theme.palette.warning.dark,
   '&:after': {
     content: '""',
     position: 'absolute',
     width: 210,
     height: 210,
-    background: `linear-gradient(210.04deg, ${theme.palette.warning.dark} -50.94%, rgba(144, 202, 249, 0) 83.49%)`,
+    background: `linear-gradient(210.04deg, ${theme.palette.primary[200]} -50.94%, rgba(144, 202, 249, 0) 83.49%)`,
     borderRadius: '50%',
     top: -30,
     right: -180
@@ -33,7 +38,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: `linear-gradient(140.9deg, ${theme.palette.warning.dark} -14.02%, rgba(144, 202, 249, 0) 70.50%)`,
+    background: `linear-gradient(140.9deg, ${theme.palette.primary[200]} -14.02%, rgba(144, 202, 249, 0) 77.58%)`,
     borderRadius: '50%',
     top: -160,
     right: -130
@@ -42,7 +47,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ==============================|| DASHBOARD - TOTAL INCOME LIGHT CARD ||============================== //
 
-const TotalIncomeLightCard = ({ isLoading, total, icon, label }) => {
+const TotalEligiableEmployeeCard = ({ isLoading, total, icon, label }) => {
   const theme = useTheme();
 
   return (
@@ -51,7 +56,15 @@ const TotalIncomeLightCard = ({ isLoading, total, icon, label }) => {
         <TotalIncomeCard />
       ) : (
         <CardWrapper border={false} content={false}>
-          <Box sx={{ p: 2 }}>
+          <Box
+            sx={{
+              borderRadius: 2,
+              backdropFilter: 'blur(10px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.1)',
+              p: 1.5
+            }}
+          >
             <List sx={{ py: 0 }}>
               <ListItem alignItems="center" disableGutters sx={{ py: 0 }}>
                 <ListItemAvatar>
@@ -60,22 +73,28 @@ const TotalIncomeLightCard = ({ isLoading, total, icon, label }) => {
                     sx={{
                       ...theme.typography.commonAvatar,
                       ...theme.typography.largeAvatar,
-                      bgcolor: 'warning.light',
-                      color: label === 'Meeting attends' ? 'error.dark' : 'warning.dark'
+                      bgcolor: 'rgba(0, 226, 114, 0.6)',
+                      mt: 0
                     }}
                   >
-                    {icon}
+                    <img src={EmployeeIcon} alt="Notification" />
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                  sx={{ py: 0, mt: 0.45, mb: 0.45 }}
-                  primary={<Typography variant="h4">${total}k</Typography>}
-                  secondary={
-                    <Typography variant="subtitle2" sx={{ color: 'grey.500', mt: 0.5 }}>
+                  sx={{ py: 0, mt: 0.4, mb: 0.45 }}
+                  
+                    
+                >
+                    <Typography variant="h4" >
+                      70+
+                    </Typography>
+                
+                 
+                    <Typography variant="subtitle2" sx={{ color: 'grey.500', mt: 0.8 }}>
                       {label}
                     </Typography>
-                  }
-                />
+                  
+                </ListItemText>
               </ListItem>
             </List>
           </Box>
@@ -85,11 +104,11 @@ const TotalIncomeLightCard = ({ isLoading, total, icon, label }) => {
   );
 };
 
-TotalIncomeLightCard.propTypes = {
+TotalEligiableEmployeeCard.propTypes = {
   icon: PropTypes.object,
   label: PropTypes.string,
   total: PropTypes.number,
   isLoading: PropTypes.bool
 };
 
-export default TotalIncomeLightCard;
+export default TotalEligiableEmployeeCard;

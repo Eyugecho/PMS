@@ -22,15 +22,16 @@ import {
   MenuItem,
   useTheme
 } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
-import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import config from '../../configration/config';
+import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
+import AddButton from 'ui-component/buttons/AddButton';
 
 function EvalType() {
   const [evalTypes, setEvalTypes] = useState([]);
@@ -38,6 +39,8 @@ function EvalType() {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
+    const auth = getRolesAndPermissionsFromToken();
+    const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
 
   useEffect(() => {
     fetchEvalTypes();
@@ -89,7 +92,7 @@ function EvalType() {
         const result = await response.json();
         if (result.success) {
           toast.success(editIndex !== null ? 'Evaluation type updated' : 'Evaluation type created');
-          fetchEvalTypes(); // Refresh the list
+          fetchEvalTypes(); 
           handleClose();
         } else {
           toast.error(result.message || 'Failed to save evaluation type');
@@ -122,7 +125,7 @@ function EvalType() {
       const result = await response.json();
       if (result.success) {
         toast.success('Evaluation type deleted');
-        fetchEvalTypes(); // Refresh the list
+        fetchEvalTypes();
       } else {
         toast.error(result.message || 'Failed to delete evaluation type');
       }
@@ -156,9 +159,10 @@ function EvalType() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Grid item xs={12} p={2} style={{ padding: '2px 2px 2px 25px' }}>
-            <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={handleOpen}>
+            <AddButton 
+ variant="contained" color="primary" onClick={handleOpen}>
               Add Evaluation Type
-            </Button>
+            </AddButton>
           </Grid>
           <CardContent>
             {evalTypes.length === 0 ? (
@@ -250,7 +254,7 @@ function EvalType() {
                                 handleMenuClose();
                               }}
                             >
-                              <EditIcon fontSize="small" /> Edit
+                              <EditIcon fontSize="small" disabled={!hasPermission} /> Edit
                             </MenuItem>
                             <MenuItem
                               onClick={() => {

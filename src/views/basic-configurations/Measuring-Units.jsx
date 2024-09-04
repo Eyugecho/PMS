@@ -180,7 +180,7 @@ function Measuring() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Grid item xs={12} style={{ padding: '2px 2px 2px 25px' }}>
-            <Button variant="contained" color="primary" startIcon={<AddCircleOutlineIcon />} onClick={handleOpen}>
+            <Button variant="contained" color="primary"  onClick={handleOpen}>
               Add Measuring Unit
             </Button>
           </Grid>
