@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
-
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import { IconMenu2 } from '@tabler/icons-react';
@@ -141,7 +140,7 @@ const EmployeeTot = ({ isLoading }) => {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item sx={{ cursor: 'pointer',mt:5 }} >
+              <Grid item sx={{ cursor: 'pointer', mt: 5 }}>
                 <Grid container alignItems="center">
                   <Grid item xs={4}>
                     <Grid container alignItems="center">
@@ -157,13 +156,7 @@ const EmployeeTot = ({ isLoading }) => {
                         }}
                       />
                       <Grid item>
-                        <Typography
-                          sx={{
-                            fontSize: '1rem',
-                            fontWeight: 500,
-                            color: 'grey.800'
-                          }}
-                        >
+                        <Typography variant="h4" mt={1}>
                           Total Employee
                         </Typography>
                         <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1 }}>
