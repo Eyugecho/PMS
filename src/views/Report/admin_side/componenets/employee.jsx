@@ -20,10 +20,8 @@ import Backend from 'services/backend';
 import SkeletonEarningCard from 'ui-component/cards/Skeleton/EarningCard';
 
 // assets
-
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import { set } from 'lodash';
 
 const EmployeeTot = ({ isLoading }) => {
   const theme = useTheme();

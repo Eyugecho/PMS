@@ -1,27 +1,19 @@
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { IconMenu2 } from '@tabler/icons-react';
 import { Divider } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import SkeletonEarningCard from 'ui-component/cards/Skeleton/EarningCard';
 import GetToken from 'utils/auth-token';
 import Backend from 'services/backend';
-
-// assets
-import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 
 const KpiDetail = () => {
   const theme = useTheme();

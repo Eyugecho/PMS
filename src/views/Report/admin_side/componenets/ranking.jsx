@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import { Divider, Box, Grid, Typography, FormControl, Select, MenuItem } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 // project imports
@@ -16,10 +15,8 @@ import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
 import Fallbacks from 'utils/components/Fallbacks';
 
-
 const Ranking = ({ isLoading }) => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
 
   const [view, setView] = useState('Unit');

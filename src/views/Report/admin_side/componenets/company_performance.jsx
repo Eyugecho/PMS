@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Grid, Box, Divider, IconButton, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { toast } from 'react-toastify';
+import { IconMenu2 } from '@tabler/icons-react';
 import MainCard from 'ui-component/cards/MainCard';
-import SkeletonEarningCard from 'ui-component/cards/Skeleton/EarningCard';
 import DonutChart from 'ui-component/charts/DonutChart';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
-import GetFiscalYear from 'utils/components/GetFiscalYear';
 import Fallbacks from 'utils/components/Fallbacks'; // Ensure you import the Fallbacks component
-import { IconMenu2 } from '@tabler/icons-react';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import Menu from '@mui/material/Menu';

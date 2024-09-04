@@ -10,9 +10,6 @@ import { gridSpacing } from 'store/constant';
 import KpiCard from './componenets/KpiDetailComponenet/kpi';
 import KpiTableCard from './componenets/KpiDetailComponenet/kpiTable';
 import KpiListCard from './componenets/KpiDetailComponenet/kpiList';
-import TotUnitEmployeeCard from './componenets/UnitDetailComponenet/tot_unit_employee';
-import ListEmployeeCard from './componenets/UnitDetailComponenet/assigned_kpi';
-import RankingDetail from './componenets/UnitDetailComponenet/ranking_detail';
 
 // assets
 import PageContainer from 'ui-component/MainPage';

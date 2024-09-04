@@ -7,16 +7,10 @@ import { useLocation } from 'react-router-dom';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import { Divider } from '@mui/material';
-import { IconMenu2 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
