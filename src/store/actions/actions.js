@@ -1,5 +1,6 @@
 // actions.js
 export const SET_USER = 'SET_USER';
+export const SIGN_IN = 'SIGN_IN';
 export const MENU_OPEN = 'MENU_OPEN';
 export const SET_MENU = 'SET_MENU';
 export const SET_MENU_MODE = 'SET_MENU_MODE';

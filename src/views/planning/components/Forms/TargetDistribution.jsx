@@ -4,6 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { IconChevronRight, IconChevronUp } from '@tabler/icons-react';
 import { useKPI } from 'context/KPIProvider';
 import { MeasuringUnitConverter, PeriodNaming } from 'utils/function';
+import { useSelector } from 'react-redux';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
 
@@ -14,9 +15,7 @@ const TargetDistribution = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [expand, setExpand] = useState();
-
-  const getFiscalYear = localStorage.getItem('selectFiscal');
-  const SelectFiscalYear = JSON.parse(getFiscalYear);
+  const SelectFiscalYear = useSelector((state) => state.customization.selectedFiscalYear);
 
   const handleFrequencySelection = (event, kpi_id, period_id) => {
     const value = event.target.value;

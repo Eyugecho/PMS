@@ -27,8 +27,13 @@ const GetFiscalYear = () => {
 
         if (data.success) {
           dispatch({ type: SET_FISCAL_YEARS, fiscalYears: data.data });
-          if (!selectedFiscal) {
-            data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
+          if (selectedFiscal) {
+            const selected = data?.data?.find((year) => year.id === selectedFiscal?.id);
+            data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: selected });
+          } else {
+            if (data.data[0]) {
+              dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
+            }
           }
         } else {
           toast.error('Failed to fetch fiscal year data');

@@ -10,9 +10,11 @@ import { Storage } from 'configration/storage';
 import Backend from 'services/backend';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
 import GetToken from 'utils/auth-token';
+import { useSelector } from 'react-redux';
 
 export const CreatePlan = ({ add, onClose, onSucceed }) => {
   const theme = useTheme();
+  const SelectFiscalYear = useSelector((state) => state.customization.selectedFiscalYear);
   const { selectedKpi } = useKPI();
   const [isAdding, setIsAdding] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -23,14 +25,6 @@ export const CreatePlan = ({ add, onClose, onSucceed }) => {
 
   const handleNext = () => {
     if (activeIndex === 0) {
-      let valid = FiscalYearValidation();
-      if (valid) {
-        setActiveIndex(activeIndex + 1);
-        setError({ ...error, state: false, message: '' });
-      } else {
-        setError({ ...error, state: true, message: 'Please select the fiscal year' });
-      }
-    } else if (activeIndex === 1) {
       const validation = SelectedKPIValidation(selectedKpi);
       if (validation.valid) {
         setError({ ...error, state: false, message: '' });
@@ -38,7 +32,7 @@ export const CreatePlan = ({ add, onClose, onSucceed }) => {
       } else {
         setError({ ...error, state: true, message: validation.errors[0] });
       }
-    } else if (activeIndex === 2) {
+    } else if (activeIndex === 1) {
       const validation = FrequencyValidation(selectedKpi);
       if (validation.valid) {
         setError({ ...error, state: false, message: '' });
@@ -68,8 +62,6 @@ export const CreatePlan = ({ add, onClose, onSucceed }) => {
     setIsAdding(true);
 
     const token = await GetToken();
-    const getFiscalYear = Storage.getItem('selectFiscal');
-    const fiscalYear = JSON.parse(getFiscalYear);
 
     const Api = Backend.api + Backend.orgPlan;
     const header = {
@@ -79,7 +71,7 @@ export const CreatePlan = ({ add, onClose, onSucceed }) => {
     };
 
     const data = {
-      fiscal_year_id: fiscalYear?.id,
+      fiscal_year_id: SelectFiscalYear?.id,
       data: plan
     };
 

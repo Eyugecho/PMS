@@ -1,8 +1,8 @@
-import { Storage } from 'configration/storage';
+import { useSelector } from 'react-redux';
 
 export const FiscalYearValidation = () => {
-  const fiscalYear = Storage.getItem('selectFiscal');
-  if (fiscalYear) {
+  const SelectFiscalYear = useSelector((state) => state.customization.selectedFiscalYear);
+  if (SelectFiscalYear?.id) {
     return true;
   } else {
     return false;

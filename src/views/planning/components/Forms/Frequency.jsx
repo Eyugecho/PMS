@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Box, Grid, Table, TableBody, TableCell, TableHead, TableRow, useTheme } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import { useKPI } from 'context/KPIProvider';
+import { useSelector } from 'react-redux';
 import Backend from 'services/backend';
 import FrequencyMenu from './FrequencyMenu';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
@@ -15,9 +16,7 @@ const FrequencySelection = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
-
-  const getFiscalYear = localStorage.getItem('selectFiscal');
-  const SelectFiscalYear = JSON.parse(getFiscalYear);
+  const SelectFiscalYear = useSelector((state) => state.customization.selectedFiscalYear);
 
   const handleFrequencySelection = (item, id) => {
     updateKPI(id, { frequency_id: item.id, f_name: item.name, f_value: item.value });
@@ -26,7 +25,7 @@ const FrequencySelection = () => {
   useEffect(() => {
     const handleFetchingPeriods = async () => {
       const token = await GetToken();
-      const Api = Backend.api + Backend.planningFrequiencies;
+      const Api = Backend.api + Backend.planningFrequiencies + `?fiscal_year_id=${SelectFiscalYear?.id}`;
       const header = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',

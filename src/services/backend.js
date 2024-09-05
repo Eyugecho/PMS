@@ -2,6 +2,7 @@ const Backend = {
   api: import.meta.env.VITE_PMS_URL,
   auth: import.meta.env.VITE_AUTH_URL,
   login: 'login-with-email',
+  logout: 'logout',
   users: 'users',
   refreshToken: 'refresh',
   resetPassword: 'reset-password',

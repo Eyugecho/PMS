@@ -5,6 +5,7 @@ import Loadable from 'ui-component/Loadable';
 import MinimalLayout from 'layout/MinimalLayout';
 import ForgotPassword from 'views/authentication/ForgotPassword';
 import ResetPassword from 'views/authentication/ResetPassword';
+import NotFound from 'views/not-found';
 
 // login option 3 routing
 const AuthLogin = Loadable(lazy(() => import('views/authentication/Login')));
@@ -17,6 +18,10 @@ const AuthenticationRoutes = {
   path: '/',
   element: <MinimalLayout />,
   children: [
+    {
+      path: '/',
+      element: <AuthLogin />
+    },
     {
       path: '/login',
       element: <AuthLogin />
@@ -32,6 +37,10 @@ const AuthenticationRoutes = {
     {
       path: '/reset-password',
       element: <ResetPassword />
+    },
+    {
+      path: '/*',
+      element: <NotFound />
     }
   ]
 };

@@ -5,6 +5,7 @@ import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
 import ViewTask from 'views/tasks/view';
+import NotFound from 'views/not-found';
 
 // dashboard routing
 const Home = Loadable(lazy(() => import('views/dashboard')));
@@ -336,7 +337,7 @@ const MainRoutes = {
         </Protected>
       )
     },
- 
+
     {
       path: '/report/KpiDetailView',
       element: (
@@ -373,6 +374,10 @@ const MainRoutes = {
           <Report2 />
         </Protected>
       )
+    },
+    {
+      path: '/*',
+      element: <NotFound />
     }
   ]
 };

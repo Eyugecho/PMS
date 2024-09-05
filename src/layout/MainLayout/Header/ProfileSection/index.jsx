@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -26,6 +26,7 @@ import Transitions from 'ui-component/extended/Transitions';
 // assets
 import { IconPaperclip, IconShield, IconUser } from '@tabler/icons-react';
 import { Storage } from 'configration/storage';
+import { SIGN_IN } from 'store/actions/actions';
 
 // ==============================|| PROFILE MENU ||============================== //
 
@@ -33,6 +34,7 @@ const ProfileSection = () => {
   const theme = useTheme();
   const customization = useSelector((state) => state.customization);
   const user = useSelector((state) => state.user.user); // signed in user information
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -41,7 +43,8 @@ const ProfileSection = () => {
 
   const handleLogout = async () => {
     Storage.clear();
-    navigate('/login');
+    dispatch({ type: SIGN_IN, signed: false });
+    navigate('/');
   };
 
   const handleClose = (event) => {

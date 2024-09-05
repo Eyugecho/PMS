@@ -5,11 +5,6 @@ import TargetDistribution from 'views/planning/components/Forms/TargetDistributi
 
 export const CreatePlanForms = [
   {
-    id: 1,
-    name: 'Select Fiscal Year',
-    component: <FiscalYear />
-  },
-  {
     id: 2,
     name: 'Select KPI',
     component: <KPISelection />
@@ -27,11 +22,6 @@ export const CreatePlanForms = [
 ];
 
 export const UpdatePlanForm = [
-  {
-    id: 1,
-    name: 'Selected Fiscal Year',
-    component: <FiscalYear />
-  },
   {
     id: 2,
     name: 'Selected KPI',
