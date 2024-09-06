@@ -22,6 +22,13 @@ const FrequencySelection = () => {
     updateKPI(id, { frequency_id: item.id, f_name: item.name, f_value: item.value });
   };
 
+  const handleSettingDefaultFrequency = (data) => {
+    const quarter = data.find((item) => item.value == 4);
+    if (quarter) {
+      selectedKpi.forEach((kpi) => handleFrequencySelection(quarter, kpi.id));
+    }
+  };
+
   useEffect(() => {
     const handleFetchingPeriods = async () => {
       const token = await GetToken();
@@ -40,6 +47,7 @@ const FrequencySelection = () => {
         .then((response) => {
           if (response.success) {
             setData(response.data);
+            handleSettingDefaultFrequency(response.data);
             setLoading(false);
             setError(false);
           } else {
@@ -92,7 +100,6 @@ const FrequencySelection = () => {
               <TableRow key={index}>
                 <TableCell>{kpi.name}</TableCell>
                 <TableCell>
-                  {' '}
                   <FrequencyMenu menu={data} selected={kpi?.f_name} onSelect={(menu) => handleFrequencySelection(menu, kpi.id)} />
                 </TableCell>
               </TableRow>

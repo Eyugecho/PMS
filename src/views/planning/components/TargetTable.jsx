@@ -74,7 +74,7 @@ const TargetTable = ({ plans }) => {
     <React.Fragment>
       <TableContainer
         component={Paper}
-        sx={{ minHeight: '44dvh', marginTop: 2, backgroundColor: theme.palette.grey[100], borderRadius: 2 }}
+        sx={{ minHeight: '44dvh', marginTop: 2, backgroundColor: theme.palette.background.paper, borderRadius: 2 }}
       >
         <Table sx={{ minWidth: 650 }} aria-label="Distributed target table">
           <TableHead>
@@ -82,6 +82,7 @@ const TargetTable = ({ plans }) => {
               <TableCell>Unit name</TableCell>
               <TableCell>Inherited Weights(%)</TableCell>
               <TableCell>KPI Weights(%)</TableCell>
+              <TableCell>Target</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
@@ -91,9 +92,9 @@ const TargetTable = ({ plans }) => {
                 <TableRow
                   key={index}
                   sx={{
-                    backgroundColor: selectedRow == index && theme.palette.primary[200],
+                    backgroundColor: selectedRow == index && theme.palette.grey[50],
                     ':hover': {
-                      backgroundColor: theme.palette.primary[200],
+                      backgroundColor: theme.palette.primary.light,
                       color: theme.palette.background.default,
                       cursor: 'pointer',
                       borderRadius: 2
@@ -109,9 +110,9 @@ const TargetTable = ({ plans }) => {
                       {plan?.unit ? plan?.unit?.name : plan?.employee?.user?.name}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.inherit_weight).toFixed(2)}%</TableCell>
-                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(2)}%</TableCell>
-
+                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.inherit_weight).toFixed(1)}%</TableCell>
+                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(1)}%</TableCell>
+                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.total_target).toFixed(1)}</TableCell>
                   <TableCell sx={{ border: 0 }}>
                     <DotMenu onView={() => handleRowClick(index)} onDelete={() => handleDeleteClick(plan)} />
                   </TableCell>

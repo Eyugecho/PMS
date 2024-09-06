@@ -135,13 +135,13 @@ export const CreatePlan = ({ add, onClose, onSucceed }) => {
               <Button
                 type="submit"
                 variant="contained"
-                sx={{ paddingX: 6, paddingY: 1, boxShadow: 0 }}
+                sx={{ py: 1, paddingX: 6, boxShadow: 0, borderRadius: 2 }}
                 onClick={() => handlePlanValidation()}
               >
                 {isAdding ? (
                   <CircularProgress size={18} sx={{ color: 'white' }} />
                 ) : (
-                  <Typography variant="subtitle1" color={theme.palette.background.default}>
+                  <Typography variant="subtitle1" color={theme.palette.background.paper}>
                     Submit
                   </Typography>
                 )}

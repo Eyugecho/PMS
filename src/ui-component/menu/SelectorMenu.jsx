@@ -17,7 +17,7 @@ function SelectorMenu({ name, options, selected, handleSelection, ...props }) {
         sx={{
           border: 'none',
           boxShadow: 'none',
-          backgroundColor: 'transparent',
+          backgroundColor: theme.palette.background.paper,
           '.MuiOutlinedInput-notchedOutline': { border: 0 },
           '&:hover .MuiOutlinedInput-notchedOutline': { border: 0 },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 0, borderRadius: 8 },
@@ -27,7 +27,7 @@ function SelectorMenu({ name, options, selected, handleSelection, ...props }) {
       >
         {options.map((type, index) => (
           <MenuItem key={index} value={type.value}>
-            <Typography variant="body1" color={theme.palette.text.primary}>
+            <Typography variant="h5" color={theme.palette.text.primary}>
               {type.label}
             </Typography>
           </MenuItem>

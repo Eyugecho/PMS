@@ -98,6 +98,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
           <TableHead>
             <TableRow>
               <TableCell>KPI Name</TableCell>
+              <TableCell>Inherited Weights(%)</TableCell>
               <TableCell>KPI Weights(%)</TableCell>
               <TableCell>Total Targets</TableCell>
               <TableCell>Measuring Unit</TableCell>
@@ -128,7 +129,8 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                       {plan?.kpi?.name}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(2)}</TableCell>
+                  <TableCell sx={{ border: 0 }}>{plan?.inherit_weight ? parseFloat(plan?.inherit_weight).toFixed(1) + '%' : 'N/A'} </TableCell>
+                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(1)}%</TableCell>
                   <TableCell sx={{ border: 0 }}>{plan?.total_target}</TableCell>
                   <TableCell sx={{ border: 0 }}>{plan?.kpi?.measuring_unit?.name}</TableCell>
                   <TableCell sx={{ border: 0 }}>{plan?.frequency?.name}</TableCell>

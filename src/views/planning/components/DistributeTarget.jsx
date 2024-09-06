@@ -545,9 +545,11 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
             <DialogActions sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box> {error.state && <Alert severity="error"> {error.message}</Alert>}</Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingX: 2 }}>
-                <Button sx={{ marginRight: 3 }} onClick={() => handlePrev()}>
-                  Back
-                </Button>
+                {currentIndex > 0 && (
+                  <Button sx={{ marginRight: 3 }} onClick={() => handlePrev()}>
+                    Back
+                  </Button>
+                )}
 
                 {currentIndex === targets.length - 1 ? (
                   <Button
@@ -560,7 +562,7 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
                     {isAdding ? (
                       <CircularProgress size={18} sx={{ color: 'white' }} />
                     ) : (
-                      <Typography variant="subtitle1" color={theme.palette.background.default}>
+                      <Typography variant="subtitle1" color={theme.palette.background.paper}>
                         Submit
                       </Typography>
                     )}
