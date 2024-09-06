@@ -12,7 +12,6 @@ const Home = Loadable(lazy(() => import('views/dashboard')));
 const Units = Loadable(lazy(() => import('views/departments')));
 const ViewUnit = Loadable(lazy(() => import('views/departments/view')));
 const Planning = Loadable(lazy(() => import('views/planning')));
-const CreatePlan = Loadable(lazy(() => import('views/planning/create')));
 const Employees = Loadable(lazy(() => import('views/employees')));
 const ViewEmployee = Loadable(lazy(() => import('views/employees/view')));
 
@@ -122,15 +121,6 @@ const MainRoutes = {
       element: (
         <Protected>
           <Planning />
-        </Protected>
-      )
-    },
-
-    {
-      path: 'planning/create',
-      element: (
-        <Protected>
-          <CreatePlan />
         </Protected>
       )
     },
