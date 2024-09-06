@@ -212,7 +212,7 @@ const Planning = () => {
     <PageContainer
       title={'Planning'}
       rightOption={
-        <AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()}  />
+        <AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()} disable={fullyPlanned} />
       }
     >
       <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3.8, px: 2 }}>
