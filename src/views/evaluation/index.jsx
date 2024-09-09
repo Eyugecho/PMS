@@ -142,7 +142,7 @@ const Evaluations = () => {
             <UnitTable units={data} />
           )}
 
-          {!loading && (
+          {!loading && pagination.total > pagination.per_page && (
             <TablePagination
               component="div"
               rowsPerPageOptions={[10, 25, 50, 100]}

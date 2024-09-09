@@ -32,7 +32,7 @@ import GetToken from 'utils/auth-token';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
 import PerKPI from 'ui-component/performance/PerKPI';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
-import CreateTask from './components/CreateTask';
+import CreateTask from '../todo/components/CreateTask';
 import StatusMenu from './components/TaskStatusMenu';
 
 const TaskStatus = [
@@ -571,14 +571,6 @@ const ViewEmployee = () => {
           </DrogaCard>
         </Grid>
       </Grid>
-
-      <CreateTask
-        open={task.openModal}
-        handleCloseModal={handleCloseCreateModal}
-        kpi={data}
-        handleTaskSubmission={(values) => handleTaskCreation(values)}
-        submitting={task.submitting}
-      />
     </PageContainer>
   );
 };

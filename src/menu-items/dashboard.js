@@ -8,7 +8,9 @@ import {
   IconZoomScan,
   IconCircleCheck,
   IconListCheck,
-  IconHazeMoon
+  IconHazeMoon,
+  IconList,
+  IconChartInfographic
 } from '@tabler/icons-react';
 
 // constant
@@ -20,10 +22,11 @@ const icons = {
   IconZoomScan,
   IconCircleCheck,
   IconListCheck,
-  IconHazeMoon
+  IconHazeMoon,
+  IconList,
+  IconChartInfographic
 };
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
-
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 const auth = getRolesAndPermissionsFromToken();
@@ -65,13 +68,15 @@ export const dashboard = () => {
       }
     });
 
-  childrenTemp.push({
+  childrenTemp.push(
+    { id: 'todos', title: 'To do ', type: 'item', url: '/todo', icon: icons.IconList },
+    { id: 'eod_activity', title: 'EOD ', type: 'item', url: '/Eod', icon: icons.IconHazeMoon },
+    {
       id: 'mointoring',
       title: 'Monitoring',
-      type: 'collapse',
+      type: 'item',
       url: 'monitoring',
-      icon: icons.IconZoomScan,
-      children: [{ id: 'eod_activity', title: 'EOD Activity', type: 'item', url: '/Eod' }]
+      icon: icons.IconZoomScan
     },
 
     {
@@ -80,26 +85,27 @@ export const dashboard = () => {
       type: 'item',
       url: 'evaluations',
       icon: icons.IconListCheck
-    }, {
+    },
+    {
       id: 'approvals',
       title: 'Approval Managment',
-      type: 'collapse',
-      url: 'taks',
-      icon: icons.IconCircleCheck,
-      children: [
-        {
-          id: 'tasks',
-          title: 'Tasks',
-          type: 'item',
-          url: 'tasks'
-        }
-      ]
-    }, {
+      type: 'item',
+      url: 'tasks',
+      icon: icons.IconCircleCheck
+    },
+    {
       id: 'performance',
       title: 'Performance',
       type: 'item',
       url: 'performance',
       icon: icons.IconTrophy
+    },
+    {
+      id: 'report',
+      title: 'Reports',
+      type: 'item',
+      url: 'report',
+      icon: icons.IconChartInfographic
     }
   );
 

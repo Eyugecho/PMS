@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { SET_SELECTED_FISCAL_YEAR } from 'store/actions';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
 
-const FiscalYear = () => {
+const FiscalYearSelector = () => {
   const theme = useTheme();
   const SelectFiscalYear = useSelector((state) => state.customization.selectedFiscalYear);
   const fiscalYears = useSelector((state) => state.customization.fiscalYears);
@@ -58,4 +58,4 @@ const FiscalYear = () => {
   );
 };
 
-export default FiscalYear;
+export default FiscalYearSelector;

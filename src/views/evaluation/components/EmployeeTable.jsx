@@ -107,7 +107,7 @@ const EmployeeTable = ({ employees }) => {
                 <TableCell sx={{ border: 0 }}>{employee?.position}</TableCell>
                 <TableCell sx={{ border: 0 }}>{employee?.user?.email}</TableCell>
                 <TableCell sx={{ border: 0 }}>
-                  <Button variant="outlined" onClick={() => handleRowClick(employee.id)}>
+                  <Button variant="text" onClick={() => handleRowClick(employee.id)}>
                     View
                   </Button>
                 </TableCell>

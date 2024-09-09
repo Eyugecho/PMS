@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, TablePagination } from '@mui/material';
+import { Box, Grid, TablePagination, Tooltip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { CreatePlan } from './components/CreatePlan';
 import { toast, ToastContainer } from 'react-toastify';
@@ -212,7 +212,9 @@ const Planning = () => {
     <PageContainer
       title={'Planning'}
       rightOption={
-        <AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()} disable={fullyPlanned} />
+        <Tooltip title={fullyPlanned ? 'Already Planned 100%' : ''} arrow>
+          <AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()} disable={fullyPlanned} />
+        </Tooltip>
       }
     >
       <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3.8, px: 2 }}>

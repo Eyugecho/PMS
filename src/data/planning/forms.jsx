@@ -1,4 +1,3 @@
-import FiscalYear from 'views/planning/components/Forms/FiscalYear';
 import FrequencySelection from 'views/planning/components/Forms/Frequency';
 import KPISelection from 'views/planning/components/Forms/KPISelection';
 import TargetDistribution from 'views/planning/components/Forms/TargetDistribution';

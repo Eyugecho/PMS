@@ -29,11 +29,10 @@ const Account = Loadable(lazy(() => import('views/account')));
 const KPIManagement = Loadable(lazy(() => import('views/kpi')));
 const Users = Loadable(lazy(() => import('views/users')));
 const Workflows = Loadable(lazy(() => import('views/workflows')));
-// const Report = Loadable(lazy(() => import('views/Report/admin_report/index')));
 const Report2 = Loadable(lazy(() => import('views/Report/admin_side/index')));
 const Viewoverallcompany = Loadable(lazy(() => import('views/Report/admin_side/UnitDetailView')));
-// const ViewUnitsPerformance = Loadable(lazy(() => import('views/Report/admin_report/sections/department_report')));
 const ViewKpiDetail = Loadable(lazy(() => import('views/Report/admin_side/KpiDetailView')));
+const Todo = Loadable(lazy(() => import('views/todo')));
 
 // utilities routing
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
@@ -222,12 +221,19 @@ const MainRoutes = {
         </Protected>
       )
     },
-
     {
-      path: 'placeholder',
+      path: 'ranking',
       element: (
         <Protected>
-          <PagePlaceholder />
+          <Ranking />
+        </Protected>
+      )
+    },
+    {
+      path: 'todo',
+      element: (
+        <Protected>
+          <Todo />
         </Protected>
       )
     },
