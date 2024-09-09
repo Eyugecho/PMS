@@ -225,11 +225,13 @@ const Units = () => {
 
   const handleEdit = (unit) => {
     setSelectedUnit(unit);
+    
     setEditModalOpen(true);
   };
 
   const handleUpdate = () => {
     handleFetchingTypes();
+    handleFetchingUnits();
   };
 
   const handleEditModalClose = () => {
@@ -244,6 +246,7 @@ const Units = () => {
   };
   const handleUpdateUnitType = () => {
     handleFetchingTypes();
+
   };
 
   const handleEditUnitTypeModalClose = () => {

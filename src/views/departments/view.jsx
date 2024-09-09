@@ -3,18 +3,7 @@ import { Box, CircularProgress, Grid, MenuItem, Typography, useTheme } from '@mu
 import { useLocation } from 'react-router-dom';
 import PageContainer from 'ui-component/MainPage';
 import Backend from 'services/backend';
-import {
-  IconBuilding,
-  IconCalendar,
-  IconChairDirector,
-  IconChartDonut,
-  IconDirection,
-  IconDotsVertical,
-  IconMail,
-  IconReplace,
-  IconTargetArrow,
-  IconUser
-} from '@tabler/icons-react';
+import {IconBuilding,IconCalendar,IconChairDirector,IconChartDonut,IconDirection,IconDotsVertical,IconMail,IconReplace,IconTargetArrow,IconUser} from '@tabler/icons-react';
 import { formatDate } from 'utils/function';
 import { DetailInfo } from 'views/employees/components/DetailInfo';
 import { toast } from 'react-toastify';

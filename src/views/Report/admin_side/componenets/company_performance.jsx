@@ -199,7 +199,7 @@ const CompanyPerformance = () => {
                       {unitPerformance.map((unit, index) => (
                         <Grid container alignItems="center" key={index} onClick={() => handleUnitPerformanceClick(unit)}>
                           <Grid item>
-                            <DonutChart value={unit.performance} size={75} colors={['#4dad7f', '#ebebeb']} />
+                            <DonutChart value={unit.performance} size={130} colors={['#4dad7f', '#ebebeb']} />
                           </Grid>
                           <Grid item sx={{ mt: 1, ml: 2 }}>
                             <Typography

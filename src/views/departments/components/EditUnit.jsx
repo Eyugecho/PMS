@@ -24,7 +24,7 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
       const unitTypesApi = Backend.api + Backend.types;
-      const managersApi = Backend.api + Backend.employees + `?role=manager`;
+      const managersApi = Backend.api + Backend.getManagers ;
       const headers = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',
@@ -39,6 +39,9 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
 
         const unitTypesData = await unitTypesResponse.json();
         const managersData = await managersResponse.json();
+        
+        
+        
 
         if (unitTypesData.success && Array.isArray(unitTypesData.data)) {
           setUnitTypes(unitTypesData.data);
@@ -46,8 +49,10 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
           toast.error('Failed to fetch unit types');
         }
 
-        if (managersData.success && Array.isArray(managersData.data.data)) {  
-          setManagers(managersData.data.data);
+        if (managersData.success && Array.isArray(managersData.data)) {  
+          setManagers(managersData.data);
+          
+          
         } else {
           toast.error('Failed to fetch managers');
         }

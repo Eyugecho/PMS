@@ -295,14 +295,7 @@ const MainRoutes = {
         </Protected>
       )
     },
-    // {
-    //   path: 'report',
-    //   element: (
-    //     <Protected>
-    //       <Report />
-    //     </Protected>
-    //   )
-    // },
+
     {
       path: '/report/overall_company',
       element: (

@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Table,
-  TableBody,
-  TableCell,
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   Menu,
   MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  Button,
-  DialogContent,
-  TableHead,
-  TableRow,
-  IconButton,
-  TableContainer,
   Paper,
-  useTheme,
-  Box,
-  CircularProgress,
   Typography,
   TextField,
-  ListItem,
-  ListItemIcon
+  useTheme,
+  ListItemIcon,
+  Checkbox,
+  Grid,
+  Card,
+  CardHeader,
+  CardContent,
+  Chip
 } from '@mui/material';
 import { toast } from 'react-toastify';
-import { MoreHoriz, MoreVert } from '@mui/icons-material';
+import { MoreHoriz } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
@@ -44,8 +44,8 @@ const RoleTable = ({ searchQuery }) => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [editedRole, setEditedRole] = useState({ name: '' });
   const [deleteRole, setDeleteRole] = useState(false);
-
-
+  const [allPermissions, setAllPermissions] = useState([]); // To store all available permissions
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
   const filteredRoles = roles.filter((role) => role.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleFetchingRole = () => {
@@ -99,13 +99,38 @@ const RoleTable = ({ searchQuery }) => {
     setSelectedRole(null);
   };
 
-  const handleOpenEditModal = (role) => {
-    setEditedRole({ name: role.name });
-    setSelectedRole(role);
-    setOpenEditModal(true);
-    handleCloseMenu();
+const handleOpenEditModal = (role) => {
+  setEditedRole({ name: role.name });
+  setSelectedRole(role);
+  setSelectedPermissions(role.permissions.map((perm) => perm.uuid)); // Map current permissions to the UUIDs
+  setOpenEditModal(true);
+  handleCloseMenu();
+
+  // Fetch all permissions from the backend
+  const token = localStorage.getItem('token');
+  const Api = Backend.auth + Backend.permissi; // Assuming this is the correct endpoint
+  const header = {
+    Authorization: `Bearer ${token}`,
+    accept: 'application/json',
+    'Content-Type': 'application/json'
   };
 
+  fetch(Api, {
+    method: 'GET',
+    headers: header
+  })
+    .then((response) => response.json())
+    .then((response) => {
+      if (response.success) {
+        setAllPermissions(response.data); // Store all permissions
+      } else {
+        toast('Error fetching permissions');
+      }
+    })
+    .catch((error) => {
+      toast(error.message);
+    });
+};
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
     setSelectedRole(null);
@@ -115,35 +140,52 @@ const RoleTable = ({ searchQuery }) => {
     const { name, value } = event.target;
     setEditedRole((prev) => ({ ...prev, [name]: value }));
   };
+const handlePermissionChange = (permissionId) => {
+  setSelectedPermissions((prevSelected) => {
+    if (prevSelected.includes(permissionId)) {
+      return prevSelected.filter((id) => id !== permissionId); // Deselect permission
+    } else {
+      return [...prevSelected, permissionId]; // Select permission
+    }
+  });
+};
 
-  const handleSaveEdit = () => {
-    const token = localStorage.getItem('token');
-    const Api = Backend.auth + Backend.roles + `/${selectedRole.uuid}`;
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
 
-    fetch(Api, {
-      method: 'PATCH',
-      headers: header,
-      body: JSON.stringify(editedRole)
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          toast('Role updated successfully');
-          handleFetchingRole(); // Re-fetch roles to update the table
-          handleCloseEditModal(); // Close the modal after successful update
-        } else {
-          toast('Error updating role');
-        }
-      })
-      .catch((error) => {
-        toast(error.message);
-      });
+const handleSaveEdit = () => {
+  const token = localStorage.getItem('token');
+  const Api = Backend.auth + Backend.roles + `/${selectedRole.uuid}`;
+  const header = {
+    Authorization: `Bearer ${token}`,
+    accept: 'application/json',
+    'Content-Type': 'application/json'
   };
+
+  // Prepare the payload with role name and selected permissions
+  const payload = {
+    name: editedRole.name,
+    permissions: selectedPermissions // Send the updated list of permissions
+  };
+
+  fetch(Api, {
+    method: 'PATCH',
+    headers: header,
+    body: JSON.stringify(payload)
+  })
+    .then((response) => response.json())
+    .then((response) => {
+      if (response.success) {
+        toast('Role updated successfully');
+        handleFetchingRole();
+        handleCloseEditModal();
+      } else {
+        toast('Error updating role');
+      }
+    })
+    .catch((error) => {
+      toast(error.message);
+    });
+};
+
 
   const handleDelete = (roleId) => {
     const token = localStorage.getItem('token');
@@ -173,233 +215,250 @@ const RoleTable = ({ searchQuery }) => {
       });
   };
 
-  const groupPermissionsByType = (permissions) => {
-    return permissions.reduce((groups, permission) => {
-      const { type } = permission;
-      if (!groups[type]) {
-        groups[type] = [];
-      }
-      groups[type].push(permission);
-      return groups;
-    }, {});
-  };
+const groupPermissionsByType = (permissions) => {
+  console.log('Grouping permissions:', permissions);
+  return permissions.reduce((groups, permission) => {
+    const { type } = permission;
+    if (!groups[type]) {
+      groups[type] = [];
+    }
+    groups[type].push(permission);
+    return groups;
+  }, {});
+};
 
-    const handleRemoveEmployee = (role) => {
-      // setSelectedRow(role);
-      setDeleteRole(true);
-    };
+
+
+  const handleRemoveEmployee = (role) => {
+    setDeleteRole(true);
+  };
 
   useEffect(() => {
     handleFetchingRole();
   }, []);
 
   return (
-    <TableContainer
+    <Box
       component={Paper}
       sx={{
         minHeight: '40dvh',
         width: '100%',
         border: 0.4,
         borderColor: theme.palette.grey[300],
-        borderRadius: 2
+        borderRadius: 2,
+        p: 2
       }}
     >
-      <Table>
-        <TableHead>
-          <TableRow>
-            {['Role', 'Action'].map((header) => (
-              <TableCell
-                key={header}
-                sx={{
-                  background: theme.palette.grey[100],
-                  color: '#000',
-                  fontWeight: 'bold',
-
-                  fontSize: '0.9rem',
-                  borderBottom: `2px solid ${theme.palette.divider}`,
-                  position: 'relative',
-                  padding: '12px 16px',
-                  '&:not(:last-of-type)': {
-                    borderRight: `1px solid ${theme.palette.divider}`
-                  }
-                }}
-              >
-                {header}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {roleLoading ? (
-            <Box
-              sx={{
-                padding: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <CircularProgress size={20} />
+      {roleLoading ? (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '40dvh'
+          }}
+        >
+          <CircularProgress size={20} />
+        </Box>
+      ) : error ? (
+        <Fallbacks severity="error" title="Server error" description="There is an error fetching Roles" />
+      ) : filteredRoles.length === 0 ? (
+        <Fallbacks severity="info" title="No Roles Found" description="The list of added Roles will be listed here" />
+      ) : (
+        filteredRoles.map((role, index) => (
+          <Box key={role.uuid} sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h3" sx={{ mt: 1, fontWeight: 'bold' }}>
+                {role.name}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
+                  <MoreHoriz />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl) && selectedIndex === index}
+                  onClose={handleCloseMenu}
+                  sx={{
+                    '& .MuiPaper-root': {
+                      backdropFilter: 'blur(10px)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                      borderRadius: 2,
+                      boxShadow: theme.shadows[1]
+                    }
+                  }}
+                >
+                  <MenuItem onClick={() => handleOpenEditModal(role)}>
+                    <ListItemIcon>
+                      <EditIcon fontSize="small" style={{ paddingRight: '4px', color: 'gray' }} /> Edit
+                    </ListItemIcon>
+                  </MenuItem>
+                  <MenuItem onClick={() => handleDelete(role.uuid)}>
+                    <ListItemIcon>
+                      <DeleteIcon fontSize="small" style={{ paddingRight: '4px', color: 'red' }} /> Delete
+                    </ListItemIcon>
+                  </MenuItem>
+                </Menu>
+              </Box>
             </Box>
-          ) : error ? (
-            <Fallbacks severity="error" title="Server error" description="There is error fetching Roles" />
-          ) : filteredRoles.length === 0 ? (
-            <Fallbacks
-              severity="info"
-              title="No Roles Found"
-              description="The list of added Roles will be listed here"
-              sx={{ paddingTop: 6 }}
-            />
-          ) : (
-            filteredRoles.map((role, index) => (
-              <TableRow
-                key={index}
-                sx={{
-                  backgroundColor: theme.palette.background.paper,
-                  borderRadius: 2,
-                  '&:nth-of-type(odd)': {
-                    backgroundColor: theme.palette.grey[50]
-                  },
-                  '&:hover': {
-                    backgroundColor: theme.palette.grey[100]
-                  }
-                }}
-              >
-                <TableCell>{role.name}</TableCell>
-                <TableCell>
-                  <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
-                    <MoreVert />
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl) && selectedIndex === index}
-                    onClose={handleCloseMenu}
+            <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[300], my: 2 }} />
+
+            <Box sx={{ mb: 2 }}>
+              {Object.entries(groupPermissionsByType(role.permissions)).map(([type, perms], i) => (
+                <Box key={i} sx={{ mb: 3 }}>
+                  <Typography
+                    variant="h5"
                     sx={{
-                      '& .MuiPaper-root': {
-                        backdropFilter: 'blur(10px)',
-                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                        borderRadius: 2,
-                        boxShadow: theme.shadows[1]
-                      }
+                      textTransform: 'capitalize',
+                      mb: 2,
+                      color: theme.palette.primary.main,
+                      display: 'flex',
+                      alignItems: 'center'
                     }}
                   >
-                    <MenuItem onClick={() => handleOpenDetailModal(index)}>
-                      <ListItemIcon>
-                        <InfoIcon fontSize="small" style={{ paddingRight: '4px', color: 'gray' }} /> Details
-                      </ListItemIcon>
-                    </MenuItem>
-                    <MenuItem onClick={() => handleOpenEditModal(role)}>
-                      <ListItemIcon>
-                        <EditIcon fontSize="small" style={{ paddingRight: '4px', color: '#11365A' }} /> Edit
-                      </ListItemIcon>
-                    </MenuItem>
-                    <MenuItem onClick={() => handleDelete(role.uuid)}>
-                      <ListItemIcon>
-                        <DeleteIcon fontSize="small" style={{ paddingRight: '4px', color: 'red' }} /> Delete
-                      </ListItemIcon>
-                    </MenuItem>
-                  </Menu>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+                    <InfoIcon sx={{ mr: 1 }} />
+                    Assigned Permissions
+                  </Typography>
 
-      <Dialog open={openDetailModal} onClose={handleCloseDetailModal}>
-        <DialogTitle variant="h4">Details</DialogTitle>
-        <DialogContent
-          sx={{
-            p: 3,
-            backgroundColor: 'white',
-            margin: 'auto',
-            mt: '2%',
-            width: 600,
-            borderRadius: '10px'
-          }}
-        >
-          {selectedRole && (
-            <>
-              <Typography variant="h5">Role Name: {selectedRole.name}</Typography>
-              <TableContainer sx={{ marginTop: 2 }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Assigned Permission</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedRole.permissions.length > 0 ? (
-                      Object.entries(groupPermissionsByType(selectedRole.permissions)).map(([type, perms], i) =>
-                        perms.map((perm, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{perm.name}</TableCell>
-                          </TableRow>
-                        ))
-                      )
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={2}>
-                          <Fallbacks severity="info" title="No Data" description="No Permission Found" />
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDetailModal} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={openEditModal} onClose={handleCloseEditModal}>
-        <Typography variant="subtitle1" p={1}>
-          Edit Role
-        </Typography>
-        <DialogContent
-          sx={{
-            p: 3,
-            backgroundColor: 'white',
-            margin: 'auto',
-            mt: '2%',
-            width: 400,
-            borderRadius: '10px'
-          }}
-        >
-          {selectedRole && (
-            <Box component="form" noValidate autoComplete="off">
-              <TextField fullWidth label="Role Name" name="name" value={editedRole.name} onChange={handleEditChange} sx={{ mb: 2 }} />
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                      gap: 2
+                    }}
+                  >
+                    {perms.map((perm, idx) => (
+                      <Paper
+                        key={idx}
+                        elevation={1}
+                        sx={{
+                          padding: 2,
+                          borderRadius: 2,
+                          backgroundColor: theme.palette.background.paper,
+                          transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+                          '&:hover': {
+                            transform: 'scale(1.02)',
+                            boxShadow: theme.shadows[8]
+                          }
+                        }}
+                      >
+                        <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                          {perm.name}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {perm.description || 'No description available'}
+                        </Typography>
+                        <Chip label="Assigned" color="success" size="small" sx={{ mt: 1, fontWeight: 'bold', fontSize: '0.75rem' }} />
+                      </Paper>
+                    ))}
+                  </Box>
+                </Box>
+              ))}
             </Box>
-          )}
+
+            <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[300], my: 3 }} />
+          </Box>
+        ))
+      )}
+
+      {/* Edit Modal */}
+      <Dialog open={openEditModal} onClose={handleCloseEditModal} fullWidth={true} maxWidth="lg">
+        <DialogTitle>Edit Role</DialogTitle>
+        <DialogContent>
+          <Box>
+            <TextField label="Role Name" name="name" value={editedRole.name} onChange={handleEditChange} fullWidth margin="dense" />
+        
+            <Divider sx={{ mb: 2 }} />
+            <Grid container spacing={3}>
+              {allPermissions.length === 0 ? (
+                <Typography>No permissions available</Typography>
+              ) : (
+                Object.entries(groupPermissionsByType(allPermissions)).map(([type, permissions]) => (
+                  <Grid item xs={12} key={type}>
+                    <Card
+                      variant="outlined"
+                      sx={{
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                          transform: 'scale(1.01)'
+                        }
+                      }}
+                    >
+                      <CardHeader
+                        title='Permissions'
+                        sx={{
+                          backgroundColor: '#f5f5f5',
+                          color: '#333',
+                          fontWeight: 'bold',
+                          textTransform: 'uppercase'
+                        }}
+                      />
+                      <CardContent>
+                        <Grid container spacing={0}>
+                          {permissions.map((permission) => (
+                            <Grid item xs={12} sm={6} md={4} key={permission.uuid}>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  p: 1,
+                                  borderRadius: '2px',
+                                  transition: 'background-color 0.3s',
+                                  '&:hover': {
+                                    backgroundColor: '#f0f0f0'
+                                  }
+                                }}
+                              >
+                                <Checkbox
+                                  checked={selectedPermissions.includes(permission.uuid)}
+                                  onChange={() => handlePermissionChange(permission.uuid)}
+                                />
+                                <Typography sx={{ ml: 1 }}>{permission.name}</Typography>
+                          
+                              </Box>
+                            </Grid>
+                          ))}
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))
+              )}
+            </Grid>
+          </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseEditModal} color="primary">
-            Cancel
-          </Button>
+          <Button onClick={handleCloseEditModal}>Cancel</Button>
           <Button onClick={handleSaveEdit} color="primary">
             Save
           </Button>
         </DialogActions>
       </Dialog>
-{/* 
-      {deleteRole && (
-        <DeletePrompt
-          type="Delete"
-          open={deleteRole}
-          title="Removing Role"
-          description={`Are you sure you want to remove ` + `/${roleId}`}
-          onNo={() => setDeleteRole(false)}
-          onYes={() => handleDelete()}
-          deleting={deleting}
-          handleClose={() => setDelete(false)}
-        />
-      )} */}
-    </TableContainer>
+
+      {/* View Details Modal */}
+      <Dialog open={openDetailModal} onClose={handleCloseDetailModal}>
+        <DialogTitle>Role Details</DialogTitle>
+        <DialogContent>
+          <Typography variant="h6">Role Name:</Typography>
+          <Typography>{selectedRole?.name}</Typography>
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            Permissions:
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+            {selectedRole?.permissions.length === 0 ? (
+              <Typography>No permissions assigned</Typography>
+            ) : (
+              selectedRole?.permissions.map((perm) => <Chip key={perm.uuid} label={perm.name} sx={{ mr: 1, mb: 1 }} />)
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDetailModal}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 
