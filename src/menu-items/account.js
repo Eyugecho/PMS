@@ -1,5 +1,8 @@
 // assets
-import { IconKey, IconUserCog } from '@tabler/icons-react';
+import {
+  IconKey,
+  IconUserCog
+} from '@tabler/icons-react';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 // constant
@@ -33,23 +36,18 @@ export const Accounts = () => {
           id: 'role',
           title: 'Role and Permission',
           type: 'item',
+          icon: icons.IconKey,
           url: '/role-permission'
         });
       }
     });
 
   return {
-    id: 'accounts',
-    title: 'Account Managment',
+    id: 'account',
+    title: 'Account',
     type: 'group',
-    children: [
-      {
-        id: 'user-accounts',
-        title: 'User Accounts',
-        type: 'collapse',
-        icon: icons.IconUserCog,
-        children: [...childrenTemp]
-      }
-    ]
+
+    children: [...childrenTemp]
+
   };
 };

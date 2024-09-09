@@ -452,8 +452,8 @@ const Page = () => {
   };
 
   return (
-    <PageContainer maxWidth="lg" title="Role and Permission Management">
-      <DrogaCard sx={{ marginLeft: '10px' }}>
+    <PageContainer maxWidth="lg" title="Role and Permission">
+      <DrogaCard sx={{ marginLeft: '10px' ,marginTop:'20px'}}>
         <Box p={3}>
           <Tabs
             value={tabValue}
@@ -463,7 +463,7 @@ const Page = () => {
             aria-label="Role and Permissions Tabs"
           >
             <Tab value="roles" label="Roles" sx={{ fontSize: '17px' }} />
-            <Tab value="permissions" label="List of Menu" sx={{ fontSize: '17px' }} />
+            <Tab value="permissions" label="Menus List" sx={{ fontSize: '17px' }} />
           </Tabs>
 
           {tabValue === 'roles' && (

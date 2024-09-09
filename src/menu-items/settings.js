@@ -49,10 +49,26 @@ export const settings = () => {
         });
       }
     });
+
+  auth &&
+    auth.forEach((role) => {
+      if (
+        role.permissions.find((per) => per.name == 'approval:manage')
+
+      ) {
+        childrenTemp.push({
+          id: 'workflows',
+          title: 'Approval Workflows',
+          type: 'item',
+          url: '/workflows',
+          icon: icons.IconRoute
+        });
+      }
+    });
   return {
     id: 'settings',
     title: 'Settings',
     type: 'group',
-    children: [...childrenTemp, { id: 'workflows', title: 'Approval Workflows', type: 'item', url: '/workflows', icon: icons.IconRoute }]
+    children: [...childrenTemp]
   };
 };

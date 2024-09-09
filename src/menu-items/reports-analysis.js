@@ -30,20 +30,7 @@ const ReportsAndAnalysis = {
         }
       ]
     },
-    {
-      id: 'analysis',
-      title: 'Analysis',
-      type: 'collapse',
-      icon: icons.IconZoomScan,
-      children: [{
-          id: 'analysis-dashboard',
-          title: 'Analysis',
-          type: 'item',
-          url: 'placeholder',
-          breadcrumbs: false
-        }
-      ]
-    }
+
   ]
 };
 
