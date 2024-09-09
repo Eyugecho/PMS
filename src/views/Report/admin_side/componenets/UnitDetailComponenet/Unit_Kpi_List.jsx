@@ -17,7 +17,6 @@ import {
   Select,
   MenuItem,
   Paper,
-  InputLabel,
   CardContent
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';

@@ -1,14 +1,8 @@
-import FiscalYear from 'views/planning/components/Forms/FiscalYear';
 import FrequencySelection from 'views/planning/components/Forms/Frequency';
 import KPISelection from 'views/planning/components/Forms/KPISelection';
 import TargetDistribution from 'views/planning/components/Forms/TargetDistribution';
 
 export const CreatePlanForms = [
-  {
-    id: 1,
-    name: 'Select Fiscal Year',
-    component: <FiscalYear />
-  },
   {
     id: 2,
     name: 'Select KPI',
@@ -27,11 +21,6 @@ export const CreatePlanForms = [
 ];
 
 export const UpdatePlanForm = [
-  {
-    id: 1,
-    name: 'Selected Fiscal Year',
-    component: <FiscalYear />
-  },
   {
     id: 2,
     name: 'Selected KPI',

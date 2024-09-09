@@ -26,14 +26,17 @@ import {
 } from '@mui/material';
 import { IconX } from '@tabler/icons-react';
 import { useFormik } from 'formik';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import Backend from 'services/backend';
-import { toast, ToastContainer } from 'react-toastify';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import GetToken from 'utils/auth-token';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Full name is required'),
   gender: Yup.string().required('Unit type is required'),
   email: Yup.string().email().required('Email is required'),
+  type: Yup.string().required('Unit type is required'),
   phone: Yup.string().required('Phone number is required'),
   unit: Yup.string().required('Unit is required'),
   position: Yup.string().required('The employee position is required'),
@@ -42,7 +45,8 @@ const validationSchema = Yup.object().shape({
 
 const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmission }) => {
   const theme = useTheme();
-
+  const [unitLoading, setUnitLoading] = React.useState(true);
+  const [unitType, setUnitType] = React.useState([]);
   const [units, setUnits] = React.useState([]);
   const [roles, setRoles] = React.useState([]);
   const [selectedRoles, setSelectedRoles] = React.useState([]);
@@ -72,6 +76,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
       gender: '',
       email: '',
       phone: '',
+      type: null,
       unit: '',
       position: '',
       role: '',
@@ -83,9 +88,10 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
     }
   });
 
-  const handleFetchingManagers = () => {
-    const token = localStorage.getItem('token');
-    const Api = Backend.api + Backend.units;
+  const handleFetchingTypes = async () => {
+    setUnitLoading(true);
+    const token = await GetToken('token');
+    const Api = Backend.api + Backend.types;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -99,7 +105,35 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
-          setUnits(response.data.data);
+          setUnitLoading(false);
+          setUnitType(response.data);
+        } else {
+          setUnitLoading(false);
+        }
+      })
+      .catch((error) => {
+        setUnitLoading(false);
+        toast(error.message);
+      });
+  };
+
+  const handleFetchingUnits = async () => {
+    const token = await GetToken();
+    const Api = Backend.api + Backend.unitByTypes + formik.values.type;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setUnits(response.data.units);
         }
       })
       .catch((error) => {
@@ -140,6 +174,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
       gender: EmployeeData?.gender,
       email: EmployeeData?.user?.email,
       phone: EmployeeData?.user?.phone,
+      type: EmployeeData?.unit?.unit?.unit_type_id,
       unit: EmployeeData?.unit?.unit?.id,
       position: EmployeeData?.position,
       start_date: EmployeeData?.unit?.started_date?.split(' ')[0]
@@ -149,9 +184,15 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
   };
 
   React.useEffect(() => {
-    handleFetchingManagers();
+    if (formik.values.type) {
+      handleFetchingUnits();
+    }
+  }, [formik.values.type]);
+
+  React.useEffect(() => {
     handleFetchingRoles();
     setFormInitialValues();
+    handleFetchingTypes();
 
     return () => {};
   }, [update]);
@@ -164,7 +205,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
             top: 0,
             zIndex: 2,
             width: '100%',
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: theme.palette.background.default,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -172,11 +213,11 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
             paddingY: 0.6
           }}
         >
-          <DialogTitle variant="h4" color={theme.palette.background.default}>
+          <DialogTitle variant="h4" color={theme.palette.text.primary}>
             Update Employee
           </DialogTitle>
           <IconButton onClick={onClose}>
-            <IconX size={20} color={theme.palette.background.default} />
+            <IconX size={20} color={theme.palette.text.primary} />
           </IconButton>
         </Box>
 
@@ -244,7 +285,38 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
               )}
             </FormControl>
 
-            <FormControl fullWidth error={formik.touched.unit && Boolean(formik.errors.unit)} sx={{ marginTop: 3 }}>
+            <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
+              <InputLabel htmlfor="type">Unit type</InputLabel>
+
+              <Select id="type" name="type" label="Unit type" value={formik.values.type} onChange={formik.handleChange}>
+                {unitLoading ? (
+                  <ActivityIndicator size={20} />
+                ) : unitType.length == 0 ? (
+                  <Typography variant="body2" sx={{ padding: 1 }}>
+                    Unit type is not found
+                  </Typography>
+                ) : (
+                  unitType?.map((type, index) => (
+                    <MenuItem key={index} value={type.id}>
+                      {type.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+
+              {formik.touched.type && formik.errors.type && (
+                <FormHelperText error id="standard-weight-helper-text-type">
+                  {formik.errors.type}
+                </FormHelperText>
+              )}
+            </FormControl>
+
+            <FormControl
+              fullWidth
+              error={formik.touched.unit && Boolean(formik.errors.unit)}
+              sx={{ marginTop: 3 }}
+              disabled={formik?.values?.type == null}
+            >
               <InputLabel htmlFor="unit">Unit</InputLabel>
 
               <Select id="unit" name="unit" label="Unit" value={formik.values.unit} onChange={formik.handleChange}>

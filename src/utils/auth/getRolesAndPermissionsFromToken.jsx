@@ -76,6 +76,7 @@ export const getRolesAndPermissionsFromToken = () => {
     }
 
     const roles = decodedToken.roles || []; // Extract roles
+
     return roles;
   } catch (error) {
     console.error('Failed to get roles and permissions from token:', error);

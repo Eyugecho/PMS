@@ -19,31 +19,35 @@ import * as Yup from 'yup';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import config from '../../../../configration/config';
 import { decodeToken, hasRole } from '../../../../store/permissionUtils';
-import { setUser } from '../../../../store/actions/actions';
+import { SET_USER, setUser, SIGN_IN } from '../../../../store/actions/actions';
 import { AuthContext } from 'context/AuthContext';
 import { Storage } from 'configration/storage';
+import Backend from 'services/backend';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
-  const { signin } = useContext(AuthContext);
   const customization = useSelector((state) => state.customization);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [signing, setSigning] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
 
   const handleLogin = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
+      setSigning(true);
+      const Api = Backend.auth + Backend.login;
+
       const data = {
         email: values.email,
         password: values.password
       };
 
-      fetch(`${config.API_URL}/login-with-email`, {
+      fetch(Api, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -51,7 +55,7 @@ const AuthLogin = ({ ...others }) => {
         .then((response) => response.json())
         .then((response) => {
           if (response.success) {
-            const { access_token, expires_in } = response.data;
+            const { access_token } = response.data;
 
             if (typeof access_token !== 'string') {
               throw new Error('Invalid token format');
@@ -66,13 +70,15 @@ const AuthLogin = ({ ...others }) => {
               permissions: decodedToken.roles.flatMap((role) => role.permissions)
             };
 
-            const ttl = new Date(expires_in * 1000);
-            const expirationTime = ttl.getTime();
+            const currentTime = new Date().getTime();
+            const ttl = response.data.expires_in * 1000;
+            const expirationTime = ttl + currentTime;
+
             Storage.setItem('token', access_token);
             Storage.setItem('tokenExpiration', expirationTime);
 
-            dispatch(setUser(user));
-            signin();
+            dispatch(setUser({ type: SET_USER, user: user }));
+            dispatch({ type: SIGN_IN, signed: true });
             navigate('/');
           } else {
             setStatus({ success: false });
@@ -84,12 +90,14 @@ const AuthLogin = ({ ...others }) => {
           setStatus({ success: false });
           setErrors({ submit: error.message });
           setSubmitting(false);
+        })
+        .finally(() => {
+          setSigning(false);
         });
     } catch (error) {
       setStatus({ success: false });
       setErrors({ submit: error.message });
       setSubmitting(false);
-      console.log(error);
     }
   };
 
@@ -155,7 +163,7 @@ const AuthLogin = ({ ...others }) => {
                     edge="end"
                     size="large"
                   >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                    {showPassword ? <Visibility fontSize='small'/> : <VisibilityOff fontSize='small' />}
                   </IconButton>
                 </InputAdornment>
               }
@@ -184,7 +192,7 @@ const AuthLogin = ({ ...others }) => {
             <AnimateButton>
               <Button
                 disableElevation
-                disabled={isSubmitting}
+                disabled={signing}
                 fullWidth
                 size="large"
                 type="submit"
@@ -193,12 +201,12 @@ const AuthLogin = ({ ...others }) => {
                   padding: 1.6,
                   transition: 'all .2s ease-in-out',
                   '&[aria-controls="menu-list-grow"],&:hover': {
-                    background: theme.palette.primary[800]
+                    background: theme.palette.primary.dark
                   },
                   borderRadius: `${customization.borderRadius}px`
                 }}
               >
-                Sign in
+                {signing ? <ActivityIndicator size={18} /> : 'Sign in'}
               </Button>
             </AnimateButton>
           </Box>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid } from '@mui/material';
+import { Box, Grid, TablePagination, Tooltip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { CreatePlan } from './components/CreatePlan';
 import { toast, ToastContainer } from 'react-toastify';
@@ -7,6 +7,7 @@ import { gridSpacing } from 'store/constant';
 import { UpdatePlan } from './components/UpdatePlan';
 import { useKPI } from 'context/KPIProvider';
 import { Storage } from 'configration/storage';
+import { useSelector } from 'react-redux';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
 import AddButton from 'ui-component/buttons/AddButton';
@@ -17,19 +18,56 @@ import Fallbacks from 'utils/components/Fallbacks';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import GetToken from 'utils/auth-token';
 import axios from 'axios';
+import Search from 'ui-component/search';
+import SelectorMenu from 'ui-component/menu/SelectorMenu';
+import GetFiscalYear from 'utils/components/GetFiscalYear';
 
 const Planning = () => {
+  const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
   const navigate = useNavigate();
   const { handleUpdatePlan } = useKPI();
 
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [create, setCreate] = useState(false);
+  const [fullyPlanned, setFullyPlanned] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState();
   const [update, setUpdate] = useState(false);
   const [deletePlan, setDeletePlan] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [search, setSearch] = useState('');
+  const [perspectiveTypes] = useState([{ label: 'Perspectives Type', value: '' }]);
+  const [measuringUnit] = useState([{ label: 'Measuring Unit', value: '' }]);
+  const [filter, setFilter] = useState({
+    m_unit: '',
+    perspective: ''
+  });
+  const [pagination, setPagination] = useState({
+    page: 0,
+    per_page: 10,
+    total: 0
+  });
+
+  const handleSearchFieldChange = (event) => {
+    const value = event.target.value;
+    setSearch(value);
+    setPagination({ ...pagination, page: 0 });
+  };
+
+  const handleFiltering = (event) => {
+    const { value, name } = event.target;
+    setFilter({ ...filter, [name]: value });
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPagination({ ...pagination, page: newPage });
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPagination({ ...pagination, per_page: event.target.value, page: 0 });
+  };
 
   const handleCreatePlan = () => {
     setCreate(true);
@@ -98,48 +136,102 @@ const Planning = () => {
     }
   };
 
-  const handleFetchingPlan = async () => {
-    const token = await GetToken();
-    const Api = Backend.api + Backend.getOrgPlans;
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
+  //Plan fetching reated function goes down here
+  const handleSettingUpPerspectiveFilter = (perspective) => {
+    perspectiveTypes.length < 2 &&
+      perspective.forEach((perspective) => perspectiveTypes.push({ label: perspective.name, value: perspective.id }));
+  };
 
-    fetch(Api, {
-      method: 'GET',
-      headers: header
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setData(response.data);
-          setLoading(false);
-          setError(false);
-        } else {
-          setLoading(false);
-          toast.warning(response.data.message);
-          setError(false);
-        }
+  const handleSettingUpMeasuringUnitFilter = (measuring_unit) => {
+    measuringUnit.length < 2 && measuring_unit.forEach((m_unit) => measuringUnit.push({ label: m_unit.name, value: m_unit.id }));
+  };
+
+  const handleFetchingPlan = async () => {
+    if (selectedYear) {
+      setLoading(true);
+      const token = await GetToken();
+      const Api =
+        Backend.api +
+        Backend.getOrgPlans +
+        `?fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}&search=${search}&perspective_type_id=${filter.perspective}&measuring_unit_id=${filter.m_unit}`;
+      const header = {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      fetch(Api, {
+        method: 'GET',
+        headers: header
       })
-      .catch((error) => {
-        toast.warning(error.message);
-        setError(true);
-        setLoading(false);
-      });
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            setData(response.data?.plans?.data);
+            setFullyPlanned(response.data?.weightSum);
+            handleSettingUpPerspectiveFilter(response.data?.perspectiveTypes);
+            handleSettingUpMeasuringUnitFilter(response.data?.measuringUnits);
+            setPagination({ ...pagination, total: response.data?.plans?.total });
+            setError(false);
+          } else {
+            toast.warning(response.data.message);
+            setError(false);
+          }
+        })
+        .catch((error) => {
+          toast.warning(error.message);
+          setError(true);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      <GetFiscalYear />;
+    }
   };
 
   useEffect(() => {
-    handleFetchingPlan();
+    if (mounted) {
+      handleFetchingPlan();
+    } else {
+      setMounted(true);
+    }
+  }, [selectedYear, pagination.page, pagination.per_page, filter]);
 
-    return () => {};
-  }, []);
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      handleFetchingPlan();
+    }, 600);
+
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [search]);
+
   return (
     <PageContainer
       title={'Planning'}
-      rightOption={<AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()} />}
+      rightOption={
+        <Tooltip title={fullyPlanned ? 'Already Planned 100%' : ''} arrow>
+          <AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()} disable={fullyPlanned} />
+        </Tooltip>
+      }
     >
+      <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3.8, px: 2 }}>
+        <Grid item xs={12} sm={12} md={4} lg={2.6} xl={2}>
+          <Search value={search} onChange={(event) => handleSearchFieldChange(event)} />
+        </Grid>
+
+        <Grid item xs={12} sm={12} md={6}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <SelectorMenu name="perspective" options={perspectiveTypes} selected={filter.perspective} handleSelection={handleFiltering} />
+            <Box sx={{ marginLeft: 2 }}>
+              <SelectorMenu name="m_unit" options={measuringUnit} selected={filter.m_unit} handleSelection={handleFiltering} />
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+
       {loading ? (
         <Grid container>
           <Grid
@@ -166,7 +258,7 @@ const Planning = () => {
           sx={{ paddingTop: 6 }}
         />
       ) : (
-        <Grid container sx={{ paddingY: 1, paddingX: 2, marginTop: 4 }} spacing={gridSpacing}>
+        <Grid container sx={{ paddingY: 1, paddingX: 2, marginTop: 0.2 }} spacing={gridSpacing}>
           {data.map((plan, index) => (
             <Grid item xs={12} sm={12} md={6} lg={4} xl={3} key={index}>
               <PlanCard
@@ -174,12 +266,25 @@ const Planning = () => {
                 onPress={() => navigate('/planning/view', { state: plan })}
                 onEdit={() => handleUpdatingPlan(plan)}
                 onDelete={() => handleDeletePlan(plan)}
+                editInitiative={true}
               />
             </Grid>
           ))}
         </Grid>
       )}
 
+      {!loading && pagination.total > pagination.per_page && (
+        <TablePagination
+          component="div"
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          count={pagination.total}
+          rowsPerPage={pagination.per_page}
+          page={pagination.page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Plans per page"
+        />
+      )}
       <CreatePlan add={create} onClose={handleCreateModalClose} onSucceed={() => handleFetchingPlan()} />
       <UpdatePlan add={update} onClose={handleUpdateModalClose} onSucceed={() => handleFetchingPlan()} />
       {deletePlan && (

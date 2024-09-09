@@ -126,3 +126,44 @@
     transform: translateX(10px);
   }
 }
+
+
+.ql-container {
+  border: 0;/* Change the border color and thickness */
+  border-radius: 4px; /* Add rounded corners */
+  padding: 5px; /* Optional: add padding inside the container */
+}
+
+.ql-toolbar {
+  border: none; 
+  background-color: "#fcfcfc";
+}
+
+.ql-editor {
+  min-height: 100px; /* Minimum height of the editor */
+  font-size: 16px; /* Change the font size */
+  padding: 10px; /* Add some padding */
+  border-radius: 24px; /* Add border radius */
+}
+
+.ql-editor p {
+  margin: 0 0 10px; /* Style paragraphs */
+}
+
+.ql-editor h1 {
+  font-size: 24px; /* Style h1 tags */
+  color: #2c3e50;
+}
+
+.ql-editor h2 {
+  font-size: 20px; /* Style h2 tags */
+  color: #34495e;
+}
+
+/* Customize other elements like blockquotes, lists, etc. */
+.ql-editor blockquote {
+  border-left: 5px solid #ccc;
+  padding-left: 10px;
+  color: #666;
+}
+

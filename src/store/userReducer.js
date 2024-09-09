@@ -1,22 +1,33 @@
 // reducers.js
+import * as actionTypes from './actions/actions';
+
 const initialState = {
-    user: null,
-    roles: [],
-    permissions: []
+  signed: false,
+  user: null,
+  roles: [],
+  permissions: []
 };
 
 const userReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case 'SET_USER':
-            return {
-                ...state,
-                user: action.payload.user,
-                roles: action.payload.roles,
-                permissions: action.payload.permissions
-            };
-        default:
-            return state;
-    }
+  switch (action.type) {
+    case actionTypes.SET_USER:
+      return {
+        ...state,
+        user: action.payload.user,
+        roles: action.payload.user.roles,
+        permissions: action.payload.user.permissions
+      };
+
+      case actionTypes.SIGN_IN:
+        return {
+          ...state,
+          signed: action.signed,
+        
+        };
+
+    default:
+      return state;
+  }
 };
 
 export default userReducer;

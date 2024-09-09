@@ -6,7 +6,7 @@ import NavGroup from './NavGroup';
 import menuItem from 'menu-items';
 
 const MenuList = () => {
-  const user = useSelector((state) => state.user); // assuming user data is in the Redux storelog
+  const user = useSelector((state) => state.user.user); // assuming user data is in the Redux store
 
   const filterMenuItems = (items) => {
     return items

@@ -12,6 +12,12 @@ import { drawerWidth } from 'store/constant';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Customization from '../Customization';
+import { useEffect } from 'react';
+import Backend from 'services/backend';
+import { toast } from 'react-toastify';
+import { SET_FISCAL_YEARS, SET_SELECTED_FISCAL_YEAR } from 'store/actions';
+import GetToken from 'utils/auth-token';
+import GetFiscalYear from 'utils/components/GetFiscalYear';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   ...theme.typography.mainContent,
@@ -47,18 +53,51 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout = () => {
+  const selectedFiscal = useSelector((state) => state.customization.selectedFiscalYear);
+  const leftDrawerOpened = useSelector((state) => state.customization.opened);
   const theme = useTheme();
   const matchDownMd = useMediaQuery(theme.breakpoints.down('md'));
-  const leftDrawerOpened = useSelector((state) => state.customization.opened);
   const dispatch = useDispatch();
   const handleLeftDrawerToggle = () => {
     dispatch({ type: SET_MENU, opened: !leftDrawerOpened });
   };
 
+  // useEffect(() => {
+  //   const handleGettingFiscalYear = async () => {
+  //     try {
+  //       const Api = Backend.api + Backend.fiscalYear;
+  //       const token = await GetToken();
+  //       const response = await fetch(Api, {
+  //         method: 'GET',
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           'Content-Type': 'application/json'
+  //         }
+  //       });
+  //       const data = await response.json();
+  //       if (data.success) {
+  //         dispatch({ type: SET_FISCAL_YEARS, fiscalYears: data.data });
+  //         if (selectedFiscal) {
+  //           const selected = data?.data?.find((year, index) => year.id === selectedFiscal?.id);
+  //           data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: selected });
+  //         } else {
+  //           if (data.data[0]) {
+  //             dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
+  //           }
+  //         }
+  //       } else {
+  //         toast.error('Failed to fetch fiscal year data');
+  //       }
+  //     } catch (error) {
+  //       toast.error('Error fetching fiscal year:', error);
+  //     }
+  //   };
+  //   handleGettingFiscalYear();
+  // }, []);
   return (
     <Box sx={{ display: 'flex' }}>
       <Sidebar drawerOpen={!matchDownMd ? leftDrawerOpened : !leftDrawerOpened} drawerToggle={handleLeftDrawerToggle} />
-      <Main theme={theme} open={leftDrawerOpened} sx={{ backgroundColor: theme.palette.primary.light }}>
+      <Main theme={theme} open={leftDrawerOpened} sx={{ backgroundColor: theme.palette.background.default }}>
         <Box
           sx={{
             position: 'fixed',
@@ -83,6 +122,7 @@ const MainLayout = () => {
           }}
         >
           <Header handleLeftDrawerToggle={handleLeftDrawerToggle} drawerOpen={leftDrawerOpened} />
+          <GetFiscalYear />
         </Box>
 
         <Outlet />

@@ -28,6 +28,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
 
   const [add, setAdd] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [currentValue, setCurrentValue] = useState('0');
 
   const handleRowClick = (index) => {
     if (selectedRow === index) {
@@ -43,9 +44,14 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
     selectedTarget === targetId ? setSelectedTarget(null) : setSelectedTarget(targetId);
   };
 
-  const handleEvaluationClick = (targetId) => {
+  const handleEvaluationClick = (targetId, value, action) => {
     handleTargetSelection(targetId);
     setTargetId(targetId);
+    if (action === 'update') {
+      setCurrentValue(value);
+    } else {
+      setCurrentValue('0');
+    }
     setAdd(true);
   };
 
@@ -98,6 +104,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
           <TableHead>
             <TableRow>
               <TableCell>KPI Name</TableCell>
+              <TableCell>Inherited Weights(%)</TableCell>
               <TableCell>KPI Weights(%)</TableCell>
               <TableCell>Total Targets</TableCell>
               <TableCell>Measuring Unit</TableCell>
@@ -110,9 +117,9 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
               <React.Fragment key={index}>
                 <TableRow
                   sx={{
-                    backgroundColor: selectedRow == index ? theme.palette.primary[200] : theme.palette.background.default,
+                    backgroundColor: selectedRow == index ? theme.palette.grey[50] : theme.palette.background.default,
                     ':hover': {
-                      backgroundColor: theme.palette.primary[200],
+                      backgroundColor: theme.palette.grey[50],
                       color: theme.palette.background.default,
                       cursor: 'pointer',
                       borderRadius: 2
@@ -128,7 +135,10 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                       {plan?.kpi?.name}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(2)}</TableCell>
+                  <TableCell sx={{ border: 0 }}>
+                    {plan?.inherit_weight ? parseFloat(plan?.inherit_weight).toFixed(1) + '%' : 'N/A'}{' '}
+                  </TableCell>
+                  <TableCell sx={{ border: 0 }}>{parseFloat(plan?.weight).toFixed(1)}%</TableCell>
                   <TableCell sx={{ border: 0 }}>{plan?.total_target}</TableCell>
                   <TableCell sx={{ border: 0 }}>{plan?.kpi?.measuring_unit?.name}</TableCell>
                   <TableCell sx={{ border: 0 }}>{plan?.frequency?.name}</TableCell>
@@ -184,13 +194,21 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                                 {target?.can_be_evaluate &&
                                   (target?.actual_value == 0 ? (
                                     <TableCell sx={{ border: 0 }}>
-                                      <Button variant="contained" sx={{ boxShadow: 0 }} onClick={() => handleEvaluationClick(target.id)}>
+                                      <Button
+                                        variant="contained"
+                                        sx={{ boxShadow: 0 }}
+                                        onClick={() => handleEvaluationClick(target.id, 0, 'evaluate')}
+                                      >
                                         Evaluate
                                       </Button>
                                     </TableCell>
                                   ) : (
                                     <TableCell sx={{ border: 0 }}>
-                                      <Button variant="text" sx={{ boxShadow: 0 }} onClick={() => handleEvaluationClick(target.id)}>
+                                      <Button
+                                        variant="text"
+                                        sx={{ boxShadow: 0 }}
+                                        onClick={() => handleEvaluationClick(target.id, target?.actual_value, 'update')}
+                                      >
                                         Update Evaluation
                                       </Button>
                                     </TableCell>
@@ -215,6 +233,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
           unitName={unitName}
           unitType={unitType}
           isAdding={isAdding}
+          currentValue={currentValue}
           onClose={handleEvaluateModalClose}
           handleSubmission={(value) => handleEvaluation(value)}
         />

@@ -4,7 +4,7 @@ import { IconX } from '@tabler/icons-react';
 import { UpdatePlanForm } from 'data/planning/forms';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
-import { DistributionValidation, FiscalYearValidation, FrequencyValidation, SelectedKPIValidation } from 'utils/validation/planning';
+import { DistributionValidation, FrequencyValidation, SelectedKPIValidation } from 'utils/validation/planning';
 import { useKPI } from 'context/KPIProvider';
 import { Storage } from 'configration/storage';
 import Backend from 'services/backend';
@@ -24,14 +24,6 @@ export const UpdatePlan = ({ add, onClose, onSucceed }) => {
 
   const handleNext = () => {
     if (activeIndex === 0) {
-      let valid = FiscalYearValidation();
-      if (valid) {
-        setActiveIndex(activeIndex + 1);
-        setError({ ...error, state: false, message: '' });
-      } else {
-        setError({ ...error, state: true, message: 'Please select the fiscal year' });
-      }
-    } else if (activeIndex === 1) {
       const validation = SelectedKPIValidation(selectedKpi);
       if (validation.valid) {
         setError({ ...error, state: false, message: '' });
@@ -39,7 +31,7 @@ export const UpdatePlan = ({ add, onClose, onSucceed }) => {
       } else {
         setError({ ...error, state: true, message: validation.errors[0] });
       }
-    } else if (activeIndex === 2) {
+    } else if (activeIndex === 1) {
       const validation = FrequencyValidation(selectedKpi);
       if (validation.valid) {
         setError({ ...error, state: false, message: '' });

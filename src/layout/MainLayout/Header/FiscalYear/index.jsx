@@ -17,7 +17,7 @@ const FiscalYearMenu = () => {
   return (
     <div>
       {years && (
-        <FormControl variant="standard" sx={{ m: 1, ml: 4, minWidth: 120 }}>
+        <FormControl variant="standard" sx={{ ml: 4, minWidth: 120 }}>
           <Typography variant="caption">Fiscal year</Typography>
           <Select value={selectedYear} onChange={handleSelection} inputProps={{ 'aria-label': 'fiscal year' }}>
             {years?.map((year) => (

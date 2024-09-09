@@ -4,8 +4,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import { IconChevronRight, IconChevronUp } from '@tabler/icons-react';
 import { useKPI } from 'context/KPIProvider';
 import { MeasuringUnitConverter, PeriodNaming } from 'utils/function';
+import { useSelector } from 'react-redux';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
 
 const TargetDistribution = () => {
   const theme = useTheme();
@@ -14,13 +16,10 @@ const TargetDistribution = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [expand, setExpand] = useState();
-
-  const getFiscalYear = localStorage.getItem('selectFiscal');
-  const SelectFiscalYear = JSON.parse(getFiscalYear);
+  const SelectFiscalYear = useSelector((state) => state.customization.selectedFiscalYear);
 
   const handleFrequencySelection = (event, kpi_id, period_id) => {
     const value = event.target.value;
-
     distributeTarget(value, kpi_id, period_id);
   };
 
@@ -38,6 +37,11 @@ const TargetDistribution = () => {
       return index + 1;
     }
     return '';
+  };
+
+  const handleEvenlyDistribution = (kpi) => {
+    const value = kpi?.total_target / kpi.f_value;
+    data && data.forEach((period) => distributeTarget(value, kpi.id, period.id));
   };
 
   const handleFetchingPeriods = async (frequency_id) => {
@@ -111,22 +115,37 @@ const TargetDistribution = () => {
                 marginY: 0.4
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="subtitle1">Evaluation frequency</Typography>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    backgroundColor: theme.palette.primary.light,
-                    color: theme.palette.primary.main,
-                    paddingY: 0.4,
-                    paddingX: 2,
-                    borderRadius: 20,
-                    marginLeft: 1
-                  }}
-                >
-                  {kpi.f_name}
-                </Typography>
-              </Box>
+              <Grid container>
+                <Grid item xs={12} sm={12} md={6}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                      Evaluated
+                    </Typography>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        backgroundColor: theme.palette.grey[100],
+                        color: theme.palette.text.primary,
+                        paddingY: 0.4,
+                        paddingX: 2,
+                        borderRadius: 20,
+                        marginLeft: 1
+                      }}
+                    >
+                      {kpi.f_name}
+                    </Typography>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <DrogaButton
+                    title={'Evenly Distribute'}
+                    variant="outlined"
+                    onPress={() => handleEvenlyDistribution(kpi)}
+                    disabled={data.length === 0}
+                  />
+                </Grid>
+              </Grid>
 
               <Box sx={{ marginTop: 2, minHeight: '10dvh' }}>
                 {loading ? (

@@ -4,13 +4,14 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
+import ViewTask from 'views/tasks/view';
+import NotFound from 'views/not-found';
 
 // dashboard routing
-const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
+const Home = Loadable(lazy(() => import('views/dashboard')));
 const Units = Loadable(lazy(() => import('views/departments')));
 const ViewUnit = Loadable(lazy(() => import('views/departments/view')));
 const Planning = Loadable(lazy(() => import('views/planning')));
-const CreatePlan = Loadable(lazy(() => import('views/planning/create')));
 const Employees = Loadable(lazy(() => import('views/employees')));
 const ViewEmployee = Loadable(lazy(() => import('views/employees/view')));
 
@@ -18,6 +19,7 @@ const PagePlaceholder = Loadable(lazy(() => import('views/sample-page/Placeholde
 const Ranking = Loadable(lazy(() => import('views/ranking')));
 const Perfomance = Loadable(lazy(() => import('views/performance')));
 const Feedbacks = Loadable(lazy(() => import('views/approvals/feedback')));
+const Tasks = Loadable(lazy(() => import('views/tasks')));
 const Approvals = Loadable(lazy(() => import('views/approvals')));
 const DailyActivity = Loadable(lazy(() => import('views/monitoring/daily')));
 const Evaluations = Loadable(lazy(() => import('views/evaluation')));
@@ -26,11 +28,11 @@ const ViewPlan = Loadable(lazy(() => import('views/planning/View')));
 const Account = Loadable(lazy(() => import('views/account')));
 const KPIManagement = Loadable(lazy(() => import('views/kpi')));
 const Users = Loadable(lazy(() => import('views/users')));
-// const Report = Loadable(lazy(() => import('views/Report/admin_report/index')));
+const Workflows = Loadable(lazy(() => import('views/workflows')));
 const Report2 = Loadable(lazy(() => import('views/Report/admin_side/index')));
 const Viewoverallcompany = Loadable(lazy(() => import('views/Report/admin_side/UnitDetailView')));
-// const ViewUnitsPerformance = Loadable(lazy(() => import('views/Report/admin_report/sections/department_report')));
 const ViewKpiDetail = Loadable(lazy(() => import('views/Report/admin_side/KpiDetailView')));
+const Todo = Loadable(lazy(() => import('views/todo')));
 
 // utilities routing
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
@@ -55,22 +57,17 @@ const MainRoutes = {
       path: '/',
       element: (
         <Protected>
-          <DashboardDefault />
+          <Home />
         </Protected>
       )
     },
     {
-      path: 'dashboard',
-      children: [
-        {
-          path: 'default',
-          element: (
-            <Protected>
-              <DashboardDefault />
-            </Protected>
-          )
-        }
-      ]
+      path: 'home',
+      element: (
+        <Protected>
+          <Home />
+        </Protected>
+      )
     },
 
     {
@@ -128,15 +125,6 @@ const MainRoutes = {
     },
 
     {
-      path: 'planning/create',
-      element: (
-        <Protected>
-          <CreatePlan />
-        </Protected>
-      )
-    },
-
-    {
       path: 'planning/view',
       element: (
         <Protected>
@@ -173,10 +161,37 @@ const MainRoutes = {
     },
 
     {
+      path: 'tasks',
+      element: (
+        <Protected>
+          <Tasks />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'task/detail',
+      element: (
+        <Protected>
+          <ViewTask />
+        </Protected>
+      )
+    },
+
+    {
       path: 'approvals',
       element: (
         <Protected>
           <Approvals />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'workflows',
+      element: (
+        <Protected>
+          <Workflows />
         </Protected>
       )
     },
@@ -206,12 +221,19 @@ const MainRoutes = {
         </Protected>
       )
     },
-
     {
-      path: 'placeholder',
+      path: 'ranking',
       element: (
         <Protected>
-          <PagePlaceholder />
+          <Ranking />
+        </Protected>
+      )
+    },
+    {
+      path: 'todo',
+      element: (
+        <Protected>
+          <Todo />
         </Protected>
       )
     },
@@ -304,7 +326,7 @@ const MainRoutes = {
         </Protected>
       )
     },
- 
+
     {
       path: '/report/KpiDetailView',
       element: (
@@ -341,6 +363,10 @@ const MainRoutes = {
           <Report2 />
         </Protected>
       )
+    },
+    {
+      path: '/*',
+      element: <NotFound />
     }
   ]
 };

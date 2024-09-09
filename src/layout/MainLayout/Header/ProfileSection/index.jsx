@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
   Box,
+  Chip,
   ClickAwayListener,
   IconButton,
   List,
@@ -25,12 +26,15 @@ import Transitions from 'ui-component/extended/Transitions';
 // assets
 import { IconPaperclip, IconShield, IconUser } from '@tabler/icons-react';
 import { Storage } from 'configration/storage';
+import { SIGN_IN } from 'store/actions/actions';
 
 // ==============================|| PROFILE MENU ||============================== //
 
 const ProfileSection = () => {
   const theme = useTheme();
   const customization = useSelector((state) => state.customization);
+  const user = useSelector((state) => state.user.user); // signed in user information
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -39,7 +43,8 @@ const ProfileSection = () => {
 
   const handleLogout = async () => {
     Storage.clear();
-    navigate('/login');
+    dispatch({ type: SIGN_IN, signed: false });
+    navigate('/');
   };
 
   const handleClose = (event) => {
@@ -114,9 +119,13 @@ const ProfileSection = () => {
                   <Box sx={{ p: 2.6, pb: 2, borderBottom: 1.3, borderColor: theme.palette.divider }}>
                     <Stack>
                       <Stack direction="row" spacing={0.5} alignItems="center">
-                        <Typography variant="h4"> Abebe Bikila</Typography>
+                        <Typography variant="h4"> {`${user ? user.name : 'Your name'}`}</Typography>
                       </Stack>
-                      <Typography variant="caption">Admin</Typography>
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ marginTop: 1.6 }}>
+                        {user?.roles?.map((role, index) => (
+                          <Chip key={index} label={role?.name} />
+                        ))}
+                      </Stack>
                     </Stack>
                   </Box>
 

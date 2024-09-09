@@ -29,16 +29,16 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
         sx={{
           position: 'sticky',
           top: 0,
-          backgroundColor: theme.palette.primary.light,
           width: drawerWidth,
           zIndex: 1,
           paddingY: 1.6,
-          paddingX: 2
+          paddingX: 2,
+          backgroundColor: theme.palette.background.paper
         }}
       >
         <LogoSection />
       </Box>
-      <BrowserView style={{ marginTop: 6, paddingLeft: 6, paddingRight: 12 }}>
+      <BrowserView style={{ marginTop: 6, paddingLeft: 6, paddingRight: 12, backgroundColor: theme.palette.background.paper }}>
         <MenuList />
 
         <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
@@ -69,8 +69,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
         sx={{
           '& .MuiDrawer-paper': {
             width: drawerWidth,
-            background: theme.palette.primary.light,
-            color: theme.palette.text.primary
+            background: theme.palette.background.paper
           }
         }}
         ModalProps={{ keepMounted: true }}

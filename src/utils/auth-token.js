@@ -15,8 +15,9 @@ export const RefreshToken = async () => {
     .then((response) => response.json())
     .then((response) => {
       if (response.success) {
-        const ttl = new Date(response.data.expires_in * 1000);
-        const expirationTime = ttl.getTime();
+        const currentTime = new Date().getTime();
+        const ttl = response.data.expires_in * 1000;
+        const expirationTime = ttl + currentTime;
         Storage.setItem('token', response.data.access_token);
         Storage.setItem('tokenExpiration', expirationTime);
       }
@@ -26,11 +27,11 @@ export const RefreshToken = async () => {
 const GetToken = async () => {
   const token = Storage.getItem('token');
   const ttl = Storage.getItem('tokenExpiration');
-
   const currentTime = new Date().getTime();
+
   if (currentTime >= ttl) {
     await RefreshToken();
-    return token;
+    return Storage.getItem('token');
   } else {
     return token;
   }

@@ -16,7 +16,8 @@ import {
   Paper,
   CircularProgress,
   TablePagination,
-  ListItemIcon
+  ListItemIcon,
+  useTheme
 } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import { format } from 'date-fns';
@@ -31,10 +32,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import { ViewList } from '@mui/icons-material';
-import { useTheme } from '@emotion/react';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 
 function EodActivity() {
+  const theme = useTheme();
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [data, setData] = useState([]);
@@ -65,8 +67,8 @@ function EodActivity() {
     per_page: 10,
     total: 0
   });
-// const auth = getRolesAndPermissionsFromToken();
-// const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
+  // const auth = getRolesAndPermissionsFromToken();
+  // const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
   useEffect(() => {
     fetchData(pagination.currentPage, pagination.per_page);
   }, [pagination.currentPage, pagination.per_page]);
@@ -269,15 +271,10 @@ function EodActivity() {
       currentPage: 0
     }));
   };
-  const theme = useTheme();
-  
 
   return (
     <PageContainer maxWidth="lg" title={'EOD Activity'}>
-      <DrogaCard
-     
-        sx={{ marginLeft: '10px', padding: '0px'}}
-      >
+      <DrogaCard sx={{ marginLeft: '10px', padding: '0px' }}>
         <Card
           sx={{
             borderRadius: 2,
@@ -303,7 +300,7 @@ function EodActivity() {
                       <TableCell
                         key={header}
                         sx={{
-                          background: theme.palette.grey[100],
+                          background: theme.palette.grey[50],
                           color: '#000',
                           fontWeight: 'bold',
                           fontSize: '0.9rem',

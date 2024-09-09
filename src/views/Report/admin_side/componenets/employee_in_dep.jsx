@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -72,7 +72,6 @@ const EmployeeInDep = () => {
         }
       })
       .catch((error) => {
-        
         setError(true);
         setLoading(false);
       });
@@ -152,7 +151,7 @@ const EmployeeInDep = () => {
                 </Grid>
               </Grid>
               <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[300], marginY: 3 }} />
-              <Grid item sx={{ mb: 0.75, cursor: 'pointer' }} >
+              <Grid item sx={{ mb: 0.75, cursor: 'pointer' }}>
                 <Grid container alignItems="center">
                   <Grid item xs={5}>
                     <Grid container justifyContent="center" alignItems="center">
@@ -196,8 +195,7 @@ const EmployeeInDep = () => {
                               borderRadius: 1,
                               p: 2,
                               display: 'flex',
-                              alignItems: 'center',
-                            
+                              alignItems: 'center'
                             }}
                           >
                             <Box

@@ -11,7 +11,7 @@ const DrogaDonutChart = ({ value, size }) => {
 
   return (
     <svg height={radius * 2} width={radius * 2}>
-      <circle stroke={theme.palette.grey[100]} fill="transparent" strokeWidth={strokeWidth} r={normalizedRadius} cx={radius} cy={radius} />
+      <circle stroke={theme.palette.grey[200]} fill="transparent" strokeWidth={strokeWidth} r={normalizedRadius} cx={radius} cy={radius} />
       <circle
         stroke={theme.palette.primary.main}
         fill="transparent"

@@ -21,7 +21,7 @@ import {
   InputLabel
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Search from 'ui-component/search';
 import { toast } from 'react-toastify';
 import Backend from 'services/backend';

@@ -5,10 +5,12 @@ import {
   IconGauge,
   IconLayoutCards,
   IconTrophy,
-  IconStethoscope,
+  IconZoomScan,
   IconCircleCheck,
   IconListCheck,
-  IconHazeMoon
+  IconHazeMoon,
+  IconList,
+  IconChartInfographic
 } from '@tabler/icons-react';
 
 // constant
@@ -17,13 +19,14 @@ const icons = {
   IconGauge,
   IconLayoutCards,
   IconTrophy,
-  IconStethoscope,
+  IconZoomScan,
   IconCircleCheck,
   IconListCheck,
-  IconHazeMoon
+  IconHazeMoon,
+  IconList,
+  IconChartInfographic
 };
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
-
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 const auth = getRolesAndPermissionsFromToken();
@@ -35,54 +38,45 @@ export const dashboard = () => {
     id: 'default',
     title: 'Home',
     type: 'item',
-    url: '/planning',
+    url: '/',
     icon: icons.IconHome,
     breadcrumbs: false
   });
+  auth &&
+    auth.forEach((role) => {
+      if (role.permissions.find((per) => per.name == 'read:kpi')) {
+        childrenTemp.push({
+          id: 'kpi-management',
+          title: 'KPI Managment',
+          type: 'item',
+          url: '/kpi/kpi-managment',
+          icon: icons.IconGauge
+        });
+      }
+    });
 
-  auth.forEach((role) => {
-    if (role.permissions.find((per) => per.name == 'read:kpi')) {
-      childrenTemp.push({
-        id: 'kpi-management',
-        title: 'KPI Managment',
-        type: 'item',
-        url: '/kpi/kpi-managment',
-        icon: icons.IconGauge
-      });
-    }
-  });
+  auth &&
+    auth.forEach((role) => {
+      if (role.permissions.find((per) => per.name == 'read:targetsetting')) {
+        childrenTemp.push({
+          id: 'planning',
+          title: 'Planning',
+          type: 'item',
+          url: '/planning',
+          icon: icons.IconLayoutCards
+        });
+      }
+    });
 
-  auth.forEach((role) => {
-    if (role.permissions.find((per) => per.name == 'read:targetsetting')) {
-      childrenTemp.push({
-        id: 'planning',
-        title: 'Planning',
-        type: 'item',
-        url: '/planning',
-        icon: icons.IconLayoutCards
-      });
-    }
-  });
-
-  childrenTemp.push({
+  childrenTemp.push(
+    { id: 'todos', title: 'To do ', type: 'item', url: '/todo', icon: icons.IconList },
+    { id: 'eod_activity', title: 'EOD ', type: 'item', url: '/Eod', icon: icons.IconHazeMoon },
+    {
       id: 'mointoring',
       title: 'Monitoring',
-      type: 'collapse',
+      type: 'item',
       url: 'monitoring',
-      icon: icons.IconStethoscope,
-      children: [{
-          id: 'daily-activity',
-          title: 'Daily Activity',
-          type: 'item',
-          url: 'placeholder'
-        },
-        {
-          id: 'eod_activity',
-          title: 'EOD Activity',
-          type: 'item',
-          url: '/Eod'
-        }
-      ]
+      icon: icons.IconZoomScan
     },
 
     {
@@ -91,31 +85,27 @@ export const dashboard = () => {
       type: 'item',
       url: 'evaluations',
       icon: icons.IconListCheck
-    }, {
+    },
+    {
       id: 'approvals',
       title: 'Approval Managment',
-      type: 'collapse',
-      url: 'approvals',
-      icon: icons.IconCircleCheck,
-      children: [{
-          id: 'approvals',
-          title: 'Approvals',
-          type: 'item',
-          url: 'approvals'
-        },
-        {
-          id: 'feedbacks',
-          title: 'Feedbacks',
-          type: 'item',
-          url: 'placeholder'
-        }
-      ]
-    }, {
+      type: 'item',
+      url: 'tasks',
+      icon: icons.IconCircleCheck
+    },
+    {
       id: 'performance',
       title: 'Performance',
       type: 'item',
       url: 'performance',
       icon: icons.IconTrophy
+    },
+    {
+      id: 'report',
+      title: 'Reports',
+      type: 'item',
+      url: 'report',
+      icon: icons.IconChartInfographic
     }
   );
 

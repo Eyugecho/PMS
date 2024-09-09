@@ -1,6 +1,8 @@
 const Backend = {
   api: import.meta.env.VITE_PMS_URL,
   auth: import.meta.env.VITE_AUTH_URL,
+  login: 'login-with-email',
+  logout: 'logout',
   users: 'users',
   refreshToken: 'refresh',
   resetPassword: 'reset-password',
@@ -28,19 +30,33 @@ const Backend = {
   showPlan: 'show-plan',
   deletePlan: 'delete-plan',
   getOrgPlans: 'get-my-kpi-trackings',
+  planInitiative: 'update-initiative/',
   distributeTarget: 'distribute-kpi-tracking',
   childUnits: 'get-my-child-units',
   childTarget: 'get-my-child-targets/',
+  showTarget: 'show-target/',
   getDepartments: 'get-departments',
+  getActiveDepartments: 'get-active-departments',
   getEmployees: 'get-employees',
+  getActiveEmployees: 'get-active-employees',
   getManagers: 'get-managers',
   getUnitTarget: 'get-tasks-by-unit/',
   getEmployeeTarget: 'get-tasks-by-employee/',
-  evaluate: 'evaluate',
   employeePerformance: 'employee-performance/',
+  employeeTasks: 'employee-tasks',
+  employeeTaskStatus: 'update-employee-task-status/',
+  employeesTaskGraph: 'get-employee-task-graph',
+  employeeEligiblity: 'employee-eligible/',
+  getEmployeeTask: 'get-employee-tasks/',
+  evaluate: 'evaluate',
   unitPerformance: 'unit-performance/',
   myPerformance: 'my-performance',
   myUnitPerformance: 'my-unit-performance',
+
+  workflows: 'workflows',
+  createWorkflow: 'create-workflow',
+  updateWorkflow: 'update-workflow',
+  deleteWorkflow: 'delete-workflow',
 
   /**Eyuel Endpoints */
   permissi: 'permissions',
@@ -54,7 +70,6 @@ const Backend = {
   getEmployeesInDep: 'my-child-units-employee-count',
   getRankings: 'rank-performance',
   unitKpiPerformance: 'show-performance-chart',
-  unitEmployeeEndpoint: 'get-unit-employees-with-performance/',
-
+  unitEmployeeEndpoint: 'get-unit-employees-with-performance/'
 };
 export default Backend;
