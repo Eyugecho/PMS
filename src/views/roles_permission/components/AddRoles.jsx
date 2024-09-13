@@ -29,7 +29,6 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
 
   useEffect(() => {
     if (Object.keys(permissions).length === 0) {
-      // fetchPermissions();
       setPermissionLoading(false);
     } else {
       setPermissionLoading(false);
@@ -43,8 +42,8 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
       open={open}
       onClose={handleClose}
       sx={{
-        backdropFilter: 'blur(10px)', // Frosted glass effect
-        backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Lightens the backdrop
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)'
       }}
     >
       <Box
@@ -67,25 +66,23 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
           initialValues={{ roleName: '', permissions: [] }}
           validationSchema={roleSchema}
           onSubmit={(values, { resetForm, setSubmitting, setFieldError }) => {
-            // Check if no permissions are selected
             if (values.permissions.length === 0) {
               setFieldError('permissions', 'Please select at least one permission.');
-              setSubmitting(false); // Stop the form submission
+              setSubmitting(false);
               return;
             }
 
-            // If permissions are selected, proceed with saving
             onSave(values)
               .then(() => {
                 resetForm();
-                handleClose(); // Close the modal after saving
+                handleClose();
                 toast.success('Role saved successfully!');
               })
               .catch(() => {
                 toast.error('Failed to save role. Please try again.');
               })
               .finally(() => {
-                setSubmitting(false); // Stop loading
+                setSubmitting(false);
               });
           }}
         >
@@ -176,11 +173,11 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
                   color="error"
                   sx={{
                     mt: 2,
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red background
-                    padding: '8px', // Padding around the text
-                    borderRadius: '4px', // Rounded corners
-                    border: '1px solid red', // Red border
-                    textAlign: 'center' // Center the text
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                    padding: '8px',
+                    borderRadius: '4px',
+                    border: '1px solid red',
+                    textAlign: 'center'
                   }}
                 >
                   {errors.permissions}

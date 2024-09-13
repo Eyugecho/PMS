@@ -27,6 +27,7 @@ const icons = {
 };
 
 // ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
+const auth = getRolesAndPermissionsFromToken();
 
 
 

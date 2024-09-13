@@ -68,6 +68,19 @@ export const dashboard = () => {
       }
     });
 
+    auth &&
+    auth.forEach((role) => {
+      if (role.permissions.find((per) => per.name == 'approval:manage')) {
+        childrenTemp.push({
+         id: 'approvals',
+           title: 'Approval Managment',
+           type: 'item',
+           url: 'tasks',
+           icon: icons.IconCircleCheck
+        });
+      }
+    });
+
   childrenTemp.push(
     { id: 'todos', title: 'To do ', type: 'item', url: '/todo', icon: icons.IconList },
     { id: 'eod_activity', title: 'EOD ', type: 'item', url: '/Eod', icon: icons.IconHazeMoon },
@@ -85,13 +98,6 @@ export const dashboard = () => {
       type: 'item',
       url: 'evaluations',
       icon: icons.IconListCheck
-    },
-    {
-      id: 'approvals',
-      title: 'Approval Managment',
-      type: 'item',
-      url: 'tasks',
-      icon: icons.IconCircleCheck
     },
     {
       id: 'performance',
