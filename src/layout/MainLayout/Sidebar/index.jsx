@@ -41,9 +41,9 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
       <BrowserView style={{ marginTop: 6, paddingLeft: 6, paddingRight: 12, backgroundColor: theme.palette.background.paper }}>
         <MenuList />
 
-        <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
+        {/* <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
           <Chip label={import.meta.env.VITE_APP_VERSION} disabled chipcolor="secondary" size="small" sx={{ cursor: 'pointer' }} />
-        </Stack>
+        </Stack> */}
       </BrowserView>
       <MobileView>
         <Box sx={{ px: 2 }}>
