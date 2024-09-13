@@ -274,7 +274,7 @@ function EodActivity() {
 
   return (
     <PageContainer maxWidth="lg" title={'EOD Activity'}>
-      <DrogaCard sx={{ marginLeft: '10px', padding: '0px' }}>
+      <DrogaCard sx={{ marginLeft: '10px', padding: '0px', marginTop: '20px' }}>
         <Card
           sx={{
             borderRadius: 2,
@@ -296,14 +296,15 @@ function EodActivity() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {['Plan', 'Completed', 'Challenges Faced', 'Date', 'Actions'].map((header) => (
+                    {['KPI', 'Plan', 'Completed', 'Challenges Faced', 'Date', 'Actions'].map((header) => (
                       <TableCell
                         key={header}
                         sx={{
                           background: theme.palette.grey[50],
-                          color: '#000',
+
                           fontWeight: 'bold',
                           fontSize: '0.9rem',
+                          variant: 'h3',
                           borderBottom: `2px solid ${theme.palette.divider}`,
                           position: 'relative',
                           padding: '12px 16px',
@@ -357,6 +358,14 @@ function EodActivity() {
                           }
                         }}
                       >
+                        <TableCell
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
+                        >
+                          {record.kpi?.name || 'N/A'}
+                        </TableCell>
                         <TableCell
                           sx={{
                             border: 0,
