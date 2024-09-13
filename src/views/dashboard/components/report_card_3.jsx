@@ -25,8 +25,8 @@ import SkeletonTotalOrderCard from 'ui-component/cards/Skeleton/EarningCard';
 import DepartmentIcon from 'assets/images/icons/department.svg';
 
 
-import ChartDataMonth from './chart-data/total-order-month-line-chart';
-import ChartDataYear from './chart-data/total-order-year-line-chart';
+import ChartDataMonth from '../chart-data/total-order-month-line-chart';
+import ChartDataYear from '../chart-data/total-order-year-line-chart';
 
 // assets
 import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined';

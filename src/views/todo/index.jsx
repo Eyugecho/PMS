@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Grid, IconButton, TablePagination, TextField, Typography, useTheme } from '@mui/material';
+import { IconChecklist, IconChevronLeft, IconChevronRight, IconMinus, IconPlus } from '@tabler/icons-react';
+import { formatDate } from 'utils/function';
+import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import { gridSpacing } from 'store/constant';
 import PageContainer from 'ui-component/MainPage';
 import Search from 'ui-component/search';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
-import { IconChecklist, IconChevronLeft, IconChevronRight, IconMinus, IconPlus } from '@tabler/icons-react';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import StatusMenu from 'views/employees/components/TaskStatusMenu';
 import Backend from 'services/backend';
-import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
 import CreateTask from './components/CreateTask';
-import { gridSpacing } from 'store/constant';
 import GetToken from 'utils/auth-token';
-import { formatDate } from 'utils/function';
 import ActivityChart from './components/ActivityChart';
+import PropTypes from 'prop-types';
 
 const TaskStatus = [
   { label: 'Pending', value: 'pending' },
@@ -24,7 +25,7 @@ const TaskStatus = [
   { label: 'Cancelled', value: 'cancelled' }
 ];
 
-const Todo = () => {
+const Todo = ({ hideChart, hideCreate, hideFilter }) => {
   const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
 
@@ -231,53 +232,57 @@ const Todo = () => {
     <PageContainer
       title="To do tasks"
       rightOption={
-        <DrogaButton
-          title="Create Task"
-          variant="contained"
-          icon={<IconPlus size="1.2rem" stroke="1.2" style={{ marginRight: 4 }} />}
-          sx={{ boxShadow: 0 }}
-          onPress={handleOpenCreateModal}
-        />
+        !hideCreate && (
+          <DrogaButton
+            title="Create Task"
+            variant="contained"
+            icon={<IconPlus size="1.2rem" stroke="1.2" style={{ marginRight: 4 }} />}
+            sx={{ boxShadow: 0 }}
+            onPress={handleOpenCreateModal}
+          />
+        )
       }
     >
       <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3.8, px: 2 }}>
         <Grid item xs={12}>
           <Grid container spacing={gridSpacing}>
-            <Grid item xs={12} sm={12} md={7} lg={8} xl={8}>
-              <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1.8 }}>
-                <Search value={task.search} onChange={(event) => handleSearchFieldChange(event)} />
+            <Grid item xs={12} sm={12} md={!hideChart ? 7 : 12} lg={!hideChart ? 8 : 12} xl={!hideChart ? 8 : 12}>
+              {!hideFilter && (
+                <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1.8 }}>
+                  <Search value={task.search} onChange={(event) => handleSearchFieldChange(event)} />
 
-                <Box>
-                  {task.picker ? (
-                    <TextField
-                      id="date"
-                      name="date"
-                      type="date"
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '& fieldset': {
-                            border: 'none'
-                          }
-                        },
-                        ml: -2,
-                        p: 0,
-                        mt: -1
-                      }}
-                      value={task.date}
-                      onChange={handleDateChange}
-                    />
-                  ) : (
-                    <Typography
-                      variant="body1"
-                      mt={1}
-                      onClick={() => handleTodayClick()}
-                      sx={{ cursor: 'pointer', ':hover': { fontWeight: theme.typography.fontWeightMedium } }}
-                    >
-                      Today
-                    </Typography>
-                  )}
-                </Box>
-              </Grid>
+                  <Box>
+                    {task.picker ? (
+                      <TextField
+                        id="date"
+                        name="date"
+                        type="date"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              border: 'none'
+                            }
+                          },
+                          ml: -2,
+                          p: 0,
+                          mt: -1
+                        }}
+                        value={task.date}
+                        onChange={handleDateChange}
+                      />
+                    ) : (
+                      <Typography
+                        variant="body1"
+                        mt={1}
+                        onClick={() => handleTodayClick()}
+                        sx={{ cursor: 'pointer', ':hover': { fontWeight: theme.typography.fontWeightMedium } }}
+                      >
+                        Today
+                      </Typography>
+                    )}
+                  </Box>
+                </Grid>
+              )}
               <DrogaCard sx={{ backgroundColor: 'transparent', border: 0, p: 0 }}>
                 {task.loading ? (
                   <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -349,24 +354,26 @@ const Todo = () => {
               </DrogaCard>
             </Grid>
 
-            <Grid item xs={12} sm={12} md={5} lg={4} xl={4}>
-              <DrogaCard>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography variant="h4">Activities in Septemeber </Typography>
+            {!hideChart && (
+              <Grid item xs={12} sm={12} md={5} lg={4} xl={4}>
+                <DrogaCard>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="h4">Activities in Septemeber </Typography>
 
-                  <Box>
-                    <IconButton sx={{ marginRight: 2 }}>
-                      <IconChevronLeft size="1.4rem" stroke="1.8" />
-                    </IconButton>
-                    <IconButton>
-                      <IconChevronRight size="1.4rem" stroke="1.8" />
-                    </IconButton>
+                    <Box>
+                      <IconButton sx={{ marginRight: 2 }}>
+                        <IconChevronLeft size="1.4rem" stroke="1.8" />
+                      </IconButton>
+                      <IconButton>
+                        <IconChevronRight size="1.4rem" stroke="1.8" />
+                      </IconButton>
+                    </Box>
                   </Box>
-                </Box>
 
-                <ActivityChart />
-              </DrogaCard>
-            </Grid>
+                  <ActivityChart />
+                </DrogaCard>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
@@ -382,4 +389,9 @@ const Todo = () => {
   );
 };
 
+Todo.propTypes = {
+  hideChart: PropTypes.string,
+  hideCreate: PropTypes.bool,
+  hideFilter: PropTypes.bool
+};
 export default Todo;
