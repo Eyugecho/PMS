@@ -10,11 +10,14 @@ import themes from 'themes';
 import NavigationScroll from 'layout/NavigationScroll';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthContext } from 'context/AuthContext';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { KPIProvider } from 'context/KPIProvider';
 import { ToastContainer } from 'react-toastify';
 import MainRoutes from 'routes/MainRoutes';
 import LoginRoutes from 'routes/AuthenticationRoutes';
+import GetToken from 'utils/auth-token';
+import { logout } from 'utils/user-inactivity';
+import { Storage } from 'configration/storage';
 
 // ==============================|| APP ||============================== //
 
@@ -43,6 +46,23 @@ const App = () => {
   }, [signed]);
 
   const router = createBrowserRouter([routes]);
+
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      const token = Storage.getItem('token');
+      const ttl = Storage.getItem('tokenExpiration');
+      const currentTime = new Date().getTime();
+
+      if (currentTime >= ttl) {
+        logout();
+        console.log(true);
+      } else {
+        console.log(false);
+      }
+    };
+
+    checkAuthentication();
+  }, []);
 
   return (
     <StyledEngineProvider injectFirst>
