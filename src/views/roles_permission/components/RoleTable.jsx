@@ -216,7 +216,6 @@ const handleSaveEdit = () => {
   };
 
 const groupPermissionsByType = (permissions) => {
-  console.log('Grouping permissions:', permissions);
   return permissions.reduce((groups, permission) => {
     const { type } = permission;
     if (!groups[type]) {

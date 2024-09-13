@@ -269,20 +269,15 @@ const EodActivity = () => {
   // Prepare data for detail modal table
   const detailRows = selectedRecord
     ? [
+      
         { id: 1, field: 'Revenue', value: `${selectedRecord.revenue} Birr` },
         { id: 2, field: 'Expenses', value: `${selectedRecord.expenses} Birr` },
         { id: 3, field: 'Profit', value: `${selectedRecord.profit} Birr` },
-        { id: 4, field: 'Customer Satisfaction', value: selectedRecord.customer_satisfaction }
+        { id: 4, field: 'Customer Satisfaction', value: selectedRecord.customer_satisfaction },
+        { id: 5, field: 'plan', value: selectedRecord.plan }
       ]
     : [];
-  // Define detail rows based on selected record
-  // const detailRows = selectedRecord
-  // ? Object.entries(selectedRecord).map(([field, value], index) => ({
-  //     id: index,
-  //     field,
-  //     value: value !== null && value !== undefined ? value.toString() : '', // Handle null or undefined values
-  //   }))
-  // : [];
+
 
   return (
     <Card>

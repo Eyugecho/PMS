@@ -13,9 +13,7 @@ import DrogaCard from 'ui-component/cards/DrogaCard';
 const steps = ['Frequency', 'Period'];
 
 function App() {
-  const [activeStep, setActiveStep] = React.useState(0);
 
-  const [tabIndex, setTabIndex] = React.useState(0);
 
   const [expanded, setExpanded] = React.useState(false);
 
@@ -27,9 +25,9 @@ function App() {
 
   return (
     <PageContainer maxWidth="lg" title={'Basic Configurations'}>
-      <DrogaCard sx={{ marginLeft: '10px', padding: '50px' }}>
+      <DrogaCard sx={{ marginLeft: '10px', padding: '50px',marginTop:'20px' }}>
         <Grid container spacing={3}>
-          {/* Left Grid containing Stepper and content */}
+    
           <Grid item xs={12}>
             <Stack sx={{ width: '80%', paddingTop: '0px', marginLeft: '20px' }} spacing={2}>
               <Box sx={{ padding: '10px' }}>

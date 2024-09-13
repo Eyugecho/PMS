@@ -18,7 +18,9 @@ const DetailEodModal = ({ detailOpen, handleCloseDetails, selectedRecord }) => {
     ? [
         { id: 1, field: 'Revenue', value: selectedRecord.revenue ? `${selectedRecord.revenue} Birr` : 'N/A' },
         { id: 2, field: 'Expenses', value: selectedRecord.expenses ? `${selectedRecord.expenses} Birr` : 'N/A' },
-        { id: 4, field: 'Customer Satisfaction', value: selectedRecord.customer_satisfaction || 'N/A' }
+        { id: 4, field: 'Customer Satisfaction', value: selectedRecord.customer_satisfaction || 'N/A' },
+        { id: 5, field: 'Plan', value: selectedRecord.Plan || 'N/A' }
+        // { id: 6, field: 'Customer Satisfaction', value: selectedRecord.customer_satisfaction }
       ]
     : [];
 

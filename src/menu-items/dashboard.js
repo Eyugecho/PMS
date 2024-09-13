@@ -68,52 +68,67 @@ export const dashboard = () => {
       }
     });
 
-    auth &&
+
+
+  childrenTemp.push({
+      id: 'todos',
+      title: 'To do ',
+      type: 'item',
+      url: '/todo',
+      icon: icons.IconList
+    }, {
+      id: 'eod_activity',
+      title: 'EOD ',
+      type: 'item',
+      url: '/Eod',
+      icon: icons.IconHazeMoon
+    },
+
+
+  );
+  auth &&
     auth.forEach((role) => {
       if (role.permissions.find((per) => per.name == 'approval:manage')) {
+
         childrenTemp.push({
-         id: 'approvals',
-           title: 'Approval Managment',
-           type: 'item',
-           url: 'tasks',
-           icon: icons.IconCircleCheck
+          id: 'mointoring',
+          title: 'Monitoring',
+          type: 'item',
+          url: 'monitoring',
+          icon: icons.IconZoomScan
+        });
+
+        childrenTemp.push({
+          id: 'evaluations',
+          title: 'Evaluation',
+          type: 'item',
+          url: 'evaluations',
+          icon: icons.IconListCheck
+        });
+
+        childrenTemp.push({
+          id: 'performance',
+          title: 'Performance',
+          type: 'item',
+          url: 'performance',
+          icon: icons.IconTrophy
+        });
+        childrenTemp.push({
+          id: 'report',
+          title: 'Reports',
+          type: 'item',
+          url: 'report',
+          icon: icons.IconChartInfographic
+        });
+        childrenTemp.push({
+          id: 'approvals',
+          title: 'Approval Managment',
+          type: 'item',
+          url: 'tasks',
+          icon: icons.IconCircleCheck
         });
       }
     });
-
-  childrenTemp.push(
-    { id: 'todos', title: 'To do ', type: 'item', url: '/todo', icon: icons.IconList },
-    { id: 'eod_activity', title: 'EOD ', type: 'item', url: '/Eod', icon: icons.IconHazeMoon },
-    {
-      id: 'mointoring',
-      title: 'Monitoring',
-      type: 'item',
-      url: 'monitoring',
-      icon: icons.IconZoomScan
-    },
-
-    {
-      id: 'evaluations',
-      title: 'Evaluation',
-      type: 'item',
-      url: 'evaluations',
-      icon: icons.IconListCheck
-    },
-    {
-      id: 'performance',
-      title: 'Performance',
-      type: 'item',
-      url: 'performance',
-      icon: icons.IconTrophy
-    },
-    {
-      id: 'report',
-      title: 'Reports',
-      type: 'item',
-      url: 'report',
-      icon: icons.IconChartInfographic
-    }
-  );
 
   return {
     id: 'dashboard',
