@@ -55,18 +55,18 @@ export const dashboard = () => {
       }
     });
 
-  auth &&
-    auth.forEach((role) => {
-      if (role.permissions.find((per) => per.name == 'read:targetsetting')) {
-        childrenTemp.push({
-          id: 'planning',
-          title: 'Planning',
-          type: 'item',
-          url: '/planning',
-          icon: icons.IconLayoutCards
-        });
-      }
-    });
+  // auth &&
+  //   auth.forEach((role) => {
+  //     if (role.permissions.find((per) => per.name == 'read:targetsetting' || role.permissions.find((per) => per.name === 'read:endofday'))) {
+  //       childrenTemp.push({
+  //         id: 'planning',
+  //         title: 'Planning',
+  //         type: 'item',
+  //         url: '/planning',
+  //         icon: icons.IconLayoutCards
+  //       });
+  //     }
+  //   });
 
 
 
@@ -82,8 +82,13 @@ export const dashboard = () => {
       type: 'item',
       url: '/Eod',
       icon: icons.IconHazeMoon
-    },
-
+    }, {
+      id: 'planning',
+      title: 'Planning',
+      type: 'item',
+      url: '/planning',
+      icon: icons.IconLayoutCards
+    }
 
   );
   auth &&
