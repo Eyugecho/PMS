@@ -151,7 +151,7 @@ const Dashboard = () => {
   }, [selectedYear, startDate, endDate]);
   return (
     <React.Fragment>
-      {role === 'Employee' ? (
+      {role === 'employee' ? (
         <PageContainer title="Dashboard">
           <Grid container spacing={gridSpacing} sx={{ margin: 1 }}>
             <Grid item xs={11.6}>
