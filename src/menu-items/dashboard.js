@@ -68,33 +68,32 @@ export const dashboard = () => {
   //     }
   //   });
 
-
-
-  childrenTemp.push({
+  childrenTemp.push(
+    {
       id: 'todos',
       title: 'To do ',
       type: 'item',
       url: '/todo',
       icon: icons.IconList
-    }, {
+    },
+    {
       id: 'eod_activity',
       title: 'EOD ',
       type: 'item',
       url: '/Eod',
       icon: icons.IconHazeMoon
-    }, {
+    },
+    {
       id: 'planning',
       title: 'Planning',
       type: 'item',
       url: '/planning',
       icon: icons.IconLayoutCards
     }
-
   );
   auth &&
     auth.forEach((role) => {
-      if (role.permissions.find((per) => per.name == 'approval:manage')) {
-
+      if (role.permissions.find((per) => per.name == 'create:evaluation')) {
         childrenTemp.push({
           id: 'mointoring',
           title: 'Monitoring',
