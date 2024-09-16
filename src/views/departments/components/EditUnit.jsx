@@ -18,7 +18,7 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
       setName(unit.name);
       setManager(unit.manager_id || '');
       setDescription(unit.description);
-      setUnitType(unit.unit_types_id || '');
+      setUnitType(unit.unit_type_id || '');
     }
 
     const fetchData = async () => {
@@ -79,7 +79,7 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
     const data = {
       name,
       manager_id: manager,
-      unit_types_id: unitType,
+      unit_type_id: unitType,
       description,
     };
 
