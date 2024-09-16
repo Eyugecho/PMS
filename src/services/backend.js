@@ -70,6 +70,7 @@ const Backend = {
   getEmployeesInDep: 'my-child-units-employee-count',
   getRankings: 'rank-performance',
   unitKpiPerformance: 'show-performance-chart',
-  unitEmployeeEndpoint: 'get-unit-employees-with-performance/'
+  unitEmployeeEndpoint: 'get-unit-employees-with-performance/',
+  fiscal_years: 'fiscal-years',
 };
 export default Backend;

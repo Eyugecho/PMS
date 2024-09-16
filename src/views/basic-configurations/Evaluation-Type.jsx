@@ -39,8 +39,8 @@ function EvalType() {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
-    const auth = getRolesAndPermissionsFromToken();
-    const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
+  const auth = getRolesAndPermissionsFromToken();
+  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
 
   useEffect(() => {
     fetchEvalTypes();
@@ -92,7 +92,7 @@ function EvalType() {
         const result = await response.json();
         if (result.success) {
           toast.success(editIndex !== null ? 'Evaluation type updated' : 'Evaluation type created');
-          fetchEvalTypes(); 
+          fetchEvalTypes();
           handleClose();
         } else {
           toast.error(result.message || 'Failed to save evaluation type');
@@ -159,8 +159,7 @@ function EvalType() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Grid item xs={12} p={2} style={{ padding: '2px 2px 2px 25px' }}>
-            <AddButton 
- variant="contained" color="primary" onClick={handleOpen}>
+            <AddButton variant="contained" color="primary" onClick={handleOpen}>
               Add Evaluation Type
             </AddButton>
           </Grid>

@@ -112,6 +112,7 @@ const Users = () => {
             <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3 }}>
               <Search title="Search Employees" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
             </Grid>
+            
           </Grid>
 
           <Grid container>

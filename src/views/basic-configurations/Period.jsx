@@ -26,6 +26,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
+
+
+
 const blinkAnimation = keyframes`
   50% {
     opacity: 0.5;
@@ -113,6 +116,43 @@ export default function CustomizedSteppers() {
   const [selectedFrequency, setSelectedFrequency] = React.useState(null);
   const [savedData, setSavedData] = React.useState([]);
   const [stepCompleted, setStepCompleted] = React.useState([false, false, false]);
+  const [fisicalYear, setFiscalYear] = React.useState();
+
+
+const fetchFiscalYear = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch(`${Backend.api + Backend.fiscal_years}`, {
+      // Match the URL style
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json', // Align Accept header with fetchRoles
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const result = await response.json();
+    console.log('result', result);
+    
+
+    if (response.ok) {
+      const years = result.data.data.map((fiscal) => fiscal.year); // Extracting the 'year' from each fiscal year
+      setFiscalYear(years); // Store the years in the state (or wherever needed)
+      console.log('fiscal year', years);
+    } else {
+      toast.error(result.message || 'Failed to fetch fiscal year');
+    }
+  } catch (error) {
+    toast.error('An error occurred while fetching fiscal year');
+    console.error('An error occurred while fetching fiscal year:', error);
+  }
+};
+
+
+  useEffect(() => {
+    fetchFiscalYear();
+  }, []);
 
   const handleSaveFiscalYear = (data) => {
     setFiscalYears((prev) => [...prev, data]);
