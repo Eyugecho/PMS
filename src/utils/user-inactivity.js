@@ -15,11 +15,12 @@ const handleBackendLogout = () => {
   });
 };
 
-const logout = () => {
+export const logout = () => {
   const dispatch = useDispatch();
   dispatch({ type: SIGN_IN, signed: false });
   handleBackendLogout();
   Storage.clear();
+  window.location.href = '/';
 };
 
 const resetInactivityTimeout = () => {
