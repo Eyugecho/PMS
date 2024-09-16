@@ -50,7 +50,7 @@ function EvalType() {
   const fetchEvalTypes = async () => {
     try {
       const token = localStorage.getItem('token');
-      const Api = Backend.api + `/evaluation-types`;
+      const Api = Backend.api + `evaluation-types`;
       const response = await fetch(Api, {
         method: 'GET',
         headers: {
