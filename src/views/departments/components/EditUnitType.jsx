@@ -30,7 +30,7 @@ const EditUnitType = ({ open, unitType, onClose, onUpdate }) => {
       'Content-Type': 'application/json'
     };
 
-    const data = { name };
+    const data = { name};
 
     try {
       const response = await fetch(Api, {
