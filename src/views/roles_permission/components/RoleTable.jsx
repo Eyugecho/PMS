@@ -48,35 +48,34 @@ const RoleTable = ({ searchQuery }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const filteredRoles = roles.filter((role) => role.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const handleFetchingRole = () => {
-    setRoleLoading(true);
-    const token = localStorage.getItem('token');
-    const Api = Backend.auth + Backend.roles;
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
+const handleFetchingRole = () => {
+  setRoleLoading(true);
+  const token = localStorage.getItem('token');
+  const Api = `${Backend.auth}${Backend.roles}`;
 
-    fetch(Api, {
-      method: 'GET',
-      headers: header
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setRoleLoading(false);
-          setRoles(response.data);
-        } else {
-          setRoleLoading(false);
-        }
-      })
-      .catch((error) => {
-        setRoleLoading(false);
-        setError(true);
-        toast(error.message);
-      });
+  const header = {
+    Authorization: `Bearer ${token}`,
+    accept: 'application/json',
+    'Content-Type': 'application/json'
   };
+
+  fetch(Api, {
+    method: 'GET',
+    headers: header
+  })
+    .then((response) => response.json())
+    .then((response) => {
+      if (response.success) {
+        setRoles(response.data); // Update roles state
+      }
+      setRoleLoading(false);
+    })
+    .catch((error) => {
+      setRoleLoading(false);
+      setError(true);
+      toast(error.message);
+    });
+};
 
   const handleMenuOpen = (event, index) => {
     setAnchorEl(event.currentTarget);
