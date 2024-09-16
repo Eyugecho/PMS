@@ -14,16 +14,17 @@ import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';  
+import InputLabel from '@mui/material/InputLabel';
 import Backend from 'services/backend';
 import { useEffect } from 'react';
 import config from '../../configration/config';
-import { Grid, Card, CardContent, Typography } from '@mui/material';
+import { Grid, Card, CardContent, Typography,Divider } from '@mui/material';
 import { toast } from 'react-toastify';
 import Fallbacks from 'utils/components/Fallbacks';
-
-
-
+import { CalendarToday, Timeline, Assessment } from '@mui/icons-material'; 
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const blinkAnimation = keyframes`
   50% {
@@ -35,8 +36,6 @@ const BlinkingStepLabel = styled(StepLabel)(({ theme }) => ({
   animation: `${blinkAnimation} 1s linear infinite`,
   padding: theme.spacing(1)
 }));
-
-
 
 const QontoConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -114,7 +113,6 @@ export default function CustomizedSteppers() {
   const [selectedFrequency, setSelectedFrequency] = React.useState(null);
   const [savedData, setSavedData] = React.useState([]);
   const [stepCompleted, setStepCompleted] = React.useState([false, false, false]);
-  
 
   const handleSaveFiscalYear = (data) => {
     setFiscalYears((prev) => [...prev, data]);
@@ -171,7 +169,6 @@ export default function CustomizedSteppers() {
       setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
     } else {
       toast.error('Please complete all required fields.');
-
     }
 
     if (steps[activeStep] === 'Fiscal Year') {
@@ -310,7 +307,6 @@ export default function CustomizedSteppers() {
     };
 
     const parentId = stepData['Evaluation Period']?.frequency_period_value_id || stepData['Frequency Period Value']?.frequency || '';
-
 
     // Validation: Ensure parentId, startDate, and endDate are not empty
     if (!parentId) {
@@ -556,7 +552,7 @@ export default function CustomizedSteppers() {
 
     try {
       setLoading(true);
-      setError({}); 
+      setError({});
 
       const response = await fetch(Api, {
         method: 'GET',
@@ -702,6 +698,60 @@ export default function CustomizedSteppers() {
               {steps[activeStep] === 'Fiscal Year' ? (
                 <>
                   <form onSubmit={handleSubmit}>
+                    {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <Grid container spacing={2}>
+                   
+                        <Grid item xs={6}>
+                          <DatePicker
+                            label="Start Year"
+                            views={['year']}
+                            value={stepData[steps[activeStep]]?.startYear || null}
+                            onChange={(newValue) => handleInputChange({ target: { name: 'startYear', value: newValue } })}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                fullWidth
+                                margin="normal"
+                                error={Boolean(error.startYear)}
+                                helperText={error.startYear?.join(', ')}
+                              />
+                            )}
+                          />
+                        </Grid>
+
+                        <Grid item xs={6}>
+                          <DatePicker
+                            label="End Year"
+                            views={['year']}
+                            value={stepData[steps[activeStep]]?.endYear || null}
+                            onChange={(newValue) => handleInputChange({ target: { name: 'endYear', value: newValue } })}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                fullWidth
+                                margin="normal"
+                                error={Boolean(error.endYear)}
+                                helperText={error.endYear?.join(', ')}
+                              />
+                            )}
+                          />
+                        </Grid>
+                      </Grid>
+                    </LocalizationProvider> */}
+
+                    {/* <TextField
+                      name="year"
+                      label="Year"
+                      value={`${stepData[steps[activeStep]]?.startYear?.getFullYear() || ''} - ${stepData[steps[activeStep]]?.endYear?.getFullYear() || ''}`}
+                      InputProps={{
+                        readOnly: true
+                      }}
+                      onChange={handleInputChange}
+                      fullWidth
+                      margin="normal"
+                      error={Boolean(error.year)}
+                      helperText={error.year?.join(', ')}
+                    /> */}
                     <TextField
                       name="year"
                       label="Year"
@@ -740,7 +790,6 @@ export default function CustomizedSteppers() {
                 </>
               ) : steps[activeStep] === 'Planning Period' ? (
                 <>
-   
                   <>
                     <form onSubmit={handleSubmit}>
                       <TextField
@@ -854,7 +903,6 @@ export default function CustomizedSteppers() {
                 </>
               ) : steps[activeStep] === 'Evaluation Period' ? (
                 <>
-              
                   <>
                     <>
                       <form onSubmit={handleSubmit}>
@@ -928,68 +976,90 @@ export default function CustomizedSteppers() {
           </Card>
         </Box>
       </Modal>
+      <Card>
+        <CardContent>
+          {savedData.length === 0 ? (
+            <Fallbacks
+              severity="info"
+              title="No Data Available"
+              description="There is no data available to display."
+              sx={{ paddingTop: 6 }}
+            />
+          ) : (
+            savedData.map((data, index) => (
+              <Card
+                key={index}
+                variant="outlined"
+                sx={{
+                  margin: 5,
+                  borderRadius: 4,
+                  boxShadow: '0 10px 15px rgba(0,0,0,0.10)',
+                  padding: 3
+                }}
+              >
+                <CardContent>
+                  <Box display="flex" flexDirection="row" justifyContent="space-between">
+                    {/* Fiscal Year Section */}
+                    {data['Fiscal Year'] && (
+                      <React.Fragment key="Fiscal Year">
+                        <Box display="flex" flexDirection="column" alignItems="flex-start" flexGrow={1}>
+                          <Box display="flex" alignItems="center">
+                            <CalendarToday sx={{ marginRight: 1, color: '#3f51b5' }} />
+                            <Typography variant="h4" marginBottom={1} marginTop={1} color="primary">
+                              Fiscal Year
+                            </Typography>
+                          </Box>
+                          {Object.entries(data['Fiscal Year']).map(([key, value]) => (
+                            <Typography key={key} variant="body1" color="textSecondary" sx={{ padding: '2px 0' }}>
+                              <strong>{key.replace(/([A-Z])/g, ' $1').trim()}:</strong> {value}
+                            </Typography>
+                          ))}
+                        </Box>
+                      </React.Fragment>
+                    )}
 
-<Card sx={{ margin: 2 }}>
-  <CardContent>
-    {/* <Typography variant="h5">Defined Periods</Typography> */}
-    {savedData.length === 0 ? (
-      <Fallbacks
-        severity="info"
-        title="No Data Available"
-        description="There is no data available to display."
-        sx={{ paddingTop: 6 }}
-      />
-    ) : (
-      savedData.map((data, index) => (
-        <Card key={index} variant="outlined" sx={{ margin: 5 }}>
-          <CardContent>
-            {/* Display Fiscal Year first */}
-            {data['Fiscal Year'] && (
-              <React.Fragment key="Fiscal Year">
-                <Typography variant="h4" marginBottom={1} marginTop={1}>
-                  Fiscal Year
-                </Typography>
-                {Object.entries(data['Fiscal Year']).map(([key, value]) => (
-                  <Typography key={key} variant="body2">
-                    <strong>{key.replace(/([A-Z])/g, ' $1').trim()}:</strong> {value}
-                  </Typography>
-                ))}
-              </React.Fragment>
-            )}
-
-            {/* Display the rest of the steps */}
-            {Object.entries(data).map(([step, stepData]) =>
-              step !== 'Fiscal Year' ? (
-                <React.Fragment key={step}>
-                  <Typography variant="h4" marginBottom={1} marginTop={1}>
-                    {step.replace(/([A-Z])/g, ' $1').trim()}
-                  </Typography>
-                  {Object.entries(stepData).map(
-                    ([key, value]) =>
-                      key !== 'frequency' && (
-                        <Typography key={key} variant="body2">
-                          <strong>{key.replace(/([A-Z])/g, ' $1').trim()}:</strong>{' '}
-                          {Array.isArray(value)
-                            ? value.map((date, idx) => (
-                                <div key={idx}>
-                                  Start Date: {date.start_date} <br />
-                                  End Date: {date.end_date}
-                                </div>
-                              ))
-                            : value}
-                        </Typography>
-                      )
-                  )}
-                </React.Fragment>
-              ) : null
-            )}
-          </CardContent>
-        </Card>
-      ))
-    )}
-  </CardContent>
-</Card>
-
+                    {/* Other Steps Section */}
+                    {Object.entries(data).map(([step, stepData]) =>
+                      step !== 'Fiscal Year' ? (
+                        <React.Fragment key={step}>
+                          <Box display="flex" flexDirection="column" alignItems="flex-start" flexGrow={1}>
+                            <Box display="flex" alignItems="center">
+                              <Timeline sx={{ marginRight: 1, color: '#ff5722' }} />
+                              <Typography variant="h4" marginBottom={1} marginTop={1} color="secondary">
+                                {step.replace(/([A-Z])/g, ' $1').trim()}
+                              </Typography>
+                            </Box>
+                            {Object.entries(stepData).map(
+                              ([key, value]) =>
+                                key !== 'frequency' && (
+                                  <Typography key={key} variant="body1" color="textSecondary" sx={{ padding: '2px 0' }}>
+                                    <strong>{key.replace(/([A-Z])/g, ' $1').trim()}:</strong>{' '}
+                                    {Array.isArray(value)
+                                      ? value.map((date, idx) => (
+                                          <Box key={idx} sx={{ paddingLeft: 2 }}>
+                                            <Typography>
+                                              <strong>Start Date:</strong> {date.start_date}
+                                            </Typography>
+                                            <Typography>
+                                              <strong>End Date:</strong> {date.end_date}
+                                            </Typography>
+                                          </Box>
+                                        ))
+                                      : value}
+                                  </Typography>
+                                )
+                            )}
+                          </Box>
+                        </React.Fragment>
+                      ) : null
+                    )}
+                  </Box>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </Stack>
   );
 }

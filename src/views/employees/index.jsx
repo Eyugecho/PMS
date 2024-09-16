@@ -61,6 +61,8 @@ const Employees = () => {
   const auth = getRolesAndPermissionsFromToken();
 
   const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
+  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:employee'));
+  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:employee'));
 
   const handleOpenDialog = () => {
     setImportExcel(true);
@@ -476,10 +478,11 @@ const Employees = () => {
                       <TableCell sx={{ border: 0 }}>
                         <DotMenu
                           onView={() => navigate('/employees/view', { state: employee })}
-                          onEdit={() => handleEmployeeUpdate(employee)}
+                          // onEdit={() => handleEmployeeUpdate(employee)}
+                          onEdit={hasEditPermission ? () => handleEmployeeUpdate(employee) : null}
                           eligiblity={employee?.is_eligible ? 'Not Eligible' : 'Eligible'}
                           onEligible={() => handleEmployeeEligiblity(employee)}
-                          onDelete={() => handleRemoveEmployee(employee)}
+                          onDelete={hasDelatePermission ? () => handleRemoveEmployee(employee) : null}
                         />
                       </TableCell>
                     </TableRow>
