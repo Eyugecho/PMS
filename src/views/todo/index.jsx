@@ -284,7 +284,6 @@ const Todo = ({ hideChart, hideCreate, hideFilter, onRefresh }) => {
       <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 0.8, px: 2 }}>
         <Grid item xs={12}>
           <Grid container spacing={gridSpacing}>
-            {/*  md={!hideChart ? 7 : 12} lg={!hideChart ? 8 : 12} xl={!hideChart ? 8 : 12} */}
             <Grid item xs={12} sm={12}>
               {!hideFilter && (
                 <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', marginBottom: 1.8 }}>

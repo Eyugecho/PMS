@@ -10,19 +10,25 @@ import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import GetToken from 'utils/auth-token';
 import Fallbacks from 'utils/components/Fallbacks';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
+import PerKPIPerformance from './PerKPIPerformance';
 
 const OverallPerformance = () => {
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
   const theme = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [performance, setPerformance] = useState([]);
+  const [selectedPeriod, setSelectedPeriod] = useState([]);
+
+  const handlePeriodSelection = (index) => {
+    setSelectedPeriod([performance[index]]);
+  };
 
   useEffect(() => {
     const handleFetchingPerformance = async () => {
       if (selectedYear) {
         setIsLoading(true);
         const token = await GetToken();
-        const Api = Backend.api + Backend.employeePerformance + `?fiscal_year_id=${selectedYear?.id}`;
+        const Api = Backend.api + Backend.myPerformance + `?fiscal_year_id=${selectedYear?.id}`;
 
         const header = {
           Authorization: `Bearer ${token}`,
@@ -39,10 +45,12 @@ const OverallPerformance = () => {
             if (response.success) {
               setPerformance(response.data.performance);
             } else {
-              toast.warning(response.data.message);
+              // toast.warning(response.data.message);
             }
           })
-          .catch((error) => {})
+          .catch((error) => {
+            toast.warning(error.message);
+          })
           .finally(() => {
             setIsLoading(false);
           });
@@ -80,6 +88,7 @@ const OverallPerformance = () => {
                             isEvaluated={period[periodName].is_evaluated}
                             performance={period[periodName]?.overall}
                             frequency={formattedQuarterName}
+                            onPress={() => handlePeriodSelection(index)}
                           />
                         );
                       })}
@@ -96,6 +105,7 @@ const OverallPerformance = () => {
               </Grid>
             </Grid>
           </DrogaCard>
+          {selectedPeriod.length > 0 && <PerKPIPerformance isLoading={isLoading} performance={selectedPeriod} />}
         </Grid>
       </Grid>
     </Grid>

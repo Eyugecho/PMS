@@ -21,10 +21,12 @@ import axios from 'axios';
 import Search from 'ui-component/search';
 import SelectorMenu from 'ui-component/menu/SelectorMenu';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
+import IsEmployee from 'utils/is-employee';
 
 const Planning = () => {
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
   const navigate = useNavigate();
+  const isEmployee = IsEmployee();
   const { handleUpdatePlan } = useKPI();
 
   const [mounted, setMounted] = useState(false);
@@ -212,9 +214,16 @@ const Planning = () => {
     <PageContainer
       title={'Planning'}
       rightOption={
-        <Tooltip title={fullyPlanned ? 'Already Planned 100%' : ''} arrow>
-          <AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()} disable={fullyPlanned} />
-        </Tooltip>
+        !isEmployee && (
+          <Tooltip title={fullyPlanned ? 'Already Planned 100%' : ''} arrow>
+            <AddButton
+              props={{ varaint: 'contained' }}
+              title={'Create new plan'}
+              onPress={() => handleCreatePlan()}
+              disable={fullyPlanned}
+            />
+          </Tooltip>
+        )
       }
     >
       <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3.8, px: 2 }}>
@@ -267,6 +276,7 @@ const Planning = () => {
                 onEdit={() => handleUpdatingPlan(plan)}
                 onDelete={() => handleDeletePlan(plan)}
                 editInitiative={true}
+                is_employee={isEmployee}
               />
             </Grid>
           ))}

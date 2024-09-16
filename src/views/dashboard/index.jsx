@@ -7,7 +7,7 @@ import AdminDashboard from './admin';
 
 const Dashboard = () => {
   const user = useSelector((state) => state.user.user);
-  const [roles, setRoles] = useState(['Manager']);
+  const [roles, setRoles] = useState(['Employee']);
 
   useEffect(() => {
     if (user && user.roles) {

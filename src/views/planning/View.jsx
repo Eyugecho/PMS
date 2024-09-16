@@ -19,10 +19,13 @@ import Search from 'ui-component/search';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import GetToken from 'utils/auth-token';
 import axios from 'axios';
+import IsEmployee from 'utils/is-employee';
+import PerKPIPerformance from './components/PerKPIPerformance';
 
 const ViewPlan = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const isEmployee = IsEmployee();
   const { state } = useLocation();
   const { handleUpdatePlan } = useKPI();
   const customization = useSelector((state) => state.customization);
@@ -204,77 +207,86 @@ const ViewPlan = () => {
         <Grid
           container
           spacing={gridSpacing}
-          sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 2, padding: 2 }}
+          sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 1, padding: 2 }}
         >
-          <Grid item xs={12} sm={12} md={11} lg={3.7} xl={2.8}>
+          <Grid item xs={12} sm={12} md={12} lg={4} xl={3}>
             <PlanCard plan={plan} onEdit={() => handleUpdatingPlan(plan)} onDelete={() => handleDeletePlan(plan)} />
 
-            <DrogaButton
-              fullWidth
-              title={'Cascade Targets'}
-              onPress={() => handleDistributeClick()}
-              sx={{ marginY: 2, padding: 1.6, boxShadow: 0 }}
-            />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            sm={12}
-            md={11}
-            lg={8}
-            xl={9}
-            sx={{
-              border: 1,
-              borderColor: theme.palette.divider,
-              backgroundColor: theme.palette.background.default,
-              borderRadius: `${customization.borderRadius}px`,
-              padding: 2,
-              marginTop: 3
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2.4 }}>
-              <Typography variant="h4">Target Distributed</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                {['units', 'employees'].map((item, index) => (
-                  <Chip
-                    key={index}
-                    label={item}
-                    sx={{ marginLeft: index > 0 && 2, cursor: 'pointer', textTransform: 'capitalize', paddingX: 2, paddingY: 0.4 }}
-                    color="primary"
-                    variant={tab === item ? 'filled' : 'outlined'}
-                    onClick={() => handleTabChange(item)}
-                  >
-                    {item}
-                  </Chip>
-                ))}
-              </Box>
-            </Box>
-            <Grid container>
-              <Grid item xs={12} md={11} sm={8} lg={4} xl={4}>
-                <Search title="Search" value={search} onChange={(event) => handleSearchFieldChange(event)} />
-              </Grid>
-            </Grid>
-
-            {loading ? (
-              <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <CircularProgress size={20} />
-              </Box>
-            ) : error ? (
-              <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography variant="body2">There is error fetching the targets</Typography>
-              </Box>
-            ) : data.length === 0 ? (
-              <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <IconTargetArrow size={80} color={theme.palette.grey[400]} />
-                <Typography variant="h4" sx={{ marginTop: 1.6 }}>
-                  Target is not found
-                </Typography>
-                <Typography variant="caption">The list of distributed target will be listed here</Typography>
-              </Box>
-            ) : (
-              <TargetTable plans={data} />
+            {!isEmployee && (
+              <DrogaButton
+                fullWidth
+                title={'Cascade Targets'}
+                onPress={() => handleDistributeClick()}
+                sx={{ marginY: 2, padding: 1.6, boxShadow: 0 }}
+              />
             )}
           </Grid>
+
+          {isEmployee ? (
+            <Grid item xs={12} sm={12} md={12} lg={8} xl={9}>
+              <PerKPIPerformance plan={state} />
+            </Grid>
+          ) : (
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={12}
+              lg={8}
+              xl={9}
+              sx={{
+                border: 1,
+                borderColor: theme.palette.divider,
+                backgroundColor: theme.palette.background.default,
+                borderRadius: `${customization.borderRadius}px`,
+                padding: 2,
+                marginTop: 3
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2.4 }}>
+                <Typography variant="h4">Target Distributed</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {['units', 'employees'].map((item, index) => (
+                    <Chip
+                      key={index}
+                      label={item}
+                      sx={{ marginLeft: index > 0 && 2, cursor: 'pointer', textTransform: 'capitalize', paddingX: 2, paddingY: 0.4 }}
+                      color="primary"
+                      variant={tab === item ? 'filled' : 'outlined'}
+                      onClick={() => handleTabChange(item)}
+                    >
+                      {item}
+                    </Chip>
+                  ))}
+                </Box>
+              </Box>
+              <Grid container>
+                <Grid item xs={12} md={11} sm={8} lg={4} xl={4}>
+                  <Search title="Search" value={search} onChange={(event) => handleSearchFieldChange(event)} />
+                </Grid>
+              </Grid>
+
+              {loading ? (
+                <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CircularProgress size={20} />
+                </Box>
+              ) : error ? (
+                <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="body2">There is error fetching the targets</Typography>
+                </Box>
+              ) : data.length === 0 ? (
+                <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <IconTargetArrow size={80} color={theme.palette.grey[400]} />
+                  <Typography variant="h4" sx={{ marginTop: 1.6 }}>
+                    Target is not found
+                  </Typography>
+                  <Typography variant="caption">The list of distributed target will be listed here</Typography>
+                </Box>
+              ) : (
+                <TargetTable plans={data} />
+              )}
+            </Grid>
+          )}
         </Grid>
       </PageContainer>
 

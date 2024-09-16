@@ -53,6 +53,7 @@ const Backend = {
   unitPerformance: 'unit-performance/',
   myPerformance: 'my-performance',
   myUnitPerformance: 'my-unit-performance',
+  KPIPerformance: 'kpi-performance/employee/',
   myKPIS: 'my-kpis',
   workflows: 'workflows',
   createWorkflow: 'create-workflow',
