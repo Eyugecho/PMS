@@ -32,6 +32,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import config from '../../configration/config';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import AddButton from 'ui-component/buttons/AddButton';
+import Backend from 'services/backend';
 
 function EvalType() {
   const [evalTypes, setEvalTypes] = useState([]);
@@ -39,8 +40,8 @@ function EvalType() {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
-    const auth = getRolesAndPermissionsFromToken();
-    const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
+  const auth = getRolesAndPermissionsFromToken();
+  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
 
   useEffect(() => {
     fetchEvalTypes();
@@ -49,7 +50,8 @@ function EvalType() {
   const fetchEvalTypes = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/evaluation-types`, {
+      const Api = Backend.api + `/evaluation-types`;
+      const response = await fetch(Api, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -92,7 +94,7 @@ function EvalType() {
         const result = await response.json();
         if (result.success) {
           toast.success(editIndex !== null ? 'Evaluation type updated' : 'Evaluation type created');
-          fetchEvalTypes(); 
+          fetchEvalTypes();
           handleClose();
         } else {
           toast.error(result.message || 'Failed to save evaluation type');
@@ -159,8 +161,7 @@ function EvalType() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Grid item xs={12} p={2} style={{ padding: '2px 2px 2px 25px' }}>
-            <AddButton 
- variant="contained" color="primary" onClick={handleOpen}>
+            <AddButton variant="contained" color="primary" onClick={handleOpen}>
               Add Evaluation Type
             </AddButton>
           </Grid>
