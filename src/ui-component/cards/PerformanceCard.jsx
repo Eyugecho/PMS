@@ -3,11 +3,14 @@ import { Box, Typography, useTheme } from '@mui/material';
 import DrogaDonutChart from 'ui-component/charts/DrogaDonutChart';
 import PropTypes from 'prop-types';
 
-const PerformanceCard = ({ isEvaluated, performance, frequency }) => {
+const PerformanceCard = ({ isEvaluated, performance, frequency, onPress }) => {
   const theme = useTheme();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 2 }}>
+    <Box
+      sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 2, cursor: 'pointer' }}
+      onClick={onPress}
+    >
       <DrogaDonutChart value={performance} size={42} />
 
       <Typography variant="h4" sx={{ textTransform: 'capitalize', color: theme.palette.text.primary, marginTop: 1 }}>
@@ -31,7 +34,8 @@ const PerformanceCard = ({ isEvaluated, performance, frequency }) => {
 PerformanceCard.propTypes = {
   isEvaluated: PropTypes.bool,
   performance: PropTypes.number,
-  frequency: PropTypes.string
+  frequency: PropTypes.string,
+  onPress: PropTypes.func
 };
 
 export default PerformanceCard;

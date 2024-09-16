@@ -32,6 +32,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import config from '../../configration/config';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import AddButton from 'ui-component/buttons/AddButton';
+import Backend from 'services/backend';
 
 function EvalType() {
   const [evalTypes, setEvalTypes] = useState([]);
@@ -49,7 +50,8 @@ function EvalType() {
   const fetchEvalTypes = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/evaluation-types`, {
+      const Api = Backend.api + `evaluation-types`;
+      const response = await fetch(Api, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

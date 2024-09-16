@@ -74,14 +74,14 @@ const Employees = () => {
 
   const handleUpload = async (file) => {
     const token = localStorage.getItem('token');
-    const Api = Backend.auth + Backend.employeeExcel;
+    const Api = Backend.api + Backend.employeeExcel;
     const headers = {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data'
     };
 
     const formData = new FormData();
-    formData.append('employee_excel', file);
+    formData.append('file', file);
 
     try {
       const response = await axios.post(Api, formData, {

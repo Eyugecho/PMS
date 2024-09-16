@@ -44,19 +44,17 @@ const EodActivity = () => {
     completed: '',
     challenge_faced: ''
   });
-  const [tabIndex, setTabIndex] = useState(0); // New state for tabs
-  const [detailOpen, setDetailOpen] = useState(false); // State for detail modal
-  const [selectedRecord, setSelectedRecord] = useState(null); // State for selected record details
-  const [anchorEl, setAnchorEl] = useState(null); // State for the menu anchor
-  const [currentRecord, setCurrentRecord] = useState(null); // State for the current record
+  const [tabIndex, setTabIndex] = useState(0);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [currentRecord, setCurrentRecord] = useState(null);
   const employeeName = localStorage.getItem('employee_name') || '';
 
-  // Fetch data on page or rowsPerPage change
   useEffect(() => {
     fetchData(page + 1);
   }, [page, rowsPerPage]);
 
-  // Fetch EOD activities
   const fetchData = async (pageNumber) => {
     try {
       const token = localStorage.getItem('token');
@@ -66,13 +64,12 @@ const EodActivity = () => {
           'Content-Type': 'application/json'
         }
       });
-      console.log(response.data);
 
       if (response.data.success) {
         setData(
           response.data.data.data.map((item) => ({
             ...item,
-            employee_name: employeeName // Add employee name to each item
+            employee_name: employeeName
           }))
         );
         setTotal(response.data.data.total);
@@ -269,7 +266,6 @@ const EodActivity = () => {
   // Prepare data for detail modal table
   const detailRows = selectedRecord
     ? [
-      
         { id: 1, field: 'Revenue', value: `${selectedRecord.revenue} Birr` },
         { id: 2, field: 'Expenses', value: `${selectedRecord.expenses} Birr` },
         { id: 3, field: 'Profit', value: `${selectedRecord.profit} Birr` },
@@ -277,7 +273,6 @@ const EodActivity = () => {
         { id: 5, field: 'plan', value: selectedRecord.plan }
       ]
     : [];
-
 
   return (
     <Card>

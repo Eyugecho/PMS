@@ -21,7 +21,7 @@ const toolbarOptions = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }]
 ];
 
-const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative }) => {
+const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative, is_employee }) => {
   const theme = useTheme();
 
   const [expand, setExpand] = useState('');
@@ -80,7 +80,7 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative }) => {
       <div onClick={onPress} style={{ cursor: 'pointer' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="body1">KPI Name</Typography>
-          {!plan?.is_distributed && <DotMenu orientation="horizontal" onEdit={onEdit} onDelete={onDelete}></DotMenu>}
+          {!plan?.is_distributed || (!is_employee && <DotMenu orientation="horizontal" onEdit={onEdit} onDelete={onDelete}></DotMenu>)}
         </Box>
         <Typography variant="h3" color={theme.palette.text.primary} sx={{ marginTop: 0.6, cursor: 'pointer' }}>
           {plan?.kpi?.name}
@@ -266,6 +266,7 @@ PlanCard.propTypes = {
   onPress: PropTypes.func,
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,
-  sx: PropTypes.object
+  sx: PropTypes.object,
+  is_employee: PropTypes.bool
 };
 export default PlanCard;

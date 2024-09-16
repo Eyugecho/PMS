@@ -17,7 +17,8 @@ import {
   CircularProgress,
   TablePagination,
   ListItemIcon,
-  useTheme
+  useTheme,
+  Grid
 } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import { format } from 'date-fns';
@@ -33,6 +34,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import { ViewList } from '@mui/icons-material';
 import DrogaCard from 'ui-component/cards/DrogaCard';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
+import { IconPlus } from '@tabler/icons-react';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 function EodActivity() {
   const theme = useTheme();
@@ -273,212 +277,205 @@ function EodActivity() {
   };
 
   return (
-    <PageContainer maxWidth="lg" title={'EOD Activity'}>
-      <DrogaCard sx={{ marginLeft: '10px', padding: '0px', marginTop: '20px' }}>
-        <Card
-          sx={{
-            borderRadius: 2,
-            marginTop: 2,
-            paddingY: 3,
-            paddingX: 2
-          }}
-        >
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-              {/* {hasPermission && ( */}
-              <Button variant="contained" color="primary" onClick={() => handleOpen(null)}>
-                Add
-              </Button>
-              {/* )} */}
-            </Box>
-
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {['KPI', 'Plan', 'Completed', 'Challenges Faced', 'Date', 'Actions'].map((header) => (
-                      <TableCell
-                        key={header}
-                        sx={{
-                          background: theme.palette.grey[50],
-
-                          fontWeight: 'bold',
-                          fontSize: '0.9rem',
-                          variant: 'h3',
-                          borderBottom: `2px solid ${theme.palette.divider}`,
-                          position: 'relative',
-                          padding: '12px 16px',
-                          '&:not(:last-of-type)': {
-                            borderRight: `1px solid ${theme.palette.divider}`
-                          }
-                        }}
-                      >
-                        {header}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={5}>
-                        <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <CircularProgress size={22} />
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : error ? (
-                    <TableRow>
-                      <TableCell colSpan={5}>
-                        <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Fallbacks severity="error" title="Server error" description="There is an error fetching EOD" />
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : data.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5}>
-                        <Box sx={{ paddingTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Fallbacks severity="department" title="EOD not found" description="The list of added EOD will be listed here" />
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    data.map((record, index) => (
-                      <TableRow
-                        key={record.id}
-                        sx={{
-                          backgroundColor: theme.palette.background.paper,
-                          borderRadius: 2,
-                          '&:nth-of-type(odd)': {
-                            backgroundColor: theme.palette.grey[50]
-                          },
-                          '&:hover': {
-                            backgroundColor: theme.palette.grey[100]
-                          }
-                        }}
-                      >
-                        <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          {record.kpi?.name || 'N/A'}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          {record.plan}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          {record.completed}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          {record.challenge_faced}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          {record.formattedDate}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          <IconButton onClick={(event) => handleMenuClick(event, { ...record, index })}>
-                            <MoreVertIcon />
-                          </IconButton>
-                          <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={handleMenuClose}
-                            sx={{
-                              '& .MuiPaper-root': {
-                                backdropFilter: 'blur(10px)',
-                                backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                                borderRadius: 2,
-                                boxShadow: theme.shadows[1]
-                              }
-                            }}
-                          >
-                            <MenuItem onClick={handleEdit}>
-                              {' '}
-                              <ListItemIcon>
-                                <EditIcon fontSize="small" style={{ paddingRight: '2px', color: '#11365A' }} />
-                              </ListItemIcon>
-                              Update
-                            </MenuItem>
-                            <MenuItem onClick={() => handleDetailOpen(record)}>
-                              {' '}
-                              <ListItemIcon>
-                                <ViewList fontSize="small" style={{ paddingRight: '2px', color: '#11365A' }} />
-                              </ListItemIcon>
-                              Details
-                            </MenuItem>
-
-                            <MenuItem onClick={handleDelete}>
-                              {' '}
-                              <ListItemIcon>
-                                <DeleteIcon fontSize="small" style={{ paddingRight: '2px', color: 'red' }} />
-                              </ListItemIcon>
-                              Delete
-                            </MenuItem>
-                          </Menu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            <ToastContainer />
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              rowsPerPage={pagination.per_page}
-              component="div"
-              count={pagination.total}
-              page={pagination.currentPage}
-              onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
-            />
-          </CardContent>
-        </Card>
-
-        <AddEditEodModal
-          open={open}
-          handleClose={handleClose}
-          handleSave={handleSave}
-          formValues={formValues}
-          handleChange={handleChange}
-          handleTabChange={handleTabChange}
-          tabIndex={tabIndex}
-          editIndex={editIndex}
-          formErrors={formErrors}
-          isLoading={isLoading}
+    <PageContainer
+      maxWidth="lg"
+      title={'EOD Reporting'}
+      rightOption={
+        <DrogaButton
+          title="Create Activity"
+          variant={'contained'}
+          icon={<IconPlus size="1.2rem" stroke="1.2" style={{ marginRight: 4 }} />}
+          sx={{ boxShadow: 0 }}
+          onPress={() => handleOpen(null)}
         />
+      }
+    >
+      <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3.8, px: 2 }}>
+        <Grid item xs={12}>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {['KPI', 'Plan', 'Completed', 'Challenges Faced', 'Date', 'Actions'].map((header) => (
+                    <TableCell
+                      key={header}
+                      sx={{
+                        backgroundColor: theme.palette.grey[100],
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem',
+                        variant: 'h3',
+                        position: 'relative',
+                        padding: '12px 16px'
+                      }}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ActivityIndicator size={22} />
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Fallbacks severity="error" title="Server error" description="There is an error fetching EOD" />
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ) : data.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <Box sx={{ paddingTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Fallbacks
+                          severity="EOD"
+                          title="EOD Activity is not found"
+                          description="The list of added EOD activities will be listed here"
+                        />
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  data.map((record, index) => (
+                    <TableRow
+                      key={record.id}
+                      sx={{
+                        backgroundColor: theme.palette.background.paper,
+                        borderRadius: 2,
+                        '&:nth-of-type(odd)': {
+                          backgroundColor: theme.palette.grey[50]
+                        },
+                        '&:hover': {
+                          backgroundColor: theme.palette.grey[100]
+                        }
+                      }}
+                    >
+                      <TableCell
+                        sx={{
+                          border: 0,
+                          padding: '12px 16px'
+                        }}
+                      >
+                        {record.kpi?.name || 'N/A'}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          border: 0,
+                          padding: '12px 16px'
+                        }}
+                      >
+                        {record.plan}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          border: 0,
+                          padding: '12px 16px'
+                        }}
+                      >
+                        {record.completed}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          border: 0,
+                          padding: '12px 16px'
+                        }}
+                      >
+                        {record.challenge_faced}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          border: 0,
+                          padding: '12px 16px'
+                        }}
+                      >
+                        {record.formattedDate}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          border: 0,
+                          padding: '12px 16px'
+                        }}
+                      >
+                        <IconButton onClick={(event) => handleMenuClick(event, { ...record, index })}>
+                          <MoreVertIcon />
+                        </IconButton>
+                        <Menu
+                          anchorEl={anchorEl}
+                          open={Boolean(anchorEl)}
+                          onClose={handleMenuClose}
+                          sx={{
+                            '& .MuiPaper-root': {
+                              backdropFilter: 'blur(10px)',
+                              backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                              borderRadius: 2,
+                              boxShadow: theme.shadows[1]
+                            }
+                          }}
+                        >
+                          <MenuItem onClick={handleEdit}>
+                            {' '}
+                            <ListItemIcon>
+                              <EditIcon fontSize="small" style={{ paddingRight: '2px', color: '#11365A' }} />
+                            </ListItemIcon>
+                            Update
+                          </MenuItem>
+                          <MenuItem onClick={() => handleDetailOpen(record)}>
+                            {' '}
+                            <ListItemIcon>
+                              <ViewList fontSize="small" style={{ paddingRight: '2px', color: '#11365A' }} />
+                            </ListItemIcon>
+                            Details
+                          </MenuItem>
 
-        <DetailEodModal detailOpen={detailOpen} handleCloseDetails={handleCloseDetails} selectedRecord={selectedRecord} />
-      </DrogaCard>
+                          <MenuItem onClick={handleDelete}>
+                            {' '}
+                            <ListItemIcon>
+                              <DeleteIcon fontSize="small" style={{ paddingRight: '2px', color: 'red' }} />
+                            </ListItemIcon>
+                            Delete
+                          </MenuItem>
+                        </Menu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            rowsPerPage={pagination.per_page}
+            component="div"
+            count={pagination.total}
+            page={pagination.currentPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+          />
+        </Grid>
+      </Grid>
+      <AddEditEodModal
+        open={open}
+        handleClose={handleClose}
+        handleSave={handleSave}
+        formValues={formValues}
+        handleChange={handleChange}
+        handleTabChange={handleTabChange}
+        tabIndex={tabIndex}
+        editIndex={editIndex}
+        formErrors={formErrors}
+        isLoading={isLoading}
+      />
+
+      <DetailEodModal detailOpen={detailOpen} handleCloseDetails={handleCloseDetails} selectedRecord={selectedRecord} />
+      <ToastContainer />
     </PageContainer>
   );
 }
