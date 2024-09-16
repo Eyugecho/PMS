@@ -55,7 +55,7 @@ export const dashboard = () => {
       }
     });
 
- 
+
   childrenTemp.push({
       id: 'todos',
       title: 'To do ',
@@ -81,7 +81,7 @@ export const dashboard = () => {
     auth.forEach((role) => {
       if (role.permissions.find((per) => per.name == 'approval:manage')) {
 
- 
+
 
         childrenTemp.push({
           id: 'evaluations',
