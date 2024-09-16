@@ -55,19 +55,6 @@ export const dashboard = () => {
       }
     });
 
-  // auth &&
-  //   auth.forEach((role) => {
-  //     if (role.permissions.find((per) => per.name == 'read:targetsetting' || role.permissions.find((per) => per.name === 'read:endofday'))) {
-  //       childrenTemp.push({
-  //         id: 'planning',
-  //         title: 'Planning',
-  //         type: 'item',
-  //         url: '/planning',
-  //         icon: icons.IconLayoutCards
-  //       });
-  //     }
-  //   });
-
   childrenTemp.push(
     {
       id: 'todos',
@@ -94,14 +81,6 @@ export const dashboard = () => {
   auth &&
     auth.forEach((role) => {
       if (role.permissions.find((per) => per.name == 'create:evaluation')) {
-        childrenTemp.push({
-          id: 'mointoring',
-          title: 'Monitoring',
-          type: 'item',
-          url: 'monitoring',
-          icon: icons.IconZoomScan
-        });
-
         childrenTemp.push({
           id: 'evaluations',
           title: 'Evaluation',

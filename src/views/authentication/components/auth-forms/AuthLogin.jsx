@@ -1,10 +1,11 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { useTheme } from '@mui/material/styles';
 import { Formik } from 'formik';
+import { decodeToken } from '../../../../store/permissionUtils';
+import { SET_USER, setUser, SIGN_IN } from '../../../../store/actions/actions';
+import { Storage } from 'configration/storage';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -15,16 +16,13 @@ import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
-import * as Yup from 'yup';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { decodeToken, hasRole } from '../../../../store/permissionUtils';
-import { SET_USER, setUser, SIGN_IN } from '../../../../store/actions/actions';
-import { AuthContext } from 'context/AuthContext';
-import { Storage } from 'configration/storage';
 import Backend from 'services/backend';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import * as Yup from 'yup';
+import MenuList from 'layout/MainLayout/Sidebar/MenuList';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
@@ -36,6 +34,10 @@ const AuthLogin = ({ ...others }) => {
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
+
+  const handleMenuRendering = async () => {
+    <MenuList />;
+  };
 
   const handleLogin = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
@@ -77,9 +79,10 @@ const AuthLogin = ({ ...others }) => {
             Storage.setItem('token', access_token);
             Storage.setItem('tokenExpiration', expirationTime);
 
+            window.location.href = '/';
             dispatch(setUser({ type: SET_USER, user: user }));
             dispatch({ type: SIGN_IN, signed: true });
-            navigate('/');
+            // navigate('/');
           } else {
             setStatus({ success: false });
             setErrors({ submit: response.data.message });
@@ -110,7 +113,7 @@ const AuthLogin = ({ ...others }) => {
       })}
       onSubmit={handleLogin}
     >
-      {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+      {({ errors, handleBlur, handleChange, handleSubmit, touched, values }) => (
         <form noValidate onSubmit={handleSubmit} {...others}>
           <Grid container direction="column" justifyContent="center" spacing={2}>
             <Grid item xs={12} container alignItems="center" justifyContent="center">
@@ -122,7 +125,7 @@ const AuthLogin = ({ ...others }) => {
 
           <FormControl style={{ display: 'flex' }} error={Boolean(touched.email && errors.email)}>
             <InputLabel htmlFor="outlined-adornment-email-login" style={{ fontSize: '12px' }}>
-              Email Address / Username
+              Email Address
             </InputLabel>
             <OutlinedInput
               id="outlined-adornment-email-login"
@@ -132,7 +135,7 @@ const AuthLogin = ({ ...others }) => {
               name="email"
               onBlur={handleBlur}
               onChange={handleChange}
-              label="Email Address / Username"
+              label="Email Address"
               inputProps={{}}
             />
             {touched.email && errors.email && (
@@ -163,7 +166,7 @@ const AuthLogin = ({ ...others }) => {
                     edge="end"
                     size="large"
                   >
-                    {showPassword ? <Visibility fontSize='small'/> : <VisibilityOff fontSize='small' />}
+                    {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                   </IconButton>
                 </InputAdornment>
               }

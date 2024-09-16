@@ -43,7 +43,6 @@ const RolePermission = Loadable(lazy(() => import('views/roles_permission/Page')
 const Unauthorized = Loadable(lazy(() => import('utils/unautorized')));
 
 // sample page routingkpiMange-view
-const SamplePage = Loadable(lazy(() => import('views/sample-page')));
 const Testpage = Loadable(lazy(() => import('views/sample-page/test')));
 const Fortest = Loadable(lazy(() => import('views/dashboard/index')));
 

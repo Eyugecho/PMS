@@ -1,8 +1,5 @@
 // assets
-import {
-  IconKey,
-  IconUserCog
-} from '@tabler/icons-react';
+import { IconKey, IconUserCog } from '@tabler/icons-react';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 // constant
@@ -16,18 +13,6 @@ const auth = getRolesAndPermissionsFromToken();
 
 export const Accounts = () => {
   let childrenTemp = [];
-
-  auth &&
-    auth.forEach((role) => {
-      if (role.permissions.find((per) => per.name == 'read:users')) {
-        childrenTemp.push({
-          id: 'users',
-          title: 'Users',
-          type: 'item',
-          url: 'placeholder'
-        });
-      }
-    });
 
   auth &&
     auth.forEach((role) => {
@@ -48,6 +33,5 @@ export const Accounts = () => {
     type: 'group',
 
     children: [...childrenTemp]
-
   };
 };
