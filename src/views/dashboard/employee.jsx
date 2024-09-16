@@ -1,36 +1,20 @@
-import { Grid, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
+import { Grid } from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import PageContainer from 'ui-component/MainPage';
 import TasksContainer from './components/TasksContainer';
 import AssignedKPI from './components/AssignedKPI';
+import OverallPerformance from './components/OverallPerformance';
 
 const EmployeeDashboard = () => {
-  const [loading, setLoading] = useState({
-    kpi: true,
-    task: true,
-    performance: true
-  });
-
-  const [error, setError] = useState({
-    kpi: false,
-    task: false,
-    performance: false
-  });
-
-  const [data, setData] = useState({
-    kpi: [],
-    tasks: [],
-    performance: []
-  });
-
   return (
-    <PageContainer title="Dashboard">
+    <PageContainer title="Home">
       <Grid container spacing={gridSpacing} sx={{ margin: 1 }}>
-        <Grid item xs={11.6}>
-          <Grid container spacing={gridSpacing} sx={{ display: 'flex', alignItems: 'center' }}>
-            <AssignedKPI />
+        <Grid item xs={12}>
+          <Grid container spacing={gridSpacing}>
             <TasksContainer />
+            <AssignedKPI />
+            <OverallPerformance />
           </Grid>
         </Grid>
       </Grid>

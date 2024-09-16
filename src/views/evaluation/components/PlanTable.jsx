@@ -99,8 +99,8 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
   };
   return (
     <React.Fragment>
-      <TableContainer component={Paper} sx={{ minHeight: '42dvh' }}>
-        <Table sx={{ minWidth: 650 }} aria-label="Organization plan table">
+      <TableContainer component={Paper} sx={{ minHeight: '22dvh' }}>
+        <Table sx={{ minWidth: 450 }} aria-label="unit plan table">
           <TableHead>
             <TableRow>
               <TableCell>KPI Name</TableCell>

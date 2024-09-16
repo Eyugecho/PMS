@@ -12,7 +12,6 @@ import DateRangePicker from './DateRange';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import ActivityGraph from 'ui-component/charts/ActivityGraph';
 import DrogaCard from 'ui-component/cards/DrogaCard';
-import DailyTasks from './DailyTasks';
 import Todo from 'views/todo';
 
 const ChartTypes = [
@@ -44,8 +43,6 @@ const TasksContainer = () => {
   const [chartType, setChartType] = useState('line');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
-  const [statLoading, setStatLoading] = useState(true);
-  const [stats, setStats] = useState([]);
 
   const handleChartSelection = (event) => {
     const value = event.target.value;
@@ -59,7 +56,7 @@ const TasksContainer = () => {
 
       const Api =
         Backend.api +
-        Backend.employeesTaskGraph +
+        Backend.myTaskGraph +
         `?fiscal_year_id=${selectedYear?.id}&start_date=${format(startDate, 'yyyy-MM-dd')}&end_date=${format(endDate, 'yyyy-MM-dd')}`;
       const header = {
         Authorization: `Bearer ${token}`,
@@ -90,41 +87,6 @@ const TasksContainer = () => {
     }
   };
 
-  const handleFetchingStats = async () => {
-    if (selectedYear) {
-      setStatLoading(true);
-      const token = await GetToken();
-      const Api = Backend.api + Backend.getStats;
-
-      const header = {
-        Authorization: `Bearer ${token}`,
-        accept: 'application/json',
-        'Content-Type': 'application/json'
-      };
-
-      fetch(Api, {
-        method: 'GET',
-        headers: header
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          if (response.success) {
-            setStats(response.data);
-          } else {
-            toast.warning(response.message);
-          }
-        })
-        .catch((error) => {
-          toast.warning(error.message);
-        })
-        .finally(() => {
-          setStatLoading(false);
-        });
-    } else {
-      return <GetFiscalYear />;
-    }
-  };
-
   useEffect(() => {
     if (endDate < startDate) {
       setEndDate(endOfDay(startDate));
@@ -132,25 +94,24 @@ const TasksContainer = () => {
   }, [startDate]);
 
   useEffect(() => {
-    handleFetchingStats();
-  }, [selectedYear]);
-
-  useEffect(() => {
     handleFetchingActvities();
   }, [selectedYear, startDate, endDate]);
 
   return (
-    <Grid item xs={12}>
+    <Grid item xs={11.9}>
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
           <DrogaCard>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box>
+            <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                 <Typography variant="h4">Daily Activities</Typography>
                 <SelectorMenu name="chart" options={ChartTypes} selected={chartType} handleSelection={handleChartSelection} />
-              </Box>
-              <DateRangePicker startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
-            </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+                <DateRangePicker startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
+              </Grid>
+            </Grid>
 
             {loading ? (
               <Grid container>
@@ -165,9 +126,7 @@ const TasksContainer = () => {
         </Grid>
 
         <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-          <DrogaCard sx={{ p: 0 }}>
-            <Todo hideChart={true} hideCreate={false} hideFilter={true} />
-          </DrogaCard>
+          <Todo hideChart={true} hideCreate={false} hideFilter={true} onRefresh={() => handleFetchingActvities()} />
         </Grid>
       </Grid>
     </Grid>

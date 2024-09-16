@@ -48,7 +48,7 @@ const DrogaFormModal = ({ open, title, handleClose, children, onCancel, onSubmit
             </Button>
             <DrogaButton
               type="submit"
-              title={submitting ? <CircularProgress size={16} sx={{ color: theme.palette.background.default }} /> : 'Submit'}
+              title={submitting ? <CircularProgress size={16} sx={{ color: 'white' }} /> : 'Submit'}
               variant="contained"
               sx={{ paddingX: 5, boxShadow: 0 }}
             />

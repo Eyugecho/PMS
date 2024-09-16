@@ -152,7 +152,7 @@ const Planning = () => {
       const token = await GetToken();
       const Api =
         Backend.api +
-        Backend.getOrgPlans +
+        Backend.getMyPlans +
         `?fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}&search=${search}&perspective_type_id=${filter.perspective}&measuring_unit_id=${filter.m_unit}`;
       const header = {
         Authorization: `Bearer ${token}`,

@@ -445,7 +445,6 @@ const ViewEmployee = () => {
 
           <DrogaCard sx={{ mt: 2 }}>
             <Typography variant="h4">Per KPI performance</Typography>
-
             <PerKPI isLoading={isLoading} performance={performance} />
           </DrogaCard>
         </Grid>

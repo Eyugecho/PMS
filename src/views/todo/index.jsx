@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Grid, IconButton, TablePagination, TextField, Typography, useTheme } from '@mui/material';
 import { IconChecklist, IconChevronLeft, IconChevronRight, IconMinus, IconPlus } from '@tabler/icons-react';
 import { formatDate } from 'utils/function';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { gridSpacing } from 'store/constant';
 import PageContainer from 'ui-component/MainPage';
@@ -25,12 +25,12 @@ const TaskStatus = [
   { label: 'Cancelled', value: 'cancelled' }
 ];
 
-const Todo = ({ hideChart, hideCreate, hideFilter }) => {
+const Todo = ({ hideChart, hideCreate, hideFilter, onRefresh }) => {
   const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
 
-  const [data, setData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [myKPI, setMyKPI] = useState([]);
 
   const [task, setTask] = useState({
     loading: true,
@@ -97,6 +97,9 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
       .then((response) => {
         if (response.success) {
           handleEmployeeTask();
+          setTimeout(() => {
+            onRefresh();
+          }, 700);
         } else {
           toast.error(response.message);
         }
@@ -109,7 +112,36 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
       });
   };
 
-  const handleOpenCreateModal = () => {
+  const handleGettingMyKPI = async () => {
+    const token = await GetToken();
+    const Api = Backend.api + Backend.myKPIS;
+
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        console.log(response);
+        if (response.success) {
+          setMyKPI(response.data);
+        } else {
+          toast.warning(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.warning(error.message);
+      });
+  };
+
+  const handleOpenCreateModal = async () => {
+    await handleGettingMyKPI();
     setTask((prevTask) => ({ ...prevTask, openModal: true }));
   };
 
@@ -143,6 +175,9 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
         if (response.success) {
           toast.success(response.message);
           handleEmployeeTask();
+          setTimeout(() => {
+            onRefresh();
+          }, 700);
         } else {
           toast.error(response.message);
         }
@@ -176,6 +211,9 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
         if (response.success) {
           toast.success(response.data.message);
           handleEmployeeTask();
+          setTimeout(() => {
+            onRefresh();
+          }, 700);
         } else {
           toast.error(response.data.message);
         }
@@ -235,7 +273,7 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
         !hideCreate && (
           <DrogaButton
             title="Create Task"
-            variant="contained"
+            variant={hideChart ? 'text' : 'contained'}
             icon={<IconPlus size="1.2rem" stroke="1.2" style={{ marginRight: 4 }} />}
             sx={{ boxShadow: 0 }}
             onPress={handleOpenCreateModal}
@@ -243,15 +281,16 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
         )
       }
     >
-      <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3.8, px: 2 }}>
+      <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 0.8, px: 2 }}>
         <Grid item xs={12}>
           <Grid container spacing={gridSpacing}>
-            <Grid item xs={12} sm={12} md={!hideChart ? 7 : 12} lg={!hideChart ? 8 : 12} xl={!hideChart ? 8 : 12}>
+            {/*  md={!hideChart ? 7 : 12} lg={!hideChart ? 8 : 12} xl={!hideChart ? 8 : 12} */}
+            <Grid item xs={12} sm={12}>
               {!hideFilter && (
-                <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1.8 }}>
+                <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', marginBottom: 1.8 }}>
                   <Search value={task.search} onChange={(event) => handleSearchFieldChange(event)} />
 
-                  <Box>
+                  <Box sx={{ marginLeft: 2 }}>
                     {task.picker ? (
                       <TextField
                         id="date"
@@ -273,7 +312,6 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
                     ) : (
                       <Typography
                         variant="body1"
-                        mt={1}
                         onClick={() => handleTodayClick()}
                         sx={{ cursor: 'pointer', ':hover': { fontWeight: theme.typography.fontWeightMedium } }}
                       >
@@ -297,7 +335,7 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
                     <Typography variant="caption">The list of created task will be listed here</Typography>
                   </Box>
                 ) : (
-                  <Box sx={{ marginTop: 3 }}>
+                  <Box>
                     {task.taskList?.map((item, index) => (
                       <DrogaCard
                         key={index}
@@ -354,7 +392,7 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
               </DrogaCard>
             </Grid>
 
-            {!hideChart && (
+            {/* {!hideChart && (
               <Grid item xs={12} sm={12} md={5} lg={4} xl={4}>
                 <DrogaCard>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -373,25 +411,28 @@ const Todo = ({ hideChart, hideCreate, hideFilter }) => {
                   <ActivityChart />
                 </DrogaCard>
               </Grid>
-            )}
+            )} */}
           </Grid>
         </Grid>
       </Grid>
 
-      <CreateTask
-        open={task.openModal}
-        handleCloseModal={handleCloseCreateModal}
-        kpi={data}
-        handleTaskSubmission={(values) => handleTaskCreation(values)}
-        submitting={task.submitting}
-      />
+      {myKPI && (
+        <CreateTask
+          open={task.openModal}
+          handleCloseModal={handleCloseCreateModal}
+          kpi={myKPI}
+          handleTaskSubmission={(values) => handleTaskCreation(values)}
+          submitting={task.submitting}
+        />
+      )}
     </PageContainer>
   );
 };
 
 Todo.propTypes = {
-  hideChart: PropTypes.string,
+  hideChart: PropTypes.bool,
   hideCreate: PropTypes.bool,
-  hideFilter: PropTypes.bool
+  hideFilter: PropTypes.bool,
+  onRefresh: PropTypes.func
 };
 export default Todo;
