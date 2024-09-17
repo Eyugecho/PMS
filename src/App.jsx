@@ -2,7 +2,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline, StyledEngineProvider } from '@mui/material';
+import { CircularProgress, CssBaseline, StyledEngineProvider } from '@mui/material';
 // defaultTheme
 import themes from 'themes';
 
@@ -10,7 +10,7 @@ import themes from 'themes';
 import NavigationScroll from 'layout/NavigationScroll';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthContext } from 'context/AuthContext';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { KPIProvider } from 'context/KPIProvider';
 import { ToastContainer } from 'react-toastify';
 import { logout } from 'utils/user-inactivity';
@@ -25,9 +25,10 @@ const queryClient = new QueryClient();
 const App = () => {
   const customization = useSelector((state) => state.customization);
   const signed = useSelector((state) => state.user.signed);
+  const prevSigned = useRef(signed);
 
   const [isSignedIn, setIsSignedIn] = useState(false);
-
+  const [isReloading, setIsReloading] = useState(false);
   const authContext = useMemo(
     () => ({
       signin: () => {
@@ -48,6 +49,16 @@ const App = () => {
   const router = createBrowserRouter([routes]);
 
   useEffect(() => {
+    if (prevSigned.current === false && signed === true) {
+      setIsReloading(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 200);
+    }
+    prevSigned.current = signed;
+  }, [signed]);
+
+  useEffect(() => {
     const checkAuthentication = async () => {
       const ttl = Storage.getItem('tokenExpiration');
       const currentTime = new Date().getTime();
@@ -60,6 +71,16 @@ const App = () => {
     checkAuthentication();
   }, []);
 
+  if (isReloading) {
+    return (
+      <Grid container>
+        <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <CircularProgress size={24} color="primary" />
+        </Grid>
+      </Grid>
+    );
+  }
+
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={themes(customization)}>
@@ -69,7 +90,6 @@ const App = () => {
               <CssBaseline />
               <NavigationScroll>
                 <RouterProvider router={router} />
-
                 <ToastContainer />
               </NavigationScroll>
             </QueryClientProvider>
