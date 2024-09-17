@@ -55,44 +55,32 @@ export const dashboard = () => {
       }
     });
 
-<<<<<<< HEAD
 
   childrenTemp.push({
-=======
-  childrenTemp.push(
-    {
->>>>>>> 34fa60b493a113892ea3d49b570173b2a22c2cd3
-      id: 'todos',
-      title: 'To do ',
-      type: 'item',
-      url: '/todo',
-      icon: icons.IconList
-    },
-    {
-      id: 'eod_activity',
-      title: 'EOD ',
-      type: 'item',
-      url: '/Eod',
-      icon: icons.IconHazeMoon
-    },
-    {
-      id: 'planning',
-      title: 'Planning',
-      type: 'item',
-      url: '/planning',
-      icon: icons.IconLayoutCards
-    }
-  );
+    id: 'todos',
+    title: 'To do ',
+    type: 'item',
+    url: '/todo',
+    icon: icons.IconList
+  }, {
+    id: 'eod_activity',
+    title: 'EOD ',
+    type: 'item',
+    url: '/Eod',
+    icon: icons.IconHazeMoon
+  }, {
+    id: 'planning',
+    title: 'Planning',
+    type: 'item',
+    url: '/planning',
+    icon: icons.IconLayoutCards
+  });
   auth &&
     auth.forEach((role) => {
-<<<<<<< HEAD
       if (role.permissions.find((per) => per.name == 'approval:manage')) {
 
 
 
-=======
-      if (role.permissions.find((per) => per.name == 'create:evaluation')) {
->>>>>>> 34fa60b493a113892ea3d49b570173b2a22c2cd3
         childrenTemp.push({
           id: 'evaluations',
           title: 'Evaluation',

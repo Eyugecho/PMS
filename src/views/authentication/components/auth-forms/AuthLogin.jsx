@@ -79,10 +79,10 @@ const AuthLogin = ({ ...others }) => {
             Storage.setItem('token', access_token);
             Storage.setItem('tokenExpiration', expirationTime);
 
-            window.location.href = '/';
+            // window.location.href = '/';
             dispatch(setUser({ type: SET_USER, user: user }));
             dispatch({ type: SIGN_IN, signed: true });
-            // navigate('/');
+            navigate('/');
           } else {
             setStatus({ success: false });
             setErrors({ submit: response.data.message });

@@ -296,7 +296,7 @@ function EodActivity() {
             <Table>
               <TableHead>
                 <TableRow>
-                  {['KPI', 'Plan', 'Completed', 'Challenges Faced', 'Date', 'Actions'].map((header) => (
+                  {[ 'Plan', 'Completed', 'Challenges Faced', 'Date', 'Actions'].map((header) => (
                     <TableCell
                       key={header}
                       sx={{
@@ -357,14 +357,14 @@ function EodActivity() {
                         }
                       }}
                     >
-                      <TableCell
+                      {/* <TableCell
                         sx={{
                           border: 0,
                           padding: '12px 16px'
                         }}
                       >
                         {record.kpi?.name || 'N/A'}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell
                         sx={{
                           border: 0,

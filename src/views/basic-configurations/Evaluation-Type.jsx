@@ -161,9 +161,9 @@ function EvalType() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Grid item xs={12} p={2} style={{ padding: '2px 2px 2px 25px' }}>
-            <AddButton variant="contained" color="primary" onClick={handleOpen}>
+            <Button variant="contained" color="primary" onClick={handleOpen}>
               Add Evaluation Type
-            </AddButton>
+            </Button>
           </Grid>
           <CardContent>
             {evalTypes.length === 0 ? (
