@@ -707,34 +707,35 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
     }));
   };
 
-  const handleDateChange = (event, index, dateType) => {
-    const { value } = event.target;
+const handleDateChange = (event, index, dateType) => {
+  const { value } = event.target;
 
-    console.log(`Updating ${dateType} for period ${index} with value: ${value}`);
+  console.log(`Updating ${dateType} for period ${index} with value: ${value}`);
 
-    setStepData((prevData) => {
-      const currentStepData = prevData[steps[activeStep]] || { dates: [] };
+  setStepData((prevData) => {
+    const currentStepData = prevData[steps[activeStep]] || { dates: [] };
 
-      const updatedDates = [...currentStepData.dates];
-      if (!updatedDates[index]) {
-        updatedDates[index] = { start_date: '', end_date: '' };
+    const updatedDates = [...currentStepData.dates];
+    if (!updatedDates[index]) {
+      updatedDates[index] = { start_date: '', end_date: '' };
+    }
+
+    if (dateType === 'start_date') {
+      updatedDates[index].start_date = value; // Ensure value is in YYYY-MM-DD format
+    } else if (dateType === 'end_date') {
+      updatedDates[index].end_date = value; // Ensure value is in YYYY-MM-DD format
+    }
+
+    return {
+      ...prevData,
+      [steps[activeStep]]: {
+        ...currentStepData,
+        dates: updatedDates
       }
+    };
+  });
+};
 
-      if (dateType === 'start_date') {
-        updatedDates[index].start_date = value;
-      } else if (dateType === 'end_date') {
-        updatedDates[index].end_date = value;
-      }
-
-      return {
-        ...prevData,
-        [steps[activeStep]]: {
-          ...currentStepData,
-          dates: updatedDates
-        }
-      };
-    });
-  };
 
   const handleClose = () => {
     setOpen(false);
@@ -743,6 +744,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   }
+  
 
   return (
     <Stack sx={{ width: '100%' }} spacing={4}>
@@ -780,60 +782,6 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
               {steps[activeStep] === 'Fiscal Year' ? (
                 <>
                   <form onSubmit={handleSubmit}>
-                    {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
-                      <Grid container spacing={2}>
-                   
-                        <Grid item xs={6}>
-                          <DatePicker
-                            label="Start Year"
-                            views={['year']}
-                            value={stepData[steps[activeStep]]?.startYear || null}
-                            onChange={(newValue) => handleInputChange({ target: { name: 'startYear', value: newValue } })}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                fullWidth
-                                margin="normal"
-                                error={Boolean(error.startYear)}
-                                helperText={error.startYear?.join(', ')}
-                              />
-                            )}
-                          />
-                        </Grid>
-
-                        <Grid item xs={6}>
-                          <DatePicker
-                            label="End Year"
-                            views={['year']}
-                            value={stepData[steps[activeStep]]?.endYear || null}
-                            onChange={(newValue) => handleInputChange({ target: { name: 'endYear', value: newValue } })}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                fullWidth
-                                margin="normal"
-                                error={Boolean(error.endYear)}
-                                helperText={error.endYear?.join(', ')}
-                              />
-                            )}
-                          />
-                        </Grid>
-                      </Grid>
-                    </LocalizationProvider> */}
-
-                    {/* <TextField
-                      name="year"
-                      label="Year"
-                      value={`${stepData[steps[activeStep]]?.startYear?.getFullYear() || ''} - ${stepData[steps[activeStep]]?.endYear?.getFullYear() || ''}`}
-                      InputProps={{
-                        readOnly: true
-                      }}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                      error={Boolean(error.year)}
-                      helperText={error.year?.join(', ')}
-                    /> */}
                     <TextField
                       name="year"
                       label="Year"
@@ -842,7 +790,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
                       fullWidth
                       margin="normal"
                       error={Boolean(error.year)}
-                      helperText={error.year?.join(', ')}
+                      // helperText={error.year?.join(', ')}
                     />
                     <TextField
                       name="startDate"
@@ -854,7 +802,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
                       fullWidth
                       margin="normal"
                       error={Boolean(error.start_date)}
-                      helperText={error.start_date?.join(', ')}
+                      // helperText={error.start_date?.join(', ')}
                     />
                     <TextField
                       name="endDate"
@@ -866,7 +814,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
                       fullWidth
                       margin="normal"
                       error={Boolean(error.end_date)}
-                      helperText={error.end_date?.join(', ')}
+                      // helperText={error.end_date?.join(', ')}
                     />
                   </form>
                 </>
@@ -913,81 +861,81 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
                 </>
               ) : steps[activeStep] === 'Frequency Period Value' ? (
                 <>
-                  <>
-                    <Box sx={{ mb: 0, maxHeight: '50vh', overflowY: 'auto' }}>
-                      <form onSubmit={handleSubmit}>
-                        {/* Fiscal Year  */}
+                  <Box sx={{ mb: 0, maxHeight: '50vh', overflowY: 'auto' }}>
+                    <form onSubmit={handleSubmit}>
+                      {/* Fiscal Year  */}
+                      <TextField
+                        name="fiscal_year_id"
+                        label="Fiscal Year"
+                        value={stepData['Fiscal Year']?.year || ''}
+                        InputProps={{
+                          readOnly: true
+                        }}
+                        fullWidth
+                        margin="normal"
+                      />
 
-                        <TextField
-                          name="fiscal_year_id"
-                          label="Fiscal Year"
-                          value={stepData['Fiscal Year']?.year || ''}
-                          InputProps={{
-                            readOnly: true
-                          }}
+                      {/* Frequency  */}
+                      <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
+                        <InputLabel id="frequency-label">Select Frequency</InputLabel>
+                        <Select
+                          name="frequency"
+                          value={stepData[steps[activeStep]]?.frequency || ''}
+                          onChange={handleFrequencyChange}
                           fullWidth
                           margin="normal"
-                        />
-                        {/* Frequency  */}
-                        <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
-                          <InputLabel id="frequency-label">Select Frequency</InputLabel>
-                          <Select
-                            name="frequency"
-                            value={stepData[steps[activeStep]]?.frequency || ''}
-                            onChange={handleFrequencyChange}
-                            fullWidth
-                            margin="normal"
-                            label="Select Frequency"
-                            sx={{ mb: 2 }}
-                          >
-                            {frequencies.map((frequency) => (
-                              <MenuItem key={frequency.id} value={frequency.id}>
-                                {frequency.name}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-
-                        <>
-                          {/* Dynamic Date Fields */}
-                          {stepData[steps[activeStep]]?.dates?.map((date, index) => (
-                            <Grid container key={index} spacing={2} sx={{ mb: 2, maxHeight: '80vh', overflowY: 'auto' }}>
-                              <Grid item xs={6}>
-                                <TextField
-                                  name={`start_date_${index}`}
-                                  label={`Start Date ${index + 1}`}
-                                  type="date"
-                                  fullWidth
-                                  InputLabelProps={{ shrink: true }}
-                                  value={date.start_date || ''}
-                                  onChange={(e) => handleDateChange(e, index, 'start_date')}
-                                />
-                              </Grid>
-                              <Grid item xs={6}>
-                                <TextField
-                                  name={`end_date_${index}`}
-                                  label={`End Date ${index + 1}`}
-                                  type="date"
-                                  fullWidth
-                                  InputLabelProps={{ shrink: true }}
-                                  value={date.end_date || ''}
-                                  onChange={(e) => handleDateChange(e, index, 'end_date')}
-                                  error={Boolean(error.end_date)}
-                                  helperText={error.end_date?.join(', ')}
-                                />
-                              </Grid>
-                            </Grid>
+                          label="Select Frequency"
+                          sx={{ mb: 2 }}
+                        >
+                          {frequencies.map((frequency) => (
+                            <MenuItem key={frequency.id} value={frequency.id}>
+                              {frequency.name}
+                            </MenuItem>
                           ))}
-                        </>
-                      </form>
-                    </Box>
-                  </>
+                        </Select>
+                      </FormControl>
+
+                      {/* Dynamic Date Fields */}
+                      {stepData[steps[activeStep]]?.dates?.map((date, index) => (
+                        <Grid container key={index} spacing={2} sx={{ mb: 2, maxHeight: '80vh', overflowY: 'auto' }}>
+                          <Grid item xs={6}>
+                            <TextField
+                              name={`start_date_${index}`}
+                              label={`Start Date ${index + 1}`}
+                              type="date"
+                              fullWidth
+                              InputLabelProps={{ shrink: true }}
+                              value={date.start_date || ''}
+                              onChange={(e) => handleDateChange(e, index, 'start_date')}
+                            />
+                          </Grid>
+                          <Grid item xs={6}>
+                            <TextField
+                              name={`end_date_${index}`}
+                              label={`End Date ${index + 1}`}
+                              type="date"
+                              fullWidth
+                              InputLabelProps={{ shrink: true }}
+                              value={date.end_date || ''}
+                              onChange={(e) => handleDateChange(e, index, 'end_date')}
+                              error={Boolean(error.end_date)}
+                              helperText={error.end_date?.join(', ')}
+                            />
+                          </Grid>
+                        </Grid>
+                      ))}
+                    </form>
+                  </Box>
                 </>
               ) : steps[activeStep] === 'Evaluation Period' ? (
                 <>
-                  <>
-                    <>
-                      <form onSubmit={handleSubmit}>
+                  <Box sx={{ mb: 0, maxHeight: '50vh', overflowY: 'auto', p: 2 }}>
+                    <form onSubmit={handleSubmit}>
+                      {/* Fiscal Year Section */}
+                      <Card variant="outlined" sx={{ p: 2, mb: 3, backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                          Fiscal Year Details
+                        </Typography>
                         <TextField
                           name="fiscal_year_id"
                           label="Fiscal Year"
@@ -997,9 +945,13 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
                           }}
                           fullWidth
                           margin="normal"
+                          sx={{ mb: 2 }}
                         />
+
+                        {/* Frequency Section */}
                         <TextField
                           name="frequency_name"
+                          label="Frequency"
                           value={
                             frequencies.find(
                               (frequency) =>
@@ -1016,36 +968,117 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
                           helperText={error.frequency_period_value_id?.join(', ')}
                           sx={{ mb: 2 }}
                         />
+                      </Card>
 
-                        <TextField
-                          name="startDate"
-                          label="Start Date"
-                          type="date"
-                          InputLabelProps={{ shrink: true }}
-                          value={stepData[steps[activeStep]]?.startDate || ''}
-                          onChange={handleInputChange}
-                          fullWidth
-                          margin="normal"
-                        />
-                        <TextField
-                          name="endDate"
-                          label="End Date"
-                          type="date"
-                          InputLabelProps={{ shrink: true }}
-                          value={stepData[steps[activeStep]]?.endDate || ''}
-                          onChange={handleInputChange}
-                          fullWidth
-                          margin="normal"
-                        />
-                      </form>
-                    </>
-                  </>
+                      {/* Display Dates Section */}
+                      {stepData['Frequency Period Value']?.dates?.map((date, index) => (
+                        <Card
+                          variant="outlined"
+                          key={index}
+                          sx={{ p: 2, mb: 3, backgroundColor: '#fafafa', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', borderRadius: '8px' }}
+                        >
+                          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                            Period {index + 1}
+                          </Typography>
+
+                          <Grid container spacing={2} sx={{ mb: 2 }}>
+                            {/* Frequency Period Start and End Dates */}
+                            <Grid item xs={6}>
+                              <TextField
+                                name={`frequency_start_date_${index}`}
+                                label={`Frequency Start Date`}
+                                type="date"
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                value={date.start_date || ''}
+                                InputProps={{
+                                  readOnly: true,
+                                  sx: {
+                                    backgroundColor: '#e3f2fd',
+                                    borderRadius: '6px',
+                                    padding: '10px',
+                                    '&:hover': {
+                                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                                    }
+                                  }
+                                }}
+                              />
+                            </Grid>
+                            <Grid item xs={6}>
+                              <TextField
+                                name={`frequency_end_date_${index}`}
+                                label={`Frequency End Date`}
+                                type="date"
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                value={date.end_date || ''}
+                                InputProps={{
+                                  readOnly: true,
+                                  sx: {
+                                    backgroundColor: '#e3f2fd',
+                                    borderRadius: '6px',
+                                    padding: '10px',
+                                    '&:hover': {
+                                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                                    }
+                                  }
+                                }}
+                              />
+                            </Grid>
+                          </Grid>
+
+                          {/* Evaluation Period Start and End Dates */}
+                          <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                              <TextField
+                                name={`evaluation_start_date_${index}`}
+                                label={`Evaluation Start Date`}
+                                type="date"
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                value={stepData[steps[activeStep]]?.evaluation_dates?.[index]?.start_date || ''}
+                                onChange={(e) => handleDateChange(e, index, 'start_date')}
+                                error={Boolean(error.start_date)}
+                                helperText={Array.isArray(error.start_date) ? error.start_date.join(', ') : error.start_date}
+                                sx={{
+                                  backgroundColor: '#fffde7',
+                                  borderRadius: '6px',
+                                  padding: '10px',
+                                  '&:hover': {
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                                  }
+                                }}
+                              />
+                            </Grid>
+                            <Grid item xs={6}>
+                              <TextField
+                                name={`evaluation_end_date_${index}`}
+                                label={`Evaluation End Date`}
+                                type="date"
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                value={stepData[steps[activeStep]]?.evaluation_dates?.[index]?.end_date || ''}
+                                onChange={(e) => handleDateChange(e, index, 'end_date')}
+                                sx={{
+                                  backgroundColor: '#fffde7',
+                                  borderRadius: '6px',
+                                  padding: '10px',
+                                  '&:hover': {
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                                  }
+                                }}
+                              />
+                            </Grid>
+                          </Grid>
+                        </Card>
+                      ))}
+                    </form>
+                  </Box>
                 </>
               ) : null}
 
               <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-       {activeStep > 0 && ( 
-        
+                {activeStep > 0 && (
                   <Button variant="contained" color="inherit" onClick={handleBack}>
                     Back
                   </Button>
