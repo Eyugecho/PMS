@@ -17,14 +17,12 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Backend from 'services/backend';
 import { useEffect } from 'react';
-import config from '../../configration/config';
-import { Grid, Card, CardContent, Typography,Divider } from '@mui/material';
+import { Grid, Card, CardContent, Typography } from '@mui/material';
 import { toast } from 'react-toastify';
 import Fallbacks from 'utils/components/Fallbacks';
-import { CalendarToday, Timeline, Assessment } from '@mui/icons-material'; 
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { CalendarToday, Timeline } from '@mui/icons-material';
+import GetToken from 'utils/auth-token';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
 
 const blinkAnimation = keyframes`
   50% {
@@ -357,13 +355,11 @@ export default function CustomizedSteppers() {
 
         return data.data;
       } else {
-        console.error('Backend errors:', data.data.errors);
         toast.error(`Evaluation period submission failed: ${data.message}`);
         setError(data.data.errors || {});
       }
     } catch (error) {
       toast.error('An error occurred while submitting evaluation period');
-      console.error('An error occurred while submitting evaluation period:', error);
     } finally {
       setLoading(false);
     }
@@ -426,7 +422,6 @@ export default function CustomizedSteppers() {
       }
     } catch (error) {
       toast.error('An error occurred while submitting the frequency period value');
-      console.error('An error occurred while submitting the frequency period value:', error);
     } finally {
       setLoading(false);
     }
@@ -479,7 +474,6 @@ export default function CustomizedSteppers() {
       }
     } catch (error) {
       toast.error('An error occurred while submitting fiscal year');
-      console.error('An error occurred while submitting fiscal year:', error);
     } finally {
       setLoading(false);
     }
@@ -534,15 +528,14 @@ export default function CustomizedSteppers() {
       }
     } catch (error) {
       toast.error('An error occurred while submitting the planning period.');
-      console.error('An error occurred while submitting the planning period:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchFrequencies = async () => {
-    const token = localStorage.getItem('token');
-    const Api = `${config.API_URL_Units}/frequencies`;
+    const token = await GetToken();
+    const Api = Backend.api + frequencies;
 
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -570,7 +563,6 @@ export default function CustomizedSteppers() {
       }
     } catch (error) {
       toast.error('An error occurred while fetching frequencies');
-      console.error('An error occurred while fetching frequencies:', error);
     } finally {
       setLoading(false);
     }
@@ -631,8 +623,6 @@ export default function CustomizedSteppers() {
 
   const handleDateChange = (event, index, dateType) => {
     const { value } = event.target;
-
-    console.log(`Updating ${dateType} for period ${index} with value: ${value}`);
 
     setStepData((prevData) => {
       const currentStepData = prevData[steps[activeStep]] || { dates: [] };
@@ -698,60 +688,6 @@ export default function CustomizedSteppers() {
               {steps[activeStep] === 'Fiscal Year' ? (
                 <>
                   <form onSubmit={handleSubmit}>
-                    {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
-                      <Grid container spacing={2}>
-                   
-                        <Grid item xs={6}>
-                          <DatePicker
-                            label="Start Year"
-                            views={['year']}
-                            value={stepData[steps[activeStep]]?.startYear || null}
-                            onChange={(newValue) => handleInputChange({ target: { name: 'startYear', value: newValue } })}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                fullWidth
-                                margin="normal"
-                                error={Boolean(error.startYear)}
-                                helperText={error.startYear?.join(', ')}
-                              />
-                            )}
-                          />
-                        </Grid>
-
-                        <Grid item xs={6}>
-                          <DatePicker
-                            label="End Year"
-                            views={['year']}
-                            value={stepData[steps[activeStep]]?.endYear || null}
-                            onChange={(newValue) => handleInputChange({ target: { name: 'endYear', value: newValue } })}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                fullWidth
-                                margin="normal"
-                                error={Boolean(error.endYear)}
-                                helperText={error.endYear?.join(', ')}
-                              />
-                            )}
-                          />
-                        </Grid>
-                      </Grid>
-                    </LocalizationProvider> */}
-
-                    {/* <TextField
-                      name="year"
-                      label="Year"
-                      value={`${stepData[steps[activeStep]]?.startYear?.getFullYear() || ''} - ${stepData[steps[activeStep]]?.endYear?.getFullYear() || ''}`}
-                      InputProps={{
-                        readOnly: true
-                      }}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                      error={Boolean(error.year)}
-                      helperText={error.year?.join(', ')}
-                    /> */}
                     <TextField
                       name="year"
                       label="Year"

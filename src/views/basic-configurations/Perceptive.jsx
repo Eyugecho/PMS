@@ -34,6 +34,8 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import config from '../../configration/config';
+import GetToken from 'utils/auth-token';
+import Backend from 'services/backend';
 
 function Perceptive() {
   const [perceptives, setPerceptives] = useState([]);
@@ -51,13 +53,14 @@ function Perceptive() {
 
   const fetchPerceptives = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/perspective-types`, {
+      const token = await GetToken();
+      const Api = Backend.api + `perspective-types`;
+      const response = await fetch(Api, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       const data = await response.json();
@@ -79,38 +82,29 @@ function Perceptive() {
       }
 
       const method = editIndex !== null ? 'PATCH' : 'POST';
-      const url = editIndex !== null 
-        ? `${config.API_URL_Units}/perspective-types/${perceptives[editIndex].id}` 
-        : `${config.API_URL_Units}/perspective-types`;
+      const url = editIndex !== null ? `${Backend.api}perspective-types/${perceptives[editIndex].id}` : `${Backend.api}perspective-types`;
 
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json, text/plain, */*',
+          Accept: 'application/json, text/plain, */*'
         },
-        body: JSON.stringify({ name: values.perspectiveName }),
+        body: JSON.stringify({ name: values.perspectiveName })
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        
-          setSnackbarMessage('Perspective already exists');
-          setSnackbarSeverity('warning');
-   
+        setSnackbarMessage('Perspective already exists');
+        setSnackbarSeverity('warning');
       } else {
         if (result.success) {
-         
           setPerceptives((prevPerceptives) => {
             if (editIndex !== null) {
-             
-              return prevPerceptives.map((p, i) =>
-                i === editIndex ? result.data : p
-              );
+              return prevPerceptives.map((p, i) => (i === editIndex ? result.data : p));
             } else {
-              
               return [...prevPerceptives, result.data];
             }
           });
@@ -118,14 +112,12 @@ function Perceptive() {
           setSnackbarMessage('Perspective saved successfully!');
           setSnackbarSeverity('success');
         } else {
-          
           setSnackbarMessage('Error creating/updating perspective: ' + result.message);
           setSnackbarSeverity('error');
         }
       }
       setSnackbarOpen(true);
     } catch (error) {
-
       setSnackbarMessage('Error creating/updating perspective: ' + error.message);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -146,50 +138,40 @@ function Perceptive() {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/perspective-types/${id}`, {
+      const response = await fetch(`${Backend.api}perspective-types/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
-  
 
-      if (response.status === 204) { 
-        setPerceptives((prevPerceptives) => 
-          prevPerceptives.filter((p) => p.id !== id)
-        );
+      if (response.status === 204) {
+        setPerceptives((prevPerceptives) => prevPerceptives.filter((p) => p.id !== id));
         setSnackbarMessage('Perspective deleted successfully!');
         setSnackbarSeverity('success');
       } else {
-        
         const data = await response.json();
         if (data.success) {
-          setPerceptives((prevPerceptives) => 
-            prevPerceptives.filter((p) => p.id !== id)
-          );
+          setPerceptives((prevPerceptives) => prevPerceptives.filter((p) => p.id !== id));
           setSnackbarMessage('Perspective deleted successfully!');
           setSnackbarSeverity('success');
         } else {
           setSnackbarMessage('Failed to delete perspective: ' + data.message);
           setSnackbarSeverity('error');
-          
         }
       }
     } catch (error) {
-     
       setSnackbarMessage('Error deleting perspective: ' + error.message);
       setSnackbarSeverity('error');
-      
     }
     setSnackbarOpen(true);
     handleCloseMenu();
   };
-  
 
   const formik = useFormik({
     initialValues: {
-      perspectiveName: '',
+      perspectiveName: ''
     },
     onSubmit: (values, { resetForm }) => {
       if (editIndex !== null) {
@@ -198,7 +180,7 @@ function Perceptive() {
         handleSave(values);
       }
       resetForm();
-    },
+    }
   });
 
   const handleOpen = () => {
@@ -224,7 +206,7 @@ function Perceptive() {
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
-const theme = useTheme();
+  const theme = useTheme();
   return (
     <Box p={0}>
       <Grid container spacing={3}>
@@ -303,8 +285,7 @@ const theme = useTheme();
                             display: 'flex',
                             alignItems: 'center',
                             border: 0,
-                            padding: '12px 16px',
-                           
+                            padding: '12px 16px'
                           }}
                         >
                           {perceptive.name}
@@ -312,8 +293,7 @@ const theme = useTheme();
                         <TableCell
                           sx={{
                             border: 0,
-                            padding: '12px 16px',
-                            
+                            padding: '12px 16px'
                           }}
                         >
                           <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>

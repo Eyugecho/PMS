@@ -12,15 +12,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   IconButton,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Card,
-  CardContent,
-  CardActions,
   Menu,
   MenuItem,
   useTheme
@@ -28,13 +25,15 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import config from '../../configration/config';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
+import Backend from 'services/backend';
+import GetToken from 'utils/auth-token';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
+import { IconDotsVertical } from '@tabler/icons-react';
 
 function Frequency() {
   const [frequencies, setFrequencies] = useState([]);
@@ -50,8 +49,9 @@ function Frequency() {
 
   const fetchFrequencies = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/frequencies`, {
+      const token = await GetToken();
+      const Api = Backend.api + `frequencies`;
+      const response = await fetch(Api, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -77,10 +77,10 @@ function Frequency() {
     onSubmit: async (values, { resetForm }) => {
       try {
         const method = editIndex !== null ? 'PATCH' : 'POST';
-        const url =
-          editIndex !== null ? `${config.API_URL_Units}/frequencies/${frequencies[editIndex].id}` : `${config.API_URL_Units}/frequencies`;
-        const token = localStorage.getItem('token');
-        const response = await fetch(url, {
+
+        const Api = editIndex !== null ? `${Backend.api}frequencies/${frequencies[editIndex].id}` : `${Backend.api}frequencies`;
+        const token = await GetToken();
+        const response = await fetch(Api, {
           method: method,
           headers: {
             Authorization: `Bearer ${token}`,
@@ -116,8 +116,9 @@ function Frequency() {
 
   const handleDelete = async (index) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/frequencies/${frequencies[index].id}`, {
+      const token = await GetToken();
+      const Api = Backend.api + `frequencies/${frequencies[index].id}`;
+      const response = await fetch(Api, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -128,7 +129,7 @@ function Frequency() {
       const result = await response.json();
       if (result.success) {
         toast.success('Frequency deleted');
-        fetchFrequencies(); // Refresh the list
+        fetchFrequencies();
       } else {
         toast.error(result.message || 'Failed to delete frequency');
       }
@@ -160,13 +161,12 @@ function Frequency() {
   const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
 
   return (
-    <Box p={0}>
-      <Grid item xs={12}>
-        <Card>
-          <Grid item xs={12} style={{ padding: '2px 2px 15px 3px' }}>
-            <Button variant="contained" color="primary" onClick={handleOpen}>
-              Add Frequency
-            </Button>
+    <React.Fragment>
+      <Grid container>
+        <Grid item xs={12}>
+          <Grid xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', my: 2 }}>
+            <Box></Box>
+            <DrogaButton title="Create Frequency" variant="outlined" onPress={handleOpen} />
           </Grid>
 
           {frequencies.length === 0 ? (
@@ -177,18 +177,8 @@ function Frequency() {
               </Typography>
             </Box>
           ) : (
-            <TableContainer
-              variant="outlined"
-              sx={{
-                border: '1px solid #ddd'
-              }}
-            >
-              <Table
-                sx={{
-                  minWidth: 650,
-                  borderCollapse: 'collapse'
-                }}
-              >
+            <TableContainer>
+              <Table>
                 <TableHead>
                   <TableRow>
                     {['Frequency Name', 'Value', 'Actions'].map((header) => (
@@ -196,15 +186,11 @@ function Frequency() {
                         key={header}
                         sx={{
                           background: theme.palette.grey[100],
-                          color: '#000',
                           fontWeight: 'bold',
                           fontSize: '0.9rem',
-                          borderBottom: `2px solid ${theme.palette.divider}`,
+                          borderBottom: `1px solid ${theme.palette.divider}`,
                           position: 'relative',
-                          padding: '12px 16px',
-                          '&:not(:last-of-type)': {
-                            borderRight: `1px solid ${theme.palette.divider}`
-                          }
+                          padding: '12px 16px'
                         }}
                       >
                         {header}
@@ -254,7 +240,7 @@ function Frequency() {
                         }}
                       >
                         <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
-                          <MoreVertIcon />
+                          <IconDotsVertical size={'1.4rem'} stroke={1.8} color="grey" />
                         </IconButton>
                         <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedIndex === index} onClose={handleMenuClose}>
                           <MenuItem
@@ -281,8 +267,9 @@ function Frequency() {
               </Table>
             </TableContainer>
           )}
-        </Card>
+        </Grid>
       </Grid>
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{editIndex !== null ? 'Edit Frequency' : 'Create Frequency'}</DialogTitle>
         <DialogContent>
@@ -324,7 +311,7 @@ function Frequency() {
         </DialogContent>
       </Dialog>
       <ToastContainer />
-    </Box>
+    </React.Fragment>
   );
 }
 

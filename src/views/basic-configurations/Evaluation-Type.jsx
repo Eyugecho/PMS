@@ -33,6 +33,7 @@ import config from '../../configration/config';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import AddButton from 'ui-component/buttons/AddButton';
 import Backend from 'services/backend';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
 
 function EvalType() {
   const [evalTypes, setEvalTypes] = useState([]);
@@ -157,14 +158,13 @@ function EvalType() {
   };
   const theme = useTheme();
   return (
-    <Box p={0}>
+    <React.Fragment>
       <Grid container spacing={3}>
+        <Grid xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 4 }}>
+          <Box></Box>
+          <DrogaButton title="Add Evaluation Type" variant="outlined" onPress={handleOpen} />
+        </Grid>
         <Grid item xs={12}>
-          <Grid item xs={12} p={2} style={{ padding: '2px 2px 2px 25px' }}>
-            <AddButton variant="contained" color="primary" onClick={handleOpen}>
-              Add Evaluation Type
-            </AddButton>
-          </Grid>
           <CardContent>
             {evalTypes.length === 0 ? (
               <Box display="flex" alignItems="center" justifyContent="center" height="100%">
@@ -174,13 +174,8 @@ function EvalType() {
                 </Typography>
               </Box>
             ) : (
-              <TableContainer style={{ border: '1px solid #ddd' }}>
-                <Table
-                  sx={{
-                    minWidth: 650,
-                    borderCollapse: 'collapse'
-                  }}
-                >
+              <TableContainer sx={{ border: 1, borderColor: theme.palette.divider, borderRadius: theme.shape.borderRadius }}>
+                <Table>
                   <TableHead>
                     <TableRow>
                       {['Evaluation Type', 'Description', 'Actions'].map((header) => (
@@ -188,15 +183,10 @@ function EvalType() {
                           key={header}
                           sx={{
                             background: theme.palette.grey[100],
-                            color: '#000',
                             fontWeight: 'bold',
                             fontSize: '0.9rem',
-                            borderBottom: `2px solid ${theme.palette.divider}`,
                             position: 'relative',
-                            padding: '12px 16px',
-                            '&:not(:last-of-type)': {
-                              borderRight: `1px solid ${theme.palette.divider}`
-                            }
+                            padding: '12px 16px'
                           }}
                         >
                           {header}
@@ -317,7 +307,7 @@ function EvalType() {
       </Dialog>
 
       <ToastContainer />
-    </Box>
+    </React.Fragment>
   );
 }
 

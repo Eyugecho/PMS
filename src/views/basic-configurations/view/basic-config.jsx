@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Box, Typography, Stack, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Grid, Box, Typography, Stack, AccordionDetails, useTheme, IconButton } from '@mui/material';
 import Measuring from '../Measuring-Units';
 import Perceptive from '../Perceptive';
 import EvalType from '../Evaluation-Type';
@@ -7,101 +7,84 @@ import Frequency from '../Frequency';
 import Period from '../Period';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PageContainer from 'ui-component/MainPage';
-import DrogaCard from 'ui-component/cards/DrogaCard';
 
+function PreSetup() {
+  const theme = useTheme();
+  const [expanded, setExpanded] = React.useState(0);
 
-const steps = ['Frequency', 'Period'];
-
-function App() {
-
-
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
+  const handleExpandAccordion = (itemID) => {
+    if (itemID === expanded) {
+      setExpanded(0);
+    } else {
+      setExpanded(itemID);
+    }
   };
 
-  const tabLabels = ['Frequency', 'Period'];
+  const setups = [
+    {
+      id: 1,
+      name: 'Frequencies',
+      component: <Frequency />
+    },
+    {
+      id: 2,
+      name: 'Periods',
+      component: <Period />
+    },
+    {
+      id: 3,
+      name: 'Measuring Units',
+      component: <Measuring />
+    },
+    {
+      id: 4,
+      name: 'Perspectives',
+      component: <Perceptive />
+    },
+    {
+      id: 5,
+      name: 'Evaluation Types',
+      component: <EvalType />
+    }
+  ];
 
   return (
-    <PageContainer maxWidth="lg" title={'Basic Configurations'}>
-      <DrogaCard sx={{ marginLeft: '10px', padding: '50px',marginTop:'20px' }}>
-        <Grid container spacing={3}>
-    
-          <Grid item xs={12}>
-            <Stack sx={{ width: '80%', paddingTop: '0px', marginLeft: '20px' }} spacing={2}>
-              <Box sx={{ padding: '10px' }}>
-                <Accordion
-                  expanded={expanded === 'panel1'}
-                  onChange={handleChange('panel1')}
-                  style={{ padding: '5px', marginBottom: '10px' }}
+    <PageContainer maxWidth="lg" title={'Pre-setups'}>
+      <Grid container spacing={3} mt={1}>
+        <Grid item xs={12}>
+          <Stack sx={{ width: '80%', marginLeft: '20px' }} spacing={1}>
+            {setups.map((item, index) => (
+              <Box key={index} expanded={expanded === item.id} sx={{ backgroundColor: theme.palette.grey[50] }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    backgroundColor: expanded === item.id ? theme.palette.grey[100] : theme.palette.grey[50],
+                    padding: 1.4
+                  }}
+                  onClick={() => handleExpandAccordion(item.id)}
                 >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
-                    <Typography sx={{ fontWeight: 'bold' }}>Frequency</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Frequency />
-                  </AccordionDetails>
-                </Accordion>
-                <Accordion
-                  expanded={expanded === 'panel2'}
-                  onChange={handleChange('panel2')}
-                  style={{ padding: '5px', marginBottom: '10px' }}
-                >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel2bh-content" id="panel2bh-header">
-                    <Typography sx={{ fontWeight: 'bold' }}>Period</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Period />
-                  </AccordionDetails>
-                </Accordion>
-                <Accordion
-                  expanded={expanded === 'panel3'}
-                  onChange={handleChange('panel3')}
-                  style={{ padding: '5px', marginBottom: '10px' }}
-                >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
-                    <Typography sx={{ fontWeight: 'bold' }}>Measuring</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Measuring />
-                  </AccordionDetails>
-                </Accordion>
-                <Accordion
-                  expanded={expanded === 'panel4'}
-                  onChange={handleChange('panel4')}
-                  style={{ padding: '5px', marginBottom: '10px' }}
-                >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel2bh-content" id="panel2bh-header">
-                    <Typography sx={{ fontWeight: 'bold' }}>Perspective</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Perceptive />
-                  </AccordionDetails>
-                </Accordion>
-                <Accordion
-                  expanded={expanded === 'panel5'}
-                  onChange={handleChange('panel5')}
-                  style={{ padding: '5px', marginBottom: '10px' }}
-                >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel3bh-content" id="panel3bh-header">
-                    <Typography sx={{ fontWeight: 'bold' }}>Evaluation Type</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <EvalType />
-                  </AccordionDetails>
-                </Accordion>
+                  <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                    {item.name}
+                  </Typography>
+                  <IconButton onClick={() => handleExpandAccordion(item.id)}>
+                    {expanded === item.id ? <ExpandMoreIcon /> : <ExpandMoreIcon />}
+                  </IconButton>
+                </Box>
+                {expanded === item.id && <AccordionDetails>{item.component}</AccordionDetails>}
               </Box>
-            </Stack>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Box sx={{ padding: ' 1px' }}></Box>
-          </Grid>
+            ))}
+          </Stack>
         </Grid>
-      </DrogaCard>
+
+        <Grid item xs={12}>
+          <Box sx={{ padding: ' 1px' }}></Box>
+        </Grid>
+      </Grid>
     </PageContainer>
   );
 }
 
-export default App;
+export default PreSetup;
