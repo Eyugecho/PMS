@@ -20,8 +20,6 @@ const Dashboard = () => {
     return <AdminDashboard />;
   } else if (roles.includes('Manager')) {
     return <AdminDashboard />;
-  } else if (roles.includes('Employee')) {
-    return <EmployeeDashboard />;
   } else {
     return <EmployeeDashboard />;
   }

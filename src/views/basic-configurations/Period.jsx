@@ -1,6 +1,9 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { useEffect } from 'react';
+import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
+import { toast } from 'react-toastify';
 import { styled, keyframes } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 import Stack from '@mui/material/Stack';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -16,14 +19,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Backend from 'services/backend';
-import { useEffect } from 'react';
-import { Grid, Card, CardContent, Typography } from '@mui/material';
-import { toast } from 'react-toastify';
 import GetToken from 'utils/auth-token';
-import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
-import { toast } from 'react-toastify';
-import Fallbacks from 'utils/components/Fallbacks';
-import { CalendarToday, Timeline, Assessment } from '@mui/icons-material';
 
 const blinkAnimation = keyframes`
   50% {
@@ -116,69 +112,63 @@ export default function CustomizedSteppers() {
   const [selectedFiscalYear, setSelectedFiscalYear] = React.useState('');
   const [fiscalYearDetails, setFiscalYearDetails] = React.useState(null);
 
-const fetchFiscalYear = async () => {
-  try {
-    const token = localStorage.getItem('token');
+  const fetchFiscalYear = async () => {
+    try {
+      const token = localStorage.getItem('token');
 
-    const response = await fetch(`${Backend.api + Backend.fiscal_years}`, {
-      headers: {
+      const response = await fetch(`${Backend.api + Backend.fiscal_years}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        const years = result.data.data.map((fiscal) => ({
+          id: fiscal.id, // Ensure you get the fiscal_year_id
+          year: fiscal.year
+        }));
+        setFiscalYear(years); // Store the id and year in state
+      } else {
+        toast.error(result.message || 'Failed to fetch fiscal year');
+      }
+    } catch (error) {
+      toast.error('An error occurred while fetching fiscal year');
+    }
+  };
+
+  const fetchFiscalYearDetails = async (fiscal_year_id) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Pass fiscal_year_id as a query parameter
+      const Api = `${Backend.api}${Backend.get_frequency_definition}?fiscal_year_id=${fiscal_year_id}`;
+      const headers = {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json'
+      };
+
+      const response = await fetch(Api, { headers });
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        const fiscalYearDetails = result.data.fiscalYear;
+        const periods = result.data.periods;
+        setFiscalYearDetails({
+          ...fiscalYearDetails,
+          periods
+        });
+      } else {
+        toast.error(result.message || 'Failed to fetch fiscal year details');
       }
-    });
-
-    const result = await response.json();
-    console.log('result', result);
-
-    if (response.ok) {
-      const years = result.data.data.map((fiscal) => ({
-        id: fiscal.id, // Ensure you get the fiscal_year_id
-        year: fiscal.year
-      }));
-      setFiscalYear(years); // Store the id and year in state
-      console.log('fiscal year', years);
-    } else {
-      toast.error(result.message || 'Failed to fetch fiscal year');
+    } catch (error) {
+      toast.error('An error occurred while fetching fiscal year details');
     }
-  } catch (error) {
-    toast.error('An error occurred while fetching fiscal year');
-    console.error('An error occurred while fetching fiscal year:', error);
-  }
-};
-
-
-const fetchFiscalYearDetails = async (fiscal_year_id) => {
-  try {
-    const token = localStorage.getItem('token');
-
-    // Pass fiscal_year_id as a query parameter
-    const Api = `${Backend.api}${Backend.get_frequency_definition}?fiscal_year_id=${fiscal_year_id}`;
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
-
-    const response = await fetch(Api, { headers });
-    const result = await response.json();
-
-    if (response.ok && result.success) {
-      const fiscalYearDetails = result.data.fiscalYear;
-      const periods = result.data.periods;
-      setFiscalYearDetails({
-        ...fiscalYearDetails,
-        periods
-      });
-    } else {
-      toast.error(result.message || 'Failed to fetch fiscal year details');
-    }
-  } catch (error) {
-    toast.error('An error occurred while fetching fiscal year details');
-  }
-};
-
-
+  };
 
   const handleFiscalYearChange = (event) => {
     const fiscal_year_id = event.target.value;
@@ -405,7 +395,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
     }
 
     const evaluationPeriodData = {
-      fiscal_year_id: savedFiscalYear.id || '',
+      fiscal_year_id: savedFiscalYear?.id || '',
       dates: [
         {
           parent_id: parentId,
@@ -505,7 +495,6 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
     }
   };
 
-
   const handleFiscalYearSubmit = async () => {
     const token = localStorage.getItem('token');
     const Api = `${Backend.api}${Backend.fiscal_years}`;
@@ -569,7 +558,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
     };
 
     const planningPeriodData = {
-      fiscal_year_id: savedFiscalYear.id,
+      fiscal_year_id: savedFiscalYear?.id,
       start_date: stepData['Planning Period']?.startDate || '',
       end_date: stepData['Planning Period']?.endDate || ''
     };
@@ -614,7 +603,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
 
   const fetchFrequencies = async () => {
     const token = await GetToken();
-    const Api = Backend.api + frequencies;
+    const Api = Backend.api + 'frequencies';
 
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -733,7 +722,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  }
+  };
 
   return (
     <Stack sx={{ width: '100%' }} spacing={4}>
@@ -981,8 +970,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
               ) : null}
 
               <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-       {activeStep > 0 && ( 
-        
+                {activeStep > 0 && (
                   <Button variant="contained" color="inherit" onClick={handleBack}>
                     Back
                   </Button>

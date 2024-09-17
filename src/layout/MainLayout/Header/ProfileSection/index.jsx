@@ -44,6 +44,7 @@ const ProfileSection = () => {
   const handleLogout = async () => {
     Storage.clear();
     dispatch({ type: SIGN_IN, signed: false });
+    navigate('/');
   };
 
   const handleClose = (event) => {
