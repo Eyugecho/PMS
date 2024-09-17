@@ -66,12 +66,14 @@ const Backend = {
   fiscal_years: 'fiscal-years',
   planning_periods: 'create-planning-period',
   frequency_period_values: 'create-frequency-definition-period',
+  get_frequency_definition: 'get-frequency-definition-period',
   evaluation_periods: 'create-evaluation-period',
   eodfetch: 'end-of-day-activities',
   getCount: 'get-counts',
   getEmployeesInDep: 'my-child-units-employee-count',
   getRankings: 'rank-performance',
   unitKpiPerformance: 'show-performance-chart',
-  unitEmployeeEndpoint: 'get-unit-employees-with-performance/'
+  unitEmployeeEndpoint: 'get-unit-employees-with-performance/',
+  fiscal_years: 'fiscal-years',
 };
 export default Backend;

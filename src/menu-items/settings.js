@@ -38,7 +38,8 @@ export const settings = () => {
         role.permissions.find((per) => per.name == 'read:evaluationtype') ||
         role.permissions.find((per) => per.name == 'read:measuringunit') ||
         role.permissions.find((per) => per.name == 'read:period') ||
-        role.permissions.find((per) => per.name == 'read:perspectivetype')
+        role.permissions.find((per) => per.name == 'read:perspectivetype') ||
+        role.permissions.find((per) => per.name == 'read:setting') 
       ) {
         childrenTemp.push({
           id: 'basic-config',
@@ -53,7 +54,7 @@ export const settings = () => {
   auth &&
     auth.forEach((role) => {
       if (
-        role.permissions.find((per) => per.name == 'approval:manage')
+        role.permissions.find((per) => per.name == 'read:setting')
 
       ) {
         childrenTemp.push({

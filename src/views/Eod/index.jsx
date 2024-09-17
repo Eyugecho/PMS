@@ -16,7 +16,8 @@ import {
   Tab,
   Grid,
   Menu,
-  MenuItem
+  MenuItem,
+  Select
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
@@ -65,6 +66,7 @@ const EodActivity = () => {
         }
       });
 
+
       if (response.data.success) {
         setData(
           response.data.data.data.map((item) => ({
@@ -72,7 +74,9 @@ const EodActivity = () => {
             employee_name: employeeName
           }))
         );
+        
         setTotal(response.data.data.total);
+        
       } else {
         console.error('Failed to fetch data:', response.data.message);
       }
@@ -322,6 +326,15 @@ const EodActivity = () => {
                   </Grid>
                 )}
                 <Grid item xs={12}>
+                  <Select fullwidth lable="kpi" name="kpi" value={formValues.kpi} onChange={handleChange}>
+                    <MenuItem value="Revenue">Revenue</MenuItem>
+                    <MenuItem value="Expenses">Expenses</MenuItem>
+                    <MenuItem value="Profit">Profit</MenuItem>
+                    <MenuItem value="Customer Satisfaction">Customer Satisfaction</MenuItem>
+                  </Select>
+                </Grid>
+                <Grid item xs={12}>
+
                   <TextField
                     fullWidth
                     label="Plan"

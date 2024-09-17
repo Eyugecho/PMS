@@ -19,10 +19,11 @@ import Backend from 'services/backend';
 import { useEffect } from 'react';
 import { Grid, Card, CardContent, Typography } from '@mui/material';
 import { toast } from 'react-toastify';
-import Fallbacks from 'utils/components/Fallbacks';
-import { CalendarToday, Timeline } from '@mui/icons-material';
 import GetToken from 'utils/auth-token';
-import DrogaButton from 'ui-component/buttons/DrogaButton';
+import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
+import { toast } from 'react-toastify';
+import Fallbacks from 'utils/components/Fallbacks';
+import { CalendarToday, Timeline, Assessment } from '@mui/icons-material';
 
 const blinkAnimation = keyframes`
   50% {
@@ -111,6 +112,83 @@ export default function CustomizedSteppers() {
   const [selectedFrequency, setSelectedFrequency] = React.useState(null);
   const [savedData, setSavedData] = React.useState([]);
   const [stepCompleted, setStepCompleted] = React.useState([false, false, false]);
+  const [fisicalYear, setFiscalYear] = React.useState();
+  const [selectedFiscalYear, setSelectedFiscalYear] = React.useState('');
+  const [fiscalYearDetails, setFiscalYearDetails] = React.useState(null);
+
+const fetchFiscalYear = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch(`${Backend.api + Backend.fiscal_years}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const result = await response.json();
+    console.log('result', result);
+
+    if (response.ok) {
+      const years = result.data.data.map((fiscal) => ({
+        id: fiscal.id, // Ensure you get the fiscal_year_id
+        year: fiscal.year
+      }));
+      setFiscalYear(years); // Store the id and year in state
+      console.log('fiscal year', years);
+    } else {
+      toast.error(result.message || 'Failed to fetch fiscal year');
+    }
+  } catch (error) {
+    toast.error('An error occurred while fetching fiscal year');
+    console.error('An error occurred while fetching fiscal year:', error);
+  }
+};
+
+
+const fetchFiscalYearDetails = async (fiscal_year_id) => {
+  try {
+    const token = localStorage.getItem('token');
+
+    // Pass fiscal_year_id as a query parameter
+    const Api = `${Backend.api}${Backend.get_frequency_definition}?fiscal_year_id=${fiscal_year_id}`;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const response = await fetch(Api, { headers });
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      const fiscalYearDetails = result.data.fiscalYear;
+      const periods = result.data.periods;
+      setFiscalYearDetails({
+        ...fiscalYearDetails,
+        periods
+      });
+    } else {
+      toast.error(result.message || 'Failed to fetch fiscal year details');
+    }
+  } catch (error) {
+    toast.error('An error occurred while fetching fiscal year details');
+  }
+};
+
+
+
+  const handleFiscalYearChange = (event) => {
+    const fiscal_year_id = event.target.value;
+    setSelectedFiscalYear(fiscal_year_id);
+    fetchFiscalYearDetails(fiscal_year_id); // Fetch details for the selected fiscal year
+  };
+
+  useEffect(() => {
+    fetchFiscalYear();
+  }, []);
 
   const handleSaveFiscalYear = (data) => {
     setFiscalYears((prev) => [...prev, data]);
@@ -427,6 +505,7 @@ export default function CustomizedSteppers() {
     }
   };
 
+
   const handleFiscalYearSubmit = async () => {
     const token = localStorage.getItem('token');
     const Api = `${Backend.api}${Backend.fiscal_years}`;
@@ -651,6 +730,10 @@ export default function CustomizedSteppers() {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  }
 
   return (
     <Stack sx={{ width: '100%' }} spacing={4}>
@@ -896,12 +979,20 @@ export default function CustomizedSteppers() {
                   </>
                 </>
               ) : null}
+
               <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+       {activeStep > 0 && ( 
+        
+                  <Button variant="contained" color="inherit" onClick={handleBack}>
+                    Back
+                  </Button>
+                )}
                 {activeStep < steps.length - 1 && (
                   <Button variant="contained" color="primary" type="submit" onClick={handleNext}>
                     Next
                   </Button>
                 )}
+
                 {activeStep === steps.length - 1 && (
                   <Button variant="contained" color="primary" onClick={handleSave}>
                     Save
@@ -912,87 +1003,76 @@ export default function CustomizedSteppers() {
           </Card>
         </Box>
       </Modal>
-      <Card>
+      <Card sx={{ borderRadius: 2, background: 'linear-gradient(135deg, #f3f4f6, #f0f0f0)' }}>
         <CardContent>
-          {savedData.length === 0 ? (
-            <Fallbacks
-              severity="info"
-              title="No Data Available"
-              description="There is no data available to display."
-              sx={{ paddingTop: 6 }}
-            />
-          ) : (
-            savedData.map((data, index) => (
-              <Card
-                key={index}
-                variant="outlined"
-                sx={{
-                  margin: 5,
-                  borderRadius: 4,
-                  boxShadow: '0 10px 15px rgba(0,0,0,0.10)',
-                  padding: 3
-                }}
-              >
-                <CardContent>
-                  <Box display="flex" flexDirection="row" justifyContent="space-between">
-                    {/* Fiscal Year Section */}
-                    {data['Fiscal Year'] && (
-                      <React.Fragment key="Fiscal Year">
-                        <Box display="flex" flexDirection="column" alignItems="flex-start" flexGrow={1}>
-                          <Box display="flex" alignItems="center">
-                            <CalendarToday sx={{ marginRight: 1, color: '#3f51b5' }} />
-                            <Typography variant="h4" marginBottom={1} marginTop={1} color="primary">
-                              Fiscal Year
-                            </Typography>
-                          </Box>
-                          {Object.entries(data['Fiscal Year']).map(([key, value]) => (
-                            <Typography key={key} variant="body1" color="textSecondary" sx={{ padding: '2px 0' }}>
-                              <strong>{key.replace(/([A-Z])/g, ' $1').trim()}:</strong> {value}
-                            </Typography>
-                          ))}
-                        </Box>
-                      </React.Fragment>
-                    )}
+          <Box mb={3}>
+            <Select
+              value={selectedFiscalYear}
+              onChange={handleFiscalYearChange}
+              displayEmpty
+              variant="outlined"
+              sx={{ backgroundColor: 'white', boxShadow: 1, borderRadius: 1 }}
+            >
+              <MenuItem value="" disabled>
+                Select Fiscal Year
+              </MenuItem>
+              {fisicalYear && Array.isArray(fisicalYear) && fisicalYear.length > 0 ? (
+                fisicalYear.map((fiscal) => (
+                  <MenuItem key={fiscal.id} value={fiscal.id}>
+                    {fiscal.year}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No Fiscal Years Available</MenuItem>
+              )}
+            </Select>
+          </Box>
 
-                    {/* Other Steps Section */}
-                    {Object.entries(data).map(([step, stepData]) =>
-                      step !== 'Fiscal Year' ? (
-                        <React.Fragment key={step}>
-                          <Box display="flex" flexDirection="column" alignItems="flex-start" flexGrow={1}>
-                            <Box display="flex" alignItems="center">
-                              <Timeline sx={{ marginRight: 1, color: '#ff5722' }} />
-                              <Typography variant="h4" marginBottom={1} marginTop={1} color="secondary">
-                                {step.replace(/([A-Z])/g, ' $1').trim()}
-                              </Typography>
-                            </Box>
-                            {Object.entries(stepData).map(
-                              ([key, value]) =>
-                                key !== 'frequency' && (
-                                  <Typography key={key} variant="body1" color="textSecondary" sx={{ padding: '2px 0' }}>
-                                    <strong>{key.replace(/([A-Z])/g, ' $1').trim()}:</strong>{' '}
-                                    {Array.isArray(value)
-                                      ? value.map((date, idx) => (
-                                          <Box key={idx} sx={{ paddingLeft: 2 }}>
-                                            <Typography>
-                                              <strong>Start Date:</strong> {date.start_date}
-                                            </Typography>
-                                            <Typography>
-                                              <strong>End Date:</strong> {date.end_date}
-                                            </Typography>
-                                          </Box>
-                                        ))
-                                      : value}
-                                  </Typography>
-                                )
-                            )}
-                          </Box>
-                        </React.Fragment>
-                      ) : null
-                    )}
+          {fiscalYearDetails && (
+            <Box>
+              {/* Fiscal Year Information */}
+              <Box display="flex" flexDirection="column" mb={3} p={2} sx={{ backgroundColor: '#ffffff', borderRadius: 2, boxShadow: 2 }}>
+                <Typography variant="h4" marginBottom={1} marginTop={1} color="primary" fontWeight="bold">
+                  Fiscal Year {fiscalYearDetails.year}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  <strong>Start Date:</strong> {fiscalYearDetails.start_date}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  <strong>End Date:</strong> {fiscalYearDetails.end_date}
+                </Typography>
+              </Box>
+
+              <Divider sx={{ marginBottom: 3 }} />
+
+              {/* Periods Section */}
+              {fiscalYearDetails.periods && Array.isArray(fiscalYearDetails.periods) && fiscalYearDetails.periods.length > 0 ? (
+                fiscalYearDetails.periods.map((period) => (
+                  <Box
+                    key={period.id}
+                    display="flex"
+                    flexDirection="column"
+                    mb={2}
+                    p={2}
+                    sx={{ backgroundColor: '#fafafa', borderRadius: 2, boxShadow: 1 }}
+                  >
+                    <Typography variant="h6" color="primary" fontWeight="bold">
+                      {period.type}
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      <strong>Start Date:</strong> {period.start_date}
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                      <strong>End Date:</strong> {period.end_date}
+                    </Typography>
                   </Box>
-                </CardContent>
-              </Card>
-            ))
+                ))
+              ) : (
+                <Typography variant="body1" color="textSecondary">
+                  No periods available for this fiscal year.
+                </Typography>
+              )}
+            </Box>
           )}
         </CardContent>
       </Card>
