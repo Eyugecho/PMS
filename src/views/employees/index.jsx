@@ -172,6 +172,7 @@ const Employees = () => {
         if (response.success) {
           handleAddEmployeeClose();
           toast.success(response.data.message);
+          handleFetchingEmployees();
         } else {
           toast.error(response.data.message);
         }
@@ -478,7 +479,6 @@ const Employees = () => {
                       <TableCell sx={{ border: 0 }}>
                         <DotMenu
                           onView={() => navigate('/employees/view', { state: employee })}
-                          // onEdit={() => handleEmployeeUpdate(employee)}
                           onEdit={hasEditPermission ? () => handleEmployeeUpdate(employee) : null}
                           eligiblity={employee?.is_eligible ? 'Not Eligible' : 'Eligible'}
                           onEligible={() => handleEmployeeEligiblity(employee)}
