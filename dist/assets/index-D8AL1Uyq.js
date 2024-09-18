@@ -1,0 +1,1 @@
+import{j as a,a9 as e,a0 as r,p as t}from"./index-BrIZ1aRM.js";const s=()=>a.jsx(e,{title:"Approval Management",children:a.jsx(r,{container:!0,children:a.jsx(r,{item:12,padding:3,children:a.jsx(t,{variant:"subtitle1",children:"Approvals page"})})})});export{s as default};

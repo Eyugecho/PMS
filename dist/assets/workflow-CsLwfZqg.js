@@ -1,0 +1,1 @@
+const s={api:"http://100.42.183.54:8082/api/",API_KEY:"bb52493e-28d1-4b27-b6e6-a9b58fb06b34-nfnp9TeQ85MZ5sbWU0mG_A==",id:"applications/c6e2401b-1a5b-40df-9542-037994d4095b",application:"applications",steps:"steps",assignRole:"steps/assign",unAssignRole:"steps/unassign",tasks:"filter/tasks",taskAction:"tasks/approve",updateStatus:"update-status"};export{s as A};

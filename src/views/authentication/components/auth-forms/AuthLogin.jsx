@@ -22,7 +22,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Backend from 'services/backend';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import * as Yup from 'yup';
-import MenuList from 'layout/MainLayout/Sidebar/MenuList';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
@@ -34,10 +33,6 @@ const AuthLogin = ({ ...others }) => {
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
-
-  const handleMenuRendering = async () => {
-    <MenuList />;
-  };
 
   const handleLogin = async (values, { setErrors, setStatus, setSubmitting }) => {
     try {
@@ -79,10 +74,8 @@ const AuthLogin = ({ ...others }) => {
             Storage.setItem('token', access_token);
             Storage.setItem('tokenExpiration', expirationTime);
 
-            // window.location.href = '/';
             dispatch(setUser({ type: SET_USER, user: user }));
             dispatch({ type: SIGN_IN, signed: true });
-            navigate('/');
           } else {
             setStatus({ success: false });
             setErrors({ submit: response.data.message });

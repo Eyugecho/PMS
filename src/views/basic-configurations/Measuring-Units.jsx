@@ -33,6 +33,8 @@ import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied
 import config from '../../configration/config'; // Ensure this path is correct
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Backend from 'services/backend';
+import GetToken from 'utils/auth-token';
 
 function Measuring() {
   const [measuringUnits, setMeasuringUnits] = useState([]);
@@ -47,8 +49,9 @@ function Measuring() {
 
   const fetchMeasuringUnits = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/measuring-units`, {
+      const token = await GetToken();
+      const Api = Backend.api + `measuring-units`;
+      const response = await fetch(Api, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -60,25 +63,20 @@ function Measuring() {
       if (data.success) {
         setMeasuringUnits(data.data.data);
       } else {
-       
         toast.error(`Failed to fetch measuring units: ${data.message}`);
       }
     } catch (error) {
-     
       toast.error(`Error fetching measuring units: ${error.message}`);
     }
   };
 
   const handleSave = async (values) => {
     const method = editIndex !== null ? 'PATCH' : 'POST';
-    const url =
-      editIndex !== null
-        ? `${config.API_URL_Units}/measuring-units/${measuringUnits[editIndex].id}`
-        : `${config.API_URL_Units}/measuring-units`;
+    const Api = editIndex !== null ? `${Backend.api}measuring-units/${measuringUnits[editIndex].id}` : `${Backend.api}measuring-units`;
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(url, {
+      const token = await GetToken();
+      const response = await fetch(Api, {
         method,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -92,15 +90,13 @@ function Measuring() {
 
       const data = await response.json();
       if (data.success) {
-        fetchMeasuringUnits(); 
+        fetchMeasuringUnits();
         handleClose();
         toast.success('Measuring unit saved successfully!');
       } else {
-       
         toast.error(`Error saving measuring unit: ${data.message}`);
       }
     } catch (error) {
-     
       toast.error(`Error saving measuring unit: ${error.message}`);
     }
   };
@@ -114,8 +110,9 @@ function Measuring() {
 
   const handleDelete = async (id) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/measuring-units/${id}`, {
+      const token = await GetToken();
+      const Api = Backend.api + `measuring-units/${id}`;
+      const response = await fetch(Api, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -124,7 +121,6 @@ function Measuring() {
       });
 
       if (response.status === 204) {
-     
         setMeasuringUnits((prevUnits) => prevUnits.filter((unit) => unit.id !== id));
         toast.success('Measuring unit deleted successfully!');
       } else {
@@ -134,12 +130,10 @@ function Measuring() {
           toast.success('Measuring unit deleted successfully!');
         } else {
           toast.error(`Failed to delete measuring unit: ${data.message}`);
-          
         }
       }
     } catch (error) {
       toast.error(`Error deleting measuring unit: ${error.message}`);
-     
     }
   };
 
@@ -180,7 +174,7 @@ function Measuring() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Grid item xs={12} style={{ padding: '2px 2px 2px 25px' }}>
-            <Button variant="contained" color="primary"  onClick={handleOpen}>
+            <Button variant="contained" color="primary" onClick={handleOpen}>
               Add Measuring Unit
             </Button>
           </Grid>

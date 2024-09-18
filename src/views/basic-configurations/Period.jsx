@@ -1,13 +1,13 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { useEffect } from 'react';
+import { Grid, Card, CardContent, Typography, Divider, Dialog, useTheme, Paper } from '@mui/material';
+import { toast } from 'react-toastify';
 import { styled, keyframes } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 import Stack from '@mui/material/Stack';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Check from '@mui/icons-material/Check';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
-import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -16,49 +16,11 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Backend from 'services/backend';
-import { useEffect } from 'react';
-import config from '../../configration/config';
-import { Grid, Card, CardContent, Typography, Divider } from '@mui/material';
-import { toast } from 'react-toastify';
-import Fallbacks from 'utils/components/Fallbacks';
-import { CalendarToday, Timeline, Assessment } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-
-const blinkAnimation = keyframes`
-  50% {
-    opacity: 0.5;
-  }
-`;
-
-const BlinkingStepLabel = styled(StepLabel)(({ theme }) => ({
-  animation: `${blinkAnimation} 1s linear infinite`,
-  padding: theme.spacing(1)
-}));
-
-const QontoConnector = styled(StepConnector)(({ theme }) => ({
-  [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 10,
-    left: 'calc(-50% + 16px)',
-    right: 'calc(50% + 16px)'
-  },
-  [`&.${stepConnectorClasses.active}`]: {
-    [`& .${stepConnectorClasses.line}`]: {
-      borderColor: '#784af4'
-    }
-  },
-  [`&.${stepConnectorClasses.completed}`]: {
-    [`& .${stepConnectorClasses.line}`]: {
-      borderColor: '#784af4'
-    }
-  },
-  [`& .${stepConnectorClasses.line}`]: {
-    borderColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#eaeaf0',
-    borderTopWidth: 3,
-    borderRadius: 1
-  }
-}));
+import GetToken from 'utils/auth-token';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
+import DrogaCard from 'ui-component/cards/DrogaCard';
+import { IconX } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 
 const QontoStepIconRoot = styled('div')(({ theme, ownerState }) => ({
   color: theme.palette.mode === 'dark' ? theme.palette.grey[700] : '#eaeaf0',
@@ -99,7 +61,9 @@ QontoStepIcon.propTypes = {
 
 const steps = ['Fiscal Year', 'Planning Period', 'Frequency Period Value', 'Evaluation Period'];
 
-export default function CustomizedSteppers() {
+function CustomizedSteppers() {
+  const theme = useTheme();
+
   const [activeStep, setActiveStep] = React.useState(0);
   const [open, setOpen] = React.useState(false);
   const [stepData, setStepData] = React.useState({});
@@ -117,74 +81,74 @@ export default function CustomizedSteppers() {
   const [selectedFiscalYear, setSelectedFiscalYear] = React.useState('');
   const [fiscalYearDetails, setFiscalYearDetails] = React.useState(null);
 
-const fetchFiscalYear = async () => {
-  try {
-    const token = localStorage.getItem('token');
+  const fetchFiscalYear = async () => {
+    try {
+      const token = localStorage.getItem('token');
 
-    const response = await fetch(`${Backend.api + Backend.fiscal_years}`, {
-      headers: {
+      const response = await fetch(`${Backend.api + Backend.fiscal_years}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        const years = result.data.data.map((fiscal) => ({
+          id: fiscal.id,
+          year: fiscal.year
+        }));
+        setFiscalYear(years);
+        years && handleDefaultFiscal(years[0].id);
+      } else {
+        toast.error(result.message || 'Failed to fetch fiscal year');
+      }
+    } catch (error) {
+      toast.error('An error occurred while fetching fiscal year');
+    }
+  };
+
+  const fetchFiscalYearDetails = async (fiscal_year_id) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Pass fiscal_year_id as a query parameter
+      const Api = `${Backend.api}${Backend.get_frequency_definition}?fiscal_year_id=${fiscal_year_id}`;
+      const headers = {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json'
+      };
+
+      const response = await fetch(Api, { headers });
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        const fiscalYearDetails = result.data.fiscalYear;
+        const periods = result.data.periods;
+        setFiscalYearDetails({
+          ...fiscalYearDetails,
+          periods
+        });
+      } else {
+        toast.error(result.message || 'Failed to fetch fiscal year details');
       }
-    });
-
-    const result = await response.json();
-    console.log('result', result);
-
-    if (response.ok) {
-      const years = result.data.data.map((fiscal) => ({
-        id: fiscal.id, // Ensure you get the fiscal_year_id
-        year: fiscal.year
-      }));
-      setFiscalYear(years); // Store the id and year in state
-      console.log('fiscal year', years);
-    } else {
-      toast.error(result.message || 'Failed to fetch fiscal year');
+    } catch (error) {
+      toast.error('An error occurred while fetching fiscal year details');
     }
-  } catch (error) {
-    toast.error('An error occurred while fetching fiscal year');
-    console.error('An error occurred while fetching fiscal year:', error);
-  }
-};
-
-
-const fetchFiscalYearDetails = async (fiscal_year_id) => {
-  try {
-    const token = localStorage.getItem('token');
-
-    // Pass fiscal_year_id as a query parameter
-    const Api = `${Backend.api}${Backend.get_frequency_definition}?fiscal_year_id=${fiscal_year_id}`;
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
-
-    const response = await fetch(Api, { headers });
-    const result = await response.json();
-
-    if (response.ok && result.success) {
-      const fiscalYearDetails = result.data.fiscalYear;
-      const periods = result.data.periods;
-      setFiscalYearDetails({
-        ...fiscalYearDetails,
-        periods
-      });
-    } else {
-      toast.error(result.message || 'Failed to fetch fiscal year details');
-    }
-  } catch (error) {
-    toast.error('An error occurred while fetching fiscal year details');
-  }
-};
-
-
+  };
 
   const handleFiscalYearChange = (event) => {
     const fiscal_year_id = event.target.value;
     setSelectedFiscalYear(fiscal_year_id);
     fetchFiscalYearDetails(fiscal_year_id); // Fetch details for the selected fiscal year
+  };
+
+  const handleDefaultFiscal = (year_id) => {
+    setSelectedFiscalYear(year_id);
+    fetchFiscalYearDetails(year_id); // Fetch details for the selected fiscal year
   };
 
   useEffect(() => {
@@ -231,6 +195,11 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
     } else {
       toast.error('Please complete all required fields.');
     }
+    setOpen(true);
+  };
+
+  const handleCreatePeriod = () => {
+    setActiveStep(0);
     setOpen(true);
   };
 
@@ -406,7 +375,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
     }
 
     const evaluationPeriodData = {
-      fiscal_year_id: savedFiscalYear.id || '',
+      fiscal_year_id: savedFiscalYear?.id || '',
       dates: [
         {
           parent_id: parentId,
@@ -434,13 +403,11 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
 
         return data.data;
       } else {
-        console.error('Backend errors:', data.data.errors);
         toast.error(`Evaluation period submission failed: ${data.message}`);
         setError(data.data.errors || {});
       }
     } catch (error) {
       toast.error('An error occurred while submitting evaluation period');
-      console.error('An error occurred while submitting evaluation period:', error);
     } finally {
       setLoading(false);
     }
@@ -503,12 +470,10 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
       }
     } catch (error) {
       toast.error('An error occurred while submitting the frequency period value');
-      console.error('An error occurred while submitting the frequency period value:', error);
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleFiscalYearSubmit = async () => {
     const token = localStorage.getItem('token');
@@ -557,7 +522,6 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
       }
     } catch (error) {
       toast.error('An error occurred while submitting fiscal year');
-      console.error('An error occurred while submitting fiscal year:', error);
     } finally {
       setLoading(false);
     }
@@ -574,7 +538,7 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
     };
 
     const planningPeriodData = {
-      fiscal_year_id: savedFiscalYear.id,
+      fiscal_year_id: savedFiscalYear?.id,
       start_date: stepData['Planning Period']?.startDate || '',
       end_date: stepData['Planning Period']?.endDate || ''
     };
@@ -612,15 +576,14 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
       }
     } catch (error) {
       toast.error('An error occurred while submitting the planning period.');
-      console.error('An error occurred while submitting the planning period:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchFrequencies = async () => {
-    const token = localStorage.getItem('token');
-    const Api = `${config.API_URL_Units}/frequencies`;
+    const token = await GetToken();
+    const Api = Backend.api + 'frequencies';
 
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -648,7 +611,6 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
       }
     } catch (error) {
       toast.error('An error occurred while fetching frequencies');
-      console.error('An error occurred while fetching frequencies:', error);
     } finally {
       setLoading(false);
     }
@@ -707,35 +669,32 @@ const fetchFiscalYearDetails = async (fiscal_year_id) => {
     }));
   };
 
-const handleDateChange = (event, index, dateType) => {
-  const { value } = event.target;
+  const handleDateChange = (event, index, dateType) => {
+    const { value } = event.target;
 
-  console.log(`Updating ${dateType} for period ${index} with value: ${value}`);
+    setStepData((prevData) => {
+      const currentStepData = prevData[steps[activeStep]] || { dates: [] };
 
-  setStepData((prevData) => {
-    const currentStepData = prevData[steps[activeStep]] || { dates: [] };
-
-    const updatedDates = [...currentStepData.dates];
-    if (!updatedDates[index]) {
-      updatedDates[index] = { start_date: '', end_date: '' };
-    }
-
-    if (dateType === 'start_date') {
-      updatedDates[index].start_date = value; // Ensure value is in YYYY-MM-DD format
-    } else if (dateType === 'end_date') {
-      updatedDates[index].end_date = value; // Ensure value is in YYYY-MM-DD format
-    }
-
-    return {
-      ...prevData,
-      [steps[activeStep]]: {
-        ...currentStepData,
-        dates: updatedDates
+      const updatedDates = [...currentStepData.dates];
+      if (!updatedDates[index]) {
+        updatedDates[index] = { start_date: '', end_date: '' };
       }
-    };
-  });
-};
 
+      if (dateType === 'start_date') {
+        updatedDates[index].start_date = value; // Ensure value is in YYYY-MM-DD format
+      } else if (dateType === 'end_date') {
+        updatedDates[index].end_date = value; // Ensure value is in YYYY-MM-DD format
+      }
+
+      return {
+        ...prevData,
+        [steps[activeStep]]: {
+          ...currentStepData,
+          dates: updatedDates
+        }
+      };
+    });
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -743,365 +702,355 @@ const handleDateChange = (event, index, dateType) => {
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  }
-  
+  };
 
   return (
     <Stack sx={{ width: '100%' }} spacing={4}>
-      <Stepper alternativeLabel activeStep={activeStep} connector={<QontoConnector />} spacing={4}>
-        {steps.map((label, index) => (
-          <Step key={label} onClick={() => handleStepClick(index)}>
-            {index === 0 && tableData.length === 0 ? (
-              <BlinkingStepLabel StepIconComponent={QontoStepIcon}>{label}</BlinkingStepLabel>
-            ) : (
-              <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
-            )}
-          </Step>
-        ))}
-      </Stepper>
-
-      <Modal open={open} onClose={handleClose}>
-        <Box
+      <Dialog open={open} onClose={handleClose}>
+        <Paper
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '50%',
-            bgcolor: 'background.paper',
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2
+            minWidth: '600px',
+            minHeight: '50dvh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: 2.4
           }}
         >
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" component="div">
-                {steps[activeStep]}
-              </Typography>
-              {steps[activeStep] === 'Fiscal Year' ? (
-                <>
-                  <form onSubmit={handleSubmit}>
-                    <TextField
-                      name="year"
-                      label="Year"
-                      value={stepData[steps[activeStep]]?.year || ''}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                      error={Boolean(error.year)}
-                      // helperText={error.year?.join(', ')}
-                    />
-                    <TextField
-                      name="startDate"
-                      label="Start Date"
-                      type="date"
-                      InputLabelProps={{ shrink: true }}
-                      value={stepData[steps[activeStep]]?.startDate || ''}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                      error={Boolean(error.start_date)}
-                      // helperText={error.start_date?.join(', ')}
-                    />
-                    <TextField
-                      name="endDate"
-                      label="End Date"
-                      type="date"
-                      InputLabelProps={{ shrink: true }}
-                      value={stepData[steps[activeStep]]?.endDate || ''}
-                      onChange={handleInputChange}
-                      fullWidth
-                      margin="normal"
-                      error={Boolean(error.end_date)}
-                      // helperText={error.end_date?.join(', ')}
-                    />
-                  </form>
-                </>
-              ) : steps[activeStep] === 'Planning Period' ? (
-                <>
-                  <>
-                    <form onSubmit={handleSubmit}>
-                      <TextField
-                        name="fiscal_year_id"
-                        label="Fiscal Year"
-                        value={stepData['Fiscal Year']?.year || ''}
-                        InputProps={{
-                          readOnly: true
-                        }}
-                        fullWidth
-                        margin="normal"
-                      />
-                      <TextField
-                        name="startDate"
-                        label="Start Date"
-                        type="date"
-                        InputLabelProps={{ shrink: true }}
-                        value={stepData[steps[activeStep]]?.startDate || ''}
-                        onChange={handleInputChange}
-                        fullWidth
-                        margin="normal"
-                        error={Boolean(error.start_date)}
-                        helperText={error.start_date?.join(', ')}
-                      />
-                      <TextField
-                        name="endDate"
-                        label="End Date"
-                        type="date"
-                        InputLabelProps={{ shrink: true }}
-                        value={stepData[steps[activeStep]]?.endDate || ''}
-                        onChange={handleInputChange}
-                        fullWidth
-                        margin="normal"
-                        error={Boolean(error.end_date)}
-                        helperText={error.end_date?.join(', ')}
-                      />
-                    </form>
-                  </>
-                </>
-              ) : steps[activeStep] === 'Frequency Period Value' ? (
-                <>
-                  <Box sx={{ mb: 0, maxHeight: '50vh', overflowY: 'auto' }}>
-                    <form onSubmit={handleSubmit}>
-                      {/* Fiscal Year  */}
-                      <TextField
-                        name="fiscal_year_id"
-                        label="Fiscal Year"
-                        value={stepData['Fiscal Year']?.year || ''}
-                        InputProps={{
-                          readOnly: true
-                        }}
-                        fullWidth
-                        margin="normal"
-                      />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 1 }}>
+            <Typography variant="h3" color={theme.palette.text.primary}>
+              {steps[activeStep]}
+            </Typography>
+            <motion.div
+              whileHover={{
+                rotate: 90
+              }}
+              transition={{ duration: 0.3 }}
+              style={{ cursor: 'pointer' }}
+              onClick={handleClose}
+            >
+              <IconX size="1.3rem" stroke={2} />
+            </motion.div>
+          </Box>
 
-                      {/* Frequency  */}
-                      <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
-                        <InputLabel id="frequency-label">Select Frequency</InputLabel>
-                        <Select
-                          name="frequency"
-                          value={stepData[steps[activeStep]]?.frequency || ''}
-                          onChange={handleFrequencyChange}
+          {steps[activeStep] === 'Fiscal Year' ? (
+            <>
+              <form onSubmit={handleSubmit}>
+                <TextField
+                  name="year"
+                  label="Year"
+                  value={stepData[steps[activeStep]]?.year || ''}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                  error={Boolean(error.year)}
+                  // helperText={error.year?.join(', ')}
+                />
+                <TextField
+                  name="startDate"
+                  label="Start Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={stepData[steps[activeStep]]?.startDate || ''}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                  error={Boolean(error.start_date)}
+                  // helperText={error.start_date?.join(', ')}
+                />
+                <TextField
+                  name="endDate"
+                  label="End Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={stepData[steps[activeStep]]?.endDate || ''}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                  error={Boolean(error.end_date)}
+                  // helperText={error.end_date?.join(', ')}
+                />
+              </form>
+            </>
+          ) : steps[activeStep] === 'Planning Period' ? (
+            <form onSubmit={handleSubmit}>
+              <TextField
+                name="fiscal_year_id"
+                label="Fiscal Year"
+                value={stepData['Fiscal Year']?.year || ''}
+                InputProps={{
+                  readOnly: true
+                }}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                name="startDate"
+                label="Start Date"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={stepData[steps[activeStep]]?.startDate || ''}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+                error={Boolean(error.start_date)}
+                helperText={error.start_date?.join(', ')}
+              />
+              <TextField
+                name="endDate"
+                label="End Date"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={stepData[steps[activeStep]]?.endDate || ''}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+                error={Boolean(error.end_date)}
+                helperText={error.end_date?.join(', ')}
+              />
+            </form>
+          ) : steps[activeStep] === 'Frequency Period Value' ? (
+            <>
+              <Box sx={{ mb: 0, maxHeight: '50vh', overflowY: 'auto' }}>
+                <form onSubmit={handleSubmit}>
+                  {/* Fiscal Year  */}
+                  <TextField
+                    name="fiscal_year_id"
+                    label="Fiscal Year"
+                    value={stepData['Fiscal Year']?.year || ''}
+                    InputProps={{
+                      readOnly: true
+                    }}
+                    fullWidth
+                    margin="normal"
+                  />
+
+                  {/* Frequency  */}
+                  <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
+                    <InputLabel id="frequency-label">Select Frequency</InputLabel>
+                    <Select
+                      name="frequency"
+                      value={stepData[steps[activeStep]]?.frequency || ''}
+                      onChange={handleFrequencyChange}
+                      fullWidth
+                      margin="normal"
+                      label="Select Frequency"
+                      sx={{ mb: 2 }}
+                    >
+                      {frequencies.map((frequency) => (
+                        <MenuItem key={frequency.id} value={frequency.id}>
+                          {frequency.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Dynamic Date Fields */}
+                  {stepData[steps[activeStep]]?.dates?.map((date, index) => (
+                    <Grid container key={index} spacing={2} sx={{ mb: 2, maxHeight: '80vh', overflowY: 'auto' }}>
+                      <Grid item xs={6}>
+                        <TextField
+                          name={`start_date_${index}`}
+                          label={`Start Date ${index + 1}`}
+                          type="date"
                           fullWidth
-                          margin="normal"
-                          label="Select Frequency"
-                          sx={{ mb: 2 }}
-                        >
-                          {frequencies.map((frequency) => (
-                            <MenuItem key={frequency.id} value={frequency.id}>
-                              {frequency.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                          InputLabelProps={{ shrink: true }}
+                          value={date.start_date || ''}
+                          onChange={(event) => handleDateChange(event, index, 'start_date')}
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          name={`end_date_${index}`}
+                          label={`End Date ${index + 1}`}
+                          type="date"
+                          fullWidth
+                          InputLabelProps={{ shrink: true }}
+                          value={date.end_date || ''}
+                          onChange={(event) => handleDateChange(event, index, 'end_date')}
+                          error={Boolean(error.end_date)}
+                          helperText={error.end_date?.join(', ')}
+                        />
+                      </Grid>
+                    </Grid>
+                  ))}
+                </form>
+              </Box>
+            </>
+          ) : steps[activeStep] === 'Evaluation Period' ? (
+            <>
+              <Box sx={{ mb: 0, maxHeight: '50vh', overflowY: 'auto', p: 2 }}>
+                <form onSubmit={handleSubmit}>
+                  {/* Fiscal Year Section */}
+                  <Card variant="outlined" sx={{ p: 2, mb: 3, backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+                    <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                      Fiscal Year Details
+                    </Typography>
+                    <TextField
+                      name="fiscal_year_id"
+                      label="Fiscal Year"
+                      value={stepData['Fiscal Year']?.year || ''}
+                      InputProps={{
+                        readOnly: true
+                      }}
+                      fullWidth
+                      margin="normal"
+                      sx={{ mb: 2 }}
+                    />
 
-                      {/* Dynamic Date Fields */}
-                      {stepData[steps[activeStep]]?.dates?.map((date, index) => (
-                        <Grid container key={index} spacing={2} sx={{ mb: 2, maxHeight: '80vh', overflowY: 'auto' }}>
-                          <Grid item xs={6}>
-                            <TextField
-                              name={`start_date_${index}`}
-                              label={`Start Date ${index + 1}`}
-                              type="date"
-                              fullWidth
-                              InputLabelProps={{ shrink: true }}
-                              value={date.start_date || ''}
-                              onChange={(e) => handleDateChange(e, index, 'start_date')}
-                            />
-                          </Grid>
-                          <Grid item xs={6}>
-                            <TextField
-                              name={`end_date_${index}`}
-                              label={`End Date ${index + 1}`}
-                              type="date"
-                              fullWidth
-                              InputLabelProps={{ shrink: true }}
-                              value={date.end_date || ''}
-                              onChange={(e) => handleDateChange(e, index, 'end_date')}
-                              error={Boolean(error.end_date)}
-                              helperText={error.end_date?.join(', ')}
-                            />
-                          </Grid>
+                    {/* Frequency Section */}
+                    <TextField
+                      name="frequency_name"
+                      label="Frequency"
+                      value={
+                        frequencies.find(
+                          (frequency) =>
+                            frequency.id ===
+                            (stepData[steps[activeStep]]?.frequency_period_value_id || stepData['Frequency Period Value']?.frequency)
+                        )?.name || ''
+                      }
+                      InputProps={{
+                        readOnly: true
+                      }}
+                      fullWidth
+                      margin="normal"
+                      error={Boolean(error.frequency_period_value_id)}
+                      helperText={error.frequency_period_value_id?.join(', ')}
+                      sx={{ mb: 2 }}
+                    />
+                  </Card>
+
+                  {/* Display Dates Section */}
+                  {stepData['Frequency Period Value']?.dates?.map((date, index) => (
+                    <Card
+                      variant="outlined"
+                      key={index}
+                      sx={{ p: 2, mb: 3, backgroundColor: '#fafafa', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', borderRadius: '8px' }}
+                    >
+                      <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                        Period {index + 1}
+                      </Typography>
+
+                      <Grid container spacing={2} sx={{ mb: 2 }}>
+                        {/* Frequency Period Start and End Dates */}
+                        <Grid item xs={6}>
+                          <TextField
+                            name={`frequency_start_date_${index}`}
+                            label={`Frequency Start Date`}
+                            type="date"
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            value={date.start_date || ''}
+                            InputProps={{
+                              readOnly: true,
+                              sx: {
+                                backgroundColor: '#e3f2fd',
+                                borderRadius: '6px',
+                                padding: '10px',
+                                '&:hover': {
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                                }
+                              }
+                            }}
+                          />
                         </Grid>
-                      ))}
-                    </form>
-                  </Box>
-                </>
-              ) : steps[activeStep] === 'Evaluation Period' ? (
-                <>
-                  <Box sx={{ mb: 0, maxHeight: '50vh', overflowY: 'auto', p: 2 }}>
-                    <form onSubmit={handleSubmit}>
-                      {/* Fiscal Year Section */}
-                      <Card variant="outlined" sx={{ p: 2, mb: 3, backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                          Fiscal Year Details
-                        </Typography>
-                        <TextField
-                          name="fiscal_year_id"
-                          label="Fiscal Year"
-                          value={stepData['Fiscal Year']?.year || ''}
-                          InputProps={{
-                            readOnly: true
-                          }}
-                          fullWidth
-                          margin="normal"
-                          sx={{ mb: 2 }}
-                        />
+                        <Grid item xs={6}>
+                          <TextField
+                            name={`frequency_end_date_${index}`}
+                            label={`Frequency End Date`}
+                            type="date"
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            value={date.end_date || ''}
+                            InputProps={{
+                              readOnly: true,
+                              sx: {
+                                backgroundColor: '#e3f2fd',
+                                borderRadius: '6px',
+                                padding: '10px',
+                                '&:hover': {
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                                }
+                              }
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
 
-                        {/* Frequency Section */}
-                        <TextField
-                          name="frequency_name"
-                          label="Frequency"
-                          value={
-                            frequencies.find(
-                              (frequency) =>
-                                frequency.id ===
-                                (stepData[steps[activeStep]]?.frequency_period_value_id || stepData['Frequency Period Value']?.frequency)
-                            )?.name || ''
-                          }
-                          InputProps={{
-                            readOnly: true
-                          }}
-                          fullWidth
-                          margin="normal"
-                          error={Boolean(error.frequency_period_value_id)}
-                          helperText={error.frequency_period_value_id?.join(', ')}
-                          sx={{ mb: 2 }}
-                        />
-                      </Card>
+                      {/* Evaluation Period Start and End Dates */}
+                      <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                          <TextField
+                            name={`evaluation_start_date_${index}`}
+                            label={`Evaluation Start Date`}
+                            type="date"
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            value={stepData[steps[activeStep]]?.evaluation_dates?.[index]?.start_date || ''}
+                            onChange={(event) => handleDateChange(event, index, 'start_date')}
+                            error={Boolean(error.start_date)}
+                            helperText={Array.isArray(error.start_date) ? error.start_date.join(', ') : error.start_date}
+                            sx={{
+                              backgroundColor: '#fffde7',
+                              borderRadius: '6px',
+                              padding: '10px',
+                              '&:hover': {
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                              }
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={6}>
+                          <TextField
+                            name={`evaluation_end_date_${index}`}
+                            label={`Evaluation End Date`}
+                            type="date"
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            value={stepData[steps[activeStep]]?.evaluation_dates?.[index]?.end_date || ''}
+                            onChange={(event) => handleDateChange(event, index, 'end_date')}
+                            sx={{
+                              backgroundColor: '#fffde7',
+                              borderRadius: '6px',
+                              padding: '10px',
+                              '&:hover': {
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                              }
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Card>
+                  ))}
+                </form>
+              </Box>
+            </>
+          ) : null}
 
-                      {/* Display Dates Section */}
-                      {stepData['Frequency Period Value']?.dates?.map((date, index) => (
-                        <Card
-                          variant="outlined"
-                          key={index}
-                          sx={{ p: 2, mb: 3, backgroundColor: '#fafafa', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', borderRadius: '8px' }}
-                        >
-                          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                            Period {index + 1}
-                          </Typography>
+          <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+            {activeStep > 0 && (
+              <Button variant="contained" color="inherit" onClick={handleBack}>
+                Back
+              </Button>
+            )}
+            {activeStep < steps.length - 1 && (
+              <Button variant="contained" color="primary" type="submit" onClick={handleNext}>
+                Next
+              </Button>
+            )}
 
-                          <Grid container spacing={2} sx={{ mb: 2 }}>
-                            {/* Frequency Period Start and End Dates */}
-                            <Grid item xs={6}>
-                              <TextField
-                                name={`frequency_start_date_${index}`}
-                                label={`Frequency Start Date`}
-                                type="date"
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                                value={date.start_date || ''}
-                                InputProps={{
-                                  readOnly: true,
-                                  sx: {
-                                    backgroundColor: '#e3f2fd',
-                                    borderRadius: '6px',
-                                    padding: '10px',
-                                    '&:hover': {
-                                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                                    }
-                                  }
-                                }}
-                              />
-                            </Grid>
-                            <Grid item xs={6}>
-                              <TextField
-                                name={`frequency_end_date_${index}`}
-                                label={`Frequency End Date`}
-                                type="date"
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                                value={date.end_date || ''}
-                                InputProps={{
-                                  readOnly: true,
-                                  sx: {
-                                    backgroundColor: '#e3f2fd',
-                                    borderRadius: '6px',
-                                    padding: '10px',
-                                    '&:hover': {
-                                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                                    }
-                                  }
-                                }}
-                              />
-                            </Grid>
-                          </Grid>
+            {activeStep === steps.length - 1 && (
+              <Button variant="contained" color="primary" onClick={handleSave}>
+                Save
+              </Button>
+            )}
+          </Stack>
+        </Paper>
+      </Dialog>
 
-                          {/* Evaluation Period Start and End Dates */}
-                          <Grid container spacing={2}>
-                            <Grid item xs={6}>
-                              <TextField
-                                name={`evaluation_start_date_${index}`}
-                                label={`Evaluation Start Date`}
-                                type="date"
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                                value={stepData[steps[activeStep]]?.evaluation_dates?.[index]?.start_date || ''}
-                                onChange={(e) => handleDateChange(e, index, 'start_date')}
-                                error={Boolean(error.start_date)}
-                                helperText={Array.isArray(error.start_date) ? error.start_date.join(', ') : error.start_date}
-                                sx={{
-                                  backgroundColor: '#fffde7',
-                                  borderRadius: '6px',
-                                  padding: '10px',
-                                  '&:hover': {
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                                  }
-                                }}
-                              />
-                            </Grid>
-                            <Grid item xs={6}>
-                              <TextField
-                                name={`evaluation_end_date_${index}`}
-                                label={`Evaluation End Date`}
-                                type="date"
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                                value={stepData[steps[activeStep]]?.evaluation_dates?.[index]?.end_date || ''}
-                                onChange={(e) => handleDateChange(e, index, 'end_date')}
-                                sx={{
-                                  backgroundColor: '#fffde7',
-                                  borderRadius: '6px',
-                                  padding: '10px',
-                                  '&:hover': {
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                                  }
-                                }}
-                              />
-                            </Grid>
-                          </Grid>
-                        </Card>
-                      ))}
-                    </form>
-                  </Box>
-                </>
-              ) : null}
-
-              <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                {activeStep > 0 && (
-                  <Button variant="contained" color="inherit" onClick={handleBack}>
-                    Back
-                  </Button>
-                )}
-                {activeStep < steps.length - 1 && (
-                  <Button variant="contained" color="primary" type="submit" onClick={handleNext}>
-                    Next
-                  </Button>
-                )}
-
-                {activeStep === steps.length - 1 && (
-                  <Button variant="contained" color="primary" onClick={handleSave}>
-                    Save
-                  </Button>
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
-        </Box>
-      </Modal>
       <Card sx={{ borderRadius: 2, background: 'linear-gradient(135deg, #f3f4f6, #f0f0f0)' }}>
         <CardContent>
-          <Box mb={3}>
+          <Box mb={3} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Select
               value={selectedFiscalYear}
               onChange={handleFiscalYearChange}
@@ -1122,6 +1071,8 @@ const handleDateChange = (event, index, dateType) => {
                 <MenuItem disabled>No Fiscal Years Available</MenuItem>
               )}
             </Select>
+
+            <DrogaButton title="Create Period" variant="contained" onPress={() => handleCreatePeriod()} />
           </Box>
 
           {fiscalYearDetails && (
@@ -1175,3 +1126,5 @@ const handleDateChange = (event, index, dateType) => {
     </Stack>
   );
 }
+
+export default CustomizedSteppers;
