@@ -75,6 +75,8 @@ const Backend = {
   getRankings: 'rank-performance',
   unitKpiPerformance: 'show-performance-chart',
   unitEmployeeEndpoint: 'get-unit-employees-with-performance/',
-  fiscal_years: 'fiscal-years'
+  fiscal_years: 'fiscal-years',
+  performanceratingscale: 'performance-rating-scales',
+  jobposition: 'job-positions'
 };
 export default Backend;

@@ -2,11 +2,14 @@ import React from 'react';
 import { Grid, Box, Typography, Stack, AccordionDetails, useTheme, IconButton } from '@mui/material';
 import Measuring from '../Measuring-Units';
 import Perceptive from '../Perceptive';
+import PerformanceScale from '../PerformanceScale';
+import JobPositionTable from '../JobPosition';
 import EvalType from '../Evaluation-Type';
 import Frequency from '../Frequency';
 import Period from '../Period';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PageContainer from 'ui-component/MainPage';
+import { gridSpacing } from 'store/constant';
 
 function PreSetup() {
   const theme = useTheme();
@@ -45,42 +48,51 @@ function PreSetup() {
       id: 5,
       name: 'Evaluation Types',
       component: <EvalType />
+    },
+    {
+      id: 6,
+      name: 'Performance Rating',
+      component: <PerformanceScale />
+    },
+    {
+      id: 7,
+      name: 'Job Positions',
+      component: <JobPositionTable />
     }
   ];
 
   return (
     <PageContainer maxWidth="lg" title={'Pre-setups'}>
-      <Grid container spacing={3} mt={1}>
-        <Grid item xs={12}>
-          <Stack sx={{ width: '80%', marginLeft: '20px' }} spacing={1}>
+      <Grid container spacing={3} mt={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Grid item xs={10}>
+          <Grid container spacing={1}>
             {setups.map((item, index) => (
-              <Box key={index} expanded={expanded === item.id} sx={{ backgroundColor: theme.palette.grey[50] }}>
+              <Grid item xs={12} key={index} expanded={expanded === item.id} sx={{ backgroundColor: theme.palette.background.default }}>
                 <Box
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     cursor: 'pointer',
-                    backgroundColor: expanded === item.id ? theme.palette.grey[100] : theme.palette.grey[50],
-                    padding: 1.4
+                    backgroundColor: expanded === item.id ? theme.palette.primary.main : theme.palette.grey[100],
+                    paddingY: 2,
+                    paddingX: 2.6,
+                    borderRadius: 2,
+                    transition: 'all 0.4s ease'
                   }}
                   onClick={() => handleExpandAccordion(item.id)}
                 >
-                  <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h4" color={expanded === item.id ? 'white' : theme.palette.text.primary} sx={{ fontWeight: 'bold' }}>
                     {item.name}
                   </Typography>
                   <IconButton onClick={() => handleExpandAccordion(item.id)}>
-                    {expanded === item.id ? <ExpandMoreIcon /> : <ExpandMoreIcon />}
+                    {expanded === item.id ? <ExpandMoreIcon style={{ color: 'white' }} /> : <ExpandMoreIcon />}
                   </IconButton>
                 </Box>
                 {expanded === item.id && <AccordionDetails>{item.component}</AccordionDetails>}
-              </Box>
+              </Grid>
             ))}
-          </Stack>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Box sx={{ padding: ' 1px' }}></Box>
+          </Grid>
         </Grid>
       </Grid>
     </PageContainer>

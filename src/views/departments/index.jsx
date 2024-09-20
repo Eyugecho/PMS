@@ -167,7 +167,8 @@ const Units = () => {
         if (response.success) {
           setIsAdding(false);
           handleUnitModalClose();
-          toast(response.message);
+          toast(response.data.message);
+          handleFetchingUnits();
         } else {
           setIsAdding(false);
           toast.error(response.data.message);
@@ -295,6 +296,7 @@ const Units = () => {
   };
 
   const handleFetchingUnits = async () => {
+    setLoading(true);
     const token = await GetToken();
     const Api = Backend.api + Backend.units + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
     const header = {
