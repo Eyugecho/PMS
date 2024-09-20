@@ -5,7 +5,8 @@ const initialState = {
   signed: false,
   user: null,
   roles: [],
-  permissions: []
+  permissions: [],
+  my_unit: null
 };
 
 const userReducer = (state = initialState, action) => {
@@ -17,13 +18,16 @@ const userReducer = (state = initialState, action) => {
         roles: action.payload.user.roles,
         permissions: action.payload.user.permissions
       };
-
-      case actionTypes.SIGN_IN:
-        return {
-          ...state,
-          signed: action.signed,
-        
-        };
+    case actionTypes.SET_USER_UNIT:
+      return {
+        ...state,
+        my_unit: action.payload
+      };
+    case actionTypes.SIGN_IN:
+      return {
+        ...state,
+        signed: action.signed
+      };
 
     default:
       return state;

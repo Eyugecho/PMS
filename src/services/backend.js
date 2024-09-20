@@ -9,6 +9,7 @@ const Backend = {
   setPassword: 'create-password',
   verifyOtp: 'verify-otp',
   myProfile: 'my-profile',
+  myUnit: 'my-unit',
   changePassword: 'change-password',
   updateProfileImage: 'update-profile-image',
   removeProfileImage: 'remove-profile-image',
@@ -74,6 +75,6 @@ const Backend = {
   getRankings: 'rank-performance',
   unitKpiPerformance: 'show-performance-chart',
   unitEmployeeEndpoint: 'get-unit-employees-with-performance/',
-  fiscal_years: 'fiscal-years',
+  fiscal_years: 'fiscal-years'
 };
 export default Backend;
