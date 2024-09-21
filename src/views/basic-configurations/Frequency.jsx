@@ -194,18 +194,7 @@ function Frequency() {
                     {['Frequency Name', 'Value', 'Actions'].map((header) => (
                       <TableCell
                         key={header}
-                        sx={{
-                          background: theme.palette.grey[100],
-                          color: '#000',
-                          fontWeight: 'bold',
-                          fontSize: '0.9rem',
-                          borderBottom: `2px solid ${theme.palette.divider}`,
-                          position: 'relative',
-                          padding: '12px 16px',
-                          '&:not(:last-of-type)': {
-                            borderRight: `1px solid ${theme.palette.divider}`
-                          }
-                        }}
+                       
                       >
                         {header}
                       </TableCell>
@@ -216,42 +205,22 @@ function Frequency() {
                   {frequencies.map((frequency, index) => (
                     <TableRow
                       key={frequency.id}
-                      sx={{
-                        backgroundColor: theme.palette.background.paper,
-                        borderRadius: 2,
-                        '&:nth-of-type(odd)': {
-                          backgroundColor: theme.palette.grey[50]
-                        },
-                        '&:hover': {
-                          backgroundColor: theme.palette.grey[100]
-                        }
-                      }}
+                      
                     >
                       <TableCell
                         component="th"
                         scope="row"
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          border: 0,
-                          padding: '12px 16px'
-                        }}
+                        
                       >
                         {frequency.name}
                       </TableCell>
                       <TableCell
-                        sx={{
-                          border: 0,
-                          padding: '12px 16px'
-                        }}
+                       
                       >
                         {frequency.value}
                       </TableCell>
                       <TableCell
-                        sx={{
-                          border: 0,
-                          padding: '12px 16px'
-                        }}
+                        
                       >
                         <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
                           <MoreVertIcon />

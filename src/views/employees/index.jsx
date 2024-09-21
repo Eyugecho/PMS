@@ -303,6 +303,7 @@ const Employees = () => {
           setDeleting(false);
           setDeleteUser(false);
           toast.success(response.data.message);
+          
           handleFetchingEmployees();
         } else {
           setDeleting(false);

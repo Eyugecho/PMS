@@ -1,34 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Card,
-  CardContent,
-  CardActions,
-  Menu,
-  MenuItem,
-  useTheme
-} from '@mui/material';
+import {Box,Typography,TextField,Button,Grid,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,IconButton,Dialog,DialogActions,DialogContent,DialogTitle,CardContent,Menu, MenuItem,useTheme} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import config from '../../configration/config'; // Ensure this path is correct
 import { ToastContainer, toast } from 'react-toastify';
@@ -205,18 +180,7 @@ function Measuring() {
                       {['Measuring Unit', 'Description', 'Actions'].map((header) => (
                         <TableCell
                           key={header}
-                          sx={{
-                            background: theme.palette.grey[100],
-                            color: '#000',
-                            fontWeight: 'bold',
-                            fontSize: '0.9rem',
-                            borderBottom: `2px solid ${theme.palette.divider}`,
-                            position: 'relative',
-                            padding: '12px 16px',
-                            '&:not(:last-of-type)': {
-                              borderRight: `1px solid ${theme.palette.divider}`
-                            }
-                          }}
+                        
                         >
                           {header}
                         </TableCell>
@@ -227,42 +191,22 @@ function Measuring() {
                     {measuringUnits.map((unit, index) => (
                       <TableRow
                         key={unit.id}
-                        sx={{
-                          backgroundColor: theme.palette.background.paper,
-                          borderRadius: 2,
-                          '&:nth-of-type(odd)': {
-                            backgroundColor: theme.palette.grey[50]
-                          },
-                          '&:hover': {
-                            backgroundColor: theme.palette.grey[100]
-                          }
-                        }}
+                       
                       >
                         <TableCell
                           component="th"
                           scope="row"
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
+                         
                         >
                           {unit.name}
                         </TableCell>
                         <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
+                          
                         >
                           {unit.description}
                         </TableCell>
                         <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
+                         
                         >
                           <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
                             <MoreVertIcon />

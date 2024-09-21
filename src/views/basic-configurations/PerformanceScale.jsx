@@ -132,7 +132,7 @@ export default function ProgressBarManager() {
         <Typography sx={{ mt: 2 }}>No Performance Rating Scale Created Yet. Click the Add button to create one.</Typography>
       ) : (
         <Box sx={{ mt: 2 }}>
-          {progressBars.map((bar, index) => (
+          {progressBars?.map((bar, index) => (
             <Box key={index} sx={{ mb: 2 }}>
               <Typography variant="h6">{bar.description || `Performance Rate Scale - ${index + 1}`}</Typography>
               <Typography variant="body2">{`Scale: ${bar.scale}`}</Typography>
@@ -157,15 +157,15 @@ export default function ProgressBarManager() {
             <MenuItem value="Poor">Poor</MenuItem>
           </Select>
 
-          <TextField
-            name="score"
-            label="Score"
-            value={formValues.score}
-            onChange={handleInputChange}
-            fullWidth
-            type="text"
-            sx={{ mb: 2 }}
-          />
+<TextField
+  name="score"
+  label="Score (e.g., >50, <90, =30)"
+  value={formValues.score}
+  onChange={handleInputChange}
+  fullWidth
+  type="text"
+  sx={{ mb: 2 }}
+/>
 
           <Typography variant="body2" gutterBottom>
             Select Color

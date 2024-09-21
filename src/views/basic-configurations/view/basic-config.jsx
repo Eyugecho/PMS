@@ -3,7 +3,7 @@ import { Grid, Box, Typography, Stack, Accordion, AccordionSummary, AccordionDet
 import Measuring from '../Measuring-Units';
 import Perceptive from '../Perceptive';
 import PerformanceScale from '../PerformanceScale';
-// import EmployeePosition from '../EmployeePosition';
+import JobPosition from '../JobPosition';
 import EvalType from '../Evaluation-Type';
 import Frequency from '../Frequency';
 import Period from '../Period';
@@ -15,6 +15,7 @@ const steps = ['Frequency', 'Period'];
 
 function App() {
   const [expanded, setExpanded] = React.useState(false);
+  const [perspectives, setPerspectives] = React.useState([]);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -74,7 +75,7 @@ function App() {
                     <Typography sx={{ fontWeight: 'bold' }}>Perspective</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Perceptive />
+                    <Perceptive perspectives={perspectives} setPerspectives={setPerspectives} />
                   </AccordionDetails>
                 </Accordion>
                 <Accordion
@@ -112,7 +113,7 @@ function App() {
                     <Typography sx={{ fontWeight: 'bold' }}>Job Position</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <Perceptive />
+                    <JobPosition />
                   </AccordionDetails>
                 </Accordion>
               </Box>
