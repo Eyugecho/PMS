@@ -59,7 +59,7 @@ const fetchPerspectives = async () => {
     const data = await response.json();
    
     if (data?.success) {
-      setPerspectives(data?.data?.data); // Correctly set perspectives data
+      setPerspectives(data?.data?.data); 
     } else {
       toast.error(response?.message || 'Failed to fetch perspectives');
     }
@@ -103,63 +103,62 @@ const fetchPerspectives = async () => {
 
 
 const handleSave = async () => {
-  // Validate the input before proceeding
+ 
   if (newPerspective.trim()) {
-    setLoading(true); // Show loading indicator
-
+    setLoading(true); 
     try {
-      const token = await GetToken(); // Retrieve the token
+      const token = await GetToken(); 
       if (!token) {
         toast.error('Authorization token is missing.');
-        setLoading(false); // Stop loading if no token is found
+        setLoading(false); 
         return;
       }
 
       const api = Backend.api + Backend.perspectiveTypes;
 
-      // Perform the API request
+      
       const response = await fetch(api, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`, // Set authorization header
+          Authorization: `Bearer ${token}`, 
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: newPerspective, // Send perspective name
-          description: newDescPerspective // Send perspective description
+          name: newPerspective, 
+          description: newDescPerspective 
         })
       });
 
-      const data = await response.json(); // Parse the response
+      const data = await response.json(); 
 
       if (response.ok && data.success) {
-        // Check if the request was successful
-        handleClose(); // Close the modal or reset form
-        toast.success('Perspective added successfully'); // Show success message
-        await fetchPerspectives(); // Fetch updated perspectives list
+       
+        handleClose(); 
+        toast.success('Perspective added successfully'); 
+        await fetchPerspectives(); 
       } else {
-        // Handle failure case by showing backend's message or a default one
+       
         toast.error(data?.message || 'Unknown error occurred while adding perspective');
       }
     } catch (error) {
-      // Handle any errors that occur during the fetch process
+      
       toast.error(error?.message || 'Error occurred while adding perspective');
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false); 
     }
   } else {
-    // Handle the case where the perspective name is empty
+
     toast.error('Perspective name cannot be empty.');
   }
 };
 
 
-const handleEditSave = () => {
+const handleEditSave = async () => {
   
   if (editedName.trim() && editedDescription.trim() && editingIndex !== null) {
     setLoading(true); 
 
-    const token = localStorage.getItem('token'); 
+  const token = await GetToken();
     if (!token) {
       toast.error('Authorization token is missing.');
       setLoading(false);
@@ -230,10 +229,10 @@ const handleEditSave = () => {
 };
 
 
-const handleDelete = () => {
+const handleDelete = async() => {
   if (selectedIndex !== null) {
     setLoading(true);
-    const token = localStorage.getItem('token'); 
+const token = await GetToken();
 
     if (!token) {
       toast.error('Authentication token missing!');
@@ -249,7 +248,7 @@ const handleDelete = () => {
       return;
     }
 
-    const api = `${Backend.api}${Backend.perspectiveTypes}/${perspectiveId}`; 
+    const api = Backend.api+Backend.perspectiveTypes+`/${perspectiveId}`; 
 
     const headers = {
       Authorization: `Bearer ${token}`,
