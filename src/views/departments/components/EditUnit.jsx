@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, CircularProgress, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  TextField,
+  CircularProgress,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl
+} from '@mui/material';
 import { toast } from 'react-toastify';
 import Backend from 'services/backend';
 
@@ -24,24 +36,21 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
       const unitTypesApi = Backend.api + Backend.types;
-      const managersApi = Backend.api + Backend.getManagers ;
+      const managersApi = Backend.api + Backend.getManagers;
       const headers = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       };
 
       try {
         const [unitTypesResponse, managersResponse] = await Promise.all([
           fetch(unitTypesApi, { method: 'GET', headers }),
-          fetch(managersApi, { method: 'GET', headers }),
+          fetch(managersApi, { method: 'GET', headers })
         ]);
 
         const unitTypesData = await unitTypesResponse.json();
         const managersData = await managersResponse.json();
-        
-        
-        
 
         if (unitTypesData.success && Array.isArray(unitTypesData.data)) {
           setUnitTypes(unitTypesData.data);
@@ -49,10 +58,8 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
           toast.error('Failed to fetch unit types');
         }
 
-        if (managersData.success && Array.isArray(managersData.data)) {  
+        if (managersData.success && Array.isArray(managersData.data)) {
           setManagers(managersData.data);
-          
-          
         } else {
           toast.error('Failed to fetch managers');
         }
@@ -73,25 +80,25 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
     const headers = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     };
 
     const data = {
       name,
       manager_id: manager,
       unit_type_id: unitType,
-      description,
+      description
     };
 
     fetch(Api, {
       method: 'PUT',
       headers,
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     })
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
-          toast.success('Successfully updated unit');
+          toast.success(response?.data?.message);
           onUpdate();
           onClose();
         } else {
@@ -125,11 +132,7 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
 
             <FormControl fullWidth margin="dense">
               <InputLabel>Manager</InputLabel>
-              <Select
-                value={manager}
-                onChange={(e) => setManager(e.target.value)}
-                label="Manager"
-              >
+              <Select value={manager} onChange={(e) => setManager(e.target.value)} label="Manager">
                 {Array.isArray(managers) && managers.length > 0 ? (
                   managers.map((manager) => (
                     <MenuItem key={manager.id} value={manager.id}>
@@ -144,11 +147,7 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
 
             <FormControl fullWidth margin="dense">
               <InputLabel>Unit Type</InputLabel>
-              <Select
-                value={unitType}
-                onChange={(e) => setUnitType(e.target.value)}
-                label="Unit Type"
-              >
+              <Select value={unitType} onChange={(e) => setUnitType(e.target.value)} label="Unit Type">
                 {Array.isArray(unitTypes) && unitTypes.length > 0 ? (
                   unitTypes.map((type) => (
                     <MenuItem key={type.id} value={type.id}>

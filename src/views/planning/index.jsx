@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, TablePagination, Tooltip } from '@mui/material';
+import { Alert, Box, Grid, TablePagination, Tooltip, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { CreatePlan } from './components/CreatePlan';
 import { toast, ToastContainer } from 'react-toastify';
@@ -215,14 +215,21 @@ const Planning = () => {
       title={'Planning'}
       rightOption={
         !isEmployee && (
-          <Tooltip title={fullyPlanned ? 'Already Planned 100%' : ''} arrow>
+          <>
             <AddButton
               props={{ varaint: 'contained' }}
               title={'Create new plan'}
               onPress={() => handleCreatePlan()}
               disable={fullyPlanned}
             />
-          </Tooltip>
+            {!loading && fullyPlanned && (
+              <Box sx={{ marginY: 1 }}>
+                <Alert icon={false} severity="info">
+                  Already Planned 100%
+                </Alert>
+              </Box>
+            )}
+          </>
         )
       }
     >
@@ -258,7 +265,7 @@ const Planning = () => {
           </Grid>
         </Grid>
       ) : error ? (
-        <ErrorPrompt title="Server Error" message="Unable to retrive fiscal years" />
+        <ErrorPrompt title="Server Error" message="Unable to retrive Plans" />
       ) : data.length === 0 ? (
         <Fallbacks
           severity="planning"

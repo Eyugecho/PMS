@@ -1,17 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
-import {Box,Typography,TextField,Button,Grid,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,IconButton,Dialog,DialogActions,DialogContent,DialogTitle,CardContent,Menu, MenuItem,useTheme} from '@mui/material';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  CardContent,
+  Menu,
+  MenuItem,
+  useTheme
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
-import config from '../../configration/config'; // Ensure this path is correct
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
+import PageContainer from 'ui-component/MainPage';
+import AddButton from 'ui-component/buttons/AddButton';
 
-function Measuring() {
+function MeasuringUnits() {
   const [measuringUnits, setMeasuringUnits] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [open, setOpen] = useState(false);
@@ -145,14 +167,9 @@ function Measuring() {
   const theme = useTheme();
 
   return (
-    <Box p={0}>
+    <PageContainer title="Measuring Units" rightOption={<AddButton title="Add Measuring Unit" variant="contained" onPress={handleOpen} />}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Grid item xs={12} style={{ padding: '2px 2px 2px 25px' }}>
-            <Button variant="contained" color="primary" onClick={handleOpen}>
-              Add Measuring Unit
-            </Button>
-          </Grid>
           <CardContent>
             {measuringUnits.length === 0 ? (
               <Box display="flex" alignItems="center" justifyContent="center" height="100%">
@@ -174,7 +191,18 @@ function Measuring() {
                       {['Measuring Unit', 'Description', 'Actions'].map((header) => (
                         <TableCell
                           key={header}
-                        
+                          sx={{
+                            background: theme.palette.grey[100],
+                            color: '#000',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            borderBottom: `2px solid ${theme.palette.divider}`,
+                            position: 'relative',
+                            padding: '12px 16px',
+                            '&:not(:last-of-type)': {
+                              borderRight: `1px solid ${theme.palette.divider}`
+                            }
+                          }}
                         >
                           {header}
                         </TableCell>
@@ -185,22 +213,42 @@ function Measuring() {
                     {measuringUnits.map((unit, index) => (
                       <TableRow
                         key={unit.id}
-                       
+                        sx={{
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: 2,
+                          '&:nth-of-type(odd)': {
+                            backgroundColor: theme.palette.grey[50]
+                          },
+                          '&:hover': {
+                            backgroundColor: theme.palette.grey[100]
+                          }
+                        }}
                       >
                         <TableCell
                           component="th"
                           scope="row"
-                         
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
                         >
                           {unit.name}
                         </TableCell>
                         <TableCell
-                          
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
                         >
                           {unit.description}
                         </TableCell>
                         <TableCell
-                         
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
                         >
                           <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
                             <MoreVertIcon />
@@ -233,6 +281,7 @@ function Measuring() {
           </CardContent>
         </Grid>
       </Grid>
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{editIndex !== null ? 'Edit Measuring Unit' : 'Add New Measuring Unit'}</DialogTitle>
         <DialogContent>
@@ -271,8 +320,8 @@ function Measuring() {
         </DialogContent>
       </Dialog>
       <ToastContainer />
-    </Box>
+    </PageContainer>
   );
 }
 
-export default Measuring;
+export default MeasuringUnits;

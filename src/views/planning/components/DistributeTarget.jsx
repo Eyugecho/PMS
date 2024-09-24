@@ -589,7 +589,7 @@ DistributeTarget.propTypes = {
   add: PropTypes.bool,
   onClose: PropTypes.func,
   plan: PropTypes.array,
-  plan_id: PropTypes.number,
+  plan_id: PropTypes.string,
   targets: PropTypes.array,
   naming: PropTypes.string
 };

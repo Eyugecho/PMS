@@ -11,10 +11,10 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { BrowserView, MobileView } from 'react-device-detect';
 
 // project imports
+import { drawerWidth } from 'store/constant';
 import MenuList from './MenuList';
 import LogoSection from '../LogoSection';
 import Chip from 'ui-component/extended/Chip';
-import { drawerWidth } from 'store/constant';
 
 // ==============================|| SIDEBAR DRAWER ||============================== //
 

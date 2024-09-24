@@ -30,7 +30,7 @@ import * as Yup from 'yup';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
-import { toast,ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 const JobPositionTable = () => {
   const [jobPositions, setJobPositions] = useState([]);
@@ -44,7 +44,7 @@ const JobPositionTable = () => {
     setLoading(true);
     try {
       const token = await GetToken();
-      const api = `${Backend.api}${Backend.jobposition}`;
+      const api = Backend.api + Backend.jobposition;
       const response = await fetch(api, {
         method: 'GET',
         headers: {
@@ -77,7 +77,7 @@ const JobPositionTable = () => {
         return;
       }
 
-      const api = `${Backend.api}${Backend.jobposition}/${values.id}`;
+      const api = Backend.api + Backend.jobposition + `/${values.id}`;
       const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -138,10 +138,10 @@ const JobPositionTable = () => {
         let method;
 
         if (editIndex !== null) {
-          api = `${Backend.api}${Backend.jobposition}/${values.id}`;
+          api = Backend.api + Backend.jobposition + `/${values.id}`;
           method = 'PATCH';
         } else {
-          api = `${Backend.api}${Backend.jobposition}`;
+          api = Backend.api + Backend.jobposition;
           method = 'POST';
         }
 
@@ -159,10 +159,10 @@ const JobPositionTable = () => {
         if (response.ok && result.success) {
           if (editIndex !== null) {
             setJobPositions((prevPositions) => prevPositions.map((job, index) => (index === editIndex ? result.data.job_position : job)));
-            toast.success(response.message || 'Job Position updated successfully');
+            toast.success(response.data.message || 'Job Position updated successfully');
           } else {
             setJobPositions((prevPositions) => [...prevPositions, result.data.job_position]);
-            toast.success(response.message || 'Job Position added successfully');
+            toast.success(response.data.message || 'Job Position added successfully');
           }
 
           handleCloseModal();
@@ -183,7 +183,8 @@ const JobPositionTable = () => {
   const handleDeleteJobPosition = async (id) => {
     const token = await GetToken();
     try {
-      const response = await fetch(`${Backend.api}${Backend.jobposition}/${id}`, {
+      const Api = Backend.api + Backend.jobposition + `/${id}`;
+      const response = await fetch(Api, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`

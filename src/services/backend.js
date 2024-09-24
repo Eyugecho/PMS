@@ -9,6 +9,7 @@ const Backend = {
   setPassword: 'create-password',
   verifyOtp: 'verify-otp',
   myProfile: 'my-profile',
+  myUnit: 'my-unit',
   changePassword: 'change-password',
   updateProfileImage: 'update-profile-image',
   removeProfileImage: 'remove-profile-image',
@@ -75,9 +76,13 @@ const Backend = {
   unitKpiPerformance: 'show-performance-chart',
   unitEmployeeEndpoint: 'get-unit-employees-with-performance/',
   fiscal_years: 'fiscal-years',
-  performanceratingscale: 'performance-rating-scales' ,
-  perspectiveTypes: 'perspective-types',
+  performanceratingscale: 'performance-rating-scales',
   jobposition: 'job-positions',
+  getSinglePeriods: 'get-single-periods',
+  planningPeriod: 'create-planning-period',
+  monitoringPeriod: 'create-monitoring-period',
+  revisionPeriod: 'create-revision-period',
+  perspectiveTypes: 'perspective-types',
   evaluationTypes: 'evaluation-types',
   
 };

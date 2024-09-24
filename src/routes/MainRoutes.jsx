@@ -6,6 +6,11 @@ import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
 import ViewTask from 'views/tasks/view';
 import NotFound from 'views/not-found';
+import Frequencies from 'views/settings/frequencies';
+import Periods from 'views/settings/periods';
+import MeasuringUnits from 'views/settings/measuring-units';
+import Perspectives from 'views/settings/perspectives';
+import PerformanceRating from 'views/settings/performance-ratings';
 
 // dashboard routing
 const Home = Loadable(lazy(() => import('views/dashboard')));
@@ -15,7 +20,6 @@ const Planning = Loadable(lazy(() => import('views/planning')));
 const Employees = Loadable(lazy(() => import('views/employees')));
 const ViewEmployee = Loadable(lazy(() => import('views/employees/view')));
 
-const PagePlaceholder = Loadable(lazy(() => import('views/sample-page/Placeholder')));
 const Ranking = Loadable(lazy(() => import('views/ranking')));
 const Perfomance = Loadable(lazy(() => import('views/performance')));
 const Feedbacks = Loadable(lazy(() => import('views/approvals/feedback')));
@@ -37,7 +41,7 @@ const Todo = Loadable(lazy(() => import('views/todo')));
 // utilities routing
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
 const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
-const BasicConfigPage = Loadable(lazy(() => import('views/basic-configurations/view/basic-config')));
+const BasicConfigPage = Loadable(lazy(() => import('views/settings/view/basic-config')));
 const EodActivityPage = Loadable(lazy(() => import('views/Eod/EodActivity')));
 const RolePermission = Loadable(lazy(() => import('views/roles_permission/Page')));
 const Unauthorized = Loadable(lazy(() => import('utils/unautorized')));
@@ -276,6 +280,47 @@ const MainRoutes = {
           )
         }
       ]
+    },
+    {
+      path: 'frequencies',
+      element: (
+        <Protected>
+          <Frequencies />
+        </Protected>
+      )
+    },
+    {
+      path: 'periods',
+      element: (
+        <Protected>
+          <Periods />
+        </Protected>
+      )
+    },
+    {
+      path: 'measuring-units',
+      element: (
+        <Protected>
+          <MeasuringUnits />
+        </Protected>
+      )
+    },
+    {
+      path: 'perspectives',
+      element: (
+        <Protected>
+          <Perspectives />
+        </Protected>
+      )
+    },
+
+    {
+      path: 'performance-rating',
+      element: (
+        <Protected>
+          <PerformanceRating />
+        </Protected>
+      )
     },
     {
       path: 'kpi',

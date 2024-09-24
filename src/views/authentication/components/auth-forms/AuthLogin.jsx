@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { Formik } from 'formik';
 import { decodeToken } from '../../../../store/permissionUtils';
@@ -22,12 +22,12 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Backend from 'services/backend';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import * as Yup from 'yup';
+import StoreUserUnit from 'utils/set-user-unit';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
-  const customization = useSelector((state) => state.customization);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const customization = useSelector((state) => state.customization);
   const [showPassword, setShowPassword] = useState(false);
   const [signing, setSigning] = useState(false);
 
@@ -59,6 +59,7 @@ const AuthLogin = ({ ...others }) => {
             }
 
             const decodedToken = decodeToken(access_token);
+
             const user = {
               id: decodedToken.sub,
               name: decodedToken.name,
@@ -75,6 +76,7 @@ const AuthLogin = ({ ...others }) => {
             Storage.setItem('tokenExpiration', expirationTime);
 
             dispatch(setUser({ type: SET_USER, user: user }));
+            dispatch(StoreUserUnit());
             dispatch({ type: SIGN_IN, signed: true });
           } else {
             setStatus({ success: false });

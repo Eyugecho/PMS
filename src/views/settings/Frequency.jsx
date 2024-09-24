@@ -182,36 +182,18 @@ function Frequency() {
                 <TableHead>
                   <TableRow>
                     {['Frequency Name', 'Value', 'Actions'].map((header) => (
-                      <TableCell
-                        key={header}
-                       
-                      >
-                        {header}
-                      </TableCell>
+                      <TableCell key={header}>{header}</TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {frequencies.map((frequency, index) => (
-                    <TableRow
-                      key={frequency.id}
-                      
-                    >
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        
-                      >
+                    <TableRow key={frequency.id}>
+                      <TableCell component="th" scope="row">
                         {frequency.name}
                       </TableCell>
-                      <TableCell
-                       
-                      >
-                        {frequency.value}
-                      </TableCell>
-                      <TableCell
-                        
-                      >
+                      <TableCell>{frequency.value}</TableCell>
+                      <TableCell>
                         <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
                           <IconDotsVertical size={'1.4rem'} stroke={1.8} color="grey" />
                         </IconButton>
