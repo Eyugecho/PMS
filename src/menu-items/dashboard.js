@@ -36,14 +36,7 @@ const auth = getRolesAndPermissionsFromToken();
 export const dashboard = () => {
   let childrenTemp = [];
 
-  // childrenTemp.push({
-  //   id: 'default',
-  //   title: 'Home',
-  //   type: 'item',
-  //   url: '/',
-  //   icon: icons.IconHome,
-  //   breadcrumbs: false
-  // });
+
   auth &&
     auth.forEach((role) => {
       if (role.permissions.find((per) => per.name == 'read:kpi')) {

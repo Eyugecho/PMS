@@ -29,7 +29,7 @@ export const Accounts = () => {
 
     auth &&
       auth.forEach((role) => {
-        if (role.permissions.find((per) => per.name == 'read:user')) {
+        if (role.permissions.find((per) => per.name == 'read:users')) {
           childrenTemp.push({
             id: 'users',
             title: 'Users',
