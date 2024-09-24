@@ -1,8 +1,11 @@
+import { Storage } from 'configration/storage';
 import { useDispatch } from 'react-redux';
+import { SIGN_IN } from 'store/actions/actions';
+import Backend from 'services/backend';
 
 let inactivityTimeout;
 
-const handleBackendLogout = () => {
+export const handleBackendLogout = async() => {
   const Api = Backend.auth + Backend.logout;
   const token = Storage.getItem('token');
 
@@ -20,7 +23,6 @@ export const logout = () => {
   dispatch({ type: SIGN_IN, signed: false });
   handleBackendLogout();
   Storage.clear();
-  window.location.href = '/';
 };
 
 const resetInactivityTimeout = () => {

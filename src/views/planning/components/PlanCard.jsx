@@ -3,7 +3,7 @@ import 'react-quill/dist/quill.snow.css';
 import PropTypes from 'prop-types';
 import { Box, Grid, IconButton, Paper, Typography, useTheme } from '@mui/material';
 import { DotMenu } from 'ui-component/menu/DotMenu';
-import { MeasuringUnitConverter, PeriodNaming } from 'utils/function';
+import { getStatusColor, MeasuringUnitConverter, PeriodNaming } from 'utils/function';
 import { IconChevronDown, IconChevronUp, IconPencil, IconTextWrap } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import DrogaDonutChart from 'ui-component/charts/DrogaDonutChart';
@@ -75,12 +75,33 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative, is_empl
       });
   };
 
+  const handlePlanStatus = () => {
+    let p_status = '';
+
+    switch (plan?.status) {
+      case '0':
+        return (p_status = 'Pending');
+
+      case '1':
+        return (p_status = 'Active');
+
+      default:
+        return (p_status = 'Pending');
+    }
+  };
   return (
     <DrogaCard sx={{ ...sx }}>
       <div onClick={onPress} style={{ cursor: 'pointer' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="body1">KPI Name</Typography>
-          {!plan?.is_distributed || (!is_employee && <DotMenu orientation="horizontal" onEdit={onEdit} onDelete={onDelete}></DotMenu>)}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box>
+              <Typography variant="body2" color={getStatusColor(handlePlanStatus())}>
+                {handlePlanStatus()}
+              </Typography>
+            </Box>
+            {plan?.is_distributed || (!is_employee && <DotMenu orientation="vertical" onEdit={onEdit} onDelete={onDelete}></DotMenu>)}
+          </Box>
         </Box>
         <Typography variant="h3" color={theme.palette.text.primary} sx={{ marginTop: 0.6, cursor: 'pointer' }}>
           {plan?.kpi?.name}

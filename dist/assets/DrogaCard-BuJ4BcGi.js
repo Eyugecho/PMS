@@ -1,1 +1,0 @@
-import{P as r,i as a,j as t,m as d}from"./index-CsFgNO3o.js";const p=({sx:o,children:s})=>{const e=a();return t.jsx(d,{sx:{backgroundColor:e.palette.background.default,padding:2,border:.8,borderColor:e.palette.divider,...o},children:s})};p.propTypes={sx:r.object,children:r.node};export{p as D};

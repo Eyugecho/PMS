@@ -143,7 +143,7 @@ export const UpdatePlan = ({ add, onClose, onSucceed }) => {
                   {isAdding ? (
                     <CircularProgress size={18} sx={{ color: 'white' }} />
                   ) : (
-                    <Typography variant="subtitle1" color={theme.palette.background.default}>
+                    <Typography variant="subtitle1" color="white">
                       Submit
                     </Typography>
                   )}

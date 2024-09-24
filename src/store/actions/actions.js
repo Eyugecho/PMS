@@ -1,5 +1,6 @@
 // actions.js
 export const SET_USER = 'SET_USER';
+export const SET_USER_UNIT = 'SET_USER_UNIT';
 export const SIGN_IN = 'SIGN_IN';
 export const MENU_OPEN = 'MENU_OPEN';
 export const SET_MENU = 'SET_MENU';
@@ -32,10 +33,14 @@ export const setUser = (user) => ({
   payload: user
 });
 
+export const setUserUnit = (my_unit) => ({
+  type: SET_USER_UNIT,
+  payload: my_unit
+});
+
 export const setMenuOpen = (isOpen) => ({
   type: MENU_OPEN,
   payload: isOpen
 });
-
 
 // No default export, only named exports

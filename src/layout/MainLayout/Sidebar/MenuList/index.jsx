@@ -1,38 +1,26 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { Typography } from '@mui/material';
-import { hasRole, hasPermission } from '../../../../store/permissionUtils';
 import NavGroup from './NavGroup';
-import menuItem from 'menu-items';
+import useMenuFilter from 'hooks/useMenuFilter';
 
 const MenuList = () => {
-  const user = useSelector((state) => state.user.user); // assuming user data is in the Redux store
+  const { filteredNavItems, loading } = useMenuFilter();
 
-  const filterMenuItems = (items) => {
-    return items
-      .map((item) => {
-        if (item.type === 'group') {
-          if (item.requiredRoles && !hasRole(user.roles, item.requiredRoles)) {
-            return null;
-          }
-          const filteredChildren = filterMenuItems(item.children);
-          if (filteredChildren.length > 0) {
-            return { ...item, children: filteredChildren };
-          }
-          return null;
-        }
-        if (item.requiredRoles && !hasRole(user.roles, item.requiredRoles)) {
-          return null;
-        }
-        if (item.requiredPermissions && !hasPermission(user.roles, item.requiredPermissions)) {
-          return null;
-        }
-        return item;
-      })
-      .filter((item) => item !== null);
-  };
+  if (loading) {
+    return (
+      <Typography variant="h6" align="center">
+        Loading menu...
+      </Typography>
+    );
+  }
 
-  const filteredNavItems = filterMenuItems(menuItem.items);
+  if (!filteredNavItems || filteredNavItems.length === 0) {
+    return (
+      <Typography variant="h6" align="center" color="error">
+        No available menu items
+      </Typography>
+    );
+  }
 
   const navItems = filteredNavItems.map((item) => {
     switch (item.type) {
@@ -42,7 +30,7 @@ const MenuList = () => {
       default:
         return (
           <Typography key={item.id} variant="h6" color="error" align="center">
-            Menu Items Error
+            Menu Item Error
           </Typography>
         );
     }

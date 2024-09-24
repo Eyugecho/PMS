@@ -1,5 +1,5 @@
 // material-ui
-import logo from 'assets/images/droga.svg';
+import logo from 'assets/images/pms.jpg';
 
 // ==============================|| LOGO ||============================== //
 

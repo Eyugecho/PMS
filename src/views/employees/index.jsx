@@ -93,16 +93,12 @@ const Employees = () => {
       });
 
       if (response.success) {
-        toast.success(response.data.message);
+        toast.success(response.data.data.message);
       } else {
-        toast.error(response.data.message);
+        toast.success(response.data.data.message);
       }
     } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error(error.message);
-      }
+      toast.error(error.message);
     }
   };
 

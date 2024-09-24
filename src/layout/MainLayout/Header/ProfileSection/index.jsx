@@ -26,24 +26,28 @@ import Transitions from 'ui-component/extended/Transitions';
 // assets
 import { IconPaperclip, IconShield, IconUser } from '@tabler/icons-react';
 import { Storage } from 'configration/storage';
-import { SIGN_IN } from 'store/actions/actions';
+import { SET_USER, SET_USER_UNIT, SIGN_IN } from 'store/actions/actions';
+import DepartmentCard from './DepartmentCard';
+import StoreUserUnit from 'utils/set-user-unit';
 
 // ==============================|| PROFILE MENU ||============================== //
 
 const ProfileSection = () => {
   const theme = useTheme();
-  const customization = useSelector((state) => state.customization);
-  const user = useSelector((state) => state.user.user); // signed in user information
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const customization = useSelector((state) => state.customization);
+  const user = useSelector((state) => state.user.user); // signed in user information
+  const unit = useSelector((state) => state.user.my_unit);
 
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  !unit && dispatch(StoreUserUnit());
+
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
 
   const handleLogout = async () => {
-    Storage.clear();
     dispatch({ type: SIGN_IN, signed: false });
+    Storage.clear();
     navigate('/');
   };
 
@@ -55,7 +59,6 @@ const ProfileSection = () => {
   };
 
   const handleListItemClick = (event, index, route = '') => {
-    setSelectedIndex(index);
     handleClose(event);
 
     if (route && route !== '') {
@@ -116,18 +119,20 @@ const ProfileSection = () => {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard elevation={8} border={true} content={false} boxShadow shadow={theme.shadows[4]}>
-                  <Box sx={{ p: 2.6, pb: 2, borderBottom: 1.3, borderColor: theme.palette.divider }}>
+                  <Box sx={{ p: 2.6, pb: 2 }}>
                     <Stack>
                       <Stack direction="row" spacing={0.5} alignItems="center">
                         <Typography variant="h4"> {`${user ? user.name : 'Your name'}`}</Typography>
                       </Stack>
                       <Stack direction="row" spacing={1} alignItems="center" sx={{ marginTop: 1.6 }}>
                         {user?.roles?.map((role, index) => (
-                          <Chip key={index} label={role?.name} />
+                          <Chip key={index} label={role?.name} sx={{ bgcolor: 'grey.50' }} />
                         ))}
                       </Stack>
                     </Stack>
                   </Box>
+
+                  <DepartmentCard unit={unit} />
 
                   <Box>
                     <List
@@ -212,7 +217,7 @@ const ProfileSection = () => {
                             borderRadius: `${customization.borderRadius}px`,
                             ':hover': { backgroundColor: theme.palette.grey[50] }
                           }}
-                          onClick={handleLogout}
+                          onClick={() => handleLogout()}
                         >
                           <ListItemText
                             primary={

@@ -26,7 +26,7 @@ const Dashboard = () => {
   } else if (roles.includes('Employee')) {
     return <EmployeeDashboard />;
   } else {
-    return <EmployeeDashboard />;
+    return <AdminDashboard />;
   }
 };
 
