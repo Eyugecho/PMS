@@ -72,7 +72,7 @@ const AssignedPermissions = ({ assigneperm }) => {
                         <TableCell
                           sx={{ backgroundColor: theme.palette.primary.main, color: theme.palette.common.white, fontWeight: 'bold' }}
                         >
-                          Permissions Number
+                          Total Permissions Assigned
                         </TableCell>
                         <TableCell
                           sx={{ backgroundColor: theme.palette.primary.main, color: theme.palette.common.white, fontWeight: 'bold' }}

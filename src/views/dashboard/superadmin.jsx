@@ -131,7 +131,7 @@ useEffect(() => {
                           </Typography>
                         </Box>
                         <Typography variant="subtitle1" color={theme.palette.text.primary} sx={{ marginLeft: 0.4 }}>
-                          Total Permissions
+                          Total Users
                         </Typography>
                       </Box>
                     </Box>
