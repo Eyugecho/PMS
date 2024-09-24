@@ -2,6 +2,8 @@ import React from 'react';
 import { Grid, Box, Typography, Stack, AccordionDetails, useTheme, IconButton } from '@mui/material';
 import Measuring from '../Measuring-Units';
 import Perceptive from '../Perceptive';
+import PerformanceScale from '../PerformanceScale';
+import JobPosition from '../JobPosition';
 import EvalType from '../Evaluation-Type';
 import Frequency from '../Frequency';
 import Period from '../Period';

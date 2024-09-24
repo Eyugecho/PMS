@@ -1,6 +1,15 @@
 // assets
-import { IconBuildingSkyscraper, IconFileRss, IconUsersGroup } from '@tabler/icons-react';
-import { IconKey, IconABOff, IconFile3d } from '@tabler/icons-react';
+import {
+  IconBuildingSkyscraper,
+  IconFileRss,
+  IconHierarchy,
+  IconUsersGroup
+} from '@tabler/icons-react';
+import {
+  IconKey,
+  IconABOff,
+  IconFile3d
+} from '@tabler/icons-react';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 // constant
@@ -10,7 +19,8 @@ const icons = {
   IconFile3d,
   IconFileRss,
   IconBuildingSkyscraper,
-  IconUsersGroup
+  IconUsersGroup,
+  IconHierarchy
 };
 
 // ==============================|| ORGANIZATION PAGES MENU ITEMS ||============================== //
@@ -46,10 +56,14 @@ export const getOrgStructure = () => {
       }
     });
 
+  
+
   return {
     id: 'dep',
     title: 'Organization Structure',
     type: 'group',
-    children: [...childrenTemp]
+    icon: icons.IconHierarchy,
+    children: [...childrenTemp],
+
   };
 };

@@ -27,11 +27,25 @@ export const Accounts = () => {
       }
     });
 
+    auth &&
+      auth.forEach((role) => {
+        if (role.permissions.find((per) => per.name == 'read:users')) {
+          childrenTemp.push({
+            id: 'users',
+            title: 'Users',
+            requiredRole: 'Admin',
+            type: 'item',
+            url: '/users',
+            icon: icons.IconUserCog
+          });
+        }
+      });
+
   return {
     id: 'account',
     title: 'Account',
     type: 'group',
-
+ icon: icons.IconUserCog,
     children: [...childrenTemp]
   };
 };

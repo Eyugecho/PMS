@@ -95,7 +95,7 @@ const EditUnit = ({ open, onClose, unit, onUpdate }) => {
           onUpdate();
           onClose();
         } else {
-          toast.error(response.message);
+          toast.error(response?.data?.message);
         }
         setIsUpdating(false);
       })

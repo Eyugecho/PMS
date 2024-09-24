@@ -10,12 +10,13 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
-  useTheme
+  useTheme,
+  Card,
+  CardContent
 } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import { DotMenu } from 'ui-component/menu/DotMenu';
-import { formatDate } from 'utils/function';
+import { format } from 'date-fns';
 import PageContainer from 'ui-component/MainPage';
 import Backend from 'services/backend';
 import Search from 'ui-component/search';
@@ -23,12 +24,21 @@ import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import GetToken from 'utils/auth-token';
 import ErrorPrompt from 'utils/components/ErrorPrompt';
 import Fallbacks from 'utils/components/Fallbacks';
+import AddButton from 'ui-component/buttons/AddButton';
+import AddUser from './componenets/Addusers';
+import UpdateUser from './componenets/EditUserModal';
+import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 const Users = () => {
   const theme = useTheme();
-
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const [add, setAdd] = useState(false);
+  const [roles, setRoles] = useState([]);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [pagination, setPagination] = useState({
@@ -37,8 +47,14 @@ const Users = () => {
     last_page: 0,
     total: 0
   });
-
   const [search, setSearch] = useState('');
+  const [update, setUpdate] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const auth = getRolesAndPermissionsFromToken();
+
+  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:users'));
+  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:users'));
+  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:users'));
 
   const handleChangePage = (event, newPage) => {
     setPagination({ ...pagination, page: newPage });
@@ -57,22 +73,23 @@ const Users = () => {
   const handleFetchingUsers = async () => {
     setLoading(true);
     const token = await GetToken();
-    const Api = Backend.auth + Backend.users + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+    const Api = `${Backend.auth}${Backend.users}?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
       'Content-Type': 'application/json'
     };
 
-    fetch(Api, {
-      method: 'GET',
-      headers: header
-    })
+    fetch(Api, { method: 'GET', headers: header })
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
           setData(response.data.data);
-          setPagination({ ...pagination, last_page: response.data.last_page, total: response.data.total });
+          setPagination({
+            ...pagination,
+            last_page: response.data.last_page,
+            total: response.data.total
+          });
           setError(false);
         } else {
           toast.warning(response.data.message);
@@ -87,14 +104,149 @@ const Users = () => {
       });
   };
 
+  const handleUserAddition = async (value) => {
+    setIsAdding(true);
+    const token = await GetToken();
+    const Api = `${Backend.auth}${Backend.users}`;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      email: value.email,
+      password: value.password,
+      password_confirmation: value.password_confirmation,
+      name: value.name,
+      phone: value.phone,
+      roles: value.roles // Ensure this contains valid UUIDs
+    };
+
+    if (!value.email || !value.password || !value.name) {
+      toast.error('Please fill all required fields.');
+      setIsAdding(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(Api, {
+        method: 'POST',
+        headers: header,
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.data.message || 'Error adding user');
+      }
+
+      const responseData = await response.json();
+      if (responseData.success) {
+        toast.success(responseData.data.message);
+        handleFetchingUsers(); // Refresh users after adding
+        handleUserModalClose();
+      } else {
+        toast.error(responseData.data.message || 'Failed to add user.');
+      }
+    } catch (error) {
+      toast.error(error.message || 'An unexpected error occurred.');
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleFetchingRoles = async () => {
+    const token = await GetToken();
+    const Api = `${Backend.auth}${Backend.roles}`;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, { method: 'GET', headers: header })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setRoles(response.data);
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+      });
+  };
+  const handleUpdatingUser = async (updatedData) => {
+    setIsUpdating(true);
+    const token = await GetToken();
+
+    const Api = `${Backend.auth}${Backend.users}/${selectedRow?.id}`; // Update the selected user by ID
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      name: updatedData.name,
+      email: updatedData.email,
+      phone: updatedData.phone,
+      roles: updatedData.roles
+    };
+
+    try {
+      const response = await fetch(Api, {
+        method: 'PATCH',
+        headers: header,
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.message || 'Error updating user');
+      }
+
+      const responseData = await response.json();
+      if (responseData.success) {
+        toast.success('User updated successfully');
+        setIsUpdating(false);
+        handleFetchingUsers(); // Refresh the users list after successful update
+        handleUpdateUserClose(); // Close the modal
+      } else {
+        setIsUpdating(false);
+        toast.error('Failed to update user.');
+      }
+    } catch (error) {
+      toast.error(error.message || 'An unexpected error occurred.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleAddUserClick = () => {
+    setAdd(true);
+    handleFetchingRoles();
+  };
+
+  const handleUserModalClose = () => {
+    setAdd(false);
+  };
+
+  const handleUserUpdate = (updatedData) => {
+    setSelectedRow(updatedData); // Store the selected user
+    setUpdate(true); // Open the update modal
+  };
+
+  const handleUpdateUserClose = () => {
+    setUpdate(false); // Close the modal
+    setSelectedRow(null); // Clear selected user data
+  };
+
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       handleFetchingUsers();
     }, 800);
-
-    return () => {
-      clearTimeout(debounceTimeout);
-    };
+    return () => clearTimeout(debounceTimeout);
   }, [search]);
 
   useEffect(() => {
@@ -104,93 +256,113 @@ const Users = () => {
       setMounted(true);
     }
   }, [pagination.page, pagination.per_page]);
+
   return (
     <PageContainer title="Users">
       <Grid container>
         <Grid item xs={12} padding={3}>
-          <Grid container>
-            <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3 }}>
-              <Search title="Search Employees" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
-            </Grid>
-            
-          </Grid>
+          <Grid item xs={10} md={12}>
+            <Card>
+              <CardContent>
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Search title="Search Employees" value={search} onChange={handleSearchFieldChange} filter={false} />
 
+                  <AddButton title="Add User" onPress={handleAddUserClick} />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
           <Grid container>
             <Grid item xs={12}>
               {loading ? (
                 <Grid container>
-                  <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
+                  <Grid
+                    item
+                    xs={12}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 4
+                    }}
+                  >
                     <ActivityIndicator size={20} />
                   </Grid>
                 </Grid>
               ) : error ? (
-                <ErrorPrompt title="Server Error" message={`Unable to retrive users `} />
+                <ErrorPrompt title="Server Error" message="Unable to retrieve users." />
               ) : data.length === 0 ? (
                 <Fallbacks
                   severity="evaluation"
-                  title={`User is not found`}
-                  description={`The list of user will be listed here`}
+                  title="User Not Found"
+                  description="The list of users will be listed here."
                   sx={{ paddingTop: 6 }}
                 />
               ) : (
-                <TableContainer sx={{ minHeight: '66dvh', border: 0.4, borderColor: theme.palette.divider, borderRadius: 2 }}>
+                <TableContainer
+                  sx={{
+                    minHeight: '66dvh',
+                    border: 0.4,
+                    borderColor: theme.palette.divider,
+                    borderRadius: 2
+                  }}
+                >
                   <Table aria-label="users table" sx={{ minWidth: 650 }}>
                     <TableHead>
                       <TableRow>
                         <TableCell>Name</TableCell>
+                        <TableCell>User Id</TableCell>
                         <TableCell>Email</TableCell>
                         <TableCell>Phone</TableCell>
-                        <TableCell>Username</TableCell>
                         <TableCell>Roles</TableCell>
-                        <TableCell>Created at</TableCell>
+                        <TableCell>Created At</TableCell>
                         <TableCell>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {data?.map((user) => (
+                      {data.map(({ id, name, email, phone, username, roles, created_at }) => (
                         <TableRow
-                          key={user.id}
+                          key={id}
                           sx={{
                             ':hover': {
-                              backgroundColor: theme.palette.grey[100],
-                              color: theme.palette.background.default,
-                              cursor: 'pointer',
-                              borderRadius: 2
+                              backgroundColor: theme.palette.grey[50]
                             }
                           }}
                         >
-                          <TableCell sx={{ display: 'flex', alignItems: 'center', border: 0 }}>
-                            <Typography variant="subtitle1" color={theme.palette.text.primary}>
-                              {user?.name}
-                            </Typography>
-                          </TableCell>
-
-                          <TableCell sx={{ border: 0 }}>{user?.email}</TableCell>
-                          <TableCell sx={{ border: 0 }}>{user?.phone ? user?.phone : 'N/A'}</TableCell>
-                          <TableCell sx={{ border: 0 }}>{user?.username ? user?.username : 'N/A'}</TableCell>
-                          <TableCell sx={{ border: 0 }}>
-                            {user?.roles?.map((role, index) => (
-                              <Box key={index}>
-                                <Chip label={role.name} sx={{ margin: 0.4 }} />
-                              </Box>
+                          <TableCell>{name}</TableCell>
+                          <TableCell>{username}</TableCell>
+                          <TableCell>{email}</TableCell>
+                          <TableCell>{phone}</TableCell>
+                          <TableCell>
+                            {roles.map((role) => (
+                              <Chip key={role.id} label={role.name} color="primary" variant="outlined" size="small" sx={{ margin: 0.5 }} />
                             ))}
                           </TableCell>
-                          <TableCell sx={{ border: 0 }}>{formatDate(user?.created_at).formattedDate}</TableCell>
-                          <TableCell sx={{ border: 0 }}>
-                            <DotMenu />
+                          <TableCell>{format(new Date(created_at), 'yyyy-MM-dd')}</TableCell>
+                          <TableCell
+                            sx={{
+                              ':hover': {
+                                backgroundColor: theme.palette.grey[50]
+                              }
+                            }}
+                          >
+                            <DotMenu
+                              onEdit={
+                                hasEditPermission ? () => handleUserUpdate({ id, name, email, phone, username, roles, created_at }) : null
+                              }
+                              // onDelete={hasDeletePermission ? () => handleRemoveEmployee(id) : null}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-
                   <TablePagination
                     component="div"
-                    rowsPerPageOptions={[10, 25, 50, 100]}
                     count={pagination.total}
-                    rowsPerPage={pagination.per_page}
                     page={pagination.page}
                     onPageChange={handleChangePage}
+                    rowsPerPage={pagination.per_page}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                   />
                 </TableContainer>
@@ -199,8 +371,18 @@ const Users = () => {
           </Grid>
         </Grid>
       </Grid>
-
       <ToastContainer />
+      <AddUser add={add} roles={roles} onClose={handleUserModalClose} onSubmit={handleUserAddition} loading={isAdding} />
+      {selectedRow && (
+        <UpdateUser
+          open={update}
+          isUpdating={isUpdating}
+          userData={selectedRow} // Pass the selected user data to the modal
+          onClose={handleUpdateUserClose}
+          handleSubmission={(value, roles) => handleUpdatingUser(value, roles)}
+          roles={roles}
+        />
+      )}
     </PageContainer>
   );
 };
