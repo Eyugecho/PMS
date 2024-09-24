@@ -14,8 +14,12 @@ import AddKPI from './components/AddKPI';
 import UpdateKPI from './components/UpdateKPI';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import ErrorPrompt from 'utils/components/ErrorPrompt';
+import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
+import SplitButton from 'ui-component/buttons/SplitButton';
 import noresult from '../../assets/images/no_result.png';
 import GetToken from 'utils/auth-token';
+import UploadFile from 'ui-component/modal/UploadFile';
+
 
 const KPIManagement = () => {
   const theme = useTheme();
@@ -40,16 +44,26 @@ const KPIManagement = () => {
   const [variationCategories, setVariationCategories] = useState([]);
   const [add, setAdd] = useState(false);
   const [isAdding, setAdding] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [selectedKPI, setSelectedKPI] = useState();
   const [update, setUpdate] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [importExcel, setImportExcel] = useState(false);
 
   const [deleteKPI, setDeleteKPI] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summary, setSummary] = useState(null);
+    const auth = getRolesAndPermissionsFromToken();
+
+
+  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
+  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:kpi'));
+  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:kpi'));
+
+const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
 
   const handleOpen = () => {
     setAdd(true);
@@ -73,6 +87,13 @@ const KPIManagement = () => {
 
   const handleCloseUpdate = () => {
     setUpdate(false);
+  };
+  const handleOpenDialog = () => {
+    setImportExcel(true);
+  };
+
+  const handleCloseDialog = () => {
+    setImportExcel(false);
   };
 
   const handleFetchingPresetups = async () => {
@@ -262,7 +283,46 @@ const KPIManagement = () => {
       setIsLoadingSummary(false);
     }
   };
+    const handleUpload = async (file) => {
+      const token = localStorage.getItem('token');
+      const Api = Backend.api + Backend.kpiExcell;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      };
 
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await axios.post(Api, formData, {
+          headers: headers,
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percent);
+          }
+        });
+
+        if (response.success) {
+          toast.success(response.data.data.message);
+        } else {
+          toast.success(response.data.data.message);
+        }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+
+
+    const handleKpiAdd = (index) => {
+      if (index === 0) {
+        handleOpen();
+      } else if (index === 1) {
+        handleOpenDialog();
+      } else {
+        alert('We will be implement importing from odoo');
+      }
+    };
   useEffect(() => {
     if (mounted) {
       handleFetchingKpi();
@@ -289,7 +349,7 @@ const KPIManagement = () => {
   return (
     <PageContainer
       title="KPI Management"
-      rightOption={<AddButton props={{ varaint: 'contained' }} title={'Create New KPI'} onPress={() => handleOpen()} sx={{}} />}
+      rightOption={hasPermission && <SplitButton options={AddKpiOptions} handleSelection={(value) => handleKpiAdd(value)} />}
     >
       <Grid container padding={2} sx={{ marginTop: 2 }}>
         <Grid item xs={12}>
@@ -476,6 +536,14 @@ const KPIManagement = () => {
           handleClose={() => setDeleteKPI(false)}
         />
       )}
+
+      <UploadFile
+        open={importExcel}
+        onClose={handleCloseDialog}
+        onUpload={handleUpload}
+        uploadProgress={uploadProgress}
+        onRemove={() => setUploadProgress(0)}
+      />
       <ToastContainer />
     </PageContainer>
   );

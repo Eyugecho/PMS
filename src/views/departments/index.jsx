@@ -32,6 +32,10 @@ import EditUnitType from './components/EditUnitType';
 import AddButton from 'ui-component/buttons/AddButton';
 import GetToken from 'utils/auth-token';
 import DrogaCard from 'ui-component/cards/DrogaCard';
+import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
+import SplitButton from 'ui-component/buttons/SplitButton';
+import UploadFile from 'ui-component/modal/UploadFile';
+
 
 
 //================================ UNITS MANAGEMENT PAGE=====================
@@ -60,6 +64,16 @@ const Units = () => {
   const [editUnitTypeModalOpen, setEditUnitTypeModalOpen] = useState(false);
   const [selectedUnitType, setSelectedUnitType] = useState(null);
   const [search, setSearch] = useState('');
+  const [importExcel, setImportExcel] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+    const auth = getRolesAndPermissionsFromToken();
+
+    const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
+    const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:kpi'));
+    const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:kpi'));
+
+    const AddUnitOptions = ['Add Unit', 'Import From Excel'];
 
   const handleClick = (event, unitType) => {
     setAnchorEl(event.currentTarget);
@@ -334,6 +348,54 @@ const Units = () => {
       });
   };
 
+      const handleUpload = async (file) => {
+        const token = localStorage.getItem('token');
+        const Api = Backend.api + Backend.kpiExcell;
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        };
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await axios.post(Api, formData, {
+            headers: headers,
+            onUploadProgress: (progressEvent) => {
+              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setUploadProgress(percent);
+            }
+          });
+
+          if (response.success) {
+            toast.success(response.data.data.message);
+          } else {
+            toast.success(response.data.data.message);
+          }
+        } catch (error) {
+          toast.error(error.message);
+        }
+      };
+
+    const handleUnitAdd = (index) => {
+      if (index === 0) {
+        handleAddUnitClick();
+      } else if (index === 1) {
+        handleOpenDialog();
+      } else {
+        alert('We will be implement importing from odoo');
+      }
+    };
+
+      const handleOpenDialog = () => {
+        setImportExcel(true);
+      };
+
+      const handleCloseDialog = () => {
+        setImportExcel(false);
+      };
+
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       handleFetchingUnits();
@@ -358,7 +420,7 @@ const Units = () => {
 
   return (
     <PageContainer maxWidth="lg" title={'Units Managment'}>
-      <DrogaCard  sx={{ marginLeft:'10px' }}>
+      <DrogaCard sx={{ marginLeft: '10px' }}>
         <Grid
           container
           sx={{
@@ -374,7 +436,8 @@ const Units = () => {
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                   <Search title="Search units" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
 
-                  <AddButton title="Add unit" onPress={() => handleAddUnitClick()} />
+                  {/* <AddButton title="Add unit" onPress={() => handleAddUnitClick()} /> */}
+                  {hasPermission && <SplitButton options={AddUnitOptions} handleSelection={(value) => handleUnitAdd(value)} />}
                 </Box>
               </CardContent>
             </Card>
@@ -540,6 +603,13 @@ const Units = () => {
           unitType={selectedUnitType}
           onClose={handleEditUnitTypeModalClose}
           onUpdate={handleUpdateUnitType}
+        />
+        <UploadFile
+          open={importExcel}
+          onClose={handleCloseDialog}
+          onUpload={handleUpload}
+          uploadProgress={uploadProgress}
+          onRemove={() => setUploadProgress(0)}
         />
       </DrogaCard>
     </PageContainer>

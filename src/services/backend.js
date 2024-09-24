@@ -84,6 +84,8 @@ const Backend = {
   revisionPeriod: 'create-revision-period',
   perspectiveTypes: 'perspective-types',
   evaluationTypes: 'evaluation-types',
+  kpiExcell: 'kpis/upload',
+  UnitExcell: 'units/upload',
   
 };
 export default Backend;
