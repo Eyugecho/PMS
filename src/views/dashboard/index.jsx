@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import EmployeeDashboard from './employee';
 import AdminDashboard from './admin';
+import SuperAdminDashboard from './superadmin';
 
 // ==============================|| HOME DASHBOARD ||============================== //
 
@@ -20,6 +21,8 @@ const Dashboard = () => {
     return <AdminDashboard />;
   } else if (roles.includes('Manager')) {
     return <AdminDashboard />;
+     } else if (roles.includes('Super_Admin')) {
+    return <SuperAdminDashboard/>;
   } else if (roles.includes('Employee')) {
     return <EmployeeDashboard />;
   } else {
