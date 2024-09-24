@@ -44,11 +44,7 @@ function PreSetup() {
       name: 'Perspectives',
       component: <Perceptive />
     },
-    {
-      id: 5,
-      name: 'Evaluation Types',
-      component: <EvalType />
-    },
+
     {
       id: 6,
       name: 'Performance Rating',

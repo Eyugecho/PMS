@@ -107,6 +107,8 @@ export const getStatusColor = (status) => {
   switch (status.toLowerCase()) {
     case 'approved':
       return 'green';
+    case 'active':
+      return 'green';
     case 'pending':
       return '#FFA500';
     case 'rejected':

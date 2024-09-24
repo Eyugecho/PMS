@@ -8,7 +8,6 @@ import {
   Box,
   Chip,
   ClickAwayListener,
-  Divider,
   IconButton,
   List,
   ListItemButton,
@@ -27,11 +26,8 @@ import Transitions from 'ui-component/extended/Transitions';
 // assets
 import { IconPaperclip, IconShield, IconUser } from '@tabler/icons-react';
 import { Storage } from 'configration/storage';
-import { SIGN_IN } from 'store/actions/actions';
+import { SET_USER, SET_USER_UNIT, SIGN_IN } from 'store/actions/actions';
 import DepartmentCard from './DepartmentCard';
-import Backend from 'services/backend';
-import GetToken from 'utils/auth-token';
-import { toast } from 'react-toastify';
 import StoreUserUnit from 'utils/set-user-unit';
 
 // ==============================|| PROFILE MENU ||============================== //
@@ -221,7 +217,7 @@ const ProfileSection = () => {
                             borderRadius: `${customization.borderRadius}px`,
                             ':hover': { backgroundColor: theme.palette.grey[50] }
                           }}
-                          onClick={handleLogout}
+                          onClick={() => handleLogout()}
                         >
                           <ListItemText
                             primary={

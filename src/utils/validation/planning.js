@@ -27,6 +27,9 @@ export const SelectedKPIValidation = (selectedKpi) => {
     } else if (isNaN(kpi.weight)) {
       valid = false;
       errors.push(`The ${kpi.name} KPI weight must be a number.`);
+    } else if (kpi.weight == 0) {
+      valid = false;
+      errors.push(`The ${kpi.name} KPI weight cannot be 0`);
     } else if (kpi.weight < 0) {
       valid = false;
       errors.push(`The ${kpi.name} KPI weight cannot be negative.`);
@@ -44,6 +47,9 @@ export const SelectedKPIValidation = (selectedKpi) => {
     } else if (isNaN(kpi.total_target)) {
       valid = false;
       errors.push(`The ${kpi.name} KPI target should be a number.`);
+    } else if (kpi.total_target == 0) {
+      valid = false;
+      errors.push(`The ${kpi.name} KPI target cannot be 0`);
     } else if (kpi.total_target < 0) {
       valid = false;
       errors.push(`The ${kpi.name} KPI target cannot be negative.`);

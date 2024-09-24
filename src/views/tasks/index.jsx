@@ -287,7 +287,7 @@ const Tasks = () => {
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
       handleFetchingTasks();
-    }, 800);
+    }, 500);
 
     return () => {
       clearTimeout(debounceTimeout);

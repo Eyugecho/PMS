@@ -222,7 +222,7 @@ const Planning = () => {
               onPress={() => handleCreatePlan()}
               disable={fullyPlanned}
             />
-            {fullyPlanned && (
+            {!loading && fullyPlanned && (
               <Box sx={{ marginY: 1 }}>
                 <Alert icon={false} severity="info">
                   Already Planned 100%
@@ -265,7 +265,7 @@ const Planning = () => {
           </Grid>
         </Grid>
       ) : error ? (
-        <ErrorPrompt title="Server Error" message="Unable to retrive fiscal years" />
+        <ErrorPrompt title="Server Error" message="Unable to retrive Plans" />
       ) : data.length === 0 ? (
         <Fallbacks
           severity="planning"
