@@ -1,54 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import { useFormik } from 'formik';
 import {
-  Box,
-  Typography,
-  TextField,
   Button,
-  Grid,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Menu,
+  MenuItem,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Card,
-  CardContent,
-  CardActions,
-  Snackbar,
-  Alert,
-  Divider,
-  Menu,
-  MenuItem,
-  useTheme
+  TextField,
+  Typography,
+  Box,
+  Grid
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import config from '../../configration/config';
-import GetToken from 'utils/auth-token';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Backend from 'services/backend';
+import GetToken from 'utils/auth-token';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
-function Perceptive() {
-  const [perceptives, setPerceptives] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
+const PerspectiveTable = () => {
+  const [perspectives, setPerspectives] = useState([]);
   const [open, setOpen] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [newPerspective, setNewPerspective] = useState('');
+  const [newDescPerspective, setNewDescPerspective] = useState('');
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editedDescription, setEditedDescription] = useState('');
+  const [editedName, setEditedName] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const fetchPerspectives = async () => {
+    setLoading(true);
+    try {
+      const token = await GetToken();
+      const api = Backend.api + Backend.perspectiveTypes;
+      const response = await fetch(api, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+
+      if (data?.success) {
+        setPerspectives(data?.data?.data);
+      } else {
+        toast.error(response?.message || 'Failed to fetch perspectives');
+      }
+    } catch (error) {
+      toast.error(error?.message || 'Error fetching perspectives');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchPerceptives();
+    fetchPerspectives();
   }, []);
 
   const fetchPerceptives = async () => {
@@ -189,8 +211,11 @@ function Perceptive() {
 
   const handleClose = () => {
     setOpen(false);
-    formik.resetForm();
-    setEditIndex(null);
+    setNewPerspective('');
+    setNewDescPerspective('');
+    setEditedName('');
+    setEditedDescription('');
+    setEditingIndex(null);
   };
 
   const handleMenuOpen = (event, index) => {
@@ -198,7 +223,7 @@ function Perceptive() {
     setSelectedIndex(index);
   };
 
-  const handleCloseMenu = () => {
+  const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedIndex(null);
   };
@@ -299,11 +324,24 @@ function Perceptive() {
                           <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
                             <MoreVertIcon />
                           </IconButton>
-                          <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedIndex === index} onClose={handleClose}>
-                            <MenuItem onClick={() => handleEdit(index)}>
+                          <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedIndex === index} onClose={handleMenuClose}>
+                            <MenuItem
+                              onClick={() => {
+                                setEditingIndex(index);
+                                setEditedName(perspective.name);
+                                setEditedDescription(perspective.description);
+                                handleMenuClose();
+                                handleOpen();
+                              }}
+                            >
                               <EditIcon fontSize="small" /> Edit
                             </MenuItem>
-                            <MenuItem onClick={() => handleDelete(perceptive.id)}>
+                            <MenuItem
+                              onClick={() => {
+                                handleDelete();
+                                handleMenuClose();
+                              }}
+                            >
                               <DeleteIcon fontSize="small" /> Delete
                             </MenuItem>
                           </Menu>
@@ -316,44 +354,52 @@ function Perceptive() {
             )}
           </CardContent>
         </Grid>
+
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>{editingIndex !== null ? 'Edit Perspective' : 'Add Perspective'}</DialogTitle>
+          <DialogContent>
+            <form onSubmit={formik.handleSubmit}>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Perspective Name"
+                type="text"
+                fullWidth
+                variant="outlined"
+                value={editingIndex !== null ? editedName : newPerspective}
+                onChange={editingIndex !== null ? handleEditChange : handleChange}
+              />
+              <TextField
+                margin="dense"
+                label="Description"
+                type="text"
+                fullWidth
+                variant="outlined"
+                value={editingIndex !== null ? editedDescription : newDescPerspective}
+                onChange={editingIndex !== null ? handleEditDesChange : handleDescriptionChange}
+              />
+            </form>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            {editingIndex !== null ? (
+              <Button onClick={handleEditSave} color="primary">
+                Save
+              </Button>
+            ) : (
+              <Button onClick={handleSave} color="primary">
+                Add
+              </Button>
+            )}
+          </DialogActions>
+        </Dialog>
+
+        <ToastContainer />
       </Grid>
-
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editIndex ? 'Edit Perspective' : 'Create New Perspective'}</DialogTitle>
-        <DialogContent>
-          <Box component="form" onSubmit={formik.handleSubmit}>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="perspectiveName"
-              name="perspectiveName"
-              label="Perspective Name"
-              type="text"
-              fullWidth
-              value={formik.values.perspectiveName}
-              onChange={formik.handleChange}
-              error={formik.touched.perspectiveName && Boolean(formik.errors.perspectiveName)}
-              helperText={formik.touched.perspectiveName && formik.errors.perspectiveName}
-            />
-            <DialogActions>
-              <Button onClick={handleClose} color="primary">
-                Cancel
-              </Button>
-              <Button type="submit" color="primary">
-                {editIndex ? 'Update' : 'Save'}
-              </Button>
-            </DialogActions>
-          </Box>
-        </DialogContent>
-      </Dialog>
-
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
-}
+};
 
-export default Perceptive;
+export default PerspectiveTable;

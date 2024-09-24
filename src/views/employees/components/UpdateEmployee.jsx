@@ -31,15 +31,17 @@ import * as Yup from 'yup';
 import Backend from 'services/backend';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import GetToken from 'utils/auth-token';
+import { user } from '@nextui-org/react';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Full name is required'),
   gender: Yup.string().required('Unit type is required'),
   email: Yup.string().email().required('Email is required'),
+  username: Yup.string().required('Username is required'),
   type: Yup.string().required('Unit type is required'),
   phone: Yup.string().required('Phone number is required'),
   unit: Yup.string().required('Unit is required'),
-  position: Yup.string().required('The employee position is required'),
+  job_position_id: Yup.string().required('The employee position is required'),
   start_date: Yup.date().required('Employee start date is required')
 });
 
@@ -51,6 +53,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
   const [roles, setRoles] = React.useState([]);
   const [selectedRoles, setSelectedRoles] = React.useState([]);
   const [roleIds, setRoleIds] = React.useState([]);
+  const [positions, setPositions] = React.useState([]);
 
   const handleRoleSelection = (event, value) => {
     setSelectedRoles(value);
@@ -75,10 +78,11 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
       name: '',
       gender: '',
       email: '',
+      username: '',
       phone: '',
       type: null,
       unit: '',
-      position: '',
+      job_position_id: '',
       role: '',
       start_date: ''
     },
@@ -166,17 +170,42 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
         toast(error.message);
       });
   };
+  const handleFetchingPositions = async () => {
+    const token = await GetToken();
+    const Api = Backend.api + Backend.jobposition;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
 
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success && Array.isArray(response.data.data)) {
+          setPositions(response.data.data);
+        } else {
+          setPositions([]);
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+      });
+  };
   const setFormInitialValues = () => {
     formik.setValues({
       ...formik.values,
       name: EmployeeData?.user?.name,
       gender: EmployeeData?.gender,
       email: EmployeeData?.user?.email,
+      username: EmployeeData?.user?.username,
       phone: EmployeeData?.user?.phone,
       type: EmployeeData?.unit?.unit?.unit_type_id,
       unit: EmployeeData?.unit?.unit?.id,
-      position: EmployeeData?.position,
+      job_position_id: EmployeeData?.job_position_id,
       start_date: EmployeeData?.unit?.started_date?.split(' ')[0]
     });
 
@@ -193,6 +222,8 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
     handleFetchingRoles();
     setFormInitialValues();
     handleFetchingTypes();
+    handleFetchingPositions();
+
 
     return () => {};
   }, [update]);
@@ -264,6 +295,23 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
               {formik.touched.email && formik.errors.email && (
                 <FormHelperText error id="standard-weight-helper-text-name">
                   {formik.errors.email}
+                </FormHelperText>
+              )}
+            </FormControl>
+
+            <FormControl fullWidth error={formik.touched.username && Boolean(formik.errors.username)} sx={{ marginTop: 2.4 }}>
+              <InputLabel htmlFor="username">User Name </InputLabel>
+              <OutlinedInput
+                id="username"
+                name="username"
+                label="User Name"
+                value={formik.values.username}
+                onChange={formik.handleChange}
+                fullWidth
+              />
+              {formik.touched.username && formik.errors.username && (
+                <FormHelperText error id="standard-weight-helper-text-name">
+                  {formik.errors.username}
                 </FormHelperText>
               )}
             </FormControl>
@@ -349,21 +397,36 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
               sx={{ marginTop: 4 }}
             />
 
-            <FormControl fullWidth error={formik.touched.position && Boolean(formik.errors.position)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlFor="position">Position</InputLabel>
-              <OutlinedInput
+            <FormControl
+              fullWidth
+              error={formik.touched.job_position_id && Boolean(formik.errors.job_position_id)}
+              sx={{ marginTop: 3 }}
+              disabled={formik?.values?.job_position_id == null}
+            >
+              <InputLabel id="position-label">Position</InputLabel>
+              <Select
                 id="position"
-                name="position"
+                name="job_position_id"
                 label="Position"
-                value={formik.values.position}
+                value={formik.values.job_position_id}
                 onChange={formik.handleChange}
-                fullWidth
-              />
-              {formik.touched.position && formik.errors.position && (
-                <FormHelperText error id="standard-weight-helper-text-position">
-                  {formik.errors.position}
-                </FormHelperText>
-              )}
+                labelId="position-label"
+              >
+                {positions.length === 0 ? (
+                  <Typography variant="body2" sx={{ padding: 1 }}>
+                    Position not found
+                  </Typography>
+                ) : (
+                  positions.map((job_position_id) => (
+                    <MenuItem key={job_position_id.id} value={job_position_id.id}>
+                      {job_position_id.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+              {formik.touched.job_position_id && formik.errors.job_position_id ? (
+                <FormHelperText>{formik.errors.job_position_id}</FormHelperText>
+              ) : null}
             </FormControl>
 
             <FormControl fullWidth error={formik.touched.phone && Boolean(formik.errors.phone)} sx={{ marginTop: 3 }}>

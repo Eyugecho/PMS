@@ -81,6 +81,9 @@ const Backend = {
   getSinglePeriods: 'get-single-periods',
   planningPeriod: 'create-planning-period',
   monitoringPeriod: 'create-monitoring-period',
-  revisionPeriod: 'create-revision-period'
+  revisionPeriod: 'create-revision-period',
+  perspectiveTypes: 'perspective-types',
+  evaluationTypes: 'evaluation-types',
+  
 };
 export default Backend;

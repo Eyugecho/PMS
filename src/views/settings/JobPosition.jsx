@@ -38,6 +38,7 @@ const JobPositionTable = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [loading, setLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const theme = useTheme();
 
   const handleFetchJobPositions = async () => {
     setLoading(true);
