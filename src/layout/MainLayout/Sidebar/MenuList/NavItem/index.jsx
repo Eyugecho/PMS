@@ -93,7 +93,7 @@ const NavItem = ({ item, level }) => {
       </ListItemIcon>
       <ListItemText
         primary={
-          <Typography variant={isSelected ? 'h6' : 'body1'} color={isSelected ? theme.palette.common.white : theme.palette.text.primary}>
+          <Typography variant={isSelected ? 'h6' : 'body1'} color={isSelected ? theme.palette.common.white : theme.palette.text.primary}  >
             {item.title}
           </Typography>
         }

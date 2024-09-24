@@ -12,8 +12,7 @@ import {
   TableRow,
   useTheme,
   Card,
-  CardContent,
-
+  CardContent
 } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import { DotMenu } from 'ui-component/menu/DotMenu';
@@ -53,10 +52,9 @@ const Users = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const auth = getRolesAndPermissionsFromToken();
 
-
-  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:user'));
-  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:user'));
-  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:user'));
+  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:users'));
+  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:users'));
+  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:users'));
 
   const handleChangePage = (event, newPage) => {
     setPagination({ ...pagination, page: newPage });
@@ -178,52 +176,52 @@ const Users = () => {
         toast(error.message);
       });
   };
-const handleUpdatingUser = async (updatedData) => {
-  setIsUpdating(true);
-  const token = await GetToken();
+  const handleUpdatingUser = async (updatedData) => {
+    setIsUpdating(true);
+    const token = await GetToken();
 
-  const Api = `${Backend.auth}${Backend.users}/${selectedRow?.id}`; // Update the selected user by ID
-  const header = {
-    Authorization: `Bearer ${token}`,
-    accept: 'application/json',
-    'Content-Type': 'application/json'
-  };
+    const Api = `${Backend.auth}${Backend.users}/${selectedRow?.id}`; // Update the selected user by ID
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
 
-  const data = {
-    name: updatedData.name,
-    email: updatedData.email,
-    phone: updatedData.phone,
-    roles: updatedData.roles
-  };
+    const data = {
+      name: updatedData.name,
+      email: updatedData.email,
+      phone: updatedData.phone,
+      roles: updatedData.roles
+    };
 
-  try {
-    const response = await fetch(Api, {
-      method: 'PATCH',
-      headers: header,
-      body: JSON.stringify(data)
-    });
+    try {
+      const response = await fetch(Api, {
+        method: 'PATCH',
+        headers: header,
+        body: JSON.stringify(data)
+      });
 
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.message || 'Error updating user');
-    }
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.message || 'Error updating user');
+      }
 
-    const responseData = await response.json();
-    if (responseData.success) {
-      toast.success('User updated successfully');
+      const responseData = await response.json();
+      if (responseData.success) {
+        toast.success('User updated successfully');
+        setIsUpdating(false);
+        handleFetchingUsers(); // Refresh the users list after successful update
+        handleUpdateUserClose(); // Close the modal
+      } else {
+        setIsUpdating(false);
+        toast.error('Failed to update user.');
+      }
+    } catch (error) {
+      toast.error(error.message || 'An unexpected error occurred.');
+    } finally {
       setIsUpdating(false);
-      handleFetchingUsers(); // Refresh the users list after successful update
-      handleUpdateUserClose(); // Close the modal
-    } else {
-      setIsUpdating(false);
-      toast.error('Failed to update user.');
     }
-  } catch (error) {
-    toast.error(error.message || 'An unexpected error occurred.');
-  } finally {
-    setIsUpdating(false);
-  }
-};
+  };
 
   const handleAddUserClick = () => {
     setAdd(true);
@@ -234,17 +232,15 @@ const handleUpdatingUser = async (updatedData) => {
     setAdd(false);
   };
 
-const handleUserUpdate = (user) => {
-  setSelectedRow(user); // Store the selected user
-  setUpdate(true); // Open the update modal
-};
+  const handleUserUpdate = (updatedData) => {
+    setSelectedRow(updatedData); // Store the selected user
+    setUpdate(true); // Open the update modal
+  };
 
-
-const handleUpdateUserClose = () => {
-  setUpdate(false); // Close the modal
-  setSelectedRow(null); // Clear selected user data
-};
-
+  const handleUpdateUserClose = () => {
+    setUpdate(false); // Close the modal
+    setSelectedRow(null); // Clear selected user data
+  };
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {

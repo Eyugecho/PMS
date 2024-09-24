@@ -172,22 +172,21 @@ console.log(value);
             )}
           </FormControl>
 
-
-         
-            <Autocomplete
-              id="roles"
-              multiple
-              options={roles || []}
-              getOptionLabel={(option) => option?.name || ''}
-              value={selectedRoles}
-              onChange={handleRoleSelection}
-              renderTags={(value, getTagProps) =>
-                value.map((option, index) => <Chip className="roles-chip" label={option?.name || ''} {...getTagProps({ index })} />)
-              }
-              fullWidth
-              renderInput={(params) => <TextField {...params} label="Select Roles" variant="outlined" />}
-              sx={{ marginTop: 4 }}
-            />
+          <Autocomplete
+            id="roles"
+            multiple
+            options={roles || []}
+            getOptionLabel={(option) => option?.name || ''}
+            value={selectedRoles}
+            onChange={handleRoleSelection}
+            isOptionEqualToValue={(option, value) => option.uuid === value.uuid} // <-- Equality check added here
+            renderTags={(value, getTagProps) =>
+              value.map((option, index) => <Chip className="roles-chip" label={option?.name || ''} {...getTagProps({ index })} />)
+            }
+            fullWidth
+            renderInput={(params) => <TextField {...params} label="Select Roles" variant="outlined" />}
+            sx={{ marginTop: 4 }}
+          />
         </DialogContent>
         <DialogActions>
           <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={isUpdating}>
