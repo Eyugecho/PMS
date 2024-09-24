@@ -1,5 +1,3 @@
-// assets
-
 import {
   IconHome,
   IconGauge,
@@ -13,7 +11,6 @@ import {
   IconChartInfographic
 } from '@tabler/icons-react';
 
-// constant
 const icons = {
   IconHome,
   IconGauge,
@@ -50,26 +47,43 @@ export const dashboard = () => {
       }
     });
 
+  auth &&
+    auth.forEach((role) => {
+      if (role.permissions.find((per) => per.name == 'read:employeetask')) {
+        childrenTemp.push({
+          id: 'todos',
+          title: 'To do ',
+          type: 'item',
+          url: '/todo',
+          icon: icons.IconList
+        });
+      }
+    });
+  auth &&
+    auth.forEach((role) => {
+      if (role.permissions.find((per) => per.name == 'read:endofdayactivity')) {
+        childrenTemp.push({
+          id: 'eod_activity',
+          title: 'EOD ',
+          type: 'item',
+          url: '/Eod',
+          icon: icons.IconHazeMoon
+        });
+      }
+    });
+  auth &&
+    auth.forEach((role) => {
+      if (role.permissions.find((per) => per.name == 'read:kpitracker')) {
+        childrenTemp.push({
+          id: 'planning',
+          title: 'Planning',
+          type: 'item',
+          url: '/planning',
+          icon: icons.IconLayoutCards
+        });
+      }
+    });
 
-  childrenTemp.push({
-    id: 'todos',
-    title: 'To do ',
-    type: 'item',
-    url: '/todo',
-    icon: icons.IconList
-  }, {
-    id: 'eod_activity',
-    title: 'EOD ',
-    type: 'item',
-    url: '/Eod',
-    icon: icons.IconHazeMoon
-  }, {
-    id: 'planning',
-    title: 'Planning',
-    type: 'item',
-    url: '/planning',
-    icon: icons.IconLayoutCards
-  });
   auth &&
     auth.forEach((role) => {
       if (role.permissions.find((per) => per.name == 'approval:manage')) {
@@ -97,7 +111,7 @@ export const dashboard = () => {
       childrenTemp.push({
         id: 'evaluations',
         title: 'Evaluation',
-        type: 'item', 
+        type: 'item',
         url: 'evaluations',
         icon: icons.IconListCheck
       });
@@ -123,6 +137,6 @@ export const dashboard = () => {
     icon: icons.IconLayoutCards,
     type: 'group',
     children: [...childrenTemp]
-    
+
   };
 };
