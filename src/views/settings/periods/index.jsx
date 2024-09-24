@@ -335,7 +335,7 @@ function Periods() {
                             onRefresh={() => handleFetchingDetails()}
                           />
 
-                          <FrequencyDefinition />
+                          <FrequencyDefinition sx={{ marginTop: 2 }} />
                         </React.Fragment>
                       )}
                     </BudgetYear>

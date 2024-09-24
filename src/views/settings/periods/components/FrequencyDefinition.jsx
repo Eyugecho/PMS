@@ -1,41 +1,94 @@
 import React, { useEffect, useState } from 'react';
-import { Chip, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Box, Button, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { addDays, differenceInDays, format, isAfter, isBefore, subDays } from 'date-fns';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { PeriodNaming } from 'utils/function';
 import Backend from 'services/backend';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 import GetToken from 'utils/auth-token';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import FrequencySelector from './FrequencySelector';
 import Fallbacks from 'utils/components/Fallbacks';
-import { addDays, differenceInDays, format, subDays } from 'date-fns';
-import { gridSpacing } from 'store/constant';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
+import StatusSwitch from 'ui-component/switchs/StatusSwitch';
 
-const FrequencyDefinition = () => {
+const FrequencyDefinition = ({ sx }) => {
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
+
+  const fiscalYearStartDate = selectedYear?.start_date || '';
+  const fiscalYearEndDate = selectedYear?.end_date || '';
 
   const [loading, setLoading] = useState(true);
   const [frequencies, setFrequencies] = useState([]);
-  const [selectedFrequency, setSelectedFrequency] = useState(null);
+  const [selectedFrequency, setSelectedFrequency] = useState();
+  const [selectedIndex, setSelectedIndex] = useState();
+  const [submitting, setSubmitting] = useState(false);
 
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [frequencyDetails, setFrequencyDetails] = useState([]);
+  const [frequencyChanges, setFrequencyChanges] = useState([]);
+  const [changesStatus, setChangeStatus] = useState(false);
+  const [toBeUpdated, setToBeUpdated] = useState(null);
+
+  const isEndDateValid = (startDate, endDate) => {
+    if (!startDate || !endDate) return true;
+    return isBefore(addDays(new Date(startDate), 1), new Date(endDate));
+  };
+
+  const shouldDisableDate = (date, isStartDate, index) => {
+    const startDate = frequencyChanges[index]?.start_date ? new Date(frequencyChanges[index].start_date) : null;
+
+    if (isStartDate) {
+      return isBefore(date, fiscalYearStartDate) || isAfter(date, fiscalYearEndDate);
+    } else {
+      return (
+        isBefore(date, fiscalYearStartDate) || isAfter(date, fiscalYearEndDate) || (startDate && isBefore(date, addDays(startDate, 1)))
+      );
+    }
+  };
+
+  const shouldEvaluationDisable = (date, isStartDate, index) => {
+    const startDate = frequencyChanges[index]?.evaluation_period?.start_date
+      ? new Date(frequencyChanges[index]?.evaluation_period?.start_date)
+      : null;
+
+    if (isStartDate) {
+      return isBefore(date, frequencyChanges[index]?.start_date) || isAfter(date, frequencyChanges[index]?.end_date);
+    } else {
+      return (
+        isBefore(date, frequencyChanges[index]?.start_date) ||
+        isAfter(date, frequencyChanges[index]?.end_date) ||
+        (startDate && isBefore(date, addDays(startDate, 1)))
+      );
+    }
+  };
 
   const handleFrequencySelection = (index) => {
     const selected = frequencies[index];
     setSelectedFrequency(selected);
-    handleGettingDetails(selected.id, selected.value);
+    handleGettingDetails(selected.id, selected.value, index);
   };
 
-  const handleCheckingPeriodAvailablity = (periods, value) => {
-    if (periods.length === 0) {
+  const handleSettingDefaultFrequency = (data) => {
+    const quarterIndex = data.findIndex((item) => item.value == 4);
+
+    if (quarterIndex !== -1) {
+      const selected = data[quarterIndex];
+      setSelectedFrequency(selected);
+      setSelectedIndex(quarterIndex);
+      handleGettingDetails(selected.id, selected.value, quarterIndex);
+    }
+  };
+
+  const handleCheckingPeriodAvailablity = (periods, value, index) => {
+    if (periods.length === 0 && index) {
       const fiscalYearStartDate = new Date(selectedYear?.start_date);
       const fiscalYearEndDate = new Date(selectedYear?.end_date);
 
       const totalDays = differenceInDays(fiscalYearEndDate, fiscalYearStartDate);
-
       const daysPerQuarter = Math.floor(totalDays / value);
 
       const newPeriods = Array.from({ length: value }, (v, i) => {
@@ -43,21 +96,74 @@ const FrequencyDefinition = () => {
         const end_date = i === value - 1 ? fiscalYearEndDate : addDays(fiscalYearStartDate, (i + 1) * daysPerQuarter - 1);
         const evaluation_start_date = subDays(end_date, 7);
         const evaluation_end_date = end_date;
-
+        const periodName = frequencies[index]?.name;
+        setChangeStatus(true);
         return {
-          name: `Quarter ${i + 1}`,
+          name: `${PeriodNaming(periodName)} ${i + 1}`,
           start_date: format(start_date, 'yyyy-MM-dd'),
           end_date: format(end_date, 'yyyy-MM-dd'),
-          evaluation_start_date: format(evaluation_start_date, 'yyyy-MM-dd'),
-          evaluation_end_date: format(evaluation_end_date, 'yyyy-MM-dd'),
+          evaluation_period: {
+            start_date: format(evaluation_start_date, 'yyyy-MM-dd'),
+            end_date: format(evaluation_end_date, 'yyyy-MM-dd')
+          },
           status: 'Draft'
         };
       });
-      setFrequencyDetails(newPeriods);
+      setFrequencyChanges(newPeriods);
+    } else {
+      setFrequencyChanges(periods);
     }
   };
 
-  const handleGettingDetails = async (id, value) => {
+  const hasChanges = (index) => {
+    const originalItem = frequencyDetails[index];
+    const currentItem = frequencyChanges[index];
+
+    if (!originalItem || !currentItem) return false;
+
+    const {
+      name: originalName,
+      start_date: originalStartDate,
+      end_date: originalEndDate,
+      evaluation_period: originalEvalPeriod
+    } = originalItem;
+    const { name: currentName, start_date: currentStartDate, end_date: currentEndDate, evaluation_period: currentEvalPeriod } = currentItem;
+
+    return (
+      originalName !== currentName ||
+      originalStartDate !== currentStartDate ||
+      originalEndDate !== currentEndDate ||
+      originalEvalPeriod?.start_date !== currentEvalPeriod?.start_date ||
+      originalEvalPeriod?.end_date !== currentEvalPeriod?.end_date
+    );
+  };
+
+  const handleWhichOneChanged = (index) => {
+    const originalItem = frequencyDetails[index];
+    const currentItem = frequencyChanges[index];
+
+    if (!originalItem || !currentItem) return false;
+
+    const {
+      name: originalName,
+      start_date: originalStartDate,
+      end_date: originalEndDate,
+      evaluation_period: originalEvalPeriod
+    } = originalItem;
+    const { name: currentName, start_date: currentStartDate, end_date: currentEndDate, evaluation_period: currentEvalPeriod } = currentItem;
+
+    let changes = [];
+
+    if (originalName !== currentName || originalStartDate !== currentStartDate || originalEndDate !== currentEndDate) {
+      changes.push('periods');
+    }
+    if (originalEvalPeriod?.start_date !== currentEvalPeriod?.start_date || originalEvalPeriod?.end_date !== currentEvalPeriod?.end_date) {
+      changes.push('evaluation');
+    }
+    return changes;
+  };
+
+  const handleGettingDetails = async (id, value, index) => {
     try {
       setLoadingDetails(true);
       const token = await GetToken();
@@ -73,7 +179,8 @@ const FrequencyDefinition = () => {
       const result = await response.json();
       if (response.ok) {
         setFrequencyDetails(result.data?.periods);
-        handleCheckingPeriodAvailablity(result.data?.periods, value);
+        result.data?.periods.length > 0 && setChangeStatus(false);
+        handleCheckingPeriodAvailablity(result.data?.periods, value, index);
       } else {
         toast.error(result.data.message);
       }
@@ -101,6 +208,8 @@ const FrequencyDefinition = () => {
       const result = await response.json();
       if (response.ok) {
         setFrequencies(result.data?.data);
+
+        result.data?.data.length > 0 && handleSettingDefaultFrequency(result.data?.data);
       } else {
         toast.error(result.data.message);
       }
@@ -111,23 +220,225 @@ const FrequencyDefinition = () => {
     }
   };
 
+  const handleNameChange = (event, index) => {
+    const updatedFrequencies = [...frequencyChanges];
+    const updatedItem = { ...updatedFrequencies[index], name: event.target.value };
+    updatedFrequencies[index] = updatedItem;
+    setFrequencyChanges(updatedFrequencies);
+  };
+
+  const handleDateChange = (date, index, field, evaluation) => {
+    const updatedFrequencies = [...frequencyChanges];
+    let updatedItem = { ...updatedFrequencies[index] };
+
+    if (evaluation) {
+      updatedItem.evaluation_period = {
+        ...updatedItem.evaluation_period,
+        [field]: format(date, 'yyyy-MM-dd')
+      };
+    } else {
+      updatedItem[field] = format(date, 'yyyy-MM-dd');
+    }
+
+    updatedFrequencies[index] = updatedItem;
+    setFrequencyChanges(updatedFrequencies);
+  };
+
+  const handleChangeStatus = (index, value) => {
+    const updatedFrequencies = [...frequencyChanges];
+    updatedFrequencies[index].status = value;
+    setFrequencyChanges(updatedFrequencies);
+  };
+
+  const handlePeriodSubmission = async () => {
+    setSubmitting(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.PeriodDefinition;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      frequency_id: selectedFrequency?.id,
+      fiscal_year_id: selectedYear?.id,
+      dates: frequencyChanges
+    };
+
+    fetch(Api, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast.success(response?.data?.message);
+          handleGettingDetails(selectedFrequency?.id, selectedFrequency?.value);
+          setChangeStatus(false);
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
+  };
+
+  const handleSavingChanges = async (id, index) => {
+    setToBeUpdated(index);
+    setSubmitting(true);
+
+    const changes = handleWhichOneChanged(index);
+    const updatedRecord = frequencyChanges[index];
+
+    if (changes.length > 0 && changes[0] === 'periods') {
+      const token = await GetToken();
+      const Api = Backend.api + Backend.updatePeriod + id;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      const data = {
+        name: updatedRecord?.name,
+        start_date: updatedRecord?.start_date,
+        end_date: updatedRecord?.start_date,
+        evaluation_start_date: updatedRecord?.evaluation_period?.start_date,
+        evaluation_end_date: updatedRecord?.evaluation_period?.end_date
+      };
+
+      fetch(Api, {
+        method: 'PATCH',
+        headers: headers,
+        body: JSON.stringify(data)
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            toast.success(response.data?.message);
+            handleGettingDetails(selectedFrequency.id, selectedFrequency.value);
+          } else {
+            toast.error(response.data?.message);
+          }
+        })
+        .catch((error) => {
+          toast.error(error.message);
+        })
+        .finally(() => {
+          setSubmitting(false);
+        });
+    }
+
+    if ((changes.length > 0 && changes[0] === 'evaluation') || changes[1] === 'evaluation') {
+      const token = await GetToken();
+      const Api = Backend.api + Backend.updatePeriod + updatedRecord?.evaluation_period?.id;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      const data = {
+        name: updatedRecord?.name,
+        start_date: updatedRecord?.evaluation_period?.start_date,
+        end_date: updatedRecord?.evaluation_period?.end_date
+      };
+
+      fetch(Api, {
+        method: 'PATCH',
+        headers: headers,
+        body: JSON.stringify(data)
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            toast.success(response.data?.message);
+            handleGettingDetails(selectedFrequency.id, selectedFrequency.value);
+          } else {
+            toast.error(response.data?.message);
+          }
+        })
+        .catch((error) => {
+          toast.error(error.message);
+        })
+        .finally(() => {
+          setSubmitting(false);
+        });
+    }
+  };
+
+  const handleStatusChange = async (id, newStatus, index) => {
+    setToBeUpdated(index);
+    setSubmitting(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.changeStatus + id;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+    const status = newStatus.toString();
+    const data = {
+      status: status
+    };
+
+    fetch(Api, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast.success(response?.data?.message);
+          const status = newStatus.toString();
+          handleChangeStatus(index, status);
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
+        setSubmitting(false);
+        setToBeUpdated(index);
+      });
+  };
+
   useEffect(() => {
     handleFetchingFrequncies();
   }, [selectedYear]);
 
   return (
-    <DrogaCard>
+    <DrogaCard sx={{ ...sx }}>
       <Grid container>
         <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="h4">Evaluation Periods</Typography>
           {loading ? (
             <ActivityIndicator size={18} />
           ) : (
-            <FrequencySelector options={frequencies} handleSelection={(index) => handleFrequencySelection(index)} />
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              {changesStatus && (
+                <DrogaButton
+                  title={submitting ? <ActivityIndicator size={18} sx={{ color: 'white' }} /> : 'Submit All'}
+                  variant="contained"
+                  onPress={() => handlePeriodSubmission()}
+                  sx={{ marginRight: 3 }}
+                />
+              )}
+              <FrequencySelector options={frequencies} handleSelection={(index) => handleFrequencySelection(index)} index={selectedIndex} />
+            </Box>
           )}
         </Grid>
 
-        <Grid item xs={12} sx={{ minHeight: 300 }}>
+        <Grid item xs={12} sx={{ minHeight: 300, marginTop: 3 }}>
           {loadingDetails ? (
             <Grid container>
               <Grid
@@ -144,7 +455,7 @@ const FrequencyDefinition = () => {
                 <ActivityIndicator size={20} />
               </Grid>
             </Grid>
-          ) : frequencyDetails.length === 0 ? (
+          ) : frequencyChanges.length === 0 ? (
             <Fallbacks
               severity="frequencies"
               title="No evaluation frequency found"
@@ -165,17 +476,17 @@ const FrequencyDefinition = () => {
                 </TableHead>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <TableBody>
-                    {frequencyDetails.map((period, index) => (
+                    {frequencyChanges.map((period, index) => (
                       <TableRow key={index}>
-                        <TableCell sx={{ width: '100px' }}>
-                          <Typography variant="h5">{period.name}</Typography>
+                        <TableCell sx={{ width: '200px' }}>
+                          <TextField variant="standard" value={period.name} onChange={(event) => handleNameChange(event, index)} />
                         </TableCell>
                         <TableCell>
                           <DatePicker
                             label="Start Date"
                             value={period?.start_date ? new Date(period?.start_date) : null}
-                            // onChange={(date) => handleDateChange(date, key, 'start_date')}
-                            // shouldDisableDate={(date) => shouldDisableDate(date, true, key)}
+                            onChange={(date) => handleDateChange(date, index, 'start_date')}
+                            shouldDisableDate={(date) => shouldDisableDate(date, true, index)}
                             renderInput={(params) => <TextField {...params} />}
                           />
                         </TableCell>
@@ -183,17 +494,19 @@ const FrequencyDefinition = () => {
                           <DatePicker
                             label="End Date"
                             value={period?.end_date ? new Date(period?.end_date) : null}
-                            // onChange={(date) => handleDateChange(date, key, 'end_date')}
-                            // shouldDisableDate={(date) => shouldDisableDate(date, false, key)}
-                            renderInput={(params) => <TextField {...params} />}
+                            onChange={(date) => handleDateChange(date, index, 'end_date')}
+                            shouldDisableDate={(date) => shouldDisableDate(date, false, index)}
+                            renderInput={(params) => (
+                              <TextField {...params} error={!isEndDateValid(period?.start_date, period?.end_date)} />
+                            )}
                           />
                         </TableCell>
                         <TableCell>
                           <DatePicker
                             label="Evaluation Start"
-                            value={period?.evaluation_start_date ? new Date(period?.evaluation_start_date) : null}
-                            // onChange={(date) => handleDateChange(date, key, 'end_date')}
-                            // shouldDisableDate={(date) => shouldDisableDate(date, false, key)}
+                            value={period?.evaluation_period?.start_date ? new Date(period?.evaluation_period?.start_date) : null}
+                            onChange={(date) => handleDateChange(date, index, 'start_date', true)}
+                            shouldDisableDate={(date) => shouldEvaluationDisable(date, true, index)}
                             renderInput={(params) => <TextField {...params} />}
                           />
                         </TableCell>
@@ -201,15 +514,41 @@ const FrequencyDefinition = () => {
                         <TableCell>
                           <DatePicker
                             label="Evaluation End"
-                            value={period?.evaluation_end_date ? new Date(period?.evaluation_end_date) : null}
-                            // onChange={(date) => handleDateChange(date, key, 'end_date')}
-                            // shouldDisableDate={(date) => shouldDisableDate(date, false, key)}
-                            renderInput={(params) => <TextField {...params} />}
+                            value={period?.evaluation_period?.end_date ? new Date(period?.evaluation_period?.end_date) : null}
+                            onChange={(date) => handleDateChange(date, index, 'end_date', true)}
+                            shouldDisableDate={(date) => shouldEvaluationDisable(date, false, index)}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                error={!isEndDateValid(period?.evaluation_period?.start_date, period?.evaluation_period?.end_date)}
+                              />
+                            )}
                           />
                         </TableCell>
 
                         <TableCell>
-                          <Chip label={period?.status} />
+                          {frequencyDetails.length !== 0 && hasChanges(index) ? (
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={() => handleSavingChanges(period.id, index)}
+                              sx={{ width: '140px', height: 'auto', borderRadius: 2, padding: 1, px: 2 }}
+                            >
+                              {submitting && toBeUpdated === index ? (
+                                <ActivityIndicator size={18} sx={{ color: 'white' }} />
+                              ) : (
+                                'Save Changes'
+                              )}
+                            </Button>
+                          ) : submitting && toBeUpdated === index ? (
+                            <ActivityIndicator size={18} sx={{ color: 'primary' }} />
+                          ) : (
+                            <StatusSwitch
+                              checked={period?.status === 'true'}
+                              onChange={(e) => handleStatusChange(period.id, e.target.checked, index)}
+                              inputProps={{ 'aria-label': 'controlled' }}
+                            />
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

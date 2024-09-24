@@ -10,10 +10,10 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import PropTypes from 'prop-types';
 
-function FrequencySelector({ options, handleSelection }) {
+function FrequencySelector({ options, handleSelection, index }) {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [selectedIndex, setSelectedIndex] = React.useState(index);
 
   const handleClick = () => {
     handleSelection(selectedIndex);

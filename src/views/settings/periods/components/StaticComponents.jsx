@@ -12,7 +12,8 @@ import StatusSwitch from 'ui-component/switchs/StatusSwitch';
 const StaticPeriodsComponent = ({ data, fiscalYear, onRefresh }) => {
   const [periods, setPeriods] = useState({});
   const [theKey, setTheKey] = useState(false);
-  const [submitting, setSumbitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [changingStatus, setChangingStatus] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -78,7 +79,7 @@ const StaticPeriodsComponent = ({ data, fiscalYear, onRefresh }) => {
 
   const handleSaveChanges = async (key) => {
     setTheKey(key);
-    setSumbitting(true);
+    setSubmitting(true);
     const token = await GetToken();
     const Api = handleApiEndpoint(key);
     const headers = {
@@ -114,15 +115,54 @@ const StaticPeriodsComponent = ({ data, fiscalYear, onRefresh }) => {
         toast.error(error.message);
       })
       .finally(() => {
-        setSumbitting(false);
+        setSubmitting(false);
+      });
+  };
+
+  const handleChangingStatus = async (key, newStatus) => {
+    setTheKey(key);
+    setChangingStatus(true);
+    const id = periods[key]?.id;
+    const token = await GetToken();
+    const Api = Backend.api + Backend.changeStatus + id;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+    const status = newStatus.toString();
+    const data = {
+      status: status
+    };
+
+    fetch(Api, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast.success(response?.data?.message);
+          setPeriods({
+            ...periods,
+            [key]: { ...periods[key], status: newStatus }
+          });
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
+        setChangingStatus(false);
       });
   };
 
   const handleStatusChange = (key, newStatus) => {
-    setPeriods({
-      ...periods,
-      [key]: { ...periods[key], status: newStatus }
-    });
+    const status = newStatus.toString();
+    handleChangingStatus(key, status);
   };
 
   return (
@@ -176,9 +216,11 @@ const StaticPeriodsComponent = ({ data, fiscalYear, onRefresh }) => {
                     >
                       {theKey === key && submitting ? <ActivityIndicator size={18} sx={{ color: 'white' }} /> : 'Save Changes'}
                     </Button>
+                  ) : changingStatus && theKey === key ? (
+                    <ActivityIndicator size={18} sx={{ color: 'primary' }} />
                   ) : (
                     <StatusSwitch
-                      checked={periods[key]?.status}
+                      checked={periods[key]?.status === 'true'}
                       onChange={(e) => handleStatusChange(key, e.target.checked)}
                       inputProps={{ 'aria-label': 'controlled' }}
                     />

@@ -27,6 +27,9 @@ const Backend = {
   frequencies: 'frequencies',
   planningPeriods: 'get-planing-period',
   planningFrequiencies: 'get-planing-frequencies',
+  PeriodDefinition: 'create-frequency-definition-period',
+  updatePeriod: 'update-period/',
+  changeStatus: 'change-period-status/',
   orgPlan: 'main-kpi-tracking',
   showPlan: 'show-plan',
   deletePlan: 'delete-plan',
@@ -83,7 +86,6 @@ const Backend = {
   monitoringPeriod: 'create-monitoring-period',
   revisionPeriod: 'create-revision-period',
   perspectiveTypes: 'perspective-types',
-  evaluationTypes: 'evaluation-types',
-  
+  evaluationTypes: 'evaluation-types'
 };
 export default Backend;
