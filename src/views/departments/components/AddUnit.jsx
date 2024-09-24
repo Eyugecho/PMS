@@ -31,7 +31,7 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
     initialValues: {
       name: '',
       parent_id: '',
-      type: '',
+      // type: '',
       unit: null,
       description: ''
     },

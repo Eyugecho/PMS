@@ -1,10 +1,7 @@
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-
-// material-ui
 import { useTheme } from '@mui/material/styles';
-import { List, Typography } from '@mui/material';
-
-// project imports
+import { List, Typography, Collapse } from '@mui/material';
 import NavItem from '../NavItem';
 import NavCollapse from '../NavCollapse';
 
@@ -12,6 +9,11 @@ import NavCollapse from '../NavCollapse';
 
 const NavGroup = ({ item }) => {
   const theme = useTheme();
+  const [open, setOpen] = useState(true); // Default to true to expand the first header
+
+  const handleToggle = () => {
+    setOpen(!open);
+  };
 
   // menu list collapse & items
   const items = item.children?.map((menu) => {
@@ -36,13 +38,16 @@ const NavGroup = ({ item }) => {
           item.title && (
             <Typography
               variant="caption"
-              sx={{ ...theme.typography.menuCaption, color: 'inherit' }}
+              sx={{ ...theme.typography.menuCaption, color: 'inherit', cursor: 'pointer' }}
               display="block"
               gutterBottom
+              onClick={handleToggle} // Toggle the list on header click
             >
+              {/* Render the icon */}
+              {item.icon && <item.icon style={{ marginRight: 5 }} />}
               {item.title}
               {item.caption && (
-                <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block" gutterBottom>
+                <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block" >
                   {item.caption}
                 </Typography>
               )}
@@ -50,7 +55,7 @@ const NavGroup = ({ item }) => {
           )
         }
       >
-        {items}
+        <Collapse in={open}>{items}</Collapse>
       </List>
     </>
   );

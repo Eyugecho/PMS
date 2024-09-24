@@ -70,6 +70,7 @@ export const settings = () => {
     id: 'settings',
     title: 'Settings',
     type: 'group',
+    icon: icons.IconSettingsStar,
     children: [...childrenTemp]
   };
 };

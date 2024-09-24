@@ -36,10 +36,11 @@ const validationSchema = Yup.object().shape({
   name: Yup.string().required('Full name is required'),
   gender: Yup.string().required('Unit type is required'),
   email: Yup.string().email().required('Email is required'),
+  id: Yup.string().required('Employee ID is required'),
   phone: Yup.string().required('Phone number is required'),
   type: Yup.string().required('Unit type is required'),
   unit: Yup.string().required('Unit is required'),
-  position: Yup.string().required('The employee position is required'),
+  job_position_id: Yup.string().required('The employee position is required'),
   start_date: Yup.date().required('Stat date is required')
 });
 
@@ -50,7 +51,9 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
   const [unitType, setUnitType] = React.useState([]);
   const [units, setUnits] = React.useState([]);
   const [roles, setRoles] = React.useState([]);
+  const [positions, setPositions] = React.useState([]);
   const [selectedRoles, setSelectedRoles] = React.useState([]);
+
   const [roleIds, setRoleIds] = React.useState([]);
 
   const handleRoleSelection = (event, value) => {
@@ -74,10 +77,12 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       name: '',
       gender: '',
       email: '',
+      id: '',
+ 
       phone: '',
       type: null,
       unit: '',
-      position: '',
+      job_position_id: '',
       role: '',
       start_date: ''
     },
@@ -133,6 +138,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       .then((response) => {
         if (response.success) {
           setUnits(response.data.units);
+          console.log(response.data.units);
         }
       })
       .catch((error) => {
@@ -164,6 +170,33 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       });
   };
 
+  const handleFetchingPositions = async () => {
+    const token = await GetToken();
+    const Api = Backend.api + Backend.jobposition;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success && Array.isArray(response.data.data)) {
+          setPositions(response.data.data);
+          console.log(response.data.data);
+        } else {
+          setPositions([]);
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+      });
+  };
+
   React.useEffect(() => {
     if (formik.values.type) {
       handleFetchingUnits();
@@ -172,6 +205,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
 
   React.useEffect(() => {
     handleFetchingRoles();
+    handleFetchingPositions();
     handleFetchingTypes();
   }, []);
   return (
@@ -208,7 +242,23 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)} sx={{ marginTop: 1 }}>
+            <FormControl fullWidth error={formik.touched.id && Boolean(formik.errors.id)} sx={{ marginTop: 2.4 }}>
+              <InputLabel htmlFor="id">Employee ID</InputLabel>
+              <OutlinedInput
+                id="id"
+                name="id"
+                label="User Name"
+                value={formik.values.id.username}
+                onChange={formik.handleChange}
+                fullWidth
+              />
+              {formik.touched.id && formik.errors.id && (
+                <FormHelperText error id="standard-weight-helper-text-name">
+                  {formik.errors.id}
+                </FormHelperText>
+              )}
+            </FormControl>
+            <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)} sx={{ marginTop: 2.4 }}>
               <InputLabel htmlFor="name">Full name</InputLabel>
               <OutlinedInput id="name" name="name" label="Full name" value={formik.values.name} onChange={formik.handleChange} fullWidth />
               {formik.touched.name && formik.errors.name && (
@@ -340,22 +390,36 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
               <IconInfoCircle size={14} style={{ paddingRight: 2 }} /> The default role for employee is{' '}
               <b style={{ paddingLeft: 3 }}>Employee</b>
             </Typography>
-
-            <FormControl fullWidth error={formik.touched.position && Boolean(formik.errors.position)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlFor="position">Position</InputLabel>
-              <OutlinedInput
+            <FormControl
+              fullWidth
+              error={formik.touched.job_position_id && Boolean(formik.errors.job_position_id)}
+              sx={{ marginTop: 3 }}
+              disabled={formik?.values?.job_position_id == null}
+            >
+              <InputLabel id="position-label">Position</InputLabel>
+              <Select
                 id="position"
-                name="position"
+                name="job_position_id"
                 label="Position"
-                value={formik.values.position}
+                value={formik.values.job_position_id}
                 onChange={formik.handleChange}
-                fullWidth
-              />
-              {formik.touched.position && formik.errors.position && (
-                <FormHelperText error id="standard-weight-helper-text-position">
-                  {formik.errors.position}
-                </FormHelperText>
-              )}
+                labelId="position-label"
+              >
+                {positions.length === 0 ? (
+                  <Typography variant="body2" sx={{ padding: 1 }}>
+                    Position not found
+                  </Typography>
+                ) : (
+                  positions.map((job_position_id) => (
+                    <MenuItem key={job_position_id.id} value={job_position_id.id}>
+                      {job_position_id.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+              {formik.touched.job_position_id && formik.errors.job_position_id ? (
+                <FormHelperText>{formik.errors.job_position_id}</FormHelperText>
+              ) : null}
             </FormControl>
 
             <FormControl fullWidth error={formik.touched.phone && Boolean(formik.errors.phone)} sx={{ marginTop: 3 }}>
@@ -391,3 +455,5 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
     </React.Fragment>
   );
 };
+
+

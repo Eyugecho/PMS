@@ -24,7 +24,9 @@ const icons = {
   IconListCheck,
   IconHazeMoon,
   IconList,
-  IconChartInfographic
+  IconChartInfographic,
+  IconLayoutCards
+
 };
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
@@ -34,14 +36,14 @@ const auth = getRolesAndPermissionsFromToken();
 export const dashboard = () => {
   let childrenTemp = [];
 
-  childrenTemp.push({
-    id: 'default',
-    title: 'Home',
-    type: 'item',
-    url: '/',
-    icon: icons.IconHome,
-    breadcrumbs: false
-  });
+  // childrenTemp.push({
+  //   id: 'default',
+  //   title: 'Home',
+  //   type: 'item',
+  //   url: '/',
+  //   icon: icons.IconHome,
+  //   breadcrumbs: false
+  // });
   auth &&
     auth.forEach((role) => {
       if (role.permissions.find((per) => per.name == 'read:kpi')) {
@@ -80,22 +82,6 @@ export const dashboard = () => {
       if (role.permissions.find((per) => per.name == 'approval:manage')) {
 
 
-
-        childrenTemp.push({
-          id: 'evaluations',
-          title: 'Evaluation',
-          type: 'item',
-          url: 'evaluations',
-          icon: icons.IconListCheck
-        });
-
-        childrenTemp.push({
-          id: 'performance',
-          title: 'Performance',
-          type: 'item',
-          url: 'performance',
-          icon: icons.IconTrophy
-        });
         childrenTemp.push({
           id: 'report',
           title: 'Reports',
@@ -103,6 +89,7 @@ export const dashboard = () => {
           url: 'report',
           icon: icons.IconChartInfographic
         });
+
         childrenTemp.push({
           id: 'approvals',
           title: 'Approval Managment',
@@ -112,11 +99,37 @@ export const dashboard = () => {
         });
       }
     });
+  auth.forEach((role) => {
+    if (role.permissions.find((per) => per.name == 'read:evaluation')) {
+      childrenTemp.push({
+        id: 'evaluations',
+        title: 'Evaluation',
+        type: 'item', 
+        url: 'evaluations',
+        icon: icons.IconListCheck
+      });
+    }
+  });
+
+  auth.forEach((role) => {
+    if (role.permissions.find((per) => per.name == 'read:performance')) {
+      childrenTemp.push({
+        id: 'performance',
+        title: 'Performance',
+        type: 'item',
+        url: 'performance',
+        icon: icons.IconTrophy
+      });
+    }
+  });
+
 
   return {
     id: 'dashboard',
-    title: 'Dashboard',
+    title: 'Planning Management',
+    icon: icons.IconLayoutCards,
     type: 'group',
     children: [...childrenTemp]
+    
   };
 };

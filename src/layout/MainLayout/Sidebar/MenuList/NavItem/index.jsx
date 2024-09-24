@@ -1,25 +1,19 @@
-import PropTypes from 'prop-types';
 import { forwardRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-
-// material-ui
 import { useTheme } from '@mui/material/styles';
 import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 // project imports
 import { MENU_OPEN, SET_MENU } from 'store/actions/actions';
-
-// assets
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-
-// ==============================|| SIDEBAR MENU LIST ITEMS ||============================== //
 
 const NavItem = ({ item, level }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const customization = useSelector((state) => state.customization);
   const matchesSM = useMediaQuery(theme.breakpoints.down('lg'));
+  const location = useLocation(); // Get current route
 
   const Icon = item.icon;
   const itemIcon = item?.icon ? (
@@ -63,6 +57,8 @@ const NavItem = ({ item, level }) => {
     // eslint-disable-next-line
   }, []);
 
+  const isSelected = location.pathname === item.url;
+
   return (
     <ListItemButton
       {...listItemProps}
@@ -73,34 +69,33 @@ const NavItem = ({ item, level }) => {
         alignItems: 'flex-start',
         py: level > 1 ? 1 : 1.25,
         pl: `${level * 24}px`,
-        backgroundColor: level > 1 && customization.isOpen.findIndex((id) => id === item.id) > -1 ? theme.palette.primary.light : 'inherit',
+        backgroundColor: isSelected // Highlight active menu item
+          ? theme.palette.primary.main
+          : level > 1 && customization.isOpen.findIndex((id) => id === item.id) > -1
+            ? theme.palette.primary.light
+            : 'inherit',
         ':hover': {
+          backgroundColor: theme.palette.primary.main, // Hover effect
           '& .MuiTypography-root': { color: 'white' }
         }
       }}
-      selected={customization.isOpen.findIndex((id) => id === item.id) > -1}
+      selected={isSelected} // Mark as selected
       onClick={() => itemHandler(item.id)}
     >
-      <ListItemIcon sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36, color: theme.palette.text.primary }}>{itemIcon}</ListItemIcon>
+      <ListItemIcon
+        sx={{
+          my: 'auto',
+          minWidth: !item?.icon ? 18 : 36,
+          color: isSelected ? theme.palette.common.white : theme.palette.text.primary
+        }}
+      >
+        {itemIcon}
+      </ListItemIcon>
       <ListItemText
         primary={
-          <Typography
-            variant={customization.isOpen.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body2'}
-            color={
-              customization.isOpen.findIndex((id) => id === item.id) > -1 && theme.palette.mode === 'light'
-                ? 'white'
-                : theme.palette.text.primary
-            }
-          >
+          <Typography variant={isSelected ? 'h6' : 'body1'} color={isSelected ? theme.palette.common.white : theme.palette.text.primary}>
             {item.title}
           </Typography>
-        }
-        secondary={
-          item.caption && (
-            <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block" gutterBottom>
-              {item.caption}
-            </Typography>
-          )
         }
       />
       {item.chip && (
@@ -114,11 +109,6 @@ const NavItem = ({ item, level }) => {
       )}
     </ListItemButton>
   );
-};
-
-NavItem.propTypes = {
-  item: PropTypes.object,
-  level: PropTypes.number
 };
 
 export default NavItem;

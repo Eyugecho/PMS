@@ -106,7 +106,7 @@ const Employees = () => {
     }
   };
 
-  const handleAddEmployeeModal = () => {
+  const handleAddEmployeeModal = (employee) => {
     setAdd(true);
   };
 
@@ -121,6 +121,7 @@ const Employees = () => {
 
   const handleUpdateEmployeeClose = () => {
     setUpdate(false);
+    
   };
 
   const handleSearchFieldChange = (event) => {
@@ -153,14 +154,18 @@ const Employees = () => {
       name: value?.name,
       gender: value?.gender,
       email: value?.email,
+      // username: value?.username,
+      id: value?.id,
       phone: value?.phone,
-      position: value?.position,
+      job_position_id: value?.job_position_id,
+      job_position: value?.job_position,
       unit_id: value?.unit,
       roles: roles,
       started_date: value?.start_date,
       password: 'password',
       password_confirmation: 'password'
     };
+
 
     fetch(Api, {
       method: 'POST',
@@ -170,6 +175,7 @@ const Employees = () => {
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
+          setIsAdding(false); 
           handleAddEmployeeClose();
           toast.success(response.data.message);
           handleFetchingEmployees();
@@ -205,12 +211,16 @@ const Employees = () => {
       name: value?.name,
       gender: value?.gender,
       email: value?.email,
+      id: value?.id,
       phone: value?.phone,
-      position: value?.position,
+      job_position_id: value?.job_position_id,
+      job_position: value?.job_position,
       unit_id: value?.unit,
       roles: roles,
       started_date: value?.start_date
     };
+    console.log(data);
+    
 
     fetch(Api, {
       method: 'PATCH',
@@ -399,6 +409,7 @@ const Employees = () => {
                   <TableCell>Name</TableCell>
                   <TableCell>Gender</TableCell>
                   <TableCell>Email</TableCell>
+                  <TableCell>Employee Id</TableCell>
 
                   <TableCell>Position</TableCell>
                   <TableCell>Role</TableCell>
@@ -447,7 +458,8 @@ const Employees = () => {
                       </TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.gender ? employee?.gender : 'N/A'}</TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.user?.email}</TableCell>
-                      <TableCell sx={{ border: 0 }}>{employee?.position ? employee?.position : 'N/A'}</TableCell>
+                      <TableCell sx={{ border: 0 }}>{employee?.user?.username}</TableCell>
+                      <TableCell sx={{ border: 0 }}>{employee?.job_position?.name ? employee?.job_position?.name : 'N/A'}</TableCell>
                       <TableCell sx={{ border: 0 }}>
                         {employee?.user?.roles.length > 0
                           ? employee?.user?.roles?.map((role, index) => (

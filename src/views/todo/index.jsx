@@ -273,7 +273,7 @@ const Todo = ({ hideChart, hideCreate, hideFilter, onRefresh }) => {
         !hideCreate && (
           <DrogaButton
             title="Create Task"
-            variant={hideChart ? 'text' : 'contained'}
+            variant="contained"
             icon={<IconPlus size="1.2rem" stroke="1.2" style={{ marginRight: 4 }} />}
             sx={{ boxShadow: 0 }}
             onPress={handleOpenCreateModal}

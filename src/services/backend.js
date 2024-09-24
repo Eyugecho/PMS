@@ -78,5 +78,7 @@ const Backend = {
   performanceratingscale: 'performance-rating-scales' ,
   perspectiveTypes: 'perspective-types',
   jobposition: 'job-positions',
+  evaluationTypes: 'evaluation-types',
+  
 };
 export default Backend;

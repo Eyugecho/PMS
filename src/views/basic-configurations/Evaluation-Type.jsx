@@ -40,6 +40,7 @@ function EvalType() {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [loading, setLoading] = useState(false);
   const auth = getRolesAndPermissionsFromToken();
   const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
 
@@ -50,7 +51,7 @@ function EvalType() {
   const fetchEvalTypes = async () => {
     try {
       const token = localStorage.getItem('token');
-      const Api = Backend.api + `evaluation-types`;
+      const Api = Backend.api + Backend.evaluationTypes;
       const response = await fetch(Api, {
         method: 'GET',
         headers: {
@@ -75,48 +76,101 @@ function EvalType() {
       description: ''
     },
     onSubmit: async (values, { resetForm }) => {
-      try {
-        const method = editIndex !== null ? 'PATCH' : 'POST';
-        const url =
-          editIndex !== null
-            ? `${config.API_URL_Units}/evaluation-types/${evalTypes[editIndex].id}`
-            : `${config.API_URL_Units}/evaluation-types`;
-        const token = localStorage.getItem('token');
-        const response = await fetch(url, {
-          method: method,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(values)
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          toast.success(editIndex !== null ? 'Evaluation type updated' : 'Evaluation type created');
-          fetchEvalTypes();
-          handleClose();
-        } else {
-          toast.error(result.message || 'Failed to save evaluation type');
-        }
-      } catch (error) {
-        toast.error('Error occurred while saving evaluation type');
+      if (editIndex !== null) {
+        await handleEditSave();
+      } else {
+        await handleAdd();
       }
       resetForm();
     }
   });
 
-  const handleEdit = (index) => {
-    formik.setFieldValue('name', evalTypes[index].name);
-    formik.setFieldValue('description', evalTypes[index].description || '');
-    setEditIndex(index);
-    handleOpen();
+  const handleAdd = async () => {
+    if (formik.values.name.trim()) {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          toast.error('Authorization token is missing.');
+          setLoading(false);
+          return;
+        }
+
+        const api = Backend.api + Backend.evaluationTypes;
+
+        const response = await fetch(api, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formik.values)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          handleClose();
+          toast.success('Evaluation type added successfully');
+          await fetchEvalTypes();
+        } else {
+          toast.error(data?.message || 'Failed to add evaluation type');
+        }
+      } catch (error) {
+        toast.error(error?.message || 'Error occurred while adding evaluation type');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      toast.error('Evaluation type name cannot be empty.');
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (formik.values.name.trim() && editIndex !== null) {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const evalTypeId = evalTypes[editIndex]?.id;
+        const api = `${config.API_URL_Units}/evaluation-types/${evalTypeId}`;
+
+        const response = await fetch(api, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formik.values)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          handleClose();
+          toast.success('Evaluation type updated successfully');
+          await fetchEvalTypes();
+        } else {
+          toast.error(data?.message || 'Failed to update evaluation type');
+        }
+      } catch (error) {
+        toast.error(error?.message || 'Error occurred while updating evaluation type');
+      } finally {
+        setLoading(false);
+        setEditIndex(null);
+      }
+    } else {
+      toast.error('Evaluation type name and description cannot be empty.');
+    }
   };
 
   const handleDelete = async (index) => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${config.API_URL_Units}/evaluation-types/${evalTypes[index].id}`, {
+      const evalTypeId = evalTypes[index]?.id;
+      const api = `${config.API_URL_Units}/evaluation-types/${evalTypeId}`;
+
+      const response = await fetch(api, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -124,16 +178,32 @@ function EvalType() {
         }
       });
 
-      const result = await response.json();
-      if (result.success) {
-        toast.success('Evaluation type deleted');
-        fetchEvalTypes();
+      if (response.ok) {
+        const data = response.status === 204 ? null : await response.json();
+        if (data?.success || response.status === 204) {
+          toast.success('Evaluation type deleted successfully');
+          await fetchEvalTypes();
+        } else {
+          toast.error(data?.message || 'Failed to delete evaluation type');
+        }
       } else {
-        toast.error(result.message || 'Failed to delete evaluation type');
+        const errorData = await response.json();
+        throw new Error(errorData?.message || 'Failed to delete evaluation type');
       }
     } catch (error) {
-      toast.error('Error occurred while deleting evaluation type');
+      toast.error(error?.message || 'Error occurred while deleting evaluation type');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleEdit = (index) => {
+    setEditIndex(index);
+    formik.setValues({
+      name: evalTypes[index]?.name || '',
+      description: evalTypes[index]?.description || ''
+    });
+    setOpen(true);
   };
 
   const handleMenuOpen = (event, index) => {
@@ -155,7 +225,9 @@ function EvalType() {
     formik.resetForm();
     setEditIndex(null);
   };
+
   const theme = useTheme();
+
   return (
     <Box p={0}>
       <Grid container spacing={3}>
@@ -184,36 +256,18 @@ function EvalType() {
                   <TableHead>
                     <TableRow>
                       {['Evaluation Type', 'Description', 'Actions'].map((header) => (
-                        <TableCell
-                          key={header}
-                          
-                        >
-                          {header}
-                        </TableCell>
+                        <TableCell key={header}>{header}</TableCell>
                       ))}
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {evalTypes.map((type, index) => (
-                      <TableRow
-                        key={type.id}
-                       
-                      >
-                        <TableCell
-                          component="th"
-                          scope="row"
-                          
-                        >
+                      <TableRow key={type.id}>
+                        <TableCell component="th" scope="row">
                           {type.name}
                         </TableCell>
-                        <TableCell
-                         
-                        >
-                          {type.description || '-'}
-                        </TableCell>
-                        <TableCell
-                          
-                        >
+                        <TableCell>{type.description || '-'}</TableCell>
+                        <TableCell>
                           <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
                             <MoreVertIcon />
                           </IconButton>
@@ -224,7 +278,7 @@ function EvalType() {
                                 handleMenuClose();
                               }}
                             >
-                              <EditIcon fontSize="small" disabled={!hasPermission} /> Edit
+                              <EditIcon /> Edit
                             </MenuItem>
                             <MenuItem
                               onClick={() => {
@@ -232,7 +286,7 @@ function EvalType() {
                                 handleMenuClose();
                               }}
                             >
-                              <DeleteIcon fontSize="small" /> Delete
+                              <DeleteIcon /> Delete
                             </MenuItem>
                           </Menu>
                         </TableCell>
@@ -245,18 +299,15 @@ function EvalType() {
           </CardContent>
         </Grid>
       </Grid>
-
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editIndex !== null ? 'Edit Evaluation Type' : 'Create Evaluation Type'}</DialogTitle>
+        <DialogTitle>{editIndex === null ? 'Add Evaluation Type' : 'Edit Evaluation Type'}</DialogTitle>
         <DialogContent>
-          <Box component="form" onSubmit={formik.handleSubmit}>
+          <form onSubmit={formik.handleSubmit}>
             <TextField
-              autoFocus
-              margin="dense"
-              id="name"
               name="name"
-              label="Evaluation Type Name"
-              type="text"
+              label="Evaluation Type"
+              variant="outlined"
+              margin="normal"
               fullWidth
               value={formik.values.name}
               onChange={formik.handleChange}
@@ -264,30 +315,33 @@ function EvalType() {
               helperText={formik.touched.name && formik.errors.name}
             />
             <TextField
-              margin="dense"
-              id="description"
               name="description"
               label="Description"
-              type="text"
+              variant="outlined"
+              margin="normal"
               fullWidth
+              multiline
+              rows={4}
               value={formik.values.description}
               onChange={formik.handleChange}
+              error={formik.touched.description && Boolean(formik.errors.description)}
+              helperText={formik.touched.description && formik.errors.description}
             />
-            <DialogActions>
-              <Button onClick={handleClose} color="primary">
-                Cancel
-              </Button>
-              <Button type="submit" color="primary">
-                {editIndex !== null ? 'Update' : 'Save'}
-              </Button>
-            </DialogActions>
-          </Box>
+          </form>
         </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={formik.handleSubmit} color="primary" disabled={loading || !formik.isValid}>
+            {editIndex === null ? 'Add' : 'Save'}
+          </Button>
+        </DialogActions>
       </Dialog>
-
       <ToastContainer />
     </Box>
   );
 }
 
 export default EvalType;
+  
