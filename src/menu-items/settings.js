@@ -46,7 +46,7 @@ export const settings = () => {
     'read:period',
     'read:measuringunit',
     'read:perspectivetype',
-    'read:performanceratin',
+    'read:performanceratingscale',
     'approval:manage'
   ];
 
@@ -75,7 +75,7 @@ export const settings = () => {
       url: '/perspectives',
       icon: icons.IconPerspective
     },
-    'read:performanceratin': {
+    'read:performanceratingscale': {
       id: 'performance-rating',
       title: 'Performance Rating',
       url: '/performance-rating',
