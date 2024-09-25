@@ -1,15 +1,12 @@
 import React from 'react';
-import { Grid, Box, Typography, Stack, AccordionDetails, useTheme, IconButton } from '@mui/material';
-import Measuring from '../Measuring-Units';
+import { Grid, Box, Typography, AccordionDetails, useTheme, IconButton } from '@mui/material';
 import Perceptive from '../Perceptive';
 import PerformanceScale from '../PerformanceScale';
 import JobPositionTable from '../JobPosition';
-import EvalType from '../Evaluation-Type';
 import Frequency from '../Frequency';
 import Period from '../Period';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PageContainer from 'ui-component/MainPage';
-import { gridSpacing } from 'store/constant';
 
 function PreSetup() {
   const theme = useTheme();

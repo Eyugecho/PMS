@@ -1,0 +1,1 @@
+import{j as o,F as e,Y as i}from"./index-DL-CLDEe.js";const r=()=>o.jsx(e,{severity:"error",title:"Access Denied",description:"You do not have permission to view this page.",sx:{padding:2},children:o.jsx(i,{variant:"contained",color:"primary",onClick:()=>window.location.href="/",children:"Go to Home"})});export{r as default};

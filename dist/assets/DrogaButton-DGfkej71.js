@@ -1,1 +1,0 @@
-import{P as t,j as s,bf as p,C as x}from"./index-BrIZ1aRM.js";const c=({title:o,sx:r,onPress:e,icon:i,type:n,...a})=>s.jsx(p,{children:s.jsxs(x,{type:n||"button",variant:"contained",...a,sx:{borderRadius:2,padding:1,px:2,...r},onClick:e,children:[i," ",s.jsx("b",{children:o})]})});c.propTypes={title:t.string,sx:t.object,onPress:t.func};export{c as D};

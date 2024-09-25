@@ -1,0 +1,1 @@
+import{j as a,n as e,G as r,b as t}from"./index-DL-CLDEe.js";const s=()=>a.jsx(e,{title:"Approval Management",children:a.jsx(r,{container:!0,children:a.jsx(r,{item:12,padding:3,children:a.jsx(t,{variant:"subtitle1",children:"Approvals page"})})})});export{s as default};
