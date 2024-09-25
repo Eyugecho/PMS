@@ -121,9 +121,8 @@ function Frequencies() {
       name: '',
       value: ''
     },
-    onSubmit: async (values, { resetForm }) => {
+    onSubmit: async (values) => {
       handleformSubmission(values);
-      resetForm();
     }
   });
 
@@ -349,7 +348,6 @@ function Frequencies() {
         <DialogContent>
           <Box component="form" onSubmit={formik.handleSubmit}>
             <TextField
-              autoFocus
               margin="dense"
               id="name"
               name="name"
@@ -358,6 +356,7 @@ function Frequencies() {
               fullWidth
               value={formik.values.name}
               onChange={formik.handleChange}
+              required
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
             />
@@ -368,6 +367,7 @@ function Frequencies() {
               label="Value"
               type="number"
               fullWidth
+              required
               value={formik.values.value}
               onChange={formik.handleChange}
               error={formik.touched.value && Boolean(formik.errors.value)}
@@ -381,7 +381,7 @@ function Frequencies() {
 
               <DrogaButton
                 title={submitting ? <CircularProgress size={16} sx={{ color: '#fff' }} /> : 'Submit'}
-                onPress={formik.handleSubmit}
+                type="submit"
                 sx={{ boxShadow: 0, paddingX: 6 }}
               />
             </DialogActions>

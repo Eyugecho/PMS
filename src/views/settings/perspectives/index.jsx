@@ -35,7 +35,6 @@ function Perspectives() {
   const [openEdit, setOpenEdit] = useState(false);
 
   const [search, setSearch] = useState('');
-  const [selectedIndex, setSelectedIndex] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [pagination, setPagination] = useState({
     page: 0,

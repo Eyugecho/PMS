@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Button, Modal, Typography, TextField, MenuItem, LinearProgress, InputLabel, Select, Grid } from '@mui/material';
+import { Box, Button, Modal, Typography, TextField, MenuItem, LinearProgress, InputLabel, Select, Grid, useTheme } from '@mui/material';
 import { SliderPicker } from 'react-color';
 import { toast, ToastContainer } from 'react-toastify';
 
@@ -9,6 +9,11 @@ import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
 import PageContainer from 'ui-component/MainPage';
 import AddButton from 'ui-component/buttons/AddButton';
+import DrogaCard from 'ui-component/cards/DrogaCard';
+import { IconStarFilled } from '@tabler/icons-react';
+import { DotMenu } from 'ui-component/menu/DotMenu';
+import AddRating from './components/AddRating';
+import EditRating from './components/EditRating';
 
 function LinearProgressWithLabel({ value, color }) {
   return (
@@ -19,7 +24,9 @@ function LinearProgressWithLabel({ value, color }) {
           value={value}
           sx={{
             backgroundColor: '#eee',
-            '& .MuiLinearProgress-bar': { backgroundColor: color }
+            '& .MuiLinearProgress-bar': { backgroundColor: color },
+            padding: 0.6,
+            borderRadius: 4
           }}
         />
       </Box>
@@ -31,11 +38,14 @@ function LinearProgressWithLabel({ value, color }) {
 }
 
 function PerformanceRating() {
+  const theme = useTheme();
   const [progressBars, setProgressBars] = React.useState([]);
   const [open, setOpen] = React.useState(false);
-  const [formValues, setFormValues] = React.useState({ scale: '', score: '', color: '', description: '' });
+  const [openEdit, setOpenEdit] = React.useState(false);
+  const [selectedRecord, setSelectedRecord] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
 
   const handleFetchProgressBars = async () => {
     setLoading(true);
@@ -70,18 +80,11 @@ function PerformanceRating() {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const handleOpenEdit = () => setOpenEdit(true);
+  const handleCloseEdit = () => setOpenEdit(false);
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
-
-  const handleColorChange = (color) => {
-    setFormValues({ ...formValues, color: color.hex });
-  };
-
-  const handleSave = async () => {
-    setLoading(true);
+  const handleSave = async (formValues) => {
+    setSubmitting(true);
     const token = await GetToken();
     const Api = Backend.api + Backend.performanceratingscale;
 
@@ -105,7 +108,6 @@ function PerformanceRating() {
           setProgressBars((prevBars) => [...prevBars, response.data]);
           handleClose();
           handleFetchProgressBars();
-          setFormValues({ scale: '', score: '', color: '', description: '' });
           toast.success(response.data.message);
         } else {
           toast.error(response.data.message);
@@ -115,7 +117,75 @@ function PerformanceRating() {
         toast.error('Error: ' + error.message);
       })
       .finally(() => {
-        setLoading(false);
+        setSubmitting(false);
+      });
+  };
+
+  const handleInitEditing = (rating) => {
+    setSelectedRecord(rating);
+    handleOpenEdit();
+  };
+
+  const handleSavingEdit = async (formValues) => {
+    setSubmitting(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.performanceratingscale + `/${selectedRecord.id}`;
+
+    fetch(Api, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        scale: formValues.scale,
+        score: formValues.score,
+        color: formValues.color,
+        description: formValues.description
+      })
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          handleCloseEdit();
+          toast.success(response.data.message);
+          handleFetchProgressBars();
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error('Error: ' + error.message);
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
+  };
+
+  const handleDeleting = async (id) => {
+    const token = await GetToken();
+    const Api = Backend.api + Backend.performanceratingscale + `/${id}`;
+
+    fetch(Api, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast.success(response.data.message);
+          handleFetchProgressBars();
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error('Error: ' + error.message);
       });
   };
 
@@ -135,71 +205,40 @@ function PerformanceRating() {
           ) : (
             <Box sx={{ mt: 2 }}>
               {progressBars.map((bar, index) => (
-                <Box key={index} sx={{ mb: 2 }}>
-                  <Typography variant="h6">{bar.description || `Performance Rate Scale - ${index + 1}`}</Typography>
-                  <Typography variant="body2">{`Scale: ${bar.scale}`}</Typography>
-                  <Typography variant="body2">{bar.description}</Typography>
-                  <LinearProgressWithLabel value={bar.score} color={bar.color} />
-                </Box>
+                <DrogaCard key={index} sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <Box sx={{ width: '6%', display: 'flex', alignItems: 'center' }}>
+                      <IconStarFilled size="1.6rem" stroke="1.4" style={{ color: theme.palette.warning.dark }} />
+                    </Box>
+
+                    <Box sx={{ marginLeft: 3, width: '90%' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', marginY: 1 }}>
+                        <Typography variant="body2">Rating </Typography>
+                        <Typography variant="h4" sx={{ marginLeft: 1 }}>
+                          {bar.scale}
+                        </Typography>
+                      </Box>
+                      <LinearProgressWithLabel value={bar.score} color={bar.color} />
+                      <Typography variant="body2">{bar.remark}</Typography>
+                    </Box>
+                    <DotMenu onEdit={() => handleInitEditing(bar)} onDelete={() => handleDeleting(bar.id)} />
+                  </Box>
+                </DrogaCard>
               ))}
             </Box>
           )}
 
-          <Modal open={open} onClose={handleClose}>
-            <Box sx={{ p: 4, bgcolor: 'background.paper', maxWidth: 400, mx: 'auto', my: '5%' }}>
-              <Typography variant="h6" gutterBottom>
-                Create Performance Rating Scale
-              </Typography>
+          <AddRating open={open} handleClose={() => handleClose()} handleSubmission={(values) => handleSave(values)} loading={submitting} />
 
-              <InputLabel id="scale-select-label">Scale</InputLabel>
-              <Select
-                labelId="scale-select-label"
-                name="scale"
-                value={formValues.scale}
-                onChange={handleInputChange}
-                fullWidth
-                sx={{ mb: 2 }}
-              >
-                <MenuItem value="Very Good">Very Good</MenuItem>
-                <MenuItem value="Good">Good</MenuItem>
-                <MenuItem value="Average">Average</MenuItem>
-                <MenuItem value="Poor">Poor</MenuItem>
-              </Select>
-
-              <TextField
-                name="score"
-                label="Score"
-                value={formValues.score}
-                onChange={handleInputChange}
-                fullWidth
-                type="text"
-                sx={{ mb: 2 }}
-              />
-
-              <Typography variant="body2" gutterBottom>
-                Select Color
-              </Typography>
-              <SliderPicker color={formValues.color} onChangeComplete={handleColorChange} />
-
-              <TextField
-                name="description"
-                label="Description"
-                value={formValues.description}
-                onChange={handleInputChange}
-                fullWidth
-                sx={{ mt: 2 }}
-              />
-
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                <Button variant="outlined" color="error" onClick={handleClose}>
-                  Cancel
-                </Button>
-                <Button variant="contained" color="primary" onClick={handleSave} disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
-                </Button>
-              </Box>
-            </Box>
-          </Modal>
+          {selectedRecord && (
+            <EditRating
+              open={openEdit}
+              selected={selectedRecord}
+              handleClose={() => handleCloseEdit()}
+              handleSubmission={(values) => handleSavingEdit(values)}
+              loading={submitting}
+            />
+          )}
           <ToastContainer />
         </Grid>
       </Grid>
