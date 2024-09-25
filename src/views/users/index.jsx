@@ -32,7 +32,7 @@ import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFr
 const Users = () => {
   const theme = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -350,7 +350,6 @@ const Users = () => {
                               onEdit={
                                 hasEditPermission ? () => handleUserUpdate({ id, name, email, phone, username, roles, created_at }) : null
                               }
-                              // onDelete={hasDeletePermission ? () => handleRemoveEmployee(id) : null}
                             />
                           </TableCell>
                         </TableRow>
@@ -377,7 +376,7 @@ const Users = () => {
         <UpdateUser
           open={update}
           isUpdating={isUpdating}
-          userData={selectedRow} 
+          userData={selectedRow}
           onClose={handleUpdateUserClose}
           handleSubmission={(value, roles) => handleUpdatingUser(value, roles)}
           roles={roles}

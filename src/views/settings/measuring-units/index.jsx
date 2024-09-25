@@ -307,6 +307,7 @@ function MeasuringUnits() {
               error={formik.touched.measuringUnit && Boolean(formik.errors.measuringUnit)}
               helperText={formik.touched.measuringUnit && formik.errors.measuringUnit}
               margin="normal"
+              required
             />
             <TextField
               fullWidth
@@ -318,6 +319,7 @@ function MeasuringUnits() {
               error={formik.touched.measuringType && Boolean(formik.errors.measuringType)}
               helperText={formik.touched.measuringType && formik.errors.measuringType}
               margin="normal"
+              required
             />
             <DialogActions>
               <Button onClick={handleClose} color="primary">

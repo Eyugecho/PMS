@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Box, Grid, IconButton, Typography, useTheme } from '@mui/material';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { format } from 'date-fns';
+import { DotMenu } from 'ui-component/menu/DotMenu';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 import PropTypes from 'prop-types';
-import { DotMenu } from 'ui-component/menu/DotMenu';
 
 const BudgetYear = ({ year, startDate, endDate, expand, onExpand, onEdit, onDelete, children }) => {
   const theme = useTheme();
@@ -52,7 +52,7 @@ const BudgetYear = ({ year, startDate, endDate, expand, onExpand, onEdit, onDele
         </Box>
 
         <Box>
-          {isHovered && <DotMenu onEdit={onEdit} onDelete={onDelete} />}
+          {isHovered && <DotMenu onEdit={onEdit} onDelete={onDelete} sx={{ color: expand ? 'white' : theme.palette.text.primary }} />}
           <IconButton onClick={onExpand}>
             {expand ? (
               <IconChevronDown size="1.4rem" stroke="1.4" style={{ color: expand ? 'white' : theme.palette.text.primary }} />

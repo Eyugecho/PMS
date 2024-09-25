@@ -15,7 +15,7 @@ import {
 } from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 
-export const DotMenu = ({ orientation, onView, onEdit, onEligible, eligiblity, onDelete }) => {
+export const DotMenu = ({ orientation, onView, onEdit, onEligible, eligiblity, onDelete, sx }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -36,7 +36,7 @@ export const DotMenu = ({ orientation, onView, onEdit, onEligible, eligiblity, o
         <IconButton
           onClick={handleMenuClick}
           size="small"
-          sx={{ ml: 2 }}
+          sx={{ ml: 2, ...sx }}
           aria-controls={open ? 'account-menu' : undefined}
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}

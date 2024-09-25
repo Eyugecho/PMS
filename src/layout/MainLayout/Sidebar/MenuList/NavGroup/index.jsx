@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
-import { List, Typography, Collapse } from '@mui/material';
+import { List, Typography, Collapse, Box } from '@mui/material';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import NavItem from '../NavItem';
 import NavCollapse from '../NavCollapse';
 
@@ -9,7 +10,7 @@ import NavCollapse from '../NavCollapse';
 
 const NavGroup = ({ item }) => {
   const theme = useTheme();
-  const [open, setOpen] = useState(true); // Default to true to expand the first header
+  const [open, setOpen] = useState(false);
 
   const handleToggle = () => {
     setOpen(!open);
@@ -38,17 +39,31 @@ const NavGroup = ({ item }) => {
           item.title && (
             <Typography
               variant="caption"
-              sx={{ ...theme.typography.menuCaption, color: 'inherit', cursor: 'pointer' }}
-              display="block"
+              sx={{
+                ...theme.typography.menuCaption,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                color: 'inherit',
+                cursor: 'pointer',
+                pl: `${24}px`
+              }}
               gutterBottom
               onClick={handleToggle}
             >
-              {item.icon && <item.icon style={{ marginRight: 5 }} />}
-              {item.title}
-              {item.caption && (
-                <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block">
-                  {item.caption}
-                </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {item.icon && <item.icon size="1.3rem" stroke={1.5} style={{ marginRight: 10, pl: `${24}px` }} />}
+                {item.title}
+                {item.caption && (
+                  <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block">
+                    {item.caption}
+                  </Typography>
+                )}
+              </Box>
+              {open ? (
+                <IconChevronUp stroke={1.5} size="1rem" style={{ marginTop: 'auto', marginBottom: 'auto' }} />
+              ) : (
+                <IconChevronDown stroke={1.5} size="1rem" style={{ marginTop: 'auto', marginBottom: 'auto' }} />
               )}
             </Typography>
           )
