@@ -35,11 +35,6 @@ function PreSetup() {
       component: <Period />
     },
     {
-      id: 3,
-      name: 'Measuring Units',
-      component: <Measuring />
-    },
-    {
       id: 4,
       name: 'Perspectives',
       component: <Perceptive />
