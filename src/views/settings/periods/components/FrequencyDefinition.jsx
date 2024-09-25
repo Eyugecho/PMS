@@ -308,7 +308,7 @@ const FrequencyDefinition = ({ sx }) => {
       const data = {
         name: updatedRecord?.name,
         start_date: updatedRecord?.start_date,
-        end_date: updatedRecord?.start_date,
+        end_date: updatedRecord?.end_date,
         evaluation_start_date: updatedRecord?.evaluation_period?.start_date,
         evaluation_end_date: updatedRecord?.evaluation_period?.end_date
       };

@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useFormik } from 'formik';
 import {
   Box,
   Typography,
-  TextField,
-  Button,
   Grid,
   Table,
   TableBody,
@@ -12,45 +9,176 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  CardContent,
-  Snackbar,
-  Alert,
-  Menu,
-  MenuItem,
-  useTheme
+  useTheme,
+  TablePagination
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import { toast, ToastContainer } from 'react-toastify';
+import { DotMenu } from 'ui-component/menu/DotMenu';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import GetToken from 'utils/auth-token';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
 import AddButton from 'ui-component/buttons/AddButton';
+import AddPerpectives from './components/AddPerpectives';
+import EditPerspectives from './components/EditPerspectives';
+import Search from 'ui-component/search';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 function Perspectives() {
-  const [perceptives, setPerceptives] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const theme = useTheme();
 
-  useEffect(() => {
-    fetchPerceptives();
-  }, []);
+  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [perceptives, setPerceptives] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [selectedPerspective, setSelectedPerspective] = useState(null);
+  const [openEdit, setOpenEdit] = useState(false);
+
+  const [search, setSearch] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 0,
+    per_page: 10,
+    last_page: 0,
+    total: 0
+  });
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpeningEditDialog = () => {
+    setOpenEdit(true);
+  };
+
+  const handleClosingEditDialog = () => {
+    setOpenEdit(false);
+  };
+
+  const handleSave = async (values) => {
+    try {
+      setSubmitting(true);
+      const token = await GetToken();
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      const Api = Backend.api + Backend.perspectiveTypes;
+      const response = await fetch(Api, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: values.perspectiveName })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(result.data.message);
+        handleClose();
+        fetchPerceptives();
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSavingUpdate = async (values) => {
+    try {
+      setSubmitting(true);
+      const token = await GetToken();
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      const Api = Backend.api + Backend.perspectiveTypes + `/${selectedPerspective?.id}`;
+
+      const response = await fetch(Api, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/plain, */*'
+        },
+        body: JSON.stringify({ name: values.perspectiveName })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        handleClosingEditDialog();
+        toast.success(result.data.message);
+        fetchPerceptives();
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (perspective) => {
+    setSelectedPerspective(perspective);
+    handleOpeningEditDialog();
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const token = await GetToken();
+      const Api = Backend.api + Backend.perspectiveTypes + `/${id}`;
+
+      fetch(Api, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            toast.success(response.data.message);
+            fetchPerceptives();
+          } else {
+            toast.success('There is error deleting');
+          }
+        })
+        .catch((error) => {
+          toast.success(error.message);
+        });
+    } catch (error) {
+      toast.success(error.message);
+    }
+  };
+
+  const handleSearchFieldChange = (event) => {
+    const value = event.target.value;
+    setSearch(value);
+    setPagination({ ...pagination, page: 0 });
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPagination({ ...pagination, page: newPage });
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPagination({ ...pagination, per_page: event.target.value, page: 0 });
+  };
 
   const fetchPerceptives = async () => {
     try {
+      perceptives.length === 0 && setLoading(true);
       const token = await GetToken();
-      const Api = Backend.api + `perspective-types`;
+      const Api = Backend.api + Backend.perspectiveTypes + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
       const response = await fetch(Api, {
         method: 'GET',
         headers: {
@@ -62,165 +190,52 @@ function Perspectives() {
       const data = await response.json();
       if (data.success) {
         setPerceptives(data.data.data);
+        setPagination({ ...pagination, last_page: data.data.last_page, total: data.data.total });
       } else {
-        console.error('Failed to fetch perceptives:', data.message);
+        toast.error(data.data.message);
       }
     } catch (error) {
-      console.error('Error fetching perceptives:', error);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSave = async (values) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token found');
-      }
-
-      const method = editIndex !== null ? 'PATCH' : 'POST';
-      const url = editIndex !== null ? `${Backend.api}perspective-types/${perceptives[editIndex].id}` : `${Backend.api}perspective-types`;
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/plain, */*'
-        },
-        body: JSON.stringify({ name: values.perspectiveName })
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        setSnackbarMessage('Perspective already exists');
-        setSnackbarSeverity('warning');
-      } else {
-        if (result.success) {
-          setPerceptives((prevPerceptives) => {
-            if (editIndex !== null) {
-              return prevPerceptives.map((p, i) => (i === editIndex ? result.data : p));
-            } else {
-              return [...prevPerceptives, result.data];
-            }
-          });
-          handleClose();
-          setSnackbarMessage('Perspective saved successfully!');
-          setSnackbarSeverity('success');
-        } else {
-          setSnackbarMessage('Error creating/updating perspective: ' + result.message);
-          setSnackbarSeverity('error');
-        }
-      }
-      setSnackbarOpen(true);
-    } catch (error) {
-      setSnackbarMessage('Error creating/updating perspective: ' + error.message);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+  useEffect(() => {
+    if (mounted) {
+      fetchPerceptives();
+    } else {
+      setMounted(true);
     }
-  };
+  }, [pagination.page, pagination.per_page]);
 
-  const handleUpdate = async (values) => {
-    await handleSave(values);
-  };
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      fetchPerceptives();
+    }, 600);
 
-  const handleEdit = (index) => {
-    formik.setFieldValue('perspectiveName', perceptives[index].name);
-    setEditIndex(index);
-    handleOpen();
-    handleCloseMenu();
-  };
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [search]);
 
-  const handleDelete = async (id) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${Backend.api}perspective-types/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.status === 204) {
-        setPerceptives((prevPerceptives) => prevPerceptives.filter((p) => p.id !== id));
-        setSnackbarMessage('Perspective deleted successfully!');
-        setSnackbarSeverity('success');
-      } else {
-        const data = await response.json();
-        if (data.success) {
-          setPerceptives((prevPerceptives) => prevPerceptives.filter((p) => p.id !== id));
-          setSnackbarMessage('Perspective deleted successfully!');
-          setSnackbarSeverity('success');
-        } else {
-          setSnackbarMessage('Failed to delete perspective: ' + data.message);
-          setSnackbarSeverity('error');
-        }
-      }
-    } catch (error) {
-      setSnackbarMessage('Error deleting perspective: ' + error.message);
-      setSnackbarSeverity('error');
-    }
-    setSnackbarOpen(true);
-    handleCloseMenu();
-  };
-
-  const formik = useFormik({
-    initialValues: {
-      perspectiveName: ''
-    },
-    onSubmit: (values, { resetForm }) => {
-      if (editIndex !== null) {
-        handleUpdate(values);
-      } else {
-        handleSave(values);
-      }
-      resetForm();
-    }
-  });
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    formik.resetForm();
-    setEditIndex(null);
-  };
-
-  const handleMenuOpen = (event, index) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedIndex(index);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-    setSelectedIndex(null);
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-  const theme = useTheme();
   return (
     <PageContainer
       title="Perspectives"
-      rightOption={
-        <AddButton
-          title="Create Perspective"
-          variant="contained"
-          onPress={() => {
-            formik.resetForm();
-            setEditIndex(false);
-            handleOpen();
-          }}
-        />
-      }
+      rightOption={<AddButton title="Create Perspective" variant="contained" onPress={() => handleOpen()} />}
     >
       <Grid container>
-        <Grid item xs={12} sx={{ margin: 2, mt: 4 }}>
-          {perceptives.length === 0 ? (
+        <Grid item xs={12} md={4} lg={3} sx={{ margin: 2, mt: 4 }}>
+          <Search title="Filter perspectives" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
+        </Grid>
+        <Grid item xs={12} sx={{ margin: 2 }}>
+          {loading ? (
+            <Grid container>
+              <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ActivityIndicator size={22} />
+              </Grid>
+            </Grid>
+          ) : perceptives.length === 0 ? (
             <Box display="flex" alignItems="center" justifyContent="center" height="100%">
               <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
               <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
@@ -291,61 +306,38 @@ function Perspectives() {
                           padding: '12px 16px'
                         }}
                       >
-                        <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
-                          <MoreVertIcon />
-                        </IconButton>
-                        <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedIndex === index} onClose={handleClose}>
-                          <MenuItem onClick={() => handleEdit(index)}>
-                            <EditIcon fontSize="small" /> Edit
-                          </MenuItem>
-                          <MenuItem onClick={() => handleDelete(perceptive.id)}>
-                            <DeleteIcon fontSize="small" /> Delete
-                          </MenuItem>
-                        </Menu>
+                        <DotMenu onEdit={() => handleEdit(perceptive)} onDelete={() => handleDelete(perceptive.id)} />
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
+              <TablePagination
+                component="div"
+                rowsPerPageOptions={[10, 25, 50, 100]}
+                count={pagination.total}
+                rowsPerPage={pagination.per_page}
+                page={pagination.page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
             </TableContainer>
           )}
         </Grid>
       </Grid>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editIndex ? 'Edit Perspective' : 'Create New Perspective'}</DialogTitle>
-        <DialogContent>
-          <Box component="form" onSubmit={formik.handleSubmit}>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="perspectiveName"
-              name="perspectiveName"
-              label="Perspective Name"
-              type="text"
-              fullWidth
-              value={formik.values.perspectiveName}
-              onChange={formik.handleChange}
-              error={formik.touched.perspectiveName && Boolean(formik.errors.perspectiveName)}
-              helperText={formik.touched.perspectiveName && formik.errors.perspectiveName}
-            />
-            <DialogActions>
-              <Button onClick={handleClose} color="primary">
-                Cancel
-              </Button>
-              <Button type="submit" color="primary">
-                {editIndex ? 'Update' : 'Save'}
-              </Button>
-            </DialogActions>
-          </Box>
-        </DialogContent>
-      </Dialog>
+      <AddPerpectives open={open} handleClose={handleClose} handleSubmission={(values) => handleSave(values)} submitting={submitting} />
+      {selectedPerspective && (
+        <EditPerspectives
+          open={openEdit}
+          selected={selectedPerspective}
+          handleClose={handleClosingEditDialog}
+          handleSubmission={(values) => handleSavingUpdate(values)}
+          submitting={submitting}
+        />
+      )}
 
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      <ToastContainer />
     </PageContainer>
   );
 }

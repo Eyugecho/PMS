@@ -377,7 +377,7 @@ const Users = () => {
         <UpdateUser
           open={update}
           isUpdating={isUpdating}
-          userData={selectedRow} // Pass the selected user data to the modal
+          userData={selectedRow} 
           onClose={handleUpdateUserClose}
           handleSubmission={(value, roles) => handleUpdatingUser(value, roles)}
           roles={roles}

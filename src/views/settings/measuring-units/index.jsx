@@ -32,8 +32,10 @@ import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
 import PageContainer from 'ui-component/MainPage';
 import AddButton from 'ui-component/buttons/AddButton';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 function MeasuringUnits() {
+  const [loading, setLoading] = useState(true);
   const [measuringUnits, setMeasuringUnits] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [open, setOpen] = useState(false);
@@ -46,6 +48,7 @@ function MeasuringUnits() {
 
   const fetchMeasuringUnits = async () => {
     try {
+      measuringUnits.length === 0 && setLoading(true);
       const token = await GetToken();
       const Api = Backend.api + `measuring-units`;
       const response = await fetch(Api, {
@@ -64,6 +67,8 @@ function MeasuringUnits() {
       }
     } catch (error) {
       toast.error(`Error fetching measuring units: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -171,7 +176,13 @@ function MeasuringUnits() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <CardContent>
-            {measuringUnits.length === 0 ? (
+            {loading ? (
+              <Grid container>
+                <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ActivityIndicator size={22} />
+                </Grid>
+              </Grid>
+            ) : measuringUnits.length === 0 ? (
               <Box display="flex" alignItems="center" justifyContent="center" height="100%">
                 <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
                 <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
@@ -283,7 +294,7 @@ function MeasuringUnits() {
       </Grid>
 
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editIndex !== null ? 'Edit Measuring Unit' : 'Add New Measuring Unit'}</DialogTitle>
+        <DialogTitle variant="h4">{editIndex !== null ? 'Edit Measuring Unit' : 'Add New Measuring Unit'}</DialogTitle>
         <DialogContent>
           <Box component="form" onSubmit={formik.handleSubmit}>
             <TextField
@@ -312,7 +323,7 @@ function MeasuringUnits() {
               <Button onClick={handleClose} color="primary">
                 Cancel
               </Button>
-              <Button type="submit" color="primary">
+              <Button variant="contained" type="submit" color="primary">
                 Save
               </Button>
             </DialogActions>

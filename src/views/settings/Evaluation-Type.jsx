@@ -28,10 +28,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import 'react-toastify/dist/ReactToastify.css';
-
 import config from '../../configration/config';
-import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
-import AddButton from 'ui-component/buttons/AddButton';
 import Backend from 'services/backend';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
 
@@ -42,8 +39,6 @@ function EvalType() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [loading, setLoading] = useState(false);
-  const auth = getRolesAndPermissionsFromToken();
-  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:endofdayactivity'));
 
   useEffect(() => {
     fetchEvalTypes();
@@ -339,4 +334,3 @@ function EvalType() {
 }
 
 export default EvalType;
-  

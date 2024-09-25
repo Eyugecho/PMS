@@ -41,13 +41,12 @@ const NavGroup = ({ item }) => {
               sx={{ ...theme.typography.menuCaption, color: 'inherit', cursor: 'pointer' }}
               display="block"
               gutterBottom
-              onClick={handleToggle} // Toggle the list on header click
+              onClick={handleToggle}
             >
-              {/* Render the icon */}
               {item.icon && <item.icon style={{ marginRight: 5 }} />}
               {item.title}
               {item.caption && (
-                <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block" >
+                <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block">
                   {item.caption}
                 </Typography>
               )}

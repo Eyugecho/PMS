@@ -69,7 +69,7 @@ const NavItem = ({ item, level }) => {
         alignItems: 'flex-start',
         py: level > 1 ? 1 : 1.25,
         pl: `${level * 24}px`,
-        backgroundColor: isSelected // Highlight active menu item
+        backgroundColor: isSelected 
           ? theme.palette.primary.main
           : level > 1 && customization.isOpen.findIndex((id) => id === item.id) > -1
             ? theme.palette.primary.light
@@ -93,7 +93,7 @@ const NavItem = ({ item, level }) => {
       </ListItemIcon>
       <ListItemText
         primary={
-          <Typography variant={isSelected ? 'h6' : 'body1'} color={isSelected ? theme.palette.common.white : theme.palette.text.primary}  >
+          <Typography variant={isSelected ? 'subtitle1' : 'body1'} color={isSelected ? theme.palette.common.white : theme.palette.text.primary}  >
             {item.title}
           </Typography>
         }

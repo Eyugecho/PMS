@@ -150,7 +150,7 @@ const Employees = () => {
       name: value?.name,
       gender: value?.gender,
       email: value?.email,
-      // username: value?.username,
+     
       id: value?.id,
       phone: value?.phone,
       job_position_id: value?.job_position_id,
