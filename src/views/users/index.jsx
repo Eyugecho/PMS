@@ -26,8 +26,8 @@ import ErrorPrompt from 'utils/components/ErrorPrompt';
 import Fallbacks from 'utils/components/Fallbacks';
 import AddButton from 'ui-component/buttons/AddButton';
 import AddUser from './componenets/Addusers';
-import UpdateUser from './componenets/EditUserModal';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
+import EditUser from './componenets/EditUsers';
 
 const Users = () => {
   const theme = useTheme();
@@ -73,7 +73,7 @@ const Users = () => {
   const handleFetchingUsers = async () => {
     setLoading(true);
     const token = await GetToken();
-    const Api = `${Backend.auth}${Backend.users}?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+    const Api = Backend.auth + Backend.users + `?page=${pagination.page + 1}&per_page=${pagination.per_page}&search=${search}`;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -107,7 +107,7 @@ const Users = () => {
   const handleUserAddition = async (value) => {
     setIsAdding(true);
     const token = await GetToken();
-    const Api = `${Backend.auth}${Backend.users}`;
+    const Api = Backend.auth + Backend.users;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -116,14 +116,12 @@ const Users = () => {
 
     const data = {
       email: value.email,
-      password: value.password,
-      password_confirmation: value.password_confirmation,
       name: value.name,
       phone: value.phone,
-      roles: value.roles // Ensure this contains valid UUIDs
+      roles: value.roles
     };
 
-    if (!value.email || !value.password || !value.name) {
+    if (!value.email || !value.name) {
       toast.error('Please fill all required fields.');
       setIsAdding(false);
       return;
@@ -144,7 +142,57 @@ const Users = () => {
       const responseData = await response.json();
       if (responseData.success) {
         toast.success(responseData.data.message);
-        handleFetchingUsers(); // Refresh users after adding
+        handleFetchingUsers();
+        handleUserModalClose();
+      } else {
+        toast.error(responseData.data.message || 'Failed to add user.');
+      }
+    } catch (error) {
+      toast.error(error.message || 'An unexpected error occurred.');
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleUserEdit = async (value) => {
+    setIsAdding(true);
+    const token = await GetToken();
+    const Api = Backend.auth + Backend.users;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      email: value.email,
+      name: value.name,
+      phone: value.phone,
+      roles: value.roles
+    };
+
+    if (!value.email || !value.name) {
+      toast.error('Please fill the required fields.');
+      setIsAdding(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(Api, {
+        method: 'PATCH',
+        headers: header,
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.data.message || 'Error adding user');
+      }
+
+      const responseData = await response.json();
+      if (responseData.success) {
+        toast.success(responseData.data.message);
+        handleFetchingUsers();
         handleUserModalClose();
       } else {
         toast.error(responseData.data.message || 'Failed to add user.');
@@ -233,13 +281,13 @@ const Users = () => {
   };
 
   const handleUserUpdate = (updatedData) => {
-    setSelectedRow(updatedData); // Store the selected user
-    setUpdate(true); // Open the update modal
+    setSelectedRow(updatedData);
+    setUpdate(true);
   };
 
   const handleUpdateUserClose = () => {
-    setUpdate(false); // Close the modal
-    setSelectedRow(null); // Clear selected user data
+    setUpdate(false);
+    setSelectedRow(null);
   };
 
   useEffect(() => {
@@ -261,16 +309,11 @@ const Users = () => {
     <PageContainer title="Users">
       <Grid container>
         <Grid item xs={12} padding={3}>
-          <Grid item xs={10} md={12}>
-            <Card>
-              <CardContent>
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Search title="Search Employees" value={search} onChange={handleSearchFieldChange} filter={false} />
-
-                  <AddButton title="Add User" onPress={handleAddUserClick} />
-                </Box>
-              </CardContent>
-            </Card>
+          <Grid item xs={10} md={12} marginBottom={3}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Search title="Search Employees" value={search} onChange={handleSearchFieldChange} filter={false} />
+              <AddButton title="Add User" onPress={handleAddUserClick} />
+            </Box>
           </Grid>
           <Grid container>
             <Grid item xs={12}>
@@ -373,12 +416,12 @@ const Users = () => {
       <ToastContainer />
       <AddUser add={add} roles={roles} onClose={handleUserModalClose} onSubmit={handleUserAddition} loading={isAdding} />
       {selectedRow && (
-        <UpdateUser
-          open={update}
+        <EditUser
+          edit={update}
           isUpdating={isUpdating}
           userData={selectedRow}
           onClose={handleUpdateUserClose}
-          handleSubmission={(value, roles) => handleUpdatingUser(value, roles)}
+          onSubmit={handleUpdatingUser}
           roles={roles}
         />
       )}

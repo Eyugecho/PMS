@@ -1,5 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  useTheme
+} from '@mui/material';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { addDays, differenceInDays, format, isAfter, isBefore, subDays } from 'date-fns';
@@ -14,8 +28,10 @@ import FrequencySelector from './FrequencySelector';
 import Fallbacks from 'utils/components/Fallbacks';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
 import StatusSwitch from 'ui-component/switchs/StatusSwitch';
+import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 
-const FrequencyDefinition = ({ sx }) => {
+const FrequencyDefinition = ({ sx, open, setOpen }) => {
+  const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
 
   const fiscalYearStartDate = selectedYear?.start_date || '';
@@ -23,7 +39,7 @@ const FrequencyDefinition = ({ sx }) => {
 
   const [loading, setLoading] = useState(true);
   const [frequencies, setFrequencies] = useState([]);
-  const [selectedFrequency, setSelectedFrequency] = useState();
+  const [selectedFrequency, setSelectedFrequency] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState();
   const [submitting, setSubmitting] = useState(false);
 
@@ -73,12 +89,14 @@ const FrequencyDefinition = ({ sx }) => {
   };
 
   const handleSettingDefaultFrequency = (data) => {
-    const quarterIndex = data.findIndex((item) => item.value == 4);
+    const quarterIndex = data.findIndex(({ value }) => value === '4');
+    if (quarterIndex === -1) return;
 
-    if (quarterIndex !== -1) {
-      const selected = data[quarterIndex];
-      setSelectedFrequency(selected);
-      setSelectedIndex(quarterIndex);
+    const selected = data[quarterIndex];
+    setSelectedFrequency(selected);
+    setSelectedIndex(quarterIndex);
+
+    if (selected) {
       handleGettingDetails(selected.id, selected.value, quarterIndex);
     }
   };
@@ -96,7 +114,8 @@ const FrequencyDefinition = ({ sx }) => {
         const end_date = i === value - 1 ? fiscalYearEndDate : addDays(fiscalYearStartDate, (i + 1) * daysPerQuarter - 1);
         const evaluation_start_date = subDays(end_date, 7);
         const evaluation_end_date = end_date;
-        const periodName = frequencies[index]?.name;
+        const periodName = frequencies[index]?.name ? frequencies[index]?.name : 'Period';
+
         setChangeStatus(true);
         return {
           name: `${PeriodNaming(periodName)} ${i + 1}`,
@@ -412,6 +431,10 @@ const FrequencyDefinition = ({ sx }) => {
       });
   };
 
+  const handleToggele = () => {
+    setOpen(!open);
+  };
+
   useEffect(() => {
     handleFetchingFrequncies();
   }, [selectedYear]);
@@ -425,7 +448,7 @@ const FrequencyDefinition = ({ sx }) => {
             <ActivityIndicator size={18} />
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              {changesStatus && (
+              {changesStatus && open && (
                 <DrogaButton
                   title={submitting ? <ActivityIndicator size={18} sx={{ color: 'white' }} /> : 'Submit All'}
                   variant="contained"
@@ -433,131 +456,153 @@ const FrequencyDefinition = ({ sx }) => {
                   sx={{ marginRight: 3 }}
                 />
               )}
-              <FrequencySelector options={frequencies} handleSelection={(index) => handleFrequencySelection(index)} index={selectedIndex} />
+              {open && (
+                <FrequencySelector
+                  options={frequencies}
+                  handleSelection={(index) => handleFrequencySelection(index)}
+                  index={selectedIndex}
+                />
+              )}
+
+              <IconButton onClick={() => handleToggele()} sx={{ marginLeft: 2, backgroundColor: theme.palette.grey[100] }}>
+                {open ? <IconChevronDown size="1.4rem" stroke="1.4" /> : <IconChevronRight size="1.4rem" stroke="1.4" />}
+              </IconButton>
             </Box>
           )}
         </Grid>
 
-        <Grid item xs={12} sx={{ minHeight: 300, marginTop: 3 }}>
-          {loadingDetails ? (
-            <Grid container>
-              <Grid
-                item
-                xs={12}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 8
-                }}
-              >
-                <ActivityIndicator size={20} />
+        {open && (
+          <Grid item xs={12} sx={{ minHeight: 300, marginTop: 3 }}>
+            {loadingDetails ? (
+              <Grid container>
+                <Grid
+                  item
+                  xs={12}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 8
+                  }}
+                >
+                  <ActivityIndicator size={20} />
+                </Grid>
               </Grid>
-            </Grid>
-          ) : frequencyChanges.length === 0 ? (
-            <Fallbacks
-              severity="frequencies"
-              title="No evaluation frequency found"
-              description="The list of added frequency will be listed here"
-              sx={{ paddingTop: 6 }}
-            />
-          ) : (
-            <TableContainer sx={{ marginBottom: 2 }}>
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                    {['Name', 'Start Date', 'End Date', 'Evaluation start', 'Evaluation end', 'Status'].map((header, index) => (
-                      <TableCell key={index}>
-                        <Typography variant="subtitle1">{header}</Typography>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <TableBody>
-                    {frequencyChanges.map((period, index) => (
-                      <TableRow key={index}>
-                        <TableCell sx={{ width: '200px' }}>
-                          <TextField variant="standard" value={period.name} onChange={(event) => handleNameChange(event, index)} />
+            ) : frequencyChanges.length === 0 ? (
+              <Fallbacks
+                severity="frequencies"
+                title="No evaluation frequency found"
+                description="The list of added frequency will be listed here"
+                sx={{ paddingTop: 6 }}
+              />
+            ) : (
+              <TableContainer sx={{ marginBottom: 2 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: 'grey.50' }}>
+                      {[
+                        'Name',
+                        selectedFrequency ? PeriodNaming(selectedFrequency?.name) + ' start' : `Period start`,
+                        selectedFrequency ? PeriodNaming(selectedFrequency?.name) + ' end' : `Period end`,
+                        'Evaluation start',
+                        'Evaluation end',
+                        'Status'
+                      ].map((header, index) => (
+                        <TableCell key={index}>
+                          <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                            {header}
+                          </Typography>
                         </TableCell>
-                        <TableCell>
-                          <DatePicker
-                            label="Start Date"
-                            value={period?.start_date ? new Date(period?.start_date) : null}
-                            onChange={(date) => handleDateChange(date, index, 'start_date')}
-                            shouldDisableDate={(date) => shouldDisableDate(date, true, index)}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <DatePicker
-                            label="End Date"
-                            value={period?.end_date ? new Date(period?.end_date) : null}
-                            onChange={(date) => handleDateChange(date, index, 'end_date')}
-                            shouldDisableDate={(date) => shouldDisableDate(date, false, index)}
-                            renderInput={(params) => (
-                              <TextField {...params} error={!isEndDateValid(period?.start_date, period?.end_date)} />
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <DatePicker
-                            label="Evaluation Start"
-                            value={period?.evaluation_period?.start_date ? new Date(period?.evaluation_period?.start_date) : null}
-                            onChange={(date) => handleDateChange(date, index, 'start_date', true)}
-                            shouldDisableDate={(date) => shouldEvaluationDisable(date, true, index)}
-                            renderInput={(params) => <TextField {...params} />}
-                          />
-                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <TableBody>
+                      {frequencyChanges.map((period, index) => (
+                        <TableRow key={index}>
+                          <TableCell sx={{ width: '200px' }}>
+                            <TextField variant="standard" value={period.name} onChange={(event) => handleNameChange(event, index)} />
+                          </TableCell>
+                          <TableCell>
+                            <DatePicker
+                              label="Start Date"
+                              value={period?.start_date ? new Date(period?.start_date) : null}
+                              onChange={(date) => handleDateChange(date, index, 'start_date')}
+                              shouldDisableDate={(date) => shouldDisableDate(date, true, index)}
+                              renderInput={(params) => <TextField {...params} />}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <DatePicker
+                              label="End Date"
+                              value={period?.end_date ? new Date(period?.end_date) : null}
+                              onChange={(date) => handleDateChange(date, index, 'end_date')}
+                              shouldDisableDate={(date) => shouldDisableDate(date, false, index)}
+                              renderInput={(params) => (
+                                <TextField {...params} error={!isEndDateValid(period?.start_date, period?.end_date)} />
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <DatePicker
+                              label="Evaluation Start"
+                              value={period?.evaluation_period?.start_date ? new Date(period?.evaluation_period?.start_date) : null}
+                              onChange={(date) => handleDateChange(date, index, 'start_date', true)}
+                              shouldDisableDate={(date) => shouldEvaluationDisable(date, true, index)}
+                              renderInput={(params) => <TextField {...params} />}
+                            />
+                          </TableCell>
 
-                        <TableCell>
-                          <DatePicker
-                            label="Evaluation End"
-                            value={period?.evaluation_period?.end_date ? new Date(period?.evaluation_period?.end_date) : null}
-                            onChange={(date) => handleDateChange(date, index, 'end_date', true)}
-                            shouldDisableDate={(date) => shouldEvaluationDisable(date, false, index)}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                error={!isEndDateValid(period?.evaluation_period?.start_date, period?.evaluation_period?.end_date)}
+                          <TableCell>
+                            <DatePicker
+                              label="Evaluation End"
+                              value={period?.evaluation_period?.end_date ? new Date(period?.evaluation_period?.end_date) : null}
+                              onChange={(date) => handleDateChange(date, index, 'end_date', true)}
+                              shouldDisableDate={(date) => shouldEvaluationDisable(date, false, index)}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  error={!isEndDateValid(period?.evaluation_period?.start_date, period?.evaluation_period?.end_date)}
+                                />
+                              )}
+                            />
+                          </TableCell>
+
+                          <TableCell>
+                            {frequencyDetails.length !== 0 && hasChanges(index) ? (
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleSavingChanges(period.id, index)}
+                                sx={{ width: '140px', height: 'auto', borderRadius: 2, padding: 1, px: 2 }}
+                              >
+                                {submitting && toBeUpdated === index ? (
+                                  <ActivityIndicator size={18} sx={{ color: 'white' }} />
+                                ) : (
+                                  'Save Changes'
+                                )}
+                              </Button>
+                            ) : submitting && toBeUpdated === index ? (
+                              <ActivityIndicator size={18} sx={{ color: 'primary' }} />
+                            ) : (
+                              <StatusSwitch
+                                checked={period?.status === 'true'}
+                                onChange={(e) => handleStatusChange(period.id, e.target.checked, index)}
+                                inputProps={{ 'aria-label': 'controlled' }}
+                                disabled={changesStatus}
                               />
                             )}
-                          />
-                        </TableCell>
-
-                        <TableCell>
-                          {frequencyDetails.length !== 0 && hasChanges(index) ? (
-                            <Button
-                              variant="contained"
-                              color="primary"
-                              onClick={() => handleSavingChanges(period.id, index)}
-                              sx={{ width: '140px', height: 'auto', borderRadius: 2, padding: 1, px: 2 }}
-                            >
-                              {submitting && toBeUpdated === index ? (
-                                <ActivityIndicator size={18} sx={{ color: 'white' }} />
-                              ) : (
-                                'Save Changes'
-                              )}
-                            </Button>
-                          ) : submitting && toBeUpdated === index ? (
-                            <ActivityIndicator size={18} sx={{ color: 'primary' }} />
-                          ) : (
-                            <StatusSwitch
-                              checked={period?.status === 'true'}
-                              onChange={(e) => handleStatusChange(period.id, e.target.checked, index)}
-                              inputProps={{ 'aria-label': 'controlled' }}
-                            />
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </LocalizationProvider>
-              </Table>
-            </TableContainer>
-          )}
-        </Grid>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </LocalizationProvider>
+                </Table>
+              </TableContainer>
+            )}
+          </Grid>
+        )}
       </Grid>
     </DrogaCard>
   );

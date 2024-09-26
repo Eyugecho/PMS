@@ -30,6 +30,7 @@ import UploadFile from 'ui-component/modal/UploadFile';
 import axios from 'axios';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import GetToken from 'utils/auth-token';
+import hasPermission from 'utils/auth/hasPermission';
 
 const AddEmployeeOptions = ['Add Employee', 'Import From Excel'];
 
@@ -58,11 +59,6 @@ const Employees = () => {
   const [deleting, setDeleting] = useState(false);
   const [importExcel, setImportExcel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const auth = getRolesAndPermissionsFromToken();
-
-  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
-  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:employee'));
-  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:employee'));
 
   const handleOpenDialog = () => {
     setImportExcel(true);
@@ -117,7 +113,6 @@ const Employees = () => {
 
   const handleUpdateEmployeeClose = () => {
     setUpdate(false);
-    
   };
 
   const handleSearchFieldChange = (event) => {
@@ -150,7 +145,7 @@ const Employees = () => {
       name: value?.name,
       gender: value?.gender,
       email: value?.email,
-     
+
       id: value?.id,
       phone: value?.phone,
       job_position_id: value?.job_position_id,
@@ -162,7 +157,6 @@ const Employees = () => {
       password_confirmation: 'password'
     };
 
-
     fetch(Api, {
       method: 'POST',
       headers: header,
@@ -171,7 +165,7 @@ const Employees = () => {
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
-          setIsAdding(false); 
+          setIsAdding(false);
           handleAddEmployeeClose();
           toast.success(response.data.message);
           handleFetchingEmployees();
@@ -216,7 +210,6 @@ const Employees = () => {
       started_date: value?.start_date
     };
     console.log(data);
-    
 
     fetch(Api, {
       method: 'PATCH',
@@ -309,7 +302,7 @@ const Employees = () => {
           setDeleting(false);
           setDeleteUser(false);
           toast.success(response.data.message);
-          
+
           handleFetchingEmployees();
         } else {
           setDeleting(false);
@@ -334,7 +327,7 @@ const Employees = () => {
   const handleFetchingEmployees = () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-    const Api = Backend.api + Backend.employees + `?page=${pagination.page}&per_page=${pagination.perPage}&search=${search}`;
+    const Api = Backend.api + Backend.employees + `?page=${pagination.page + 1}&per_page=${pagination.perPage}&search=${search}`;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -394,7 +387,9 @@ const Employees = () => {
               <Search title="Filter Employees" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}>
                 <FilterEmployees />
               </Search>
-              {hasPermission && <SplitButton options={AddEmployeeOptions} handleSelection={(value) => handleEmployeeAdd(value)} />}
+              {hasPermission('create:employee') && (
+                <SplitButton options={AddEmployeeOptions} handleSelection={(value) => handleEmployeeAdd(value)} />
+              )}
             </Grid>
           </Grid>
 
@@ -406,7 +401,6 @@ const Employees = () => {
                   <TableCell>Gender</TableCell>
                   <TableCell>Email</TableCell>
                   <TableCell>Employee Id</TableCell>
-
                   <TableCell>Position</TableCell>
                   <TableCell>Role</TableCell>
                   <TableCell>Starting date</TableCell>
@@ -488,10 +482,10 @@ const Employees = () => {
                       <TableCell sx={{ border: 0 }}>
                         <DotMenu
                           onView={() => navigate('/employees/view', { state: employee })}
-                          onEdit={hasEditPermission ? () => handleEmployeeUpdate(employee) : null}
+                          onEdit={hasPermission('update:employee') ? () => handleEmployeeUpdate(employee) : null}
                           eligiblity={employee?.is_eligible ? 'Not Eligible' : 'Eligible'}
-                          onEligible={() => handleEmployeeEligiblity(employee)}
-                          onDelete={hasDelatePermission ? () => handleRemoveEmployee(employee) : null}
+                          onEligible={hasPermission('update:employee') ? () => handleEmployeeEligiblity(employee) : null}
+                          onDelete={hasPermission('delete:employee') ? () => handleRemoveEmployee(employee) : null}
                         />
                       </TableCell>
                     </TableRow>

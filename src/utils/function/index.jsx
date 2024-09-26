@@ -25,6 +25,9 @@ export const PeriodNaming = (name) => {
       case 'Daily':
         f_name = 'Day';
         break;
+      case 'Period':
+        f_name = 'Period';
+        break;
 
       default:
         f_name = 'Season';

@@ -11,6 +11,7 @@ import ProfileSection from './ProfileSection';
 // assets
 import { IconMenu2 } from '@tabler/icons-react';
 import { IconButton } from '@mui/material';
+import { useSelector } from 'react-redux';
 import LogoSection from '../LogoSection';
 import ToggleTheme from './Theme';
 import FiscalYearMenu from './FiscalYear';
@@ -19,6 +20,8 @@ import FiscalYearMenu from './FiscalYear';
 
 const Header = ({ handleLeftDrawerToggle, drawerOpen }) => {
   const theme = useTheme();
+  const user = useSelector((state) => state.user.user);
+  const isSuperAdmin = user?.roles?.length === 1 && user.roles[0].name.toLowerCase() === 'super_admin';
 
   return (
     <>
@@ -34,7 +37,7 @@ const Header = ({ handleLeftDrawerToggle, drawerOpen }) => {
 
         <Box sx={{ marginLeft: 2.4 }}>{!drawerOpen && <LogoSection />}</Box>
       </Box>
-      <FiscalYearMenu />
+      {!isSuperAdmin && <FiscalYearMenu />}
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ flexGrow: 1 }} />
       <ToggleTheme />

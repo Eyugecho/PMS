@@ -56,6 +56,9 @@ const MainLayout = () => {
     dispatch({ type: SET_MENU, opened: !leftDrawerOpened });
   };
 
+  const user = useSelector((state) => state.user.user);
+  const isSuperAdmin = user?.roles?.length === 1 && user.roles[0].name.toLowerCase() === 'super_admin';
+
   return (
     <Box sx={{ display: 'flex' }}>
       <Sidebar drawerOpen={!matchDownMd ? leftDrawerOpened : !leftDrawerOpened} drawerToggle={handleLeftDrawerToggle} />
@@ -84,7 +87,7 @@ const MainLayout = () => {
           }}
         >
           <Header handleLeftDrawerToggle={handleLeftDrawerToggle} drawerOpen={leftDrawerOpened} />
-          <GetFiscalYear />
+          {!isSuperAdmin && <GetFiscalYear />}
         </Box>
 
         <Outlet />

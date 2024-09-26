@@ -170,9 +170,10 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
         toast(error.message);
       });
   };
+
   const handleFetchingPositions = async () => {
     const token = await GetToken();
-    const Api = Backend.api + Backend.jobposition;
+    const Api = Backend.api + Backend.allJobPosition;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -195,6 +196,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
         toast(error.message);
       });
   };
+
   const setFormInitialValues = () => {
     formik.setValues({
       ...formik.values,
@@ -224,7 +226,6 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
     handleFetchingTypes();
     handleFetchingPositions();
 
-
     return () => {};
   }, [update]);
   return (
@@ -236,12 +237,12 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
             top: 0,
             zIndex: 2,
             width: '100%',
-            backgroundColor: theme.palette.background.default,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             paddingRight: 2,
-            paddingY: 0.6
+            paddingY: 0.6,
+            backgroundColor: theme.palette.background.paper
           }}
         >
           <DialogTitle variant="h4" color={theme.palette.text.primary}>
@@ -254,7 +255,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)} sx={{ marginTop: 1 }}>
+            <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)}>
               <InputLabel htmlFor="name">Full name</InputLabel>
               <OutlinedInput id="name" name="name" label="Full name" value={formik.values.name} onChange={formik.handleChange} fullWidth />
               {formik.touched.name && formik.errors.name && (
@@ -417,9 +418,9 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
                     Position not found
                   </Typography>
                 ) : (
-                  positions.map((job_position_id) => (
-                    <MenuItem key={job_position_id.id} value={job_position_id.id}>
-                      {job_position_id.name}
+                  positions.map((position) => (
+                    <MenuItem key={position.id} value={position.id}>
+                      {position.name}
                     </MenuItem>
                   ))
                 )}
@@ -449,7 +450,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
               )}
             </FormControl>
           </DialogContent>
-          <DialogActions sx={{ paddingX: 2 }}>
+          <DialogActions sx={{ paddingX: 2, marginBottom: 2 }}>
             <Button onClick={onClose} sx={{ marginLeft: 10 }}>
               Cancel
             </Button>

@@ -1,18 +1,6 @@
 import React, { useState } from 'react';
 import { IconButton, Menu, MenuItem, Tooltip, Typography, useTheme } from '@mui/material';
-import {
-  IconBadge,
-  IconDots,
-  IconDotsVertical,
-  IconEye,
-  IconForbid,
-  IconForbid2,
-  IconPencil,
-  IconStar,
-  IconTrash,
-  IconUserExclamation,
-  IconUserStar
-} from '@tabler/icons-react';
+import { IconDots, IconDotsVertical, IconEye, IconPencil, IconTrash, IconUserExclamation, IconUserStar } from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 
 export const DotMenu = ({ orientation, onView, onEdit, onEligible, eligiblity, onDelete, sx }) => {

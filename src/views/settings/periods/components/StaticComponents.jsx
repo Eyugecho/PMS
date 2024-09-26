@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useTheme } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { addDays, isBefore, isAfter, format } from 'date-fns';
@@ -10,6 +10,7 @@ import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import StatusSwitch from 'ui-component/switchs/StatusSwitch';
 
 const StaticPeriodsComponent = ({ data, fiscalYear, onRefresh }) => {
+  const theme = useTheme();
   const [periods, setPeriods] = useState({});
   const [theKey, setTheKey] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -172,7 +173,9 @@ const StaticPeriodsComponent = ({ data, fiscalYear, onRefresh }) => {
           <TableRow sx={{ backgroundColor: 'grey.50' }}>
             {['Name', 'Start Date', 'End Date', 'Status'].map((header, index) => (
               <TableCell key={index}>
-                <Typography variant="subtitle1">{header}</Typography>
+                <Typography variant="subtitle1" color={theme.palette.text.primary}>
+                  {header}
+                </Typography>
               </TableCell>
             ))}
           </TableRow>

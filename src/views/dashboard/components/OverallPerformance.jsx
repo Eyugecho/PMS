@@ -25,7 +25,7 @@ const OverallPerformance = () => {
 
   useEffect(() => {
     const handleFetchingPerformance = async () => {
-      if (selectedYear) {
+      if (selectedYear?.id) {
         setIsLoading(true);
         const token = await GetToken();
         const Api = Backend.api + Backend.myPerformance + `?fiscal_year_id=${selectedYear?.id}`;
@@ -44,8 +44,6 @@ const OverallPerformance = () => {
           .then((response) => {
             if (response.success) {
               setPerformance(response.data.performance);
-            } else {
-              // toast.warning(response.data.message);
             }
           })
           .catch((error) => {
@@ -54,8 +52,6 @@ const OverallPerformance = () => {
           .finally(() => {
             setIsLoading(false);
           });
-      } else {
-        return <GetFiscalYear />;
       }
     };
 

@@ -24,23 +24,27 @@ const GetFiscalYear = () => {
           }
         });
 
+        if (!response.ok) {
+          throw new Error(`Communication error: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (data.success) {
           dispatch({ type: SET_FISCAL_YEARS, fiscalYears: data.data });
-          if (selectedFiscal) {
-            const selected = data?.data?.find((year) => year.id === selectedFiscal?.id);
-            data.data[0] && dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: selected });
-          } else {
-            if (data.data[0]) {
-              dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
+          if (selectedFiscal?.id) {
+            const selected = data?.data?.find((year) => year.id == selectedFiscal?.id);
+            if (data.data.length > 0) {
+              dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: selected });
             }
+          } else if (data.data.length > 0) {
+            dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
           }
-        } else if (data.message == 'Unauthorized') {
+        } else if (data.message === 'Unauthorized') {
           logout();
         }
       } catch (error) {
-        toast.error('Error fetching fiscal year:', error);
+        toast.error(`Error fetching fiscal year: ${error.message}`);
       }
     };
 

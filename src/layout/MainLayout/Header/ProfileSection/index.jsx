@@ -37,7 +37,7 @@ const ProfileSection = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const customization = useSelector((state) => state.customization);
-  const user = useSelector((state) => state.user.user); // signed in user information
+  const user = useSelector((state) => state.user.user); 
   const unit = useSelector((state) => state.user.my_unit);
 
   !unit && dispatch(StoreUserUnit());

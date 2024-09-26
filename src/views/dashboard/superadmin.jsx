@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 // project imports
 import { gridSpacing } from 'store/constant';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
-import { IconArrowsDiagonal, IconLock, IconCheck, IconMenu2, IconRulerMeasure, IconUsers,IconUser } from '@tabler/icons-react';
+import { IconArrowsDiagonal, IconLock, IconCheck, IconUsers, IconUser } from '@tabler/icons-react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
@@ -22,8 +22,8 @@ const SuperAdminDashboard = () => {
   const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
   const [loading, setLoading] = useState(false);
-    const [roles, setRoles] = useState([]);
-    const [roleLoading, setRoleLoading] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [roleLoading, setRoleLoading] = useState(false);
   const [statLoading, setStatLoading] = useState(true);
   const [stats, setStats] = useState([]);
 
@@ -61,38 +61,38 @@ const SuperAdminDashboard = () => {
       return <GetFiscalYear />;
     }
   };
-const handleFetchingRole = () => {
-  setRoleLoading(true);
-  const token = localStorage.getItem('token');
-  const Api = `${Backend.auth}${Backend.roles}`;
+  const handleFetchingRole = () => {
+    setRoleLoading(true);
+    const token = localStorage.getItem('token');
+    const Api = `${Backend.auth}${Backend.roles}`;
 
-  const header = {
-    Authorization: `Bearer ${token}`,
-    accept: 'application/json',
-    'Content-Type': 'application/json'
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setRoles(response.data); // Update roles state
+        }
+        setRoleLoading(false);
+      })
+      .catch((error) => {
+        setRoleLoading(false);
+        setError(true);
+        toast(error.message);
+      });
   };
 
-  fetch(Api, {
-    method: 'GET',
-    headers: header
-  })
-    .then((response) => response.json())
-    .then((response) => {
-      if (response.success) {
-        setRoles(response.data); // Update roles state
-      }
-      setRoleLoading(false);
-    })
-    .catch((error) => {
-      setRoleLoading(false);
-      setError(true);
-      toast(error.message);
-    });
-};
-
-useEffect(() => {
-  handleFetchingRole();
-}, []);
+  useEffect(() => {
+    handleFetchingRole();
+  }, []);
   useEffect(() => {
     handleFetchingStats();
   }, [selectedYear]);

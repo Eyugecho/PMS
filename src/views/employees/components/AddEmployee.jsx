@@ -78,7 +78,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       gender: '',
       email: '',
       id: '',
- 
+
       phone: '',
       type: null,
       unit: '',
@@ -172,7 +172,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
 
   const handleFetchingPositions = async () => {
     const token = await GetToken();
-    const Api = Backend.api + Backend.jobposition;
+    const Api = Backend.api + Backend.allJobPosition;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -186,8 +186,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       .then((response) => response.json())
       .then((response) => {
         if (response.success && Array.isArray(response.data.data)) {
-          setPositions(response.data.data);
-          console.log(response.data.data);
+          setPositions(response.data);
         } else {
           setPositions([]);
         }
@@ -229,7 +228,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
             justifyContent: 'space-between',
             paddingRight: 2,
             paddingY: 0.2,
-            backgroundColor: theme.palette.background.default
+            backgroundColor: theme.palette.background.paper
           }}
         >
           <DialogTitle variant="h3" color={theme.palette.text.primary}>
@@ -242,7 +241,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.id && Boolean(formik.errors.id)} sx={{ marginTop: 2.4 }}>
+            <FormControl fullWidth error={formik.touched.id && Boolean(formik.errors.id)}>
               <InputLabel htmlFor="id">Employee ID</InputLabel>
               <OutlinedInput
                 id="id"
@@ -321,7 +320,7 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
             </FormControl>
 
             <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlfor="type">Unit type</InputLabel>
+              <InputLabel htmlFor="type">Unit type</InputLabel>
 
               <Select id="type" name="type" label="Unit type" value={formik.values.type} onChange={formik.handleChange}>
                 {unitLoading ? (
@@ -390,6 +389,8 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
               <IconInfoCircle size={14} style={{ paddingRight: 2 }} /> The default role for employee is{' '}
               <b style={{ paddingLeft: 3 }}>Employee</b>
             </Typography>
+
+            
             <FormControl
               fullWidth
               error={formik.touched.job_position_id && Boolean(formik.errors.job_position_id)}
@@ -410,9 +411,9 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
                     Position not found
                   </Typography>
                 ) : (
-                  positions.map((job_position_id) => (
-                    <MenuItem key={job_position_id.id} value={job_position_id.id}>
-                      {job_position_id.name}
+                  positions.map((position) => (
+                    <MenuItem key={position.id} value={position.id}>
+                      {position.name}
                     </MenuItem>
                   ))
                 )}
@@ -455,5 +456,3 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
     </React.Fragment>
   );
 };
-
-

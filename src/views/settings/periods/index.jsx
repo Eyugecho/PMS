@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { useEffect } from 'react';
-import { Chip, Grid } from '@mui/material';
+import { Box, Chip, Grid } from '@mui/material';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_FISCAL_YEARS, SET_SELECTED_FISCAL_YEAR } from 'store/actions';
+import axios from 'axios';
 import Stack from '@mui/material/Stack';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
@@ -12,25 +14,23 @@ import AddButton from 'ui-component/buttons/AddButton';
 import BudgetYear from './components/BudgetYear';
 import AddFiscalYear from './components/AddFiscalYear';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
-import ErrorPrompt from 'utils/components/ErrorPrompt';
 import Fallbacks from 'utils/components/Fallbacks';
 import EditFiscalYear from './components/EditFiscalYear';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import StaticPeriodsComponent from './components/StaticComponents';
-import axios from 'axios';
 import FrequencyDefinition from './components/FrequencyDefinition';
 
 function Periods() {
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
+  const dispatch = useDispatch();
 
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [savedData, setSavedData] = React.useState([]);
   const [fisicalYear, setFiscalYear] = React.useState([]);
   const [showAll, setShowAll] = React.useState(false);
   const [edit, setEdit] = React.useState(false);
-  const [selectedFiscalYear, setSelectedFiscalYear] = React.useState(selectedYear ? selectedYear.id : '');
+  const [selectedFiscalYear, setSelectedFiscalYear] = React.useState(selectedYear ? selectedYear?.id : '');
+  const [openPeriod, setOpenPeriod] = React.useState(false);
   const [toBeEdited, setToBeEdited] = React.useState(null);
   const [toBeDeleted, setToBeDeleted] = React.useState(null);
   const [submitting, setSumbitting] = React.useState(false);
@@ -47,10 +47,23 @@ function Periods() {
       setSelectedFiscalYear(yearID);
       handleFetchingDetails();
     }
+    setOpenPeriod(false);
   };
 
   const handleCloseModal = () => {
     setOpen(false);
+  };
+
+  const handleRefreshingHeaderMenu = (data) => {
+    dispatch({ type: SET_FISCAL_YEARS, fiscalYears: data.data });
+    if (selectedFiscalYear?.id) {
+      const selected = data?.data?.find((year) => year.id == selectedFiscalYear?.id);
+      if (data.data.length > 0) {
+        dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: selected });
+      }
+    } else if (data.data.length > 0) {
+      dispatch({ type: SET_SELECTED_FISCAL_YEAR, selectedFiscalYear: data.data[0] });
+    }
   };
 
   const handleFiscalYearCreation = async (values) => {
@@ -80,11 +93,11 @@ function Periods() {
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
-          toast.success(response.message);
+          toast.success(response.data?.message);
           handleCloseModal();
-          handleFetchingFiscalYear();
+          handleFetchingFiscalYear(true);
         } else {
-          toast.error(response.message);
+          toast.error(response.data?.message);
         }
       })
       .catch((error) => {
@@ -129,7 +142,7 @@ function Periods() {
         if (response.success) {
           toast.success(response.message);
           setEdit(false);
-          handleFetchingFiscalYear();
+          handleFetchingFiscalYear(true);
         } else {
           toast.error(response.message);
         }
@@ -151,7 +164,7 @@ function Periods() {
     setDeleting(true);
     try {
       const token = await GetToken();
-      const Api = Backend.api + Backend.fiscalYear + `/${toBeDeleted?.id}`;
+      const Api = Backend.api + Backend.fiscal_years + `/${toBeDeleted?.id}`;
       const response = await axios.delete(Api, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -160,9 +173,9 @@ function Periods() {
       });
 
       if (response.data.success) {
-        toast.success(response.message);
-        handleCloseModal();
-        handleFetchingFiscalYear();
+        toast.success(response.data.data.message);
+        setDeleteFiscal(false);
+        handleFetchingFiscalYear(true);
       } else {
         toast.error(response.data.data.message);
       }
@@ -177,14 +190,7 @@ function Periods() {
     setOpen(true);
   };
 
-  useEffect(() => {
-    const savedData = localStorage.getItem('savedData');
-    if (savedData) {
-      setSavedData(JSON.parse(savedData));
-    }
-  }, []);
-
-  const handleFetchingFiscalYear = async () => {
+  const handleFetchingFiscalYear = async (createdNew) => {
     try {
       setLoading(true);
 
@@ -202,6 +208,7 @@ function Periods() {
 
       if (response.ok) {
         setFiscalYear(result.data.data);
+        createdNew && handleRefreshingHeaderMenu(result.data);
       } else {
         toast.error(result.data.message || 'Failed to fetch fiscal year');
       }
@@ -246,24 +253,29 @@ function Periods() {
   useEffect(() => {
     setSelectedFiscalYear(selectedYear?.id);
     handleFetchingDetails();
+    setOpenPeriod(false);
   }, [selectedYear]);
 
   return (
     <Stack sx={{ width: '100%' }} spacing={4}>
       <PageContainer
         title="Periods"
-        rightOption={<AddButton title="Add Fiscal Year" variant="contained" onPress={() => handleCreatePeriod()} />}
+        rightOption={
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: 2, mt: 4 }}>
+            {fisicalYear.length > 1 && (
+              <Chip
+                label="Show all"
+                sx={{ cursor: 'pointer', textTransform: 'capitalize', paddingX: 2, paddingY: 0.4, marginRight: 3 }}
+                color="primary"
+                variant={showAll ? 'filled' : 'outlined'}
+                onClick={() => setShowAll(!showAll)}
+              />
+            )}
+            <AddButton title="Add Fiscal Year" variant="contained" onPress={() => handleCreatePeriod()} />
+          </Box>
+        }
       >
         <Grid container>
-          <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', margin: 2, mt: 4 }}>
-            <Chip
-              label="Show all"
-              sx={{ cursor: 'pointer', textTransform: 'capitalize', paddingX: 2, paddingY: 0.4 }}
-              color="primary"
-              variant={showAll ? 'filled' : 'outlined'}
-              onClick={() => setShowAll(!showAll)}
-            />
-          </Grid>
           <Grid item xs={12} sx={{ marginX: 2 }}>
             {loading ? (
               <Grid container>
@@ -281,8 +293,6 @@ function Periods() {
                   <ActivityIndicator size={20} />
                 </Grid>
               </Grid>
-            ) : error ? (
-              <ErrorPrompt title="Server Error" message="Unable to retrive fiscal years" />
             ) : fisicalYear.length === 0 ? (
               <Fallbacks
                 severity="fiscal-year"
@@ -303,12 +313,15 @@ function Periods() {
                   onDelete={() => handleInitDelete(year)}
                 >
                   {year?.id === selectedFiscalYear && (
-                    <StaticPeriodsComponent
-                      isLoading={isPeriodLoading}
-                      data={periods}
-                      fiscalYear={selectedYear && selectedYear}
-                      onRefresh={() => handleFetchingDetails()}
-                    />
+                    <React.Fragment>
+                      <StaticPeriodsComponent
+                        isLoading={isPeriodLoading}
+                        data={periods}
+                        fiscalYear={selectedYear && selectedYear}
+                        onRefresh={() => handleFetchingDetails()}
+                      />
+                      <FrequencyDefinition sx={{ marginTop: 2 }} open={openPeriod} setOpen={(value) => setOpenPeriod(value)} />
+                    </React.Fragment>
                   )}
                 </BudgetYear>
               ))
@@ -335,7 +348,7 @@ function Periods() {
                             onRefresh={() => handleFetchingDetails()}
                           />
 
-                          <FrequencyDefinition sx={{ marginTop: 2 }} />
+                          <FrequencyDefinition sx={{ marginTop: 2 }} open={openPeriod} setOpen={(value) => setOpenPeriod(value)} />
                         </React.Fragment>
                       )}
                     </BudgetYear>

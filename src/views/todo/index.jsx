@@ -128,7 +128,6 @@ const Todo = ({ hideChart, hideCreate, hideFilter, onRefresh }) => {
     })
       .then((response) => response.json())
       .then((response) => {
-        console.log(response);
         if (response.success) {
           setMyKPI(response.data);
         } else {
@@ -227,39 +226,41 @@ const Todo = ({ hideChart, hideCreate, hideFilter, onRefresh }) => {
   };
 
   const handleEmployeeTask = async () => {
-    setTask((prevTask) => ({ ...prevTask, loading: true }));
-    const token = await GetToken();
-    const Api =
-      Backend.api +
-      Backend.employeeTasks +
-      `?date=${task.date}&fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}`;
+    if (selectedYear?.id) {
+      setTask((prevTask) => ({ ...prevTask, loading: true }));
+      const token = await GetToken();
+      const Api =
+        Backend.api +
+        Backend.employeeTasks +
+        `?date=${task.date}&fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}`;
 
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
+      const header = {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
 
-    fetch(Api, {
-      method: 'GET',
-      headers: header
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setTask((prevTask) => ({ ...prevTask, taskList: response.data.data }));
-          setPagination({ ...pagination, total: response.data.total });
-          handleCloseCreateModal();
-        } else {
-          toast.warning(response.message);
-        }
+      fetch(Api, {
+        method: 'GET',
+        headers: header
       })
-      .catch((error) => {
-        toast.warning(error.message);
-      })
-      .finally(() => {
-        setTask((prevTask) => ({ ...prevTask, loading: false }));
-      });
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            setTask((prevTask) => ({ ...prevTask, taskList: response.data.data }));
+            setPagination({ ...pagination, total: response.data.total });
+            handleCloseCreateModal();
+          } else {
+            toast.warning(response.message);
+          }
+        })
+        .catch((error) => {
+          toast.warning(error.message);
+        })
+        .finally(() => {
+          setTask((prevTask) => ({ ...prevTask, loading: false }));
+        });
+    }
   };
 
   useEffect(() => {

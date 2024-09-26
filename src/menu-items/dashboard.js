@@ -8,7 +8,8 @@ import {
   IconListCheck,
   IconHazeMoon,
   IconList,
-  IconChartInfographic
+  IconChartInfographic,
+  IconKey
 } from '@tabler/icons-react';
 
 const icons = {
@@ -22,13 +23,14 @@ const icons = {
   IconHazeMoon,
   IconList,
   IconChartInfographic,
-  IconLayoutCards
+  IconLayoutCards,
+  IconKey
 };
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
-const auth = getRolesAndPermissionsFromToken();
 
+const auth = getRolesAndPermissionsFromToken();
 export const dashboard = () => {
   const childrenTemp = [];
   const addedPermissions = new Set();
@@ -48,7 +50,7 @@ export const dashboard = () => {
       id: 'kpi-management',
       title: 'KPI Management',
       url: '/kpi/kpi-managment',
-      icon: icons.IconGauge
+      icon: icons.IconKey
     },
     'read:employeetask': {
       id: 'todos',
@@ -68,13 +70,13 @@ export const dashboard = () => {
       url: '/planning',
       icon: icons.IconLayoutCards
     },
-    'approval:manage': {
+    'read:performance': {
       id: 'report',
       title: 'Reports',
       url: '/report',
       icon: icons.IconChartInfographic
     },
-    'approval:manage-approvals': {
+    'approval:manage': {
       id: 'approvals',
       title: 'Approval Management',
       url: '/tasks',
@@ -117,7 +119,7 @@ export const dashboard = () => {
   return {
     id: 'dashboard',
     title: 'Performance Management',
-    icon: icons.IconLayoutCards,
+    icon: icons.IconGauge,
     type: 'group',
     children: childrenTemp
   };

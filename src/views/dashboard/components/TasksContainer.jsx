@@ -50,7 +50,7 @@ const TasksContainer = () => {
   };
 
   const handleFetchingActvities = async () => {
-    if (selectedYear) {
+    if (selectedYear?.id) {
       setLoading(true);
       const token = await GetToken();
 
@@ -82,8 +82,6 @@ const TasksContainer = () => {
         .finally(() => {
           setLoading(false);
         });
-    } else {
-      return <GetFiscalYear />;
     }
   };
 

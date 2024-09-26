@@ -3,12 +3,14 @@ import { TextField, FormControl, InputLabel, Select, MenuItem, ListItemText } fr
 import { toast } from 'react-toastify';
 import DrogaFormModal from 'ui-component/modal/DrogaFormModal';
 
-const AddUser = ({ add, isAdding, roles, onClose, onSubmit }) => {
+const EditUser = ({ edit, isUpdating, userData = {}, roles, onClose, onSubmit }) => {
+  const { name: userName, email: userEmail, phone: userPhone, roles: userRoles = [] } = userData;
+
   const [userDetails, setUserDetails] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    roles: []
+    name: userName || '',
+    email: userEmail || '',
+    phone: userPhone || '',
+    roles: userRoles.map((role) => role.uuid) || []
   });
 
   const handleChange = (event) => {
@@ -23,7 +25,8 @@ const AddUser = ({ add, isAdding, roles, onClose, onSubmit }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!userDetails.email || !userDetails.name) {
+    const { name, email } = userDetails;
+    if (!email || !name) {
       toast.error('Please fill all required fields.');
       return;
     }
@@ -31,17 +34,11 @@ const AddUser = ({ add, isAdding, roles, onClose, onSubmit }) => {
   };
 
   return (
-    <DrogaFormModal
-      open={add}
-      title="Add User"
-      handleClose={onClose}
-      onCancel={onClose}
-      onSubmit={(event) => handleSubmit(event)}
-      submitting={isAdding}
-    >
+    <DrogaFormModal open={edit} title="Edit User" handleClose={onClose} onCancel={onClose} onSubmit={handleSubmit} submitting={isUpdating}>
       <TextField fullWidth label="Name" name="name" value={userDetails.name} onChange={handleChange} margin="normal" required />
 
       <TextField fullWidth label="Email" name="email" value={userDetails.email} onChange={handleChange} margin="normal" required />
+
       <TextField fullWidth label="Phone" name="phone" value={userDetails.phone} onChange={handleChange} margin="normal" />
 
       <FormControl fullWidth margin="normal">
@@ -68,4 +65,4 @@ const AddUser = ({ add, isAdding, roles, onClose, onSubmit }) => {
   );
 };
 
-export default AddUser;
+export default EditUser;

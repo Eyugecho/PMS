@@ -20,36 +20,38 @@ const AssignedKPI = () => {
 
   useEffect(() => {
     const handleFetchingKPITarget = async () => {
-      setLoading(true);
-      const token = await GetToken();
-      const Api = Backend.api + Backend.getMyPlans + `?fiscal_year_id=${selectedYear?.id}`;
-      const header = {
-        Authorization: `Bearer ${token}`,
-        accept: 'application/json',
-        'Content-Type': 'application/json'
-      };
+      if (selectedYear?.id) {
+        setLoading(true);
+        const token = await GetToken();
+        const Api = Backend.api + Backend.getMyPlans + `?fiscal_year_id=${selectedYear?.id}`;
+        const header = {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+          'Content-Type': 'application/json'
+        };
 
-      fetch(Api, {
-        method: 'GET',
-        headers: header
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          if (response.success) {
-            setData(response.data.plans.data);
-            setError(false);
-          } else {
-            setError(false);
-            toast.warning(response.message);
-          }
+        fetch(Api, {
+          method: 'GET',
+          headers: header
         })
-        .catch((error) => {
-          toast.warning(error.message);
-          setError(true);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+          .then((response) => response.json())
+          .then((response) => {
+            if (response.success) {
+              setData(response.data.plans.data);
+              setError(false);
+            } else {
+              setError(false);
+              toast.warning(response.message);
+            }
+          })
+          .catch((error) => {
+            toast.warning(error.message);
+            setError(true);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
     };
     handleFetchingKPITarget();
   }, []);

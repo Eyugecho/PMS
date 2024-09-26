@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import EmployeeDashboard from './employee';
-import AdminDashboard from './admin';
 import SuperAdminDashboard from './superadmin';
+import { Grid, Typography } from '@mui/material';
 
 // ==============================|| HOME DASHBOARD ||============================== //
 
@@ -17,17 +17,20 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  if (roles.includes('Admin')) {
-    return <AdminDashboard />;
-  } else if (roles.includes('Manager')) {
-    return <AdminDashboard />;
-     } else if (roles.includes('Super_Admin')) {
-    return <SuperAdminDashboard/>;
-  } else if (roles.includes('Employee')) {
-    return <EmployeeDashboard />;
-  } else {
-    return <AdminDashboard />;
-  }
+  // if (roles.includes('Super_Admin')) {
+  //   return <SuperAdminDashboard />;
+  // } else {
+  //   return <EmployeeDashboard />;
+  // }
+
+  return <SuperAdminDashboard />;
+  // return (
+  //   <Grid container>
+  //     <Grid item xs={12}>
+  //       <Typography variant="h4">Dashboard</Typography>
+  //     </Grid>
+  //   </Grid>
+  // );
 };
 
 export default Dashboard;

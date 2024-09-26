@@ -23,6 +23,7 @@ const Backend = {
   getStats: 'get-counts',
   preSetups: 'kpi-pre-setups',
   fiscalYear: 'get-fiscal-year',
+
   periods: 'periods',
   frequencies: 'frequencies',
   planningPeriods: 'get-planing-period',
@@ -81,6 +82,7 @@ const Backend = {
   fiscal_years: 'fiscal-years',
   performanceratingscale: 'performance-rating-scales',
   jobposition: 'job-positions',
+  allJobPosition: 'get-job-positions',
   getSinglePeriods: 'get-single-periods',
   planningPeriod: 'create-planning-period',
   monitoringPeriod: 'create-monitoring-period',
@@ -88,7 +90,6 @@ const Backend = {
   perspectiveTypes: 'perspective-types',
   evaluationTypes: 'evaluation-types',
   kpiExcell: 'kpis/upload',
-  UnitExcell: 'units/upload',
-  
+  UnitExcell: 'units/upload'
 };
 export default Backend;
