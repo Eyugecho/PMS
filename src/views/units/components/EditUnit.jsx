@@ -4,21 +4,14 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import {
-  Box,
-  CircularProgress,
-  FormControl,
-  FormHelperText,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Typography
-} from '@mui/material';
+import { Box, FormControl, FormHelperText, IconButton, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 import { IconX } from '@tabler/icons-react';
 import { useFormik } from 'formik';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import Backend from 'services/backend';
+import GetToken from 'utils/auth-token';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Unit name is required'),
@@ -26,13 +19,15 @@ const validationSchema = Yup.object().shape({
   type: Yup.string().required('Unit type is required')
 });
 
-export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmission }) => {
+const EditUnit = ({ edit, isEditing, selectedUnit, types, onClose, handleSubmission }) => {
+  const [loadingParents, setLoadingParents] = React.useState(true);
+  const [parentUnits, setParentUnits] = React.useState([]);
+
   const formik = useFormik({
     initialValues: {
       name: '',
       parent_id: '',
-      // type: '',
-      unit: null,
+      type: '',
       description: ''
     },
     validationSchema: validationSchema,
@@ -41,10 +36,53 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
     }
   });
 
+  const setFormInitialValues = () => {
+    formik.setValues({
+      ...formik.values,
+      name: selectedUnit ? selectedUnit?.name : '',
+      parent_id: selectedUnit ? selectedUnit?.parent_id : '',
+      type: selectedUnit ? selectedUnit?.unit_type?.id : '',
+      description: selectedUnit ? selectedUnit?.description : ''
+    });
+  };
+
+  const handleFetchingUnits = async () => {
+    setLoadingParents(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.unitByTypes + formik.values.type;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setParentUnits(response.data.units);
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+      })
+      .finally(() => setLoadingParents(false));
+  };
+
+  React.useEffect(() => {
+    if (formik.values.type) {
+      handleFetchingUnits();
+    }
+    setFormInitialValues();
+  }, [selectedUnit, formik.values.type]);
+
   return (
     <React.Fragment>
       <Dialog
-        open={add}
+        open={edit}
         onClose={onClose}
         sx={{
           backdropFilter: 'blur(10px)', // Frosted glass effect
@@ -52,7 +90,7 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 2 }}>
-          <DialogTitle variant="h3">Add Unit</DialogTitle>
+          <DialogTitle variant="h3">Edit Unit</DialogTitle>
           <IconButton onClick={onClose}>
             <IconX size={20} />
           </IconButton>
@@ -60,7 +98,7 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)} sx={{ marginTop: 3 }}>
+            <FormControl fullWidth error={formik.touched.name && Boolean(formik.errors.name)} sx={{ marginTop: 1 }}>
               <InputLabel htmlfor="name">Name</InputLabel>
               <OutlinedInput id="name" name="name" label="name" value={formik.values.name} onChange={formik.handleChange} fullWidth />
               {formik.touched.name && formik.errors.name && (
@@ -92,18 +130,35 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
                 </FormHelperText>
               )}
             </FormControl>
-            <FormControl fullWidth error={formik.touched.parent_id && Boolean(formik.errors.parent_id)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlfor="unit">Select parent unit</InputLabel>
+            <FormControl
+              fullWidth
+              error={formik.touched.parent_id && Boolean(formik.errors.parent_id)}
+              sx={{ marginTop: 3 }}
+              disabled={formik?.values?.type === ''}
+              {...formik.getFieldProps('parent_id')}
+            >
+              <InputLabel htmlFor="unit">Select parent unit</InputLabel>
 
-              <Select id="unit" name="parent_id" label="Select parent unit" value={formik.values.parent_id} onChange={formik.handleChange}>
-                {unitss.length === 0 ? (
+              <Select
+                id="unit"
+                name="parent_id"
+                label="Select parent unit"
+                value={formik.values.parent_id || ''}
+                onChange={formik.handleChange}
+                disabled={loadingParents}
+              >
+                {loadingParents ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 2 }}>
+                    <ActivityIndicator size={18} />
+                  </Box>
+                ) : parentUnits.length === 0 ? (
                   <Typography variant="body2" sx={{ padding: 1 }}>
                     Unit is not found
                   </Typography>
                 ) : (
-                  unitss?.map((unitt, index) => (
-                    <MenuItem key={index} value={unitt.id}>
-                      {unitt.name}
+                  parentUnits?.map((unit, index) => (
+                    <MenuItem key={index} value={unit.id}>
+                      {unit.name}
                     </MenuItem>
                   ))
                 )}
@@ -139,8 +194,8 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
             <Button variant="" onClick={onClose} sx={{ marginLeft: 10 }}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={isAdding}>
-              {isAdding ? <CircularProgress size={18} sx={{ color: 'white' }} /> : 'Done'}
+            <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={isEditing}>
+              {isEditing ? <ActivityIndicator size={18} sx={{ color: 'white' }} /> : 'Done'}
             </Button>
           </DialogActions>
         </form>
@@ -148,4 +203,4 @@ export const AddUnit = ({ add, isAdding, unitss, types, onClose, handleSubmissio
     </React.Fragment>
   );
 };
-export default AddUnit;
+export default EditUnit;

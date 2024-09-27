@@ -8,7 +8,6 @@ import {
   Grid,
   IconButton,
   Menu,
-  Paper,
   Typography,
   useTheme,
   MenuItem,
@@ -29,16 +28,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditUnit from './components/EditUnit';
 import EditUnitType from './components/EditUnitType';
-import AddButton from 'ui-component/buttons/AddButton';
 import GetToken from 'utils/auth-token';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import SplitButton from 'ui-component/buttons/SplitButton';
 import UploadFile from 'ui-component/modal/UploadFile';
+import { IconDotsVertical } from '@tabler/icons-react';
 
-
-
-//================================ UNITS MANAGEMENT PAGE=====================
+//================================ UNIT MANAGEMENT PAGE=====================
 const Units = () => {
   const theme = useTheme();
 
@@ -67,13 +64,13 @@ const Units = () => {
   const [importExcel, setImportExcel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-    const auth = getRolesAndPermissionsFromToken();
+  const auth = getRolesAndPermissionsFromToken();
 
-    const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
-    const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:kpi'));
-    const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:kpi'));
+  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
+  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:kpi'));
+  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:kpi'));
 
-    const AddUnitOptions = ['Add Unit', 'Import From Excel'];
+  const AddUnitOptions = ['Add Unit', 'Import From Excel'];
 
   const handleClick = (event, unitType) => {
     setAnchorEl(event.currentTarget);
@@ -182,7 +179,7 @@ const Units = () => {
         if (response.success) {
           setIsAdding(false);
           handleUnitModalClose();
-          toast(response.data.message);
+          toast.success(response.data.message);
           handleFetchingUnits();
         } else {
           setIsAdding(false);
@@ -191,6 +188,46 @@ const Units = () => {
       })
       .catch((error) => {
         toast.error(error.message);
+        setIsAdding(false);
+      });
+  };
+
+  const handleEditingUnit = async (value) => {
+    setIsAdding(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.units + `/` + selectedUnit.id;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      name: value?.name,
+      unit_type_id: value?.type,
+      parent_id: value?.parent_id,
+      description: value?.description
+    };
+
+    fetch(Api, {
+      method: 'PATCH',
+      headers: header,
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          handleEditModalClose();
+          toast.success(response.data.message);
+          handleFetchingUnits();
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
         setIsAdding(false);
       });
   };
@@ -241,13 +278,8 @@ const Units = () => {
 
   const handleEdit = (unit) => {
     setSelectedUnit(unit);
-    
-    setEditModalOpen(true);
-  };
 
-  const handleUpdate = () => {
-    handleFetchingTypes();
-    handleFetchingUnits();
+    setEditModalOpen(true);
   };
 
   const handleEditModalClose = () => {
@@ -262,7 +294,6 @@ const Units = () => {
   };
   const handleUpdateUnitType = () => {
     handleFetchingTypes();
-
   };
 
   const handleEditUnitTypeModalClose = () => {
@@ -313,7 +344,7 @@ const Units = () => {
   const handleFetchingUnits = async () => {
     setLoading(true);
     const token = await GetToken();
-    const Api = Backend.api + Backend.units + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+    const Api = Backend.api + Backend.units + `?page=${pagination.page + 1}&per_page=${pagination.per_page}&search=${search}`;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -348,53 +379,53 @@ const Units = () => {
       });
   };
 
-      const handleUpload = async (file) => {
-        const token = localStorage.getItem('token');
-        const Api = Backend.api + Backend.kpiExcell;
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        };
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-          const response = await axios.post(Api, formData, {
-            headers: headers,
-            onUploadProgress: (progressEvent) => {
-              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              setUploadProgress(percent);
-            }
-          });
-
-          if (response.success) {
-            toast.success(response.data.data.message);
-          } else {
-            toast.success(response.data.data.message);
-          }
-        } catch (error) {
-          toast.error(error.message);
-        }
-      };
-
-    const handleUnitAdd = (index) => {
-      if (index === 0) {
-        handleAddUnitClick();
-      } else if (index === 1) {
-        handleOpenDialog();
-      } else {
-        alert('We will be implement importing from odoo');
-      }
+  const handleUpload = async (file) => {
+    const token = localStorage.getItem('token');
+    const Api = Backend.api + Backend.kpiExcell;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
     };
 
-      const handleOpenDialog = () => {
-        setImportExcel(true);
-      };
+    const formData = new FormData();
+    formData.append('file', file);
 
-      const handleCloseDialog = () => {
-        setImportExcel(false);
-      };
+    try {
+      const response = await axios.post(Api, formData, {
+        headers: headers,
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percent);
+        }
+      });
+
+      if (response.success) {
+        toast.success(response.data.data.message);
+      } else {
+        toast.success(response.data.data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleUnitAdd = (index) => {
+    if (index === 0) {
+      handleAddUnitClick();
+    } else if (index === 1) {
+      handleOpenDialog();
+    } else {
+      alert('We will be implement importing from odoo');
+    }
+  };
+
+  const handleOpenDialog = () => {
+    setImportExcel(true);
+  };
+
+  const handleCloseDialog = () => {
+    setImportExcel(false);
+  };
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
@@ -447,7 +478,7 @@ const Units = () => {
             <Grid xs={12} sm={12} md={8} lg={8} xl={8} sx={{ minHeight: '64dvh', margin: 2 }}>
               {loading ? (
                 <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CircularProgress size={22} />
+                  <CircularProgress size={20} />
                 </Box>
               ) : error ? (
                 <Fallbacks severity="error" title="Server error" description="There is error fetching units" />
@@ -482,22 +513,7 @@ const Units = () => {
             </Grid>
 
             <Grid xs={12} sm={12} md={3.6} lg={3.6} xl={3.6} sx={{ paddingTop: 1 }}>
-              <Box
-                sx={{
-                  background: theme.palette.grey[100],
-                  color: '#000',
-                  borderRadius: 2,
-                  fontSize: '0.9rem',
-                  marginTop: 1,
-                  borderBottom: `2px solid ${theme.palette.divider}`,
-                  position: 'relative',
-                  padding: '12px 16px',
-                  '&:not(:last-of-type)': {
-                    borderRight: `1px solid ${theme.palette.divider}`
-                  },
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                }}
-              >
+              <DrogaCard>
                 <Box
                   sx={{
                     display: 'flex',
@@ -507,12 +523,12 @@ const Units = () => {
                     borderColor: theme.palette.grey[300]
                   }}
                 >
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>
                     Unit Types
                   </Typography>
                   <AddUnitType isAdding={isAdding} handleSubmission={(value) => handleTypeAddition(value)} />
                 </Box>
-                <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.grey[400], marginY: 1 }} />
+                <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.divider, marginY: 1 }} />
 
                 <Box>
                   {unitLoading ? (
@@ -544,12 +560,12 @@ const Units = () => {
                           }
                         }}
                       >
-                        <Typography variant="subtitle3" sx={{ textTransform: 'capitalize' }}>
+                        <Typography variant="body1" color={theme.palette.text.primary} sx={{ textTransform: 'capitalize' }}>
                           {type.name}
                         </Typography>
 
                         <IconButton onClick={(event) => handleClick(event, type)} size="small">
-                          <MoreVertOutlined />
+                          <IconDotsVertical stroke="1.4" size='1.4rem' />
                         </IconButton>
 
                         <Menu
@@ -582,7 +598,7 @@ const Units = () => {
                     ))
                   )}
                 </Box>
-              </Box>
+              </DrogaCard>
             </Grid>
           </Grid>
         </Grid>
@@ -597,7 +613,17 @@ const Units = () => {
           handleSubmission={(value) => handleUnitAddition(value)}
         />
         <ToastContainer />
-        <EditUnit open={editModalOpen} unit={selectedUnit} onClose={handleEditModalClose} onUpdate={handleUpdate} />
+        {selectedUnit && (
+          <EditUnit
+            edit={editModalOpen}
+            types={unitType}
+            parentUnits={data}
+            selectedUnit={selectedUnit}
+            isEditing={isAdding}
+            onClose={handleEditModalClose}
+            handleSubmission={handleEditingUnit}
+          />
+        )}
         <EditUnitType
           open={editUnitTypeModalOpen}
           unitType={selectedUnitType}

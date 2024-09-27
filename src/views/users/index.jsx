@@ -28,6 +28,7 @@ import AddButton from 'ui-component/buttons/AddButton';
 import AddUser from './componenets/Addusers';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import EditUser from './componenets/EditUsers';
+import { IconCircleCheckFilled, IconForbid } from '@tabler/icons-react';
 
 const Users = () => {
   const theme = useTheme();
@@ -224,6 +225,7 @@ const Users = () => {
         toast(error.message);
       });
   };
+
   const handleUpdatingUser = async (updatedData) => {
     setIsUpdating(true);
     const token = await GetToken();
@@ -269,6 +271,49 @@ const Users = () => {
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const handleUserStatus = async (user) => {
+    setIsUpdating(true);
+
+    const token = await GetToken();
+    if (!token) {
+      toast.error('Authorization token is missing.');
+      setIsUpdating(false);
+      return;
+    }
+
+    const Api = Backend.api + Backend.users + `/${user?.id}`;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      status: user?.status
+    };
+
+    fetch(Api, {
+      method: 'POST',
+      headers: header,
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast.success(response?.data?.message);
+          handleFetchingUsers();
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      })
+      .finally(() => {
+        setIsUpdating(false);
+      });
   };
 
   const handleAddUserClick = () => {
@@ -359,29 +404,49 @@ const Users = () => {
                         <TableCell>Phone</TableCell>
                         <TableCell>Roles</TableCell>
                         <TableCell>Created At</TableCell>
+                        <TableCell>Status</TableCell>
                         <TableCell>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {data.map(({ id, name, email, phone, username, roles, created_at }) => (
+                      {data.map((item) => (
                         <TableRow
-                          key={id}
+                          key={item.id}
                           sx={{
                             ':hover': {
                               backgroundColor: theme.palette.grey[50]
                             }
                           }}
                         >
-                          <TableCell>{name}</TableCell>
-                          <TableCell>{username}</TableCell>
-                          <TableCell>{email}</TableCell>
-                          <TableCell>{phone}</TableCell>
+                          <TableCell>{item?.name}</TableCell>
+                          <TableCell>{item?.username}</TableCell>
+                          <TableCell>{item?.email}</TableCell>
+                          <TableCell>{item?.phone}</TableCell>
                           <TableCell>
-                            {roles.map((role) => (
+                            {item?.roles.map((role) => (
                               <Chip key={role.id} label={role.name} color="primary" variant="outlined" size="small" sx={{ margin: 0.5 }} />
                             ))}
                           </TableCell>
-                          <TableCell>{format(new Date(created_at), 'yyyy-MM-dd')}</TableCell>
+                          <TableCell>{format(new Date(item.created_at), 'dd-MM-yyyy')}</TableCell>
+                          <TableCell>
+                            {item?.status ? (
+                              <Chip
+                                label="Active"
+                                sx={{
+                                  backgroundColor: '#d8edd9',
+                                  color: 'green'
+                                }}
+                              />
+                            ) : (
+                              <Chip
+                                label="Inactive"
+                                sx={{
+                                  backgroundColor: '#f7e4e4',
+                                  color: 'red'
+                                }}
+                              />
+                            )}
+                          </TableCell>
                           <TableCell
                             sx={{
                               ':hover': {
@@ -390,9 +455,16 @@ const Users = () => {
                             }}
                           >
                             <DotMenu
-                              onEdit={
-                                hasEditPermission ? () => handleUserUpdate({ id, name, email, phone, username, roles, created_at }) : null
+                              onEdit={hasEditPermission ? () => handleUserUpdate(item) : null}
+                              status={item?.status ? 'Inactivate' : 'Activate'}
+                              statusIcon={
+                                item?.status ? (
+                                  <IconForbid size={18} style={{ color: '#a34' }} />
+                                ) : (
+                                  <IconCircleCheckFilled size={18} style={{ color: '#008000' }} />
+                                )
                               }
+                              onStatusChange={hasEditPermission ? () => handleUserStatus(item) : null}
                             />
                           </TableCell>
                         </TableRow>

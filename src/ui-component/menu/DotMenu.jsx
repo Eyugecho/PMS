@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { IconButton, Menu, MenuItem, Tooltip, Typography, useTheme } from '@mui/material';
-import { IconDots, IconDotsVertical, IconEye, IconPencil, IconTrash, IconUserExclamation, IconUserStar } from '@tabler/icons-react';
+import { IconDots, IconDotsVertical, IconEye, IconPencil, IconTrash } from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 
-export const DotMenu = ({ orientation, onView, onEdit, onEligible, eligiblity, onDelete, sx }) => {
+export const DotMenu = ({ orientation, onView, onEdit, onStatusChange, status, statusIcon, onDelete, sx }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -76,9 +76,9 @@ export const DotMenu = ({ orientation, onView, onEdit, onEligible, eligiblity, o
           </MenuItem>
         )}
 
-        {onEligible && (
+        {onStatusChange && (
           <MenuItem
-            onClick={onEligible}
+            onClick={onStatusChange}
             sx={{
               margin: 0.5,
               borderRadius: theme.shape.borderRadius,
@@ -86,9 +86,9 @@ export const DotMenu = ({ orientation, onView, onEdit, onEligible, eligiblity, o
               alignItems: 'center'
             }}
           >
-            {eligiblity ? <IconUserStar size={18} /> : <IconUserExclamation size={18} />}
+            {statusIcon && statusIcon}
             <Typography variant="body2" color={theme.palette.text.primary} sx={{ marginLeft: 1 }}>
-              {eligiblity}
+              {status}
             </Typography>
           </MenuItem>
         )}

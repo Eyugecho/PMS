@@ -1,43 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Grid, Box, DialogTitle, IconButton, useTheme, Typography } from '@mui/material';
+import { IconLabel } from 'ui-component/content/IconLabel';
+import { CheckCircle, Person } from '@mui/icons-material';
+import { IconUser, IconX } from '@tabler/icons-react';
+import { toast } from 'react-toastify';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-
-import { Grid, Box, CircularProgress, DialogTitle, Divider, IconButton, InputBase, Paper, useTheme, Typography } from '@mui/material';
-import { IconLabel } from 'ui-component/content/IconLabel';
-import { CheckCircle, Person } from '@mui/icons-material';
-import { IconUser, IconX } from '@tabler/icons-react';
-import SearchIcon from '@mui/icons-material/Search';
 import PropTypes from 'prop-types';
 import Backend from 'services/backend';
-import { toast } from 'react-toastify';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import GetToken from 'utils/auth-token';
+import Search from 'ui-component/search';
+import FilterEmployees from 'views/employees/components/FilterEmployees';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
 
-export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLoading, searchText, searching, onTextChange, onSubmit }) => {
-  const [selectedCoordinator, setSelectedCoordinator] = useState(null);
-  const [assigning, setAssigning] = useState(false);
+export const AssignManager = ({ open, handleDialogClose, unit_id, onRefresh }) => {
   const theme = useTheme();
 
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      onSubmit();
-    }
-  };
+  const [loading, setLoading] = useState(true);
+  const [managers, setManagers] = useState([]);
+  const [search, setSearch] = useState('');
+
+  const [selectedManager, setSelectedManager] = useState(null);
+  const [assigning, setAssigning] = useState(false);
 
   const handleSelection = (coordinator) => {
-    if (selectedCoordinator && selectedCoordinator.id == coordinator.id) {
-      setSelectedCoordinator(null);
+    if (selectedManager && selectedManager.id == coordinator.id) {
+      setSelectedManager(null);
     } else {
-      setSelectedCoordinator(coordinator);
+      setSelectedManager(coordinator);
     }
   };
 
-  const handleManagerAssignment = () => {
+  const handleManagerAssignment = async () => {
     setAssigning(true);
+    const token = await GetToken();
     var Api = Backend.api + Backend.units + `/` + unit_id;
-    const token = localStorage.getItem('token');
     const headers = {
       Authorization: `Bearer` + token,
       accept: 'application/json',
@@ -45,7 +45,7 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
     };
 
     const data = {
-      manager_id: selectedCoordinator.id,
+      manager_id: selectedManager.id,
       unit_id: unit_id
     };
 
@@ -55,6 +55,7 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
         if (response.success) {
           setAssigning(false);
           handleDialogClose();
+          onRefresh();
           toast.success(response.data.message);
         } else {
           setAssigning(false);
@@ -67,6 +68,49 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
       });
   };
 
+  const handleSearchFieldChange = (event) => {
+    const value = event.target.value;
+    setSearch(value);
+  };
+
+  const handleFetchingEmployees = async () => {
+    setLoading(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.employees + `?search=${search}`;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setManagers(response.data.data);
+        } else {
+          toast.warning(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.warning(error.message);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      handleFetchingEmployees();
+    }, 600);
+
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [search]);
+
   return (
     <React.Fragment>
       <Dialog open={open} onClose={handleDialogClose}>
@@ -76,7 +120,6 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
             top: 0,
             zIndex: 2,
             width: '100%',
-            backgroundColor: theme.palette.primary.main,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -84,33 +127,22 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
             paddingY: 0.6
           }}
         >
-          <DialogTitle variant="h4" color={theme.palette.background.default}>
+          <DialogTitle variant="h4" color={theme.palette.text.primary}>
             Assign Manager
           </DialogTitle>
           <IconButton onClick={handleDialogClose}>
-            <IconX size={20} color={theme.palette.background.default} />
+            <IconX size={20} />
           </IconButton>
         </Box>
 
-        <DialogContent sx={{ width: 500, padding: 4 }}>
-          <Paper component="form" sx={{ border: 0.6, display: 'flex', alignItems: 'center' }}>
-            <InputBase
-              sx={{ ml: 1, px: 1.5, flex: 1 }}
-              placeholder="Search"
-              inputProps={{ 'aria-label': 'search' }}
-              value={searchText}
-              onChange={onTextChange}
-              onKeyDown={handleKeyPress}
-            />
-            <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-            <IconButton type="button" sx={{ p: '8px' }} aria-label="search" onClick={onSubmit}>
-              {searching ? <CircularProgress size={20} /> : <SearchIcon />}
-            </IconButton>
-          </Paper>
+        <DialogContent sx={{ width: 500, padding: 2, paddinX: 6 }}>
+          <Search title="Filter Managers" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}>
+            <FilterEmployees />
+          </Search>
 
           <Grid container>
             <Grid item xs={12}>
-              {isLoading ? (
+              {loading ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -120,7 +152,7 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
                     padding: 4
                   }}
                 >
-                  <CircularProgress size={20} />
+                  <ActivityIndicator size={20} />
                 </Box>
               ) : (
                 <Box sx={{ paddingTop: 2 }}>
@@ -152,7 +184,7 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
                           border: 1,
                           borderColor: theme.palette.divider,
                           borderRadius: 2,
-                          backgroundColor: selectedCoordinator && selectedCoordinator.id === manager.id && theme.palette.grey[50],
+                          backgroundColor: selectedManager && selectedManager.id === manager.id && theme.palette.grey[50],
                           cursor: 'pointer'
                         }}
                       >
@@ -163,7 +195,7 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
                         </Box>
 
                         <Box>
-                          {selectedCoordinator && selectedCoordinator.id === manager.id && <CheckCircle color="primary" fontSize="small" />}
+                          {selectedManager && selectedManager.id === manager.id && <CheckCircle color="primary" fontSize="small" />}
                         </Box>
                       </Box>
                     ))
@@ -175,14 +207,11 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
         </DialogContent>
         <DialogActions sx={{ padding: 2 }}>
           <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button
-            onClick={() => handleManagerAssignment()}
-            variant="contained"
-            sx={{ paddingX: 6 }}
-            disabled={selectedCoordinator ? false : true}
-          >
-            {assigning ? <ActivityIndicator size={16} /> : 'Assign'}
-          </Button>
+          <DrogaButton
+            title={assigning ? <ActivityIndicator size={16} /> : 'Assign'}
+            onPress={() => handleManagerAssignment()}
+            disabled={assigning}
+          />
         </DialogActions>
       </Dialog>
     </React.Fragment>
@@ -192,10 +221,6 @@ export const AssignManager = ({ open, handleDialogClose, unit_id, managers, isLo
 AssignManager.propTypes = {
   open: PropTypes.bool,
   handleDialogClose: PropTypes.func,
-  managers: PropTypes.array,
-  isLoading: PropTypes.bool,
-  searchText: PropTypes.string,
-  onTextChange: PropTypes.func,
-  onSubmit: PropTypes.func,
-  searching: PropTypes.bool
+  unit_id: PropTypes.string,
+  onRefresh: PropTypes.func
 };

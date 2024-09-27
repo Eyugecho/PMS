@@ -14,8 +14,8 @@ import PerformanceRating from 'views/settings/performance-ratings';
 
 // dashboard routing
 const Home = Loadable(lazy(() => import('views/dashboard')));
-const Units = Loadable(lazy(() => import('views/departments')));
-const ViewUnit = Loadable(lazy(() => import('views/departments/view')));
+const Units = Loadable(lazy(() => import('views/units')));
+const ViewUnit = Loadable(lazy(() => import('views/units/view')));
 const Planning = Loadable(lazy(() => import('views/planning')));
 const Employees = Loadable(lazy(() => import('views/employees')));
 const ViewEmployee = Loadable(lazy(() => import('views/employees/view')));

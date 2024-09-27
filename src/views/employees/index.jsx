@@ -31,6 +31,7 @@ import axios from 'axios';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import GetToken from 'utils/auth-token';
 import hasPermission from 'utils/auth/hasPermission';
+import { IconUserExclamation, IconUserStar } from '@tabler/icons-react';
 
 const AddEmployeeOptions = ['Add Employee', 'Import From Excel'];
 
@@ -483,8 +484,9 @@ const Employees = () => {
                         <DotMenu
                           onView={() => navigate('/employees/view', { state: employee })}
                           onEdit={hasPermission('update:employee') ? () => handleEmployeeUpdate(employee) : null}
-                          eligiblity={employee?.is_eligible ? 'Not Eligible' : 'Eligible'}
-                          onEligible={hasPermission('update:employee') ? () => handleEmployeeEligiblity(employee) : null}
+                          status={employee?.is_eligible ? 'Not Eligible' : 'Eligible'}
+                          statusIcon={employee?.is_eligible ? <IconUserStar size={18} /> : <IconUserExclamation size={18} />}
+                          onStatusChange={hasPermission('update:employee') ? () => handleEmployeeEligiblity(employee) : null}
                           onDelete={hasPermission('delete:employee') ? () => handleRemoveEmployee(employee) : null}
                         />
                       </TableCell>

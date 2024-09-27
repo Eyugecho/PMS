@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Box, CircularProgress, Grid, MenuItem, Typography, useTheme } from '@mui/material';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageContainer from 'ui-component/MainPage';
 import Backend from 'services/backend';
-import {IconBuilding,IconCalendar,IconChairDirector,IconChartDonut,IconDirection,IconDotsVertical,IconMail,IconReplace,IconTargetArrow,IconUser} from '@tabler/icons-react';
+import {
+  IconBuilding,
+  IconBuildingArch,
+  IconCalendar,
+  IconChairDirector,
+  IconDirection,
+  IconDotsVertical,
+  IconMail,
+  IconReplace,
+  IconTargetArrow,
+  IconUser
+} from '@tabler/icons-react';
 import { formatDate } from 'utils/function';
 import { DetailInfo } from 'views/employees/components/DetailInfo';
 import { toast } from 'react-toastify';
@@ -20,92 +31,30 @@ import Fallbacks from 'utils/components/Fallbacks';
 import PerKPI from 'ui-component/performance/PerKPI';
 import GetToken from 'utils/auth-token';
 
-const IconColor = 'black';
-
 const ViewUnit = () => {
   const { state } = useLocation();
+  const navigate = useNavigate();
   const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
+
+  const [loadingUnit, setLoadingUnit] = useState(true);
+  const [unit, setUnit] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     per_page: 20
   });
 
-  const [managers, setManagers] = useState([]);
-  const [loadingManager, setManagerLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [searching, setSearching] = useState(false);
-
   const handleOpenDialog = () => {
     setOpen(true);
-    handleGettingManager();
   };
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const handleGettingManager = () => {
-    setOpen(true);
-
-    if (managers.length == 0) {
-      setManagerLoading(true);
-      var Api = Backend.api + Backend.getManagers;
-      const token = localStorage.getItem('token');
-      var headers = {
-        Authorization: `Bearer` + token,
-        accept: 'application/json',
-        'Content-Type': 'application/json'
-      };
-
-      fetch(Api, { method: 'GET', headers: headers })
-        .then((response) => response.json())
-        .then((response) => {
-          if (response.success) {
-            setManagerLoading(false);
-            setManagers(response.data);
-          } else {
-            setManagerLoading(false);
-            toast.error(response.data.message);
-          }
-        })
-        .catch((error) => {
-          setManagerLoading(false);
-          toast.error(error.message);
-        });
-    }
-  };
-
-  const handleSearchingManager = () => {
-    setSearching(true);
-    var Api = Backend.api + Backend.getManagers + `?search=${search}`;
-    const token = localStorage.getItem('token');
-    var headers = {
-      Authorization: `Bearer` + token,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
-
-    fetch(Api, { method: 'GET', headers: headers })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setSearching(false);
-          setManagers(response.data);
-        } else {
-          setSearching(false);
-          handlePrompts(response.message, 'error');
-        }
-      })
-      .catch((error) => {
-        setSearching(false);
-        handlePrompts(error, 'error');
-      });
   };
 
   const [isLoading, setIsLoading] = useState(false);
@@ -134,12 +83,11 @@ const ViewUnit = () => {
               setPerformance(response.data.performance);
             } else {
               setPerformance([]);
-              toast.warning(response.data.message);
             }
           })
           .catch((error) => {
             setPerformance([]);
-            toast.warning(error.message);
+            toast.error(error.message);
           })
           .finally(() => {
             setIsLoading(false);
@@ -148,45 +96,84 @@ const ViewUnit = () => {
         return <GetFiscalYear />;
       }
     };
-    handleFetchingPerformance();
+
+    if (state?.id) {
+      handleFetchingPerformance();
+    } else {
+      navigate(-1);
+    }
   }, [selectedYear]);
 
-  useEffect(() => {
-    const handleFetchingUnitDetails = () => {
-      const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.getUnitTarget + state?.id;
-      const header = {
-        Authorization: `Bearer ${token}`,
-        accept: 'application/json',
-        'Content-Type': 'application/json'
-      };
-
-      fetch(Api, {
-        method: 'GET',
-        headers: header
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          if (response.success) {
-            setData(response.data);
-            setLoading(false);
-            setError(false);
-          } else {
-            setLoading(false);
-            setError(false);
-          }
-        })
-        .catch((error) => {
-          toast(error.message);
-          setError(true);
-          setLoading(false);
-        });
+  const handleGettingUnitDetails = async () => {
+    setLoadingUnit(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.units + `/` + state?.id;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
     };
 
-    handleFetchingUnitDetails();
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setUnit(response.data);
+          setError(false);
+        } else {
+          setError(false);
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+        setError(true);
+      })
+      .finally(() => setLoadingUnit(false));
+  };
+
+  const handleFetchingUnitDetails = async () => {
+    const token = await GetToken();
+    const Api = Backend.api + Backend.getUnitTarget + state?.id;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setData(response.data);
+          setError(false);
+        } else {
+          setError(false);
+        }
+      })
+      .catch((error) => {
+        toast(error.message);
+        setError(true);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (state?.id) {
+      handleGettingUnitDetails();
+      handleFetchingUnitDetails();
+    } else {
+      navigate(-1);
+    }
 
     return () => {};
   }, [state?.id]);
+
   return (
     <PageContainer back={true} title="Unit Details">
       <Grid container sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: 2 }}>
@@ -198,76 +185,72 @@ const ViewUnit = () => {
           lg={3.2}
           xl={3.2}
           sx={{
+            minHeight: 300,
             background: theme.palette.grey[100],
-            color: '#000',
             borderRadius: 2,
             fontSize: '0.9rem',
             marginTop: 0,
-            borderBottom: `2px solid ${theme.palette.divider}`,
+            borderBottom: `1px solid ${theme.palette.divider}`,
             position: 'relative',
-            padding: '12px 16px',
+            padding: '6px',
             '&:not(:last-of-type)': {
               borderRight: `1px solid ${theme.palette.divider}`
-            },
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            }
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: 1,
-              paddingLeft: 2,
-              borderBottom: 0.4,
-              borderColor: theme.palette.grey[500]
-            }}
-          >
-            <Typography variant="h4">Unit Info</Typography>
+          {loadingUnit ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 2, marginTop: 3 }}>
+              <ActivityIndicator size={20} />
+            </Box>
+          ) : (
+            <>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: 1,
+                  paddingLeft: 2
+                }}
+              >
+                <Typography variant="h4">Unit Detail Info</Typography>
 
-            <ActionMenu icon={<IconDotsVertical size={18} />}>
-              <Box sx={{ paddingY: 1.6, paddingX: 1, backdropFilter: 'blur(10px)' }}>
-                <MenuItem sx={{ borderRadius: 2, padding: 1, paddingX: 2 }} onClick={() => handleOpenDialog()}>
-                  <IconReplace size={20} style={{ paddingRight: 2 }} />{' '}
-                  <Typography variant="body2" marginLeft={1}>
-                    {state?.manager ? 'Change manager' : 'Assign Manager'}
-                  </Typography>
-                </MenuItem>
+                <ActionMenu icon={<IconDotsVertical size={18} />}>
+                  <Box sx={{ paddingY: 1.6, paddingX: 1, backdropFilter: 'blur(10px)' }}>
+                    <MenuItem sx={{ borderRadius: 2, padding: 1, paddingX: 2 }} onClick={() => handleOpenDialog()}>
+                      <IconReplace size={20} style={{ paddingRight: 2 }} />{' '}
+                      <Typography variant="body2" marginLeft={1}>
+                        {unit?.manager ? 'Change manager' : 'Assign Manager'}
+                      </Typography>
+                    </MenuItem>
+                  </Box>
+                </ActionMenu>
               </Box>
-            </ActionMenu>
-          </Box>
 
-          <Box sx={{ padding: 2, backgroundColor: theme.palette.grey[50], borderRadius: 2 }}>
-            {state?.name && <DetailInfo label={'Unit name'} info={state?.name} icon={<IconBuilding size={24} color={IconColor} />} />}
-            {state?.unit_type?.name && (
-              <DetailInfo label={'Unit type'} info={state?.unit_type?.name} icon={<IconDirection size={24} color={IconColor} />} />
-            )}
-            {state?.manager?.user?.name && (
-              <DetailInfo label={'Manager name'} info={state?.manager?.user?.name} icon={<IconUser size={24} color={IconColor} />} />
-            )}
-            {state?.manager?.position && (
-              <DetailInfo
-                label={'Manager Position'}
-                info={state?.manager?.position}
-                icon={<IconChairDirector size={24} color={IconColor} />}
-              />
-            )}
+              <Box sx={{ padding: 2, borderRadius: 2 }}>
+                {unit?.name && <DetailInfo label={'Unit name'} info={unit?.name} icon={<IconBuildingArch size={22} />} />}
+                {unit?.parent && <DetailInfo label={'Parent Unit'} info={unit?.parent?.name} icon={<IconBuilding size={22} />} />}
+                {unit?.unit_type?.name && (
+                  <DetailInfo label={'Unit type'} info={unit?.unit_type?.name} icon={<IconDirection size={22} />} />
+                )}
+                {unit?.manager?.user?.name && (
+                  <DetailInfo label={'Manager name'} info={unit?.manager?.user?.name} icon={<IconUser size={22} />} />
+                )}
 
-            {state?.manager?.user?.email && (
-              <DetailInfo label={'Manager email'} info={state?.manager?.user?.email} icon={<IconMail size={24} color={IconColor} />} />
-            )}
-            {state?.position && (
-              <DetailInfo label={'Position'} info={state?.position} icon={<IconChartDonut size={24} color={IconColor} />} />
-            )}
+                {unit?.manager?.user?.email && (
+                  <DetailInfo label={'Manager email'} info={unit?.manager?.user?.email} icon={<IconMail size={22} />} />
+                )}
 
-            {state?.user?.created_at && (
-              <DetailInfo
-                label={'Start date'}
-                info={formatDate(state?.user?.created_at).formattedDate}
-                icon={<IconCalendar size={24} color={IconColor} />}
-              />
-            )}
-          </Box>
+                {unit?.manager?.job_position && (
+                  <DetailInfo label={'Manager Position'} info={unit?.manager?.job_position?.name} icon={<IconChairDirector size={22} />} />
+                )}
+
+                {unit?.created_at && (
+                  <DetailInfo label={'Creation date'} info={formatDate(unit?.created_at).formattedDate} icon={<IconCalendar size={22} />} />
+                )}
+              </Box>
+            </>
+          )}
         </Grid>
 
         <Grid
@@ -280,7 +263,7 @@ const ViewUnit = () => {
           sx={{
             backgroundColor: theme.palette.background.default,
             border: 0.4,
-            borderColor: theme.palette.grey[200],
+            borderColor: theme.palette.divider,
             borderRadius: 2
           }}
         >
@@ -289,10 +272,10 @@ const ViewUnit = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: 1,
+              padding: 2,
               paddingLeft: 2,
               borderBottom: 0.4,
-              borderColor: theme.palette.grey[200]
+              borderColor: theme.palette.divider
             }}
           >
             <Typography variant="h4">Unit KPI's and Targets</Typography>
@@ -368,23 +351,22 @@ const ViewUnit = () => {
         <Grid item xs={12} sm={12} md={8} lg={6} xl={6}>
           <DrogaCard>
             <Typography variant="h4">Per KPI performance</Typography>
-
             <PerKPI isLoading={isLoading} performance={performance} />
           </DrogaCard>
         </Grid>
       </Grid>
 
-      <AssignManager
-        open={open}
-        handleDialogClose={() => handleClose()}
-        managers={managers}
-        unit_id={state.id}
-        isLoading={loadingManager}
-        searchText={search}
-        searching={searching}
-        onTextChange={(event) => setSearch(event.target.value)}
-        onSubmit={() => handleSearchingManager()}
-      />
+      {state?.id && (
+        <AssignManager
+          open={open}
+          handleDialogClose={() => handleClose()}
+          unit_id={state.id}
+          onRefresh={() => {
+            handleClose();
+            handleGettingUnitDetails();
+          }}
+        />
+      )}
     </PageContainer>
   );
 };

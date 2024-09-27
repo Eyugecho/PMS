@@ -186,10 +186,8 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
     })
       .then((response) => response.json())
       .then((response) => {
-        if (response.success && Array.isArray(response.data.data)) {
-          setPositions(response.data.data);
-        } else {
-          setPositions([]);
+        if (response.success) {
+          setPositions(response.data);
         }
       })
       .catch((error) => {
@@ -246,7 +244,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
           }}
         >
           <DialogTitle variant="h4" color={theme.palette.text.primary}>
-            Update Employee
+            Edit Employee
           </DialogTitle>
           <IconButton onClick={onClose}>
             <IconX size={20} color={theme.palette.text.primary} />

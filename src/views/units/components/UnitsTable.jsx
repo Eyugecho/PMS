@@ -20,6 +20,7 @@ import { MoreVert } from '@mui/icons-material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { IconDotsVertical } from '@tabler/icons-react';
 
 const UnitsTable = ({ units, onEdit, onDelete }) => {
   const theme = useTheme();
@@ -61,11 +62,7 @@ const UnitsTable = ({ units, onEdit, onDelete }) => {
     <Paper
       sx={{
         minHeight: '66dvh',
-        border: 0.4,
-        borderColor: theme.palette.grey[300],
-        borderRadius: 2,
-        overflow: 'hidden',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        overflow: 'hidden'
       }}
     >
       <TableContainer>
@@ -83,7 +80,7 @@ const UnitsTable = ({ units, onEdit, onDelete }) => {
                   key={header}
                   sx={{
                     background: theme.palette.grey[100],
-                    color: '#000',
+                    color: theme.palette.text.primary,
                     fontWeight: 'bold',
                     fontSize: '0.9rem',
                     borderBottom: `2px solid ${theme.palette.divider}`,
@@ -167,7 +164,7 @@ const UnitsTable = ({ units, onEdit, onDelete }) => {
                   }}
                 >
                   <IconButton onClick={(event) => handleClick(event, unit)} size="small">
-                    <MoreVert />
+                    <IconDotsVertical stroke="1.4" size="1.4rem" />
                   </IconButton>
                   <Menu
                     anchorEl={anchorEl}

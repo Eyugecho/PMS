@@ -138,7 +138,6 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
       .then((response) => {
         if (response.success) {
           setUnits(response.data.units);
-          console.log(response.data.units);
         }
       })
       .catch((error) => {
@@ -185,10 +184,8 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
     })
       .then((response) => response.json())
       .then((response) => {
-        if (response.success && Array.isArray(response.data.data)) {
+        if (response.success) {
           setPositions(response.data);
-        } else {
-          setPositions([]);
         }
       })
       .catch((error) => {
@@ -390,7 +387,6 @@ export const AddEmployee = ({ add, isAdding, onClose, handleSubmission }) => {
               <b style={{ paddingLeft: 3 }}>Employee</b>
             </Typography>
 
-            
             <FormControl
               fullWidth
               error={formik.touched.job_position_id && Boolean(formik.errors.job_position_id)}
