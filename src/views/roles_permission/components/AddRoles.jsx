@@ -1,41 +1,82 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Modal,
-  Box,
-  Button,
-  TextField,
-  Checkbox,
-  FormControlLabel,
-  CircularProgress,
-  Typography,
-  Card,
-  Grid,
-  useTheme
-} from '@mui/material';
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Modal, Box, Button, TextField, Checkbox, FormControlLabel, CircularProgress, Typography, Grid } from '@mui/material';
+import { toast } from 'react-toastify';
 import { Formik, Form, Field, FieldArray } from 'formik';
+import { motion } from 'framer-motion';
 import Fallbacks from 'utils/components/Fallbacks';
 import * as Yup from 'yup';
+import DrogaCard from 'ui-component/cards/DrogaCard';
+import Search from 'ui-component/search';
+import DrogaButton from 'ui-component/buttons/DrogaButton';
+import { IconX } from '@tabler/icons-react';
+import GetToken from 'utils/auth-token';
+import Backend from 'services/backend';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 const roleSchema = Yup.object().shape({
   roleName: Yup.string().required('Role name is required'),
   permissions: Yup.array().of(Yup.string()).min(1, 'At least one permission is required')
 });
 
-const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
+const AddRole = ({ open, handleClose, onSave, submitting }) => {
+  const [search, setSearch] = useState('');
   const [permissionLoading, setPermissionLoading] = useState(true);
+  const [permissions, setPermissions] = useState([]);
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    if (Object.keys(permissions).length === 0) {
-      setPermissionLoading(false);
-    } else {
-      setPermissionLoading(false);
-    }
-  }, [permissions]);
+  const handleSearchingPermission = (event) => {
+    const value = event.target.value;
+    setSearch(value);
+  };
 
-  const theme = useTheme();
+  const filteredPermissions = Object.keys(permissions).reduce((acc, type) => {
+    const filtered = permissions[type].filter((perm) => perm.name.toLowerCase().includes(search.toLowerCase()));
+    if (filtered.length > 0) {
+      acc[type] = filtered;
+    }
+    return acc;
+  }, {});
+
+  const handleFetchingPermissions = async () => {
+    setPermissionLoading(true);
+    const token = await GetToken();
+    const Api = Backend.auth + Backend.permissi;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          const permissionsData = response.data;
+
+          const grouped = permissionsData.reduce((acc, perm) => {
+            const type = perm.name.split(':')[1];
+            if (!acc[type]) {
+              acc[type] = [];
+            }
+            acc[type].push({ name: perm.name, id: perm.uuid });
+
+            return acc;
+          }, {});
+
+          setPermissions(grouped);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setPermissionLoading(false));
+  };
+
+  useEffect(() => {
+    handleFetchingPermissions();
+  }, []);
 
   return (
     <Modal
@@ -45,6 +86,8 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
         backdropFilter: 'blur(10px)',
         backgroundColor: 'rgba(255, 255, 255, 0.1)'
       }}
+      fullWidth={true}
+      maxWidth="lg"
     >
       <Box
         sx={{
@@ -58,25 +101,37 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
           bgcolor: 'background.paper',
           boxShadow: 24,
           borderRadius: 2,
-          p: 4
+          p: 3
         }}
       >
-        <Typography variant="subtitle1">Role and Permission</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography variant="h3">Add Role</Typography>
+
+          <motion.div
+            whileHover={{
+              rotate: 90
+            }}
+            transition={{ duration: 0.3 }}
+            style={{ cursor: 'pointer', marginRight: 10 }}
+            onClick={handleClose}
+          >
+            <IconX size="1.4rem" stroke={2} />
+          </motion.div>
+        </Box>
         <Formik
           initialValues={{ roleName: '', permissions: [] }}
           validationSchema={roleSchema}
-          onSubmit={(values, { resetForm, setSubmitting, setFieldError }) => {
+          onSubmit={(values, { setSubmitting, setFieldError }) => {
             if (values.permissions.length === 0) {
               setFieldError('permissions', 'Please select at least one permission.');
               setSubmitting(false);
               return;
             }
 
-            onSave(values)
+            onSave(values, permissions)
               .then(() => {
-                resetForm();
                 handleClose();
-                toast.success('Role saved successfully!');
+                toast.success('Role created successfully');
               })
               .catch(() => {
                 toast.error('Failed to save role. Please try again.');
@@ -97,7 +152,15 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
                 helperText={touched.roleName && errors.roleName}
                 margin="normal"
                 fullWidth
+                sx={{ my: 2 }}
               />
+
+              <Typography variant="h4" my={2}>
+                Attach Permissions
+              </Typography>
+
+              <Search title="Search Permissions" filter={false} value={search} onChange={handleSearchingPermission}></Search>
+
               <Grid container spacing={2} mt={0.5}>
                 {permissionLoading ? (
                   <Box
@@ -122,51 +185,66 @@ const AddRole = ({ open, handleClose, permissions = {}, onSave }) => {
                 ) : (
                   <FieldArray
                     name="permissions"
-                    render={({ push, remove }) =>
-                      Object.keys(permissions).map((type) => (
-                        <Grid item xs={12} sm={6} md={3} key={type}>
-                          <Card sx={{ p: 0.5, mb: 1, backgroundColor: theme.palette.grey[100] }}>
-                            <Typography variant="h6">{type.charAt(0).toUpperCase() + type.slice(1)}</Typography>
-                            {Array.isArray(permissions[type]) &&
-                              permissions[type].map((perm) => (
-                                <FormControlLabel
-                                  key={perm.id}
-                                  control={
-                                    <Field
-                                      type="checkbox"
-                                      name="permissions"
-                                      value={perm.name}
-                                      as={Checkbox}
-                                      checked={values.permissions.includes(perm.name)}
-                                      onChange={() => {
-                                        if (values.permissions.includes(perm.name)) {
-                                          setFieldValue(
-                                            'permissions',
-                                            values.permissions.filter((p) => p !== perm.name)
-                                          );
-                                        } else {
-                                          setFieldValue('permissions', [...values.permissions, perm.name]);
-                                        }
-                                      }}
-                                    />
-                                  }
-                                  label={perm.name}
-                                />
-                              ))}
-                          </Card>
+                    render={() =>
+                      Object.keys(filteredPermissions).map((type) => (
+                        <Grid item xs={12} sm={6} md={4} xl={3} key={type}>
+                          <DrogaCard sx={{ mb: 1 }}>
+                            {filteredPermissions[type].map((perm) => (
+                              <FormControlLabel
+                                key={perm.id}
+                                control={
+                                  <Field
+                                    type="checkbox"
+                                    name="permissions"
+                                    value={perm.name}
+                                    as={Checkbox}
+                                    checked={values.permissions.includes(perm.name)}
+                                    onChange={() => {
+                                      if (values.permissions.includes(perm.name)) {
+                                        setFieldValue(
+                                          'permissions',
+                                          values.permissions.filter((p) => p !== perm.name)
+                                        );
+                                      } else {
+                                        setFieldValue('permissions', [...values.permissions, perm.name]);
+                                      }
+                                    }}
+                                  />
+                                }
+                                label={perm.name}
+                              />
+                            ))}
+                          </DrogaCard>
                         </Grid>
                       ))
                     }
                   />
                 )}
               </Grid>
-              <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                Save
-              </Button>
-              <Button onClick={handleClose} variant="" sx={{ mt: 2, ml: 2 }}>
-                Close
-              </Button>
 
+              <Grid container>
+                <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <Button
+                    onClick={() => {
+                      resetForm();
+                      handleClose();
+                    }}
+                    variant=""
+                    sx={{ mt: 2, mr: 2 }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <DrogaButton
+                    title={submitting ? <ActivityIndicator size={16} sx={{ color: 'white' }} /> : 'Submit'}
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 2 }}
+                    disabled={submitting}
+                  />
+                </Grid>
+              </Grid>
               {errors.permissions && touched.permissions && (
                 <Typography
                   variant="body2"

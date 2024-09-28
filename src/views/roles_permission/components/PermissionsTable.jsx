@@ -1,29 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  CircularProgress,
-  IconButton,
-  TableContainer,
-  Paper,
-  useTheme,
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Divider,
-  Avatar,
-  Tooltip
-} from '@mui/material';
-import { Edit, Delete, CheckCircleOutline } from '@mui/icons-material';
+import { TableContainer, Paper, useTheme, Box, Typography, Grid, Divider, Tooltip } from '@mui/material';
 import Backend from 'services/backend';
 import Fallbacks from 'utils/components/Fallbacks';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import DrogaCard from 'ui-component/cards/DrogaCard';
 
-const PermissionsTable = ({ onPermissionsFetch, onDelete }) => {
+const PermissionsTable = ({ onPermissionsFetch }) => {
   const theme = useTheme();
   const [permissionLoading, setPermissionLoading] = useState(true);
   const [groupedPermissions, setGroupedPermissions] = useState({});
@@ -87,18 +69,15 @@ const PermissionsTable = ({ onPermissionsFetch, onDelete }) => {
       component={Paper}
       sx={{
         minHeight: '5dvh',
-        border: 0.4,
-        borderColor: theme.palette.grey[300],
-        borderRadius: 1.6,
         margin: 0,
         marginTop: 0,
-        padding: 2,
+        paddingY: 4,
         backgroundColor: theme.palette.background.default
       }}
     >
       {permissionLoading ? (
         <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <CircularProgress size={20} />
+          <ActivityIndicator size={20} />
         </Box>
       ) : error ? (
         <Fallbacks severity="error" title="Server error" description="There is an error fetching Permissions" />
@@ -113,66 +92,50 @@ const PermissionsTable = ({ onPermissionsFetch, onDelete }) => {
         <Grid container spacing={2}>
           {Object.keys(groupedPermissions).map((type) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={type}>
-              <Card
+              <DrogaCard
                 sx={{
-                  boxShadow: theme.shadows[3],
                   transition: 'transform 0.3s',
                   '&:hover': {
                     transform: 'scale(1.05)'
-                  },
-                  backgroundColor: theme.palette.grey[100]
+                  }
                 }}
               >
-                <CardContent>
-                  <Box display="flex" alignItems="center" justifyContent="space-between">
-                    <Typography variant="h4" fontWeight="bold" color="primary">
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </Typography>
-                    <Avatar
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Typography variant="h4" fontWeight="bold" color="primary">
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </Typography>
+                </Box>
+                <Divider sx={{ my: 1.5 }} />
+                <Box>
+                  {groupedPermissions[type].map((perm) => (
+                    <Box
+                      key={perm.id}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
                       sx={{
-                        backgroundColor: theme.palette.primary.light,
-                        color: theme.palette.primary.main,
-                        width: 30,
-                        height: 30
+                        marginBottom: 1,
+                        padding: 0.5,
+                        borderRadius: 1
                       }}
                     >
-                      <CheckCircleOutline />
-                    </Avatar>
-                  </Box>
-                  <Divider sx={{ my: 1.5 }} />
-                  <Box>
-                    {groupedPermissions[type].map((perm) => (
-                      <Box
-                        key={perm.id}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        sx={{
-                          marginBottom: 1,
-                          padding: 1,
-                          backgroundColor: theme.palette.grey[50],
-                          borderRadius: 1
-                        }}
-                      >
-                        <Tooltip title={perm.name} placement="top">
-                          <Typography
-                            variant="body5"
-                            noWrap
-                            sx={{
-                              maxWidth: '180px',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            {perm.name}
-                          </Typography>
-                        </Tooltip>
-           
-                      </Box>
-                    ))}
-                  </Box>
-                </CardContent>
-              </Card>
+                      <Tooltip title={perm.name} placement="top">
+                        <Typography
+                          variant="body2"
+                          noWrap
+                          sx={{
+                            maxWidth: '180px',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {perm.name}
+                        </Typography>
+                      </Tooltip>
+                    </Box>
+                  ))}
+                </Box>
+              </DrogaCard>
             </Grid>
           ))}
         </Grid>

@@ -6,6 +6,7 @@ import { IconX } from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
 import DrogaCard from 'ui-component/cards/DrogaCard';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 const DrogaFormModal = ({ open, title, handleClose, children, onCancel, onSubmit, submitting }) => {
   const theme = useTheme();
@@ -48,7 +49,7 @@ const DrogaFormModal = ({ open, title, handleClose, children, onCancel, onSubmit
             </Button>
             <DrogaButton
               type="submit"
-              title={submitting ? <CircularProgress size={16} sx={{ color: 'white' }} /> : 'Submit'}
+              title={submitting ? <ActivityIndicator size={16} sx={{ color: 'white' }} /> : 'Submit'}
               variant="contained"
               sx={{ paddingX: 5, boxShadow: 0 }}
             />

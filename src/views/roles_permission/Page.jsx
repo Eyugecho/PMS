@@ -1,55 +1,27 @@
-
-
-
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Card, CardContent, Grid, useTheme, Tabs, Tab, Paper } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Card, CardContent, Grid, Tabs, Tab } from '@mui/material';
+import { toast } from 'react-toastify';
 import AddRole from './components/AddRoles';
 import RoleTable from './components/RoleTable';
 import PermissionsTable from './components/PermissionsTable';
 import Search from 'ui-component/search';
-import Backend from 'services/backend'; // Assuming you have a backend service file
-import { toast } from 'react-toastify';
+import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
 import DrogaCard from 'ui-component/cards/DrogaCard';
+import AddButton from 'ui-component/buttons/AddButton';
 
 const Page = () => {
-  const [roles, setRoles] = useState([]);
+  const [adding, setAdding] = useState(false);
   const [permissions, setPermissions] = useState([]);
   const [openRoleModal, setOpenRoleModal] = useState(false);
-  const [permissionMap, setPermissionMap] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [tabValue, setTabValue] = useState('permissions'); // State for tab selection
-  const theme = useTheme();
+  const [tabValue, setTabValue] = useState('roles');
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
-  const fetchRoles = async () => {
+  const handleAddRole = async (newRole, permissionData) => {
     try {
+      setAdding(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${Backend.auth + Backend.roles}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          accept: 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setRoles(data.data);
-      } else {
-        toast.error(data.message || 'Failed to fetch roles');
-      }
-    } catch (error) {
-      toast.error('An error occurred while fetching roles');
-    }
-  };
-
-  const handleAddRole = async (newRole) => {
-    try {
-      const token = localStorage.getItem('token');
-      const allPermissions = Object.values(permissions).flat(); // Flatten permissions if grouped by type
+      const allPermissions = Object.values(permissionData).flat(); // Flatten permissions if grouped by type
       const permissionsUUIDs = newRole.permissions
         .map((permissionName) => {
           const permissionObject = allPermissions.find((perm) => perm.name === permissionName);
@@ -71,20 +43,16 @@ const Page = () => {
       });
 
       const data = await response.json();
-      if (response.ok) {
-        
-        setRoles((prevRoles) => [...prevRoles, data.data]);
-        fetchRoles();
+      if (data.success) {
+        toast.success(data.message);
       } else {
         toast.error(data.message || 'Failed to add role');
       }
     } catch (error) {
       toast.error('An error occurred while adding the role');
+    } finally {
+      setAdding(false);
     }
-  };
-
-  const handleDeleteRole = (roleName) => {
-    setRoles(roles.filter((role) => role.name !== roleName));
   };
 
   const handlePermissionsFetch = (fetchedPermissions) => {
@@ -98,13 +66,7 @@ const Page = () => {
         return acc;
       }, {});
 
-      const permissionMap = fetchedPermissions.reduce((map, perm) => {
-        map[perm.name] = perm.uuid;
-        return map;
-      }, {});
-
       setPermissions(grouped);
-      setPermissionMap(permissionMap);
     }
   };
 
@@ -123,23 +85,10 @@ const Page = () => {
             backgroundColor="#003B73"
             aria-label="Role and Permissions Tabs"
           >
-            <Tab value="permissions" label="Menus List" sx={{ fontSize: '17px' }} />
-
             <Tab value="roles" label="Roles" sx={{ fontSize: '17px' }} />
+            <Tab value="permissions" label="Permissions" sx={{ fontSize: '17px' }} />
           </Tabs>
-          {tabValue === 'permissions' && (
-            <Box>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <Card>
-                    <CardContent>
-                      <PermissionsTable onPermissionsFetch={handlePermissionsFetch} />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-            </Box>
-          )}
+
           {tabValue === 'roles' && (
             <Box mt={2}>
               <Grid container spacing={3}>
@@ -148,18 +97,32 @@ const Page = () => {
                     <CardContent>
                       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                         <Search value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                        <Button variant="contained" color="primary" onClick={() => setOpenRoleModal(true)}>
-                          Add Role
-                        </Button>
+                        <AddButton title={'Add Role'} variant="contained" color="primary" onPress={() => setOpenRoleModal(true)} />
                       </Box>
 
-                      <RoleTable roles={roles} onDelete={handleDeleteRole} searchQuery={searchQuery} />
+                      <RoleTable searchQuery={searchQuery} />
                     </CardContent>
                   </Card>
                 </Grid>
               </Grid>
 
-              <AddRole open={openRoleModal} handleClose={() => setOpenRoleModal(false)} permissions={permissions} onSave={handleAddRole} />
+              <AddRole
+                open={openRoleModal}
+                handleClose={() => setOpenRoleModal(false)}
+                permissions={permissions}
+                onSave={handleAddRole}
+                submitting={adding}
+              />
+            </Box>
+          )}
+
+          {tabValue === 'permissions' && (
+            <Box>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <PermissionsTable onPermissionsFetch={handlePermissionsFetch} />
+                </Grid>
+              </Grid>
             </Box>
           )}
         </Box>
