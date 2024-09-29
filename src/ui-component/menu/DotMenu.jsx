@@ -3,7 +3,7 @@ import { IconButton, Menu, MenuItem, Tooltip, Typography, useTheme } from '@mui/
 import { IconDots, IconDotsVertical, IconEye, IconPencil, IconTrash } from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 
-export const DotMenu = ({ orientation, onView, onEdit, onStatusChange, status, statusIcon, onDelete, sx }) => {
+export const DotMenu = ({ orientation, onOpen, onClose, onView, onEdit, onStatusChange, status, statusIcon, onDelete, sx }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -11,11 +11,13 @@ export const DotMenu = ({ orientation, onView, onEdit, onStatusChange, status, s
   const handleMenuClick = (event) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
+    onOpen && onOpen();
   };
 
   const handleClose = (event) => {
     event.stopPropagation();
     setAnchorEl(null);
+    onClose && onClose();
   };
 
   return (
@@ -116,6 +118,8 @@ export const DotMenu = ({ orientation, onView, onEdit, onStatusChange, status, s
 
 DotMenu.propTypes = {
   children: PropTypes.node,
+  onOpen: PropTypes.func,
+  onClose: PropTypes.func,
   onView: PropTypes.func,
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,

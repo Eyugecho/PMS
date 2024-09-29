@@ -34,6 +34,9 @@ import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFr
 import SplitButton from 'ui-component/buttons/SplitButton';
 import UploadFile from 'ui-component/modal/UploadFile';
 import { IconDotsVertical } from '@tabler/icons-react';
+import hasPermission from 'utils/auth/hasPermission';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import { DotMenu } from 'ui-component/menu/DotMenu';
 
 //================================ UNIT MANAGEMENT PAGE=====================
 const Units = () => {
@@ -64,16 +67,9 @@ const Units = () => {
   const [importExcel, setImportExcel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const auth = getRolesAndPermissionsFromToken();
-
-  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
-  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:kpi'));
-  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:kpi'));
-
   const AddUnitOptions = ['Add Unit', 'Import From Excel'];
 
-  const handleClick = (event, unitType) => {
-    setAnchorEl(event.currentTarget);
+  const handleClick = (unitType) => {
     setSelectedUnitType(unitType);
   };
 
@@ -204,8 +200,9 @@ const Units = () => {
 
     const data = {
       name: value?.name,
-      unit_type_id: value?.type,
+      unit_type_id: value?.my_unit_type,
       parent_id: value?.parent_id,
+      parent_unit_type_id: value?.type,
       description: value?.description
     };
 
@@ -467,8 +464,9 @@ const Units = () => {
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                   <Search title="Search units" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
 
-                  {/* <AddButton title="Add unit" onPress={() => handleAddUnitClick()} /> */}
-                  {hasPermission && <SplitButton options={AddUnitOptions} handleSelection={(value) => handleUnitAdd(value)} />}
+                  {hasPermission('create:unit') && (
+                    <SplitButton options={AddUnitOptions} handleSelection={(value) => handleUnitAdd(value)} />
+                  )}
                 </Box>
               </CardContent>
             </Card>
@@ -526,14 +524,17 @@ const Units = () => {
                   <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>
                     Unit Types
                   </Typography>
-                  <AddUnitType isAdding={isAdding} handleSubmission={(value) => handleTypeAddition(value)} />
+
+                  {hasPermission('create:unit') && (
+                    <AddUnitType isAdding={isAdding} handleSubmission={(value) => handleTypeAddition(value)} />
+                  )}
                 </Box>
                 <Divider sx={{ borderBottom: 0.4, borderColor: theme.palette.divider, marginY: 1 }} />
 
                 <Box>
                   {unitLoading ? (
                     <Box sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <CircularProgress size={20} />
+                      <ActivityIndicator size={20} />
                     </Box>
                   ) : error ? (
                     <Fallbacks severity="error" title="Server error" description="There is error fetching unit type" />
@@ -564,36 +565,13 @@ const Units = () => {
                           {type.name}
                         </Typography>
 
-                        <IconButton onClick={(event) => handleClick(event, type)} size="small">
-                          <IconDotsVertical stroke="1.4" size='1.4rem' />
-                        </IconButton>
-
-                        <Menu
-                          anchorEl={anchorEl}
-                          open={Boolean(anchorEl)}
-                          onClose={handleClose}
-                          sx={{
-                            '& .MuiPaper-root': {
-                              backdropFilter: 'blur(10px)',
-                              backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                              borderRadius: 2,
-                              boxShadow: theme.shadows[1]
-                            }
-                          }}
-                        >
-                          <MenuItem onClick={() => handleEditUnitType(selectedUnitType)}>
-                            <ListItemIcon>
-                              <EditIcon fontSize="small" style={{ paddingRight: '4px', color: '#11365A' }} />
-                            </ListItemIcon>
-                            Edit
-                          </MenuItem>
-                          <MenuItem onClick={() => handleDelete(selectedUnitType.id, 'type')}>
-                            <ListItemIcon>
-                              <DeleteIcon fontSize="small" style={{ paddingRight: '4px', color: 'red' }} />
-                            </ListItemIcon>
-                            Delete
-                          </MenuItem>
-                        </Menu>
+                        <DotMenu
+                          orientation="vertical"
+                          onOpen={() => handleClick(type)}
+                          onClose={() => handleClose()}
+                          onEdit={hasPermission('update:unit') ? () => handleEditUnitType(selectedUnitType) : null}
+                          onDelete={hasPermission('delete:unit') ? () => handleDelete(selectedUnitType.id, 'type') : null}
+                        />
                       </Box>
                     ))
                   )}

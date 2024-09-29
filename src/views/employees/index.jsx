@@ -398,10 +398,11 @@ const Employees = () => {
             <Table sx={{ minWidth: 650 }} aria-label="Employes table">
               <TableHead>
                 <TableRow>
+                  <TableCell>Id</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>Gender</TableCell>
                   <TableCell>Email</TableCell>
-                  <TableCell>Employee Id</TableCell>
+                  <TableCell>Unit</TableCell>
                   <TableCell>Position</TableCell>
                   <TableCell>Role</TableCell>
                   <TableCell>Starting date</TableCell>
@@ -442,6 +443,7 @@ const Employees = () => {
                         }
                       }}
                     >
+                      <TableCell sx={{ border: 0 }}>{employee?.user?.username}</TableCell>
                       <TableCell sx={{ display: 'flex', alignItems: 'center', border: 0 }}>
                         <Typography variant="subtitle1" color={theme.palette.text.primary}>
                           {employee?.user?.name}
@@ -449,7 +451,7 @@ const Employees = () => {
                       </TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.gender ? employee?.gender : 'N/A'}</TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.user?.email}</TableCell>
-                      <TableCell sx={{ border: 0 }}>{employee?.user?.username}</TableCell>
+                      <TableCell sx={{ border: 0 }}>{employee?.unit?.unit?.name}</TableCell>
                       <TableCell sx={{ border: 0 }}>{employee?.job_position?.name ? employee?.job_position?.name : 'N/A'}</TableCell>
                       <TableCell sx={{ border: 0 }}>
                         {employee?.user?.roles.length > 0

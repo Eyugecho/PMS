@@ -45,7 +45,7 @@ function Periods() {
       setSelectedFiscalYear('');
     } else {
       setSelectedFiscalYear(yearID);
-      handleFetchingDetails();
+      handleFetchingDetails(yearID);
     }
     setOpenPeriod(false);
   };
@@ -219,12 +219,13 @@ function Periods() {
     }
   };
 
-  const handleFetchingDetails = async () => {
+  const handleFetchingDetails = async (yearID) => {
     try {
       setIsPeriodLoading(true);
 
       const token = await GetToken();
-      const Api = Backend.api + Backend.getSinglePeriods + `?fiscal_year_id=${selectedYear.id}`;
+      const fiscalYearId = yearID ? yearID : selectedYear?.id;
+      const Api = Backend.api + Backend.getSinglePeriods + `?fiscal_year_id=${fiscalYearId}`;
       const response = await fetch(Api, {
         headers: {
           Authorization: `Bearer ${token}`,

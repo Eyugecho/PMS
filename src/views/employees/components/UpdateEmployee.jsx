@@ -333,7 +333,7 @@ const UpdateEmployee = ({ update, isUpdating, onClose, EmployeeData, handleSubmi
             </FormControl>
 
             <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlfor="type">Unit type</InputLabel>
+              <InputLabel htmlFor="type">Unit type</InputLabel>
 
               <Select id="type" name="type" label="Unit type" value={formik.values.type} onChange={formik.handleChange}>
                 {unitLoading ? (

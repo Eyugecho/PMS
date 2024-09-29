@@ -15,8 +15,9 @@ import GetToken from 'utils/auth-token';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Unit name is required'),
+  my_unit_type: Yup.string().required('Unit type is required'),
   parent_id: Yup.string().required('Parent Unit is required'),
-  type: Yup.string().required('Unit type is required')
+  type: Yup.string().required('Parent Unit type is required')
 });
 
 const EditUnit = ({ edit, isEditing, selectedUnit, types, onClose, handleSubmission }) => {
@@ -26,6 +27,7 @@ const EditUnit = ({ edit, isEditing, selectedUnit, types, onClose, handleSubmiss
   const formik = useFormik({
     initialValues: {
       name: '',
+      my_unit_type: '',
       parent_id: '',
       type: '',
       description: ''
@@ -40,8 +42,9 @@ const EditUnit = ({ edit, isEditing, selectedUnit, types, onClose, handleSubmiss
     formik.setValues({
       ...formik.values,
       name: selectedUnit ? selectedUnit?.name : '',
+      my_unit_type: selectedUnit ? selectedUnit?.unit_type?.id : '',
       parent_id: selectedUnit ? selectedUnit?.parent_id : '',
-      type: selectedUnit ? selectedUnit?.unit_type?.id : '',
+      type: selectedUnit ? selectedUnit?.parent?.unit_type_id : '',
       description: selectedUnit ? selectedUnit?.description : ''
     });
   };
@@ -76,8 +79,11 @@ const EditUnit = ({ edit, isEditing, selectedUnit, types, onClose, handleSubmiss
     if (formik.values.type) {
       handleFetchingUnits();
     }
-    setFormInitialValues();
   }, [selectedUnit, formik.values.type]);
+
+  React.useEffect(() => {
+    setFormInitialValues();
+  }, []);
 
   return (
     <React.Fragment>
@@ -107,10 +113,40 @@ const EditUnit = ({ edit, isEditing, selectedUnit, types, onClose, handleSubmiss
                 </FormHelperText>
               )}
             </FormControl>
-            <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
-              <InputLabel htmlfor="type">Unit type</InputLabel>
+            <FormControl fullWidth error={formik.touched.my_unit_type && Boolean(formik.errors.my_unit_type)} sx={{ marginTop: 3 }}>
+              <InputLabel htmlfor="my_unit_type">This Unit type</InputLabel>
 
-              <Select id="type" name="type" label="Unit type" value={formik.values.type} onChange={formik.handleChange}>
+              <Select
+                id="my_unit_type"
+                name="my_unit_type"
+                label="This Unit type"
+                value={formik.values.my_unit_type}
+                onChange={formik.handleChange}
+              >
+                {types.length === 0 ? (
+                  <Typography variant="body2" sx={{ padding: 1 }}>
+                    Unit type is not found
+                  </Typography>
+                ) : (
+                  types?.map((type, index) => (
+                    <MenuItem key={index} value={type.id}>
+                      {type.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+
+              {formik.touched.my_unit_type && formik.errors.my_unit_type && (
+                <FormHelperText error id="standard-weight-helper-text-my_unit_type">
+                  {formik.errors.my_unit_type}
+                </FormHelperText>
+              )}
+            </FormControl>
+
+            <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
+              <InputLabel htmlfor="type">Parent Unit type</InputLabel>
+
+              <Select id="type" name="type" label="Parent Unit type" value={formik.values.type} onChange={formik.handleChange}>
                 {types.length === 0 ? (
                   <Typography variant="body2" sx={{ padding: 1 }}>
                     Unit type is not found

@@ -10,13 +10,12 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  useTheme,
-  Card,
-  CardContent
+  useTheme
 } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import { DotMenu } from 'ui-component/menu/DotMenu';
 import { format } from 'date-fns';
+import { IconCircleCheckFilled, IconForbid } from '@tabler/icons-react';
 import PageContainer from 'ui-component/MainPage';
 import Backend from 'services/backend';
 import Search from 'ui-component/search';
@@ -28,7 +27,7 @@ import AddButton from 'ui-component/buttons/AddButton';
 import AddUser from './componenets/Addusers';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import EditUser from './componenets/EditUsers';
-import { IconCircleCheckFilled, IconForbid } from '@tabler/icons-react';
+import hasPermission from 'utils/auth/hasPermission';
 
 const Users = () => {
   const theme = useTheme();
@@ -52,10 +51,6 @@ const Users = () => {
   const [update, setUpdate] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const auth = getRolesAndPermissionsFromToken();
-
-  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:users'));
-  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:users'));
-  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:users'));
 
   const handleChangePage = (event, newPage) => {
     setPagination({ ...pagination, page: newPage });
@@ -327,6 +322,7 @@ const Users = () => {
 
   const handleUserUpdate = (updatedData) => {
     setSelectedRow(updatedData);
+    handleFetchingRoles();
     setUpdate(true);
   };
 
@@ -357,7 +353,7 @@ const Users = () => {
           <Grid item xs={10} md={12} marginBottom={3}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Search title="Search Employees" value={search} onChange={handleSearchFieldChange} filter={false} />
-              <AddButton title="Add User" onPress={handleAddUserClick} />
+              {hasPermission('create:users') && <AddButton title="Add User" onPress={handleAddUserClick} />}
             </Box>
           </Grid>
           <Grid container>
@@ -455,7 +451,7 @@ const Users = () => {
                             }}
                           >
                             <DotMenu
-                              onEdit={hasEditPermission ? () => handleUserUpdate(item) : null}
+                              onEdit={hasPermission('update:users') ? () => handleUserUpdate(item) : null}
                               status={item?.status ? 'Inactivate' : 'Activate'}
                               statusIcon={
                                 item?.status ? (
@@ -464,7 +460,7 @@ const Users = () => {
                                   <IconCircleCheckFilled size={18} style={{ color: '#008000' }} />
                                 )
                               }
-                              onStatusChange={hasEditPermission ? () => handleUserStatus(item) : null}
+                              onStatusChange={hasPermission('update:users') ? () => handleUserStatus(item) : null}
                             />
                           </TableCell>
                         </TableRow>
@@ -490,11 +486,11 @@ const Users = () => {
       {selectedRow && (
         <EditUser
           edit={update}
+          roles={roles}
           isUpdating={isUpdating}
           userData={selectedRow}
           onClose={handleUpdateUserClose}
           onSubmit={handleUpdatingUser}
-          roles={roles}
         />
       )}
     </PageContainer>

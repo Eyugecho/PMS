@@ -21,6 +21,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { IconDotsVertical } from '@tabler/icons-react';
+import { DotMenu } from 'ui-component/menu/DotMenu';
+import hasPermission from 'utils/auth/hasPermission';
 
 const UnitsTable = ({ units, onEdit, onDelete }) => {
   const theme = useTheme();
@@ -29,8 +31,7 @@ const UnitsTable = ({ units, onEdit, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState(null);
 
-  const handleClick = (event, unit) => {
-    setAnchorEl(event.currentTarget);
+  const handleClick = (unit) => {
     setSelectedUnit(unit);
   };
 
@@ -163,41 +164,13 @@ const UnitsTable = ({ units, onEdit, onDelete }) => {
                     padding: '12px 16px'
                   }}
                 >
-                  <IconButton onClick={(event) => handleClick(event, unit)} size="small">
-                    <IconDotsVertical stroke="1.4" size="1.4rem" />
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                    sx={{
-                      '& .MuiPaper-root': {
-                        backdropFilter: 'blur(10px)',
-                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                        borderRadius: 2,
-                        boxShadow: theme.shadows[1]
-                      }
-                    }}
-                  >
-                    <MenuItem onClick={handleView}>
-                      <ListItemIcon>
-                        <VisibilityIcon fontSize="small" style={{ paddingRight: '4px', color: 'gray' }} />
-                      </ListItemIcon>
-                      View
-                    </MenuItem>
-                    <MenuItem onClick={handleOpenEditModal}>
-                      <ListItemIcon>
-                        <EditIcon fontSize="small" style={{ paddingRight: '4px', color: '#11365A' }} />
-                      </ListItemIcon>
-                      Edit
-                    </MenuItem>
-                    <MenuItem onClick={handleDelete}>
-                      <ListItemIcon>
-                        <DeleteIcon fontSize="small" style={{ paddingRight: '4px', color: 'red' }} />
-                      </ListItemIcon>
-                      Delete
-                    </MenuItem>
-                  </Menu>
+                  <DotMenu
+                    onOpen={() => handleClick(unit)}
+                    onClose={() => handleClose()}
+                    onView={hasPermission('read:unit') ? () => handleView() : null}
+                    onEdit={hasPermission('update:unit') ? () => handleOpenEditModal() : null}
+                    onDelete={hasPermission('delete:unit') ? () => handleDelete() : null}
+                  />
                 </TableCell>
               </TableRow>
             ))}

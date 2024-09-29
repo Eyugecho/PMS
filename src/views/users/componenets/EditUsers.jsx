@@ -44,6 +44,7 @@ const EditUser = ({ edit, isUpdating, userData = {}, roles, onClose, onSubmit })
       <FormControl fullWidth margin="normal">
         <InputLabel>Roles</InputLabel>
         <Select
+          label="Roles"
           multiple
           value={userDetails.roles}
           onChange={handleRoleChange}
