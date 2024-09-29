@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Box, Grid, TablePagination, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Divider, Grid, TablePagination, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { CreatePlan } from './components/CreatePlan';
 import { toast, ToastContainer } from 'react-toastify';
@@ -22,6 +22,7 @@ import Search from 'ui-component/search';
 import SelectorMenu from 'ui-component/menu/SelectorMenu';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
 import IsEmployee from 'utils/is-employee';
+import hasPermission from 'utils/auth/hasPermission';
 
 const Planning = () => {
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
@@ -34,14 +35,14 @@ const Planning = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [create, setCreate] = useState(false);
-  const [fullyPlanned, setFullyPlanned] = useState(true);
+  const [fullyPlanned, setFullyPlanned] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState();
   const [update, setUpdate] = useState(false);
   const [deletePlan, setDeletePlan] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
-  const [perspectiveTypes] = useState([{ label: 'Perspectives Type', value: '' }]);
-  const [measuringUnit] = useState([{ label: 'Measuring Unit', value: '' }]);
+  const [perspectiveTypes] = useState([{ label: 'All Perspectives', value: '' }]);
+  const [measuringUnit] = useState([{ label: 'All Measuring Units', value: '' }]);
   const [filter, setFilter] = useState({
     m_unit: '',
     perspective: ''
@@ -168,7 +169,7 @@ const Planning = () => {
       })
         .then((response) => response.json())
         .then((response) => {
-          if (response.success) {
+          if (response.success && response.data?.plans) {
             setData(response.data?.plans?.data);
             setFullyPlanned(response.data?.weightSum);
             handleSettingUpPerspectiveFilter(response.data?.perspectiveTypes);
@@ -210,24 +211,32 @@ const Planning = () => {
     };
   }, [search]);
 
+  const groupedPlans = [];
+
+  data.forEach((plan) => {
+    const perspectiveType = plan?.kpi?.perspective_type?.name;
+
+    if (perspectiveType) {
+      if (!groupedPlans[perspectiveType]) {
+        groupedPlans[perspectiveType] = [];
+      }
+      groupedPlans[perspectiveType].push(plan);
+    }
+  });
   return (
     <PageContainer
       title={'Planning'}
       rightOption={
-        !isEmployee && (
+        hasPermission('create:kpitracker') && (
           <>
-            <AddButton
-              props={{ varaint: 'contained' }}
-              title={'Create new plan'}
-              onPress={() => handleCreatePlan()}
-              disable={fullyPlanned}
-            />
-            {!loading && fullyPlanned && (
+            {!loading && fullyPlanned ? (
               <Box sx={{ marginY: 1 }}>
                 <Alert icon={false} severity="info">
-                  Already Planned 100%
+                  Planned 100%
                 </Alert>
               </Box>
+            ) : (
+              <AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()} disable={loading} />
             )}
           </>
         )
@@ -275,17 +284,28 @@ const Planning = () => {
         />
       ) : (
         <Grid container sx={{ paddingY: 1, paddingX: 2, marginTop: 0.2 }} spacing={gridSpacing}>
-          {data.map((plan, index) => (
-            <Grid item xs={12} sm={12} md={6} lg={4} xl={3} key={index}>
-              <PlanCard
-                plan={plan}
-                onPress={() => navigate('/planning/view', { state: plan })}
-                onEdit={() => handleUpdatingPlan(plan)}
-                onDelete={() => handleDeletePlan(plan)}
-                editInitiative={true}
-                is_employee={isEmployee}
-              />
-            </Grid>
+          {Object.keys(groupedPlans).map((perspectiveType) => (
+            <div key={perspectiveType}>
+              <Typography variant="h5" gutterBottom>
+                {perspectiveType}
+              </Typography>
+
+              <Grid container spacing={2}>
+                {groupedPlans[perspectiveType].map((plan, index) => (
+                  <Grid item xs={12} sm={12} md={6} lg={4} xl={3} key={index}>
+                    <PlanCard
+                      plan={plan}
+                      onPress={() => navigate('/planning/view', { state: plan })}
+                      onEdit={() => handleUpdatingPlan(plan)}
+                      onDelete={() => handleDeletePlan(plan)}
+                      editInitiative={true}
+                      is_employee={isEmployee}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+              <Divider />
+            </div>
           ))}
         </Grid>
       )}

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { IconGauge } from '@tabler/icons-react';
 import { Box, Grid, Paper, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { DotMenu } from 'ui-component/menu/DotMenu';
+import hasPermission from 'utils/auth/hasPermission';
 
 const ListView = ({ data, onEdit, onDelete }) => {
   const theme = useTheme();
@@ -26,7 +27,13 @@ const ListView = ({ data, onEdit, onDelete }) => {
           <Grid container justifyContent={'space-between'} alignItems={'center'}>
             <Grid item xs={12} sm={12} md={1} lg={1} xl={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <IconGauge size="1.8rem" stroke={1.4} />{' '}
-              {downMd && <DotMenu orientation="horizontal" onEdit={() => onEdit(kpi)} onDelete={() => onDelete(kpi)} />}
+              {downMd && (
+                <DotMenu
+                  orientation="horizontal"
+                  onEdit={hasPermission('update:kpi') ? () => onEdit(kpi) : null}
+                  onDelete={hasPermission('delete:kpi') ? () => onDelete(kpi) : null}
+                />
+              )}
             </Grid>
 
             <Grid item xs={12} sm={12} md={5} lg={5} xl={5}>
@@ -49,7 +56,11 @@ const ListView = ({ data, onEdit, onDelete }) => {
 
             {!downMd && (
               <Grid item xs={12} sm={12} md={1} lg={1} xl={1}>
-                <DotMenu orientation="horizontal" onEdit={() => onEdit(kpi)} onDelete={() => onDelete(kpi)} />
+                <DotMenu
+                  orientation="horizontal"
+                  onEdit={hasPermission('update:kpi') ? () => onEdit(kpi) : null}
+                  onDelete={hasPermission('delete:kpi') ? () => onDelete(kpi) : null}
+                />
               </Grid>
             )}
           </Grid>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DrogaDataCard from 'ui-component/cards/DrogaDataCard';
 import PropTypes from 'prop-types';
+import hasPermission from 'utils/auth/hasPermission';
 import { IconGauge } from '@tabler/icons-react';
 import { Box, Grid, Paper, Typography, useTheme } from '@mui/material';
 import { DotMenu } from 'ui-component/menu/DotMenu';
@@ -25,7 +26,11 @@ const CardView = ({ data, onEdit, onDelete }) => {
           <DrogaDataCard sx={{ paddingX: 2, paddingY: 1 }} onPress={() => handleViewDescription(kpi.id)}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2.4 }}>
               <IconGauge size="1.8rem" stroke={1.4} />{' '}
-              <DotMenu orientation="horizontal" onEdit={() => onEdit(kpi)} onDelete={() => onDelete(kpi)} />
+              <DotMenu
+                orientation="horizontal"
+                onEdit={hasPermission('update:kpi') ? () => onEdit(kpi) : null}
+                onDelete={hasPermission('delete:kpi') ? () => onDelete(kpi) : null}
+              />
             </Box>
             <Box sx={{ marginBottom: 1 }}>
               <Typography variant="h4" color={theme.palette.text.primary}>

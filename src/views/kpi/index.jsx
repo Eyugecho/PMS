@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, ButtonBase, CircularProgress, Grid, Pagination, Paper, Typography, useTheme } from '@mui/material';
+import { Box, ButtonBase, CircularProgress, Grid, Pagination, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { IconLayoutGrid, IconLayoutList } from '@tabler/icons-react';
 import { toast, ToastContainer } from 'react-toastify';
+import { gridSpacing } from 'store/constant';
 import Backend from 'services/backend';
-import AddButton from 'ui-component/buttons/AddButton';
 import PageContainer from 'ui-component/MainPage';
 import Search from 'ui-component/search';
 import ListView from './components/ListView';
@@ -14,23 +14,31 @@ import AddKPI from './components/AddKPI';
 import UpdateKPI from './components/UpdateKPI';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import ErrorPrompt from 'utils/components/ErrorPrompt';
-import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 import SplitButton from 'ui-component/buttons/SplitButton';
 import noresult from '../../assets/images/no_result.png';
 import GetToken from 'utils/auth-token';
 import UploadFile from 'ui-component/modal/UploadFile';
-
+import SelectorMenu from 'ui-component/menu/SelectorMenu';
+import hasPermission from 'utils/auth/hasPermission';
 
 const KPIManagement = () => {
   const theme = useTheme();
+  const smallDevice = useMediaQuery(theme.breakpoints.down('md'));
 
   const [mounted, setMounted] = useState(false);
   const [view, setView] = useState('card');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
-
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
+  const [perspectivesSelector] = useState([{ label: 'All Perspectives', value: '' }]);
+  const [measuringUnit] = useState([{ label: 'All Measuring', value: '' }]);
+  const [variationCategory] = useState([{ label: 'All Variation', value: '' }]);
+  const [filter, setFilter] = useState({
+    perspective: '',
+    m_unit: '',
+    variation: ''
+  });
   const [pagination, setPagination] = useState({
     page: 0,
     per_page: 10,
@@ -46,7 +54,7 @@ const KPIManagement = () => {
   const [isAdding, setAdding] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const [selectedKPI, setSelectedKPI] = useState();
+  const [selectedKPI, setSelectedKPI] = useState(null);
   const [update, setUpdate] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [importExcel, setImportExcel] = useState(false);
@@ -56,14 +64,8 @@ const KPIManagement = () => {
 
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summary, setSummary] = useState(null);
-    const auth = getRolesAndPermissionsFromToken();
 
-
-  const hasPermission = auth.some((role) => role.permissions.some((per) => per.name === 'create:employee'));
-  const hasEditPermission = auth.some((role) => role.permissions.some((per) => per.name === 'update:kpi'));
-  const hasDelatePermission = auth.some((role) => role.permissions.some((per) => per.name === 'delete:kpi'));
-
-const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
+  const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
 
   const handleOpen = () => {
     setAdd(true);
@@ -75,8 +77,9 @@ const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
   };
 
   const handleOpenUpdate = (data) => {
-    setUpdate(true);
     setSelectedKPI(data);
+    setUpdate(true);
+
     measuringUnits.length === 0 && handleFetchingPresetups();
   };
 
@@ -87,6 +90,7 @@ const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
 
   const handleCloseUpdate = () => {
     setUpdate(false);
+    setSelectedKPI(null);
   };
   const handleOpenDialog = () => {
     setImportExcel(true);
@@ -112,6 +116,11 @@ const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
         setPerspectiveTypes(response.data.data.perspective_types);
         setMeasuringUnits(response.data.data.measuring_units);
         setVariationCategories(response.data.data.variation_categories);
+
+        handleSettingUpPerspectiveFilter(response.data.data.perspective_types);
+        handleSettingUpMeasuringUnitFilter(response.data.data.measuring_units);
+        handleSettingUpVariationFilter(response.data.data.variation_categories);
+
         setIsLoading(false);
       } else {
         setIsLoading(false);
@@ -230,6 +239,24 @@ const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
     setPagination({ ...pagination, page: 0 });
   };
 
+  const handleFiltering = (event) => {
+    const { value, name } = event.target;
+    setFilter({ ...filter, [name]: value });
+  };
+
+  const handleSettingUpPerspectiveFilter = (perspective) => {
+    perspectivesSelector.length < 2 &&
+      perspective.forEach((perspective) => perspectivesSelector.push({ label: perspective.name, value: perspective.id }));
+  };
+
+  const handleSettingUpMeasuringUnitFilter = (measuring_unit) => {
+    measuringUnit.length < 2 && measuring_unit.forEach((m_unit) => measuringUnit.push({ label: m_unit.name, value: m_unit.id }));
+  };
+
+  const handleSettingUpVariationFilter = (variations) => {
+    variationCategory.length < 2 && variations.forEach((variation, index) => variationCategory.push({ label: variation, value: index }));
+  };
+
   const handleChangePage = (event, newPage) => {
     setPagination({ ...pagination, page: newPage });
   };
@@ -238,7 +265,10 @@ const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.kpi + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+      const Api =
+        Backend.api +
+        Backend.kpi +
+        `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}&perspective_type_id=${filter.perspective}&measuring_unit_id=${filter.m_unit}&variation_category=${filter.m_unit}`;
       const response = await axios.get(Api, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -283,53 +313,58 @@ const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
       setIsLoadingSummary(false);
     }
   };
-    const handleUpload = async (file) => {
-      const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.kpiExcell;
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data'
-      };
 
-      const formData = new FormData();
-      formData.append('file', file);
+  const handleUpload = async (file) => {
+    const token = localStorage.getItem('token');
+    const Api = Backend.api + Backend.kpiExcell;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
+    };
 
-      try {
-        const response = await axios.post(Api, formData, {
-          headers: headers,
-          onUploadProgress: (progressEvent) => {
-            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            setUploadProgress(percent);
-          }
-        });
+    const formData = new FormData();
+    formData.append('file', file);
 
-        if (response.success) {
-          toast.success(response.data.data.message);
-        } else {
-          toast.success(response.data.data.message);
+    try {
+      const response = await axios.post(Api, formData, {
+        headers: headers,
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percent);
         }
-      } catch (error) {
-        toast.error(error.message);
-      }
-    };
+      });
 
-
-    const handleKpiAdd = (index) => {
-      if (index === 0) {
-        handleOpen();
-      } else if (index === 1) {
-        handleOpenDialog();
+      if (response.success) {
+        toast.success(response.data.data.message);
       } else {
-        alert('We will be implement importing from odoo');
+        toast.success(response.data.data.message);
       }
-    };
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleKpiAdd = (index) => {
+    if (index === 0) {
+      handleOpen();
+    } else if (index === 1) {
+      handleOpenDialog();
+    } else {
+      alert('We will be implement importing from odoo');
+    }
+  };
+
   useEffect(() => {
     if (mounted) {
       handleFetchingKpi();
     } else {
       setMounted(true);
     }
-  }, [pagination.page, pagination.per_page]);
+  }, [pagination.page, pagination.per_page, filter]);
+
+  useEffect(() => {
+    handleFetchingPresetups();
+  }, []);
 
   useEffect(() => {
     handleFetchingSummary();
@@ -349,65 +384,89 @@ const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
   return (
     <PageContainer
       title="KPI Management"
-      rightOption={hasPermission && <SplitButton options={AddKpiOptions} handleSelection={(value) => handleKpiAdd(value)} />}
+      rightOption={hasPermission('create:kpi') && <SplitButton options={AddKpiOptions} handleSelection={(value) => handleKpiAdd(value)} />}
     >
       <Grid container padding={2} sx={{ marginTop: 2 }}>
         <Grid item xs={12}>
           <Grid container spacing={2} sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <Grid item xs={12} sm={12} md={11} lg={8} xl={8}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <Paper
+              <DrogaCard sx={{ py: 1.2 }}>
+                <Grid
+                  container
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                  spacing={gridSpacing}
+                >
+                  <Grid item xs={12} sm={12} md={4} lg={3.6} xl={3.6}>
+                    <Search title="Filter KPI" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    sm={12}
+                    md={8}
+                    lg={6}
+                    xl={6}
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: 1,
-                      border: 1,
-                      borderColor: theme.palette.divider
+                      justifyContent: smallDevice ? 'flex-start' : 'flex-end'
                     }}
                   >
-                    <Search title="Filter KPI" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
+                    <Grid container>
+                      <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                        <SelectorMenu
+                          name="perspective"
+                          options={perspectivesSelector}
+                          selected={filter.perspective}
+                          handleSelection={handleFiltering}
+                        />
+                        <Box sx={{ marginLeft: 2 }}>
+                          <SelectorMenu name="m_unit" options={measuringUnit} selected={filter.m_unit} handleSelection={handleFiltering} />
+                        </Box>
 
-                    <Paper
+                        <Box sx={{ marginLeft: 2 }}>
+                          <SelectorMenu
+                            name="variation"
+                            options={variationCategory}
+                            selected={filter.variation}
+                            handleSelection={handleFiltering}
+                          />
+                        </Box>
+                      </Grid>
+                    </Grid>
+                    <ButtonBase
+                      onClick={() => setView('card')}
                       sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        minWidth: 90,
-                        paddingY: 0.6,
-                        paddingX: 0.8
+                        marginLeft: 2,
+                        padding: 0.6,
+                        borderRadius: 2,
+                        ':hover': { backgroundColor: theme.palette.grey[100] },
+                        transition: 'all 0.4s ease',
+                        backgroundColor: view === 'card' && theme.palette.grey[100]
                       }}
                     >
-                      <ButtonBase
-                        onClick={() => setView('card')}
-                        sx={{
-                          padding: 0.6,
-                          borderRadius: 2,
-                          ':hover': { backgroundColor: theme.palette.grey[100] },
-                          transition: 'all 0.4s ease',
-                          backgroundColor: view === 'card' && theme.palette.grey[100]
-                        }}
-                      >
-                        <IconLayoutGrid stroke={1.6} size="1.5rem" style={{ color: view === 'card' && theme.palette.primary[800] }} />
-                      </ButtonBase>
-                      <ButtonBase
-                        onClick={() => setView('list')}
-                        sx={{
-                          padding: 0.6,
-                          borderRadius: 2,
-                          ':hover': { backgroundColor: theme.palette.grey[100] },
-                          transition: 'all 0.4s ease',
-                          backgroundColor: view === 'list' && theme.palette.grey[100]
-                        }}
-                      >
-                        <IconLayoutList stroke={1.6} size="1.5rem" style={{ color: view === 'list' && theme.palette.primary[800] }} />
-                      </ButtonBase>
-                    </Paper>
-                  </Paper>
+                      <IconLayoutGrid stroke={1.6} size="1.4rem" style={{ color: view === 'card' && theme.palette.primary[800] }} />
+                    </ButtonBase>
+                    <ButtonBase
+                      onClick={() => setView('list')}
+                      sx={{
+                        padding: 0.6,
+                        marginLeft: 2,
+                        borderRadius: 2,
+                        ':hover': { backgroundColor: theme.palette.grey[100] },
+                        transition: 'all 0.4s ease',
+                        backgroundColor: view === 'list' && theme.palette.grey[100]
+                      }}
+                    >
+                      <IconLayoutList stroke={1.6} size="1.4rem" style={{ color: view === 'list' && theme.palette.primary[800] }} />
+                    </ButtonBase>
+                  </Grid>
                 </Grid>
-              </Grid>
-
+              </DrogaCard>
               {loading ? (
                 <Grid
                   container

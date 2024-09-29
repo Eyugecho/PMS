@@ -13,6 +13,7 @@ import DrogaButton from 'ui-component/buttons/DrogaButton';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import hasPermission from 'utils/auth/hasPermission';
 
 const toolbarOptions = [
   ['bold', 'italic', 'underline'],
@@ -100,7 +101,13 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative, is_empl
                 {handlePlanStatus()}
               </Typography>
             </Box>
-            {plan?.is_distributed || (!is_employee && <DotMenu orientation="vertical" onEdit={onEdit} onDelete={onDelete}></DotMenu>)}
+            {!plan?.is_distributed && (
+              <DotMenu
+                orientation="vertical"
+                onEdit={hasPermission('update:kpitracker') && onEdit}
+                onDelete={hasPermission('delete:kpitracker') && onDelete}
+              />
+            )}
           </Box>
         </Box>
         <Typography variant="h3" color={theme.palette.text.primary} sx={{ marginTop: 0.6, cursor: 'pointer' }}>
