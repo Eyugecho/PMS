@@ -285,14 +285,14 @@ const Planning = () => {
       ) : (
         <Grid container sx={{ paddingY: 1, paddingX: 2, marginTop: 0.2 }} spacing={gridSpacing}>
           {Object.keys(groupedPlans).map((perspectiveType) => (
-            <div key={perspectiveType}>
-              <Typography variant="h5" gutterBottom>
+            <Grid item xs={12} key={perspectiveType}>
+              <Typography variant="h4" gutterBottom sx={{ m: 2 }}>
                 {perspectiveType}
               </Typography>
 
               <Grid container spacing={2}>
                 {groupedPlans[perspectiveType].map((plan, index) => (
-                  <Grid item xs={12} sm={12} md={6} lg={4} xl={3} key={index}>
+                  <Grid item xs={12} sm={12} md={6} lg={4} xl={4} key={index}>
                     <PlanCard
                       plan={plan}
                       onPress={() => navigate('/planning/view', { state: plan })}
@@ -304,8 +304,7 @@ const Planning = () => {
                   </Grid>
                 ))}
               </Grid>
-              <Divider />
-            </div>
+            </Grid>
           ))}
         </Grid>
       )}
