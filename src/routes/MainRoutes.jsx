@@ -36,6 +36,7 @@ const Workflows = Loadable(lazy(() => import('views/workflows')));
 const Report2 = Loadable(lazy(() => import('views/Report/admin_side/index')));
 const Viewoverallcompany = Loadable(lazy(() => import('views/Report/admin_side/UnitDetailView')));
 const ViewKpiDetail = Loadable(lazy(() => import('views/Report/admin_side/KpiDetailView')));
+const Job = Loadable(lazy(() => import('views/settings/JobPosition')));
 const Todo = Loadable(lazy(() => import('views/todo')));
 
 // utilities routing
@@ -405,6 +406,14 @@ const MainRoutes = {
       element: (
         <Protected>
           <Report2 />
+        </Protected>
+      )
+    },
+    {
+      path: 'job',
+      element: (
+        <Protected>
+          <Job />
         </Protected>
       )
     },

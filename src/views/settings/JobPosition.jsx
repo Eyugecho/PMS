@@ -20,7 +20,8 @@ import {
   TableBody,
   Typography,
   useTheme,
-  CircularProgress
+  CircularProgress,
+  TablePagination
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -31,6 +32,14 @@ import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
 import { toast, ToastContainer } from 'react-toastify';
+import PageContainer from 'ui-component/MainPage';
+import UploadFile from 'ui-component/modal/UploadFile';
+import hasPermission from 'utils/auth/hasPermission';
+import SplitButton from 'ui-component/buttons/SplitButton';
+
+import Search from 'ui-component/search';
+
+const AddJobPositionOptions = ['Add Job Positions', 'Import From Excel'];
 
 const JobPositionTable = () => {
   const [jobPositions, setJobPositions] = useState([]);
@@ -38,13 +47,22 @@ const JobPositionTable = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [loading, setLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [importExcel, setImportExcel] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [search, setSearch] = useState('');
+    const [pagination, setPagination] = useState({
+      page: 0,
+      per_page: 10,
+      last_page: 0,
+      total: 0
+    });
   const theme = useTheme();
 
   const handleFetchJobPositions = async () => {
     setLoading(true);
     try {
       const token = await GetToken();
-      const api = Backend.api + Backend.jobposition;
+      const api = Backend.api + Backend.jobposition + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
       const response = await fetch(api, {
         method: 'GET',
         headers: {
@@ -56,6 +74,9 @@ const JobPositionTable = () => {
       const data = await response.json();
       if (data?.success) {
         setJobPositions(data.data.data || []);
+           setPagination({ ...pagination, last_page: data.data.last_page, total: data.data.total });
+
+        
       } else {
         toast.error(data?.message || 'Failed to fetch job positions');
       }
@@ -98,7 +119,7 @@ const JobPositionTable = () => {
 
         if (!response.ok) {
           const errorResponse = await response.json();
-          toast.error(errorResponse?.message || 'Failed to update job position.');
+          toast.error(errorResponse?.data.message || 'Failed to update job position.');
           throw new Error(errorResponse?.message || 'Failed to update job position.');
         }
 
@@ -106,11 +127,11 @@ const JobPositionTable = () => {
         if (result.success) {
           const updatedJobs = jobPositions.map((job, index) => (index === editIndex ? result.data.job_position : job));
           setJobPositions(updatedJobs);
-          toast.success(result?.message || 'Job Position updated successfully!');
+          toast.success(result?.data?.message || 'Job position updated successfully!');
           handleCloseModal();
           await handleFetchJobPositions();
         } else {
-          toast.error(result?.message || 'Failed to update job position');
+          toast.error(result?.data?.message || 'Failed to update job position');
         }
       } catch (error) {
         toast.error(error?.message || 'Error updating job position');
@@ -121,64 +142,45 @@ const JobPositionTable = () => {
       toast.error('Both job position name and code are required.');
     }
   };
-
-  const handleSubmitJobPosition = async (values) => {
-    if (values.name.trim() && values.job_code.trim()) {
-      setLoading(true);
-
+  const handleSearchFieldChange = (event) => {
+    const value = event.target.value;
+    setSearch(value);
+    setPagination({ ...pagination, page: 0 });
+  };
+    const handleSubmitJobPosition = async (values) => {
       try {
+        setLoading(true);
         const token = await GetToken();
         if (!token) {
-          toast.error('Authorization token is missing.');
-          setLoading(false);
-          return;
+          throw new Error('No token found');
         }
 
-        let api;
-        let method;
-
-        if (editIndex !== null) {
-          api = Backend.api + Backend.jobposition + `/${values.id}`;
-          method = 'PATCH';
-        } else {
-          api = Backend.api + Backend.jobposition;
-          method = 'POST';
-        }
-
-        const response = await fetch(api, {
-          method,
+        const Api = Backend.api + Backend.jobposition;
+        const response = await fetch(Api, {
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(values)
+          body: JSON.stringify({ name: values.name, job_code: values.job_code })
         });
 
         const result = await response.json();
 
-        if (response.ok && result.success) {
-          if (editIndex !== null) {
-            setJobPositions((prevPositions) => prevPositions.map((job, index) => (index === editIndex ? result.data.job_position : job)));
-            toast.success(response.data.message || 'Job Position updated successfully');
-          } else {
-            setJobPositions((prevPositions) => [...prevPositions, result.data.job_position]);
-            toast.success(response.data.message || 'Job Position added successfully');
-          }
-
+        if (result.success) {
+          setJobPositions();
+          toast.success(result.data.message);
           handleCloseModal();
-          await handleFetchJobPositions();
-        } else {
-          toast.error(result.message || 'Failed to submit job position');
+          handleFetchJobPositions();
+    
         }
       } catch (error) {
-        toast.error('Error submitting job position: ' + (error.message || 'Unknown error'));
+        toast.error(error?.data?.message);
       } finally {
         setLoading(false);
       }
-    } else {
-      toast.error('Job Position name and code cannot be empty.');
-    }
-  };
+    };
+ 
 
   const handleDeleteJobPosition = async (id) => {
     const token = await GetToken();
@@ -193,18 +195,45 @@ const JobPositionTable = () => {
       const result = await response.json();
       if (result.success) {
         setJobPositions(jobPositions.filter((job) => job.id !== id));
-        toast.success(result.message || 'Job Position deleted successfully');
+        toast.success(result?.data?.message || 'Job Position deleted successfully');
       } else {
-        toast.error(result.message || 'Failed to delete job position');
+        toast.error(result?.data?.message || 'Failed to delete job position');
       }
     } catch (error) {
       toast.error('Error deleting job position: ' + (error.message || 'Unknown error'));
     }
   };
+  const handleUpload = async (file) => {
+    const token = localStorage.getItem('token');
+    const Api = Backend.api + Backend.JobExcell;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
+    };
 
-  useEffect(() => {
-    handleFetchJobPositions();
-  }, []);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post(Api, formData, {
+        headers: headers,
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percent);
+        }
+      });
+
+      if (response.success) {
+        toast.success(response.data.data.message);
+      } else {
+        toast.success(response.data.data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+
 
   const handleOpenModal = (job = null, index = null) => {
     setEditIndex(index);
@@ -236,6 +265,31 @@ const JobPositionTable = () => {
     }
   });
 
+    const handleJobPositionAdd = (index) => {
+      if (index === 0) {
+        handleOpenModal();
+      } else if (index === 1) {
+        handleOpenDialog();
+      } else {
+        alert('We will be implement importing from odoo');
+      }
+    };
+
+      const handleOpenDialog = () => {
+        setImportExcel(true);
+      };
+
+      const handleCloseDialog = () => {
+        setImportExcel(false);
+      };
+
+  const handleChangePage = (event, newPage) => {
+    setPagination({ ...pagination, page: newPage });
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPagination({ ...pagination, per_page: event.target.value, page: 0 });
+  };
   const handleMenuOpen = (event, index) => {
     setAnchorEl(event.currentTarget);
     setEditIndex(index);
@@ -245,19 +299,35 @@ const JobPositionTable = () => {
     setAnchorEl(null);
   };
 
+  useEffect(() => {
+    handleFetchJobPositions();
+  }, [search, pagination.page, pagination.per_page]);
+
   return (
-    <Box>
+    <PageContainer title="Job Positions">
       <Grid container spacing={3}>
+        {/* <Grid item xs={12} md={4} lg={3} sx={{ margin: 2, mt: 4 }}>
+          <Search title="Filter perspectives" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
+        </Grid>
+        {hasPermission('create:employee') && (
+          <SplitButton options={AddJobPositionOptions} handleSelection={(value) => handleEmployeeAdd(value)} />
+        )} */}
+        <Grid container>
+          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 4, paddingX: 6 }}>
+            <Search title="Filter Job Position" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
+            {hasPermission('create:setting') && (
+              <SplitButton options={AddJobPositionOptions} handleSelection={(value) => handleJobPositionAdd(value)} />
+            )}
+          </Grid>
+        </Grid>
+
         <Grid item xs={12}>
-          <Button variant="contained" color="primary" onClick={() => handleOpenModal()}>
-            Add
-          </Button>
           <CardContent>
             {loading ? (
               <Box display="flex" justifyContent="center" alignItems="center" height="100%">
                 <CircularProgress />
               </Box>
-            ) : jobPositions.length === 0 ? (
+            ) : jobPositions?.length === 0 ? (
               <Box display="flex" alignItems="center" justifyContent="center" height="100%">
                 <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
                 <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
@@ -270,16 +340,63 @@ const JobPositionTable = () => {
                   <TableHead>
                     <TableRow>
                       {['Job Position', 'Code', 'Actions'].map((header) => (
-                        <TableCell key={header}>{header}</TableCell>
+                        <TableCell
+                          key={header}
+                          sx={{
+                            background: theme.palette.grey[100],
+                            color: '#000',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            borderBottom: `2px solid ${theme.palette.divider}`,
+                            position: 'relative',
+                            padding: '12px 16px',
+                            '&:not(:last-of-type)': {
+                              borderRight: `1px solid ${theme.palette.divider}`
+                            }
+                          }}
+                        >
+                          {header}
+                        </TableCell>
                       ))}
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {jobPositions.map((job, index) => (
-                      <TableRow key={job.id}>
-                        <TableCell>{job.name}</TableCell>
-                        <TableCell>{job.job_code}</TableCell>
-                        <TableCell>
+                    {jobPositions?.map((job, index) => (
+                      <TableRow
+                        key={job.id}
+                        sx={{
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: 2,
+                          '&:nth-of-type(odd)': {
+                            backgroundColor: theme.palette.grey[50]
+                          },
+                          '&:hover': {
+                            backgroundColor: theme.palette.grey[100]
+                          }
+                        }}
+                      >
+                        <TableCell
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
+                        >
+                          {job.name}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
+                        >
+                          {job.job_code}
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            border: 0,
+                            padding: '12px 16px'
+                          }}
+                        >
                           <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
                             <MoreVertIcon />
                           </IconButton>
@@ -348,8 +465,24 @@ const JobPositionTable = () => {
           </form>
         </DialogContent>
       </Dialog>
+      <TablePagination
+        component="div"
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        count={pagination.total}
+        rowsPerPage={pagination.per_page}
+        page={pagination.page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      <UploadFile
+        open={importExcel}
+        onClose={handleCloseDialog}
+        onUpload={handleUpload}
+        uploadProgress={uploadProgress}
+        onRemove={() => setUploadProgress(0)}
+      />
       <ToastContainer />
-    </Box>
+    </PageContainer>
   );
 };
 

@@ -90,6 +90,7 @@ const Backend = {
   perspectiveTypes: 'perspective-types',
   evaluationTypes: 'evaluation-types',
   kpiExcell: 'kpis/upload',
-  UnitExcell: 'units/upload'
+  UnitExcell: 'units/upload',
+  JobExcell: 'job-positions/upload',
 };
 export default Backend;

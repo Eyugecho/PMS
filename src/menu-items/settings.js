@@ -12,7 +12,8 @@ import {
   IconCalendarWeek,
   IconRulerMeasure,
   IconPerspective,
-  IconFolderStar
+  IconFolderStar,
+  IconBriefcase
 } from '@tabler/icons-react';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
@@ -30,7 +31,8 @@ const icons = {
   IconCalendarWeek,
   IconRulerMeasure,
   IconPerspective,
-  IconFolderStar
+  IconFolderStar,
+  IconBriefcase
 };
 
 // ==============================|| Kpi_basic_config  MENU ITEMS ||============================== //
@@ -47,7 +49,8 @@ export const settings = () => {
     'read:measuringunit',
     'read:perspectivetype',
     'read:performanceratingscale',
-    'approval:manage'
+    'read:setting',
+    'approval:manage',
   ];
 
   const permissionMap = {
@@ -81,12 +84,19 @@ export const settings = () => {
       url: '/performance-rating',
       icon: icons.IconFolderStar
     },
+     'read:setting': {
+       id: 'Job',
+       title: 'Job Position',
+       url: '/job',
+       icon: icons.IconBriefcase
+     },
     'approval:manage': {
       id: 'workflows',
       title: 'Approval Workflows',
       url: '/workflows',
       icon: icons.IconRoute
-    }
+    },
+   
   };
 
   if (auth) {

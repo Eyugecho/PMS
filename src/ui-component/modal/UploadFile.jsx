@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { createElement, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Stack, useTheme, Typography, Box } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useDropzone } from 'react-dropzone';
 import { IconFileCheck, IconFileUpload, IconX } from '@tabler/icons-react';
 import LinearProgress from 'ui-component/indicators/LinearProgress';
 import { toast } from 'react-toastify';
+import { create } from 'lodash';
 
 const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove }) => {
   const theme = useTheme();
   const [file, setFile] = useState(null);
+  const CSV_FILE_URL = 'http://localhost:3000/file_csv.csv';
 
   const onDrop = (acceptedFiles) => {
     setFile(acceptedFiles[0]);
@@ -16,7 +18,7 @@ const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove }) => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: '.xls,.xlsx',
+    accept: '.xls,.xlsx,.csv',
     multiple: false
   });
 
@@ -32,6 +34,18 @@ const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove }) => {
       toast.error('There is an issue uploading the file');
     }
   };
+const handleDownloadTemplate = (url) => {
+  const fileName = url.split('/').pop(); 
+  const aTag = document.createElement('a'); 
+  aTag.href = url; 
+  aTag.setAttribute('download', fileName); 
+  document.body.appendChild(aTag); 
+  aTag.click(); 
+  document.body.removeChild(aTag); 
+};
+
+
+
 
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="upload-dialog-title" sx={{ backdropFilter: theme.backdropFilter }}>
@@ -127,7 +141,9 @@ const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove }) => {
       </DialogContent>
       <DialogActions sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
         {file && uploadProgress > 0 && <LinearProgress value={uploadProgress} sx={{ paddingRight: 2 }} />}
-
+        <Button variant="outlined" color="info" onClick={() => handleDownloadTemplate(CSV_FILE_URL)} sx={{ marginRight: 2, paddingX: 2 }}>
+          Download Template
+        </Button>
         <Button
           variant="contained"
           color="primary"
