@@ -8,6 +8,7 @@ import Backend from 'services/backend';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import ErrorPrompt from 'utils/components/ErrorPrompt';
 import noresult from '../../../../assets/images/no_result.png';
+import GetToken from 'utils/auth-token';
 
 const KPISelection = () => {
   const theme = useTheme();
@@ -16,6 +17,7 @@ const KPISelection = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
+  const [search, setSearch] = useState(' ');
 
   const handleSelection = (event, newValue) => {
     const newlySelectedKpis = newValue;
@@ -39,9 +41,9 @@ const KPISelection = () => {
   };
 
   useEffect(() => {
-    const handleFetchingKPI = () => {
-      const token = localStorage.getItem('token');
-      const Api = Backend.api + Backend.kpi;
+    const handleFetchingKPI = async () => {
+      const token = await GetToken();
+      const Api = Backend.api + Backend.kpi + `?search=${search}`;
       const header = {
         Authorization: `Bearer ${token}`,
         accept: 'application/json',
@@ -70,10 +72,14 @@ const KPISelection = () => {
         });
     };
 
-    handleFetchingKPI();
+    const delayDebounceFn = setTimeout(() => {
+      if (search) {
+        handleFetchingKPI();
+      }
+    }, 500);
 
-    return () => {};
-  }, []);
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   return (
     <Box>
@@ -112,9 +118,27 @@ const KPISelection = () => {
               value={selectedKpi}
               onChange={handleSelection}
               isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderTags={(value, getTagProps) => value.map((option, index) => <Chip label={option.name} {...getTagProps({ index })} />)}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => <Chip key={index} label={option.name} {...getTagProps({ index })} />)
+              }
               fullWidth
-              renderInput={(params) => <TextField {...params} label="Select a KPI" variant="outlined" />}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select a KPI"
+                  variant="outlined"
+                  onChange={(e) => setSearch(e.target.value)}
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {loading ? <ActivityIndicator size={16} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    )
+                  }}
+                />
+              )}
               disableClearable
             />
           </Box>
