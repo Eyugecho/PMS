@@ -7,10 +7,10 @@ import LinearProgress from 'ui-component/indicators/LinearProgress';
 import { toast } from 'react-toastify';
 import { create } from 'lodash';
 
-const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove }) => {
+const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove, templateUrl }) => {
   const theme = useTheme();
   const [file, setFile] = useState(null);
-  const CSV_FILE_URL = 'http://localhost:3000/file_csv.csv';
+  // const CSV_FILE_URL = 'http://localhost:3000/file_csv.csv';
 
   const onDrop = (acceptedFiles) => {
     setFile(acceptedFiles[0]);
@@ -34,18 +34,15 @@ const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove }) => {
       toast.error('There is an issue uploading the file');
     }
   };
-const handleDownloadTemplate = (url) => {
-  const fileName = url.split('/').pop(); 
-  const aTag = document.createElement('a'); 
-  aTag.href = url; 
-  aTag.setAttribute('download', fileName); 
-  document.body.appendChild(aTag); 
-  aTag.click(); 
-  document.body.removeChild(aTag); 
-};
-
-
-
+  const handleDownloadTemplate = (url) => {
+    const fileName = url.split('/').pop();
+    const aTag = document.createElement('a');
+    aTag.href = url;
+    aTag.setAttribute('download', fileName);
+    document.body.appendChild(aTag);
+    aTag.click();
+    document.body.removeChild(aTag);
+  };
 
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="upload-dialog-title" sx={{ backdropFilter: theme.backdropFilter }}>
@@ -141,7 +138,7 @@ const handleDownloadTemplate = (url) => {
       </DialogContent>
       <DialogActions sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
         {file && uploadProgress > 0 && <LinearProgress value={uploadProgress} sx={{ paddingRight: 2 }} />}
-        <Button variant="outlined" color="info" onClick={() => handleDownloadTemplate(CSV_FILE_URL)} sx={{ marginRight: 2, paddingX: 2 }}>
+        <Button variant="outlined" color="info" onClick={() => handleDownloadTemplate(templateUrl)} sx={{ marginRight: 2, paddingX: 2 }}>
           Download Template
         </Button>
         <Button

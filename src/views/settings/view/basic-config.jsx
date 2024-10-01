@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, Box, Typography, AccordionDetails, useTheme, IconButton } from '@mui/material';
 import Perceptive from '../Perceptive';
 import PerformanceScale from '../PerformanceScale';
-import JobPositionTable from '../JobPosition';
+import JobPositionTable from '../../job-positions';
 import Frequency from '../Frequency';
 import Period from '../Period';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

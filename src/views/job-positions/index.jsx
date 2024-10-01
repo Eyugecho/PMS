@@ -50,12 +50,12 @@ const JobPositionTable = () => {
   const [importExcel, setImportExcel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [search, setSearch] = useState('');
-    const [pagination, setPagination] = useState({
-      page: 0,
-      per_page: 10,
-      last_page: 0,
-      total: 0
-    });
+  const [pagination, setPagination] = useState({
+    page: 0,
+    per_page: 10,
+    last_page: 0,
+    total: 0
+  });
   const theme = useTheme();
 
   const handleFetchJobPositions = async () => {
@@ -74,9 +74,7 @@ const JobPositionTable = () => {
       const data = await response.json();
       if (data?.success) {
         setJobPositions(data.data.data || []);
-           setPagination({ ...pagination, last_page: data.data.last_page, total: data.data.total });
-
-        
+        setPagination({ ...pagination, last_page: data.data.last_page, total: data.data.total });
       } else {
         toast.error(data?.message || 'Failed to fetch job positions');
       }
@@ -147,40 +145,38 @@ const JobPositionTable = () => {
     setSearch(value);
     setPagination({ ...pagination, page: 0 });
   };
-    const handleSubmitJobPosition = async (values) => {
-      try {
-        setLoading(true);
-        const token = await GetToken();
-        if (!token) {
-          throw new Error('No token found');
-        }
-
-        const Api = Backend.api + Backend.jobposition;
-        const response = await fetch(Api, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ name: values.name, job_code: values.job_code })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          setJobPositions();
-          toast.success(result.data.message);
-          handleCloseModal();
-          handleFetchJobPositions();
-    
-        }
-      } catch (error) {
-        toast.error(error?.data?.message);
-      } finally {
-        setLoading(false);
+  const handleSubmitJobPosition = async (values) => {
+    try {
+      setLoading(true);
+      const token = await GetToken();
+      if (!token) {
+        throw new Error('No token found');
       }
-    };
- 
+
+      const Api = Backend.api + Backend.jobposition;
+      const response = await fetch(Api, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: values.name, job_code: values.job_code })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setJobPositions();
+        toast.success(result.data.message);
+        handleCloseModal();
+        handleFetchJobPositions();
+      }
+    } catch (error) {
+      toast.error(error?.data?.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDeleteJobPosition = async (id) => {
     const token = await GetToken();
@@ -234,8 +230,6 @@ const JobPositionTable = () => {
     }
   };
 
-
-
   const handleOpenModal = (job = null, index = null) => {
     setEditIndex(index);
     formik.setValues(job || { name: '', job_code: '' });
@@ -266,23 +260,23 @@ const JobPositionTable = () => {
     }
   });
 
-    const handleJobPositionAdd = (index) => {
-      if (index === 0) {
-        handleOpenModal();
-      } else if (index === 1) {
-        handleOpenDialog();
-      } else {
-        alert('We will be implement importing from odoo');
-      }
-    };
+  const handleJobPositionAdd = (index) => {
+    if (index === 0) {
+      handleOpenModal();
+    } else if (index === 1) {
+      handleOpenDialog();
+    } else {
+      alert('We will be implement importing from odoo');
+    }
+  };
 
-      const handleOpenDialog = () => {
-        setImportExcel(true);
-      };
+  const handleOpenDialog = () => {
+    setImportExcel(true);
+  };
 
-      const handleCloseDialog = () => {
-        setImportExcel(false);
-      };
+  const handleCloseDialog = () => {
+    setImportExcel(false);
+  };
 
   const handleChangePage = (event, newPage) => {
     setPagination({ ...pagination, page: newPage });
@@ -307,12 +301,6 @@ const JobPositionTable = () => {
   return (
     <PageContainer title="Job Positions">
       <Grid container spacing={3}>
-        {/* <Grid item xs={12} md={4} lg={3} sx={{ margin: 2, mt: 4 }}>
-          <Search title="Filter perspectives" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
-        </Grid>
-        {hasPermission('create:employee') && (
-          <SplitButton options={AddJobPositionOptions} handleSelection={(value) => handleEmployeeAdd(value)} />
-        )} */}
         <Grid container>
           <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 4, paddingX: 6 }}>
             <Search title="Filter Job Position" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
@@ -340,7 +328,7 @@ const JobPositionTable = () => {
                 <Table sx={{ minWidth: 650, borderCollapse: 'collapse' }}>
                   <TableHead>
                     <TableRow>
-                      {['Job Position', 'Code', 'Actions'].map((header) => (
+                      {['Job Position', 'Actions'].map((header) => (
                         <TableCell
                           key={header}
                           sx={{
@@ -384,14 +372,14 @@ const JobPositionTable = () => {
                         >
                           {job.name}
                         </TableCell>
-                        <TableCell
+                        {/* <TableCell
                           sx={{
                             border: 0,
                             padding: '12px 16px'
                           }}
                         >
                           {job.job_code}
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell
                           sx={{
                             border: 0,
@@ -481,6 +469,7 @@ const JobPositionTable = () => {
         onUpload={handleUpload}
         uploadProgress={uploadProgress}
         onRemove={() => setUploadProgress(0)}
+        templateUrl="http://localhost:3000/Employee_Job_Position.csv"
       />
       <ToastContainer />
     </PageContainer>
