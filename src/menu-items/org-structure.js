@@ -1,6 +1,16 @@
 // assets
-import { IconBuildingSkyscraper, IconFileRss, IconHierarchy, IconUsersGroup } from '@tabler/icons-react';
-import { IconKey, IconABOff, IconFile3d } from '@tabler/icons-react';
+import {
+  IconBriefcase,
+  IconBuildingSkyscraper,
+  IconFileRss,
+  IconHierarchy,
+  IconUsersGroup
+} from '@tabler/icons-react';
+import {
+  IconKey,
+  IconABOff,
+  IconFile3d
+} from '@tabler/icons-react';
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
 // constant
@@ -11,7 +21,9 @@ const icons = {
   IconFileRss,
   IconBuildingSkyscraper,
   IconUsersGroup,
-  IconHierarchy
+  IconHierarchy,
+  IconBriefcase
+
 };
 
 // ==============================|| ORGANIZATION PAGES MENU ITEMS ||============================== //
@@ -22,7 +34,7 @@ export const getOrgStructure = () => {
   const childrenTemp = [];
   const addedPermissions = new Set();
 
-  const orderedPermissions = ['read:unit', 'read:employee'];
+  const orderedPermissions = ['read:unit', 'read:employee', 'read:jobposition'];
 
   const permissionMap = {
     'read:unit': {
@@ -37,7 +49,13 @@ export const getOrgStructure = () => {
       requiredRole: 'Admin',
       url: '/employees',
       icon: icons.IconUsersGroup
-    }
+    },
+    'read:jobposition': {
+      id: 'Job',
+      title: 'Job Position',
+      url: '/job',
+      icon: icons.IconBriefcase
+    },
   };
 
   if (auth) {

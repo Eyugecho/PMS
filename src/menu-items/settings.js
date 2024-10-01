@@ -51,6 +51,7 @@ export const settings = () => {
     'read:performanceratingscale',
     'read:setting',
     'approval:manage',
+    
   ];
 
   const permissionMap = {
@@ -84,12 +85,7 @@ export const settings = () => {
       url: '/performance-rating',
       icon: icons.IconFolderStar
     },
-     'read:setting': {
-       id: 'Job',
-       title: 'Job Position',
-       url: '/job',
-       icon: icons.IconBriefcase
-     },
+    
     'approval:manage': {
       id: 'workflows',
       title: 'Approval Workflows',
