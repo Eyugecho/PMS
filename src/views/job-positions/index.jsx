@@ -36,8 +36,8 @@ import PageContainer from 'ui-component/MainPage';
 import UploadFile from 'ui-component/modal/UploadFile';
 import hasPermission from 'utils/auth/hasPermission';
 import SplitButton from 'ui-component/buttons/SplitButton';
-
 import Search from 'ui-component/search';
+import axios from 'axios';
 
 const AddJobPositionOptions = ['Add Job Positions', 'Import From Excel'];
 
@@ -299,11 +299,11 @@ const JobPositionTable = () => {
 
   return (
     <PageContainer title="Job Positions">
-      <Grid container spacing={3}>
+      <Grid container padding={2}>
         <Grid container>
-          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 4, paddingX: 6 }}>
+          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3,paddingX:3  }}>
             <Search title="Filter Job Position" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
-            {hasPermission('create:setting') && (
+            {hasPermission('create:jobposition') && (
               <SplitButton options={AddJobPositionOptions} handleSelection={(value) => handleJobPositionAdd(value)} />
             )}
           </Grid>
@@ -371,14 +371,7 @@ const JobPositionTable = () => {
                         >
                           {job.name}
                         </TableCell>
-                        {/* <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          {job.job_code}
-                        </TableCell> */}
+
                         <TableCell
                           sx={{
                             border: 0,
@@ -432,16 +425,7 @@ const JobPositionTable = () => {
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
             />
-            <TextField
-              margin="dense"
-              label="Job Code"
-              type="text"
-              fullWidth
-              variant="outlined"
-              {...formik.getFieldProps('job_code')}
-              error={formik.touched.job_code && Boolean(formik.errors.job_code)}
-              helperText={formik.touched.job_code && formik.errors.job_code}
-            />
+
             <DialogActions>
               <Button onClick={handleCloseModal} color="primary">
                 Cancel
