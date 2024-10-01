@@ -203,6 +203,7 @@ const JobPositionTable = () => {
       toast.error('Error deleting job position: ' + (error.message || 'Unknown error'));
     }
   };
+  
   const handleUpload = async (file) => {
     const token = localStorage.getItem('token');
     const Api = Backend.api + Backend.JobExcell;
