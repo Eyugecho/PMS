@@ -3,6 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, 
 import { useDropzone } from 'react-dropzone';
 import { IconFileCheck, IconFileUpload, IconX } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import CloseIcon from '@mui/icons-material/Close';
 import LinearProgress from 'ui-component/indicators/LinearProgress';
 
@@ -134,23 +135,20 @@ const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove, templat
           </Box>
         )}
       </DialogContent>
-      <DialogActions sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2, pl: 4 }}>
+      <DialogActions sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+        {file && uploadProgress > 0 && <LinearProgress value={uploadProgress} sx={{ paddingRight: 2 }} />}
         <Button variant="outlined" color="info" onClick={() => handleDownloadTemplate(templateUrl)} sx={{ marginRight: 2, paddingX: 2 }}>
           Download Template
         </Button>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {file && uploadProgress > 0 && <LinearProgress value={uploadProgress} sx={{ paddingRight: 2 }} />}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleUpload}
-            sx={{ marginRight: 2, paddingX: 2 }}
-            disabled={!file || uploadProgress > 0}
-          >
-            Upload
-          </Button>
-        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleUpload}
+          sx={{ marginRight: 2, paddingX: 2 }}
+          disabled={!file || uploadProgress > 0}
+        >
+          Upload
+        </Button>
       </DialogActions>
     </Dialog>
   );
