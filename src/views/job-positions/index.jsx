@@ -36,8 +36,8 @@ import PageContainer from 'ui-component/MainPage';
 import UploadFile from 'ui-component/modal/UploadFile';
 import hasPermission from 'utils/auth/hasPermission';
 import SplitButton from 'ui-component/buttons/SplitButton';
-
 import Search from 'ui-component/search';
+import axios from 'axios';
 
 const AddJobPositionOptions = ['Add Job Positions', 'Import From Excel'];
 
@@ -140,11 +140,13 @@ const JobPositionTable = () => {
       toast.error('Both job position name and code are required.');
     }
   };
+
   const handleSearchFieldChange = (event) => {
     const value = event.target.value;
     setSearch(value);
     setPagination({ ...pagination, page: 0 });
   };
+
   const handleSubmitJobPosition = async (values) => {
     try {
       setLoading(true);
@@ -199,7 +201,7 @@ const JobPositionTable = () => {
       toast.error('Error deleting job position: ' + (error.message || 'Unknown error'));
     }
   };
-  
+
   const handleUpload = async (file) => {
     const token = localStorage.getItem('token');
     const Api = Backend.api + Backend.JobExcell;
@@ -285,6 +287,7 @@ const JobPositionTable = () => {
   const handleChangeRowsPerPage = (event) => {
     setPagination({ ...pagination, per_page: event.target.value, page: 0 });
   };
+  
   const handleMenuOpen = (event, index) => {
     setAnchorEl(event.currentTarget);
     setEditIndex(index);
@@ -304,7 +307,7 @@ const JobPositionTable = () => {
         <Grid container>
           <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 4, paddingX: 6 }}>
             <Search title="Filter Job Position" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
-            {hasPermission('create:setting') && (
+            {hasPermission('create:jobposition') && (
               <SplitButton options={AddJobPositionOptions} handleSelection={(value) => handleJobPositionAdd(value)} />
             )}
           </Grid>
@@ -372,14 +375,7 @@ const JobPositionTable = () => {
                         >
                           {job.name}
                         </TableCell>
-                        {/* <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          {job.job_code}
-                        </TableCell> */}
+
                         <TableCell
                           sx={{
                             border: 0,

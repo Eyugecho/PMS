@@ -1,16 +1,14 @@
-import React, { createElement, useState } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Stack, useTheme, Typography, Box } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 import { useDropzone } from 'react-dropzone';
 import { IconFileCheck, IconFileUpload, IconX } from '@tabler/icons-react';
-import LinearProgress from 'ui-component/indicators/LinearProgress';
 import { toast } from 'react-toastify';
-import { create } from 'lodash';
+import CloseIcon from '@mui/icons-material/Close';
+import LinearProgress from 'ui-component/indicators/LinearProgress';
 
 const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove, templateUrl }) => {
   const theme = useTheme();
   const [file, setFile] = useState(null);
-  // const CSV_FILE_URL = 'http://localhost:3000/file_csv.csv';
 
   const onDrop = (acceptedFiles) => {
     setFile(acceptedFiles[0]);
@@ -136,20 +134,23 @@ const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove, templat
           </Box>
         )}
       </DialogContent>
-      <DialogActions sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-        {file && uploadProgress > 0 && <LinearProgress value={uploadProgress} sx={{ paddingRight: 2 }} />}
+      <DialogActions sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2, pl: 4 }}>
         <Button variant="outlined" color="info" onClick={() => handleDownloadTemplate(templateUrl)} sx={{ marginRight: 2, paddingX: 2 }}>
           Download Template
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleUpload}
-          sx={{ marginRight: 2, paddingX: 2 }}
-          disabled={!file || uploadProgress > 0}
-        >
-          Upload
-        </Button>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {file && uploadProgress > 0 && <LinearProgress value={uploadProgress} sx={{ paddingRight: 2 }} />}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleUpload}
+            sx={{ marginRight: 2, paddingX: 2 }}
+            disabled={!file || uploadProgress > 0}
+          >
+            Upload
+          </Button>
+        </Box>
       </DialogActions>
     </Dialog>
   );

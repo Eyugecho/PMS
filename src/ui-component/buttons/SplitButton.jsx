@@ -10,7 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import PropTypes from 'prop-types';
 
-export default function SplitButton({ options, handleSelection }) {
+export default function SplitButton({ options, handleSelection, sx, ...props }) {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -39,8 +39,10 @@ export default function SplitButton({ options, handleSelection }) {
 
   return (
     <React.Fragment>
-      <ButtonGroup variant="contained" ref={anchorRef} aria-label="Button group with a nested menu">
-        <Button onClick={handleClick}>{options[selectedIndex]}</Button>
+      <ButtonGroup variant="contained" color="primary" ref={anchorRef} aria-label="Button group with a nested menu">
+        <Button onClick={handleClick} {...props} sx={{ borderRadius: 1, padding: 1, px: 2, ...sx }}>
+          {options[selectedIndex]}
+        </Button>
         <Button
           size="small"
           aria-controls={open ? 'split-button-menu' : undefined}
@@ -48,6 +50,8 @@ export default function SplitButton({ options, handleSelection }) {
           aria-label="select merge strategy"
           aria-haspopup="menu"
           onClick={handleToggle}
+          {...props}
+          sx={{ borderRadius: 1, padding: 1, px: 2, ...sx }}
         >
           <ArrowDropDownIcon />
         </Button>

@@ -25,7 +25,6 @@ const Perfomance = Loadable(lazy(() => import('views/performance')));
 const Feedbacks = Loadable(lazy(() => import('views/approvals/feedback')));
 const Tasks = Loadable(lazy(() => import('views/tasks')));
 const Approvals = Loadable(lazy(() => import('views/approvals')));
-const DailyActivity = Loadable(lazy(() => import('views/monitoring/daily')));
 const Evaluations = Loadable(lazy(() => import('views/evaluation')));
 const Monitoring = Loadable(lazy(() => import('views/monitoring')));
 const ViewPlan = Loadable(lazy(() => import('views/planning/View')));
@@ -142,15 +141,6 @@ const MainRoutes = {
       element: (
         <Protected>
           <Monitoring />
-        </Protected>
-      )
-    },
-
-    {
-      path: 'monitoring/daily',
-      element: (
-        <Protected>
-          <DailyActivity />
         </Protected>
       )
     },
