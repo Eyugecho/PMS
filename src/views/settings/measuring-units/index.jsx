@@ -172,7 +172,7 @@ function MeasuringUnits() {
   const theme = useTheme();
 
   return (
-    <PageContainer title="Measuring Units" rightOption={<AddButton title="Add Measuring Unit" variant="contained" onPress={handleOpen} />}>
+    <PageContainer title="Measuring Units" >
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <CardContent>
@@ -199,7 +199,7 @@ function MeasuringUnits() {
                 >
                   <TableHead>
                     <TableRow>
-                      {['Measuring Unit', 'Description', 'Actions'].map((header) => (
+                      {['Measuring Unit', 'Description'].map((header) => (
                         <TableCell
                           key={header}
                           sx={{
@@ -255,7 +255,7 @@ function MeasuringUnits() {
                         >
                           {unit.description}
                         </TableCell>
-                        <TableCell
+                        {/* <TableCell
                           sx={{
                             border: 0,
                             padding: '12px 16px'
@@ -282,7 +282,7 @@ function MeasuringUnits() {
                               <DeleteIcon fontSize="small" /> Delete
                             </MenuItem>
                           </Menu>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))}
                   </TableBody>

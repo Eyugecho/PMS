@@ -86,7 +86,7 @@ const JobPositionTable = () => {
   };
 
   const handleEditJobPosition = async (values) => {
-    if (values.name.trim() && values.job_code.trim() && editIndex !== null) {
+    if (values.name.trim()&& editIndex !== null) {
       setLoading(true);
 
       const token = await GetToken();
@@ -105,7 +105,7 @@ const JobPositionTable = () => {
 
       const data = {
         name: values.name,
-        code: values.job_code
+       
       };
 
       try {
@@ -160,7 +160,7 @@ const JobPositionTable = () => {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name: values.name, job_code: values.job_code })
+        body: JSON.stringify({ name: values.name })
       });
 
       const result = await response.json();
@@ -231,7 +231,7 @@ const JobPositionTable = () => {
 
   const handleOpenModal = (job = null, index = null) => {
     setEditIndex(index);
-    formik.setValues(job || { name: '', job_code: '' });
+    formik.setValues(job || { name: '' });
     setOpenModal(true);
   };
 
@@ -244,11 +244,10 @@ const JobPositionTable = () => {
   const formik = useFormik({
     initialValues: {
       name: '',
-      job_code: ''
+    
     },
     validationSchema: Yup.object({
-      name: Yup.string().required('Job Position name is required'),
-      job_code: Yup.string().required('Code is required')
+      name: Yup.string().required('Job Position name is required')
     }),
     onSubmit: (values) => {
       if (editIndex !== null) {
@@ -301,7 +300,7 @@ const JobPositionTable = () => {
     <PageContainer title="Job Positions">
       <Grid container padding={2}>
         <Grid container>
-          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3,paddingX:3  }}>
+          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3, paddingX: 3 }}>
             <Search title="Filter Job Position" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
             {hasPermission('create:jobposition') && (
               <SplitButton options={AddJobPositionOptions} handleSelection={(value) => handleJobPositionAdd(value)} />

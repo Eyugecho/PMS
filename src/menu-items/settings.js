@@ -49,7 +49,6 @@ export const settings = () => {
     'read:measuringunit',
     'read:perspectivetype',
     'read:performanceratingscale',
-    'read:setting',
     'approval:manage',
     
   ];
