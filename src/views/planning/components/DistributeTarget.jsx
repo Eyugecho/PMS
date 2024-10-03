@@ -198,6 +198,123 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
     );
   };
 
+  const handleUnitTargetClone = (value, parent_id, unit_id) => {
+    setUnitPayload((prevUnit) =>
+      prevUnit.map((unit) => {
+        if (unit.unit_id === unit_id) {
+          // Check if target with parent_id already exists inside unit target
+          const targetIndex = unit.unit_targets.findIndex((target) => target.parent_id === parent_id);
+
+          // If target exists, update it; otherwise, add a new target
+          const updatedUnitTargets =
+            targetIndex !== -1
+              ? unit.unit_targets.map((target, index) => (index === targetIndex ? { ...target, target: value } : target))
+              : [...unit.unit_targets, { parent_id: parent_id, target: value, weight: '' }];
+
+          return { ...unit, unit_targets: updatedUnitTargets };
+        }
+        return unit; // Ensure to return the unit if it doesn't match the unit_id
+      })
+    );
+  };
+
+  const handleCloningUnitTarget = () => {
+    if (currentIndex === 0) {
+      if (unitPayload[0] && unitPayload[0]?.parent_weight && unitPayload[0]?.child_weight && unitPayload[0]?.unit_targets[0].target) {
+        const target = unitPayload[0]?.unit_targets[0].target;
+        const parent_id = targets[currentIndex].id;
+        const parentWeight = unitPayload[0]?.parent_weight;
+        const childWeight = unitPayload[0]?.child_weight;
+
+        unitPayload.forEach((theUnit) => {
+          setUnitPayload((prevUnit) =>
+            prevUnit.map((unit) => {
+              if (unit.unit_id === theUnit.unit_id) {
+                handleUnitTargetClone(target, parent_id, theUnit.unit_id);
+                return { ...unit, parent_weight: parentWeight, child_weight: childWeight };
+              }
+              return unit;
+            })
+          );
+        });
+      } else {
+        setError({ ...error, state: true, message: 'Make sure there is no empty field ' });
+      }
+    } else if (currentIndex > 0) {
+      const target = unitPayload[0]?.unit_targets[currentIndex].target;
+      const parent_id = targets[currentIndex].id;
+
+      if (target) {
+        unitPayload.forEach((theUnit) => handleUnitTargetClone(target, parent_id, theUnit.unit_id));
+      } else {
+        setError({ ...error, state: true, message: 'Please set value for the first unit' });
+      }
+    } else {
+      setError({ ...error, state: true, message: 'There is issue while cloning' });
+    }
+  };
+
+  const handleEmployeeTargetClone = (value, parent_id, unit_id) => {
+    setEmployeePayload((prevUnit) =>
+      prevUnit.map((unit) => {
+        if (unit.unit_id === unit_id) {
+          // Check if target with parent_id already exists inside unit target
+          const targetIndex = unit.unit_targets.findIndex((target) => target.parent_id === parent_id);
+
+          // If target exists, update it; otherwise, add a new target
+          const updatedUnitTargets =
+            targetIndex !== -1
+              ? unit.unit_targets.map((target, index) => (index === targetIndex ? { ...target, target: value } : target))
+              : [...unit.unit_targets, { parent_id: parent_id, target: value, weight: '' }];
+
+          return { ...unit, unit_targets: updatedUnitTargets };
+        }
+        return unit; // Ensure to return the unit if it doesn't match the unit_id
+      })
+    );
+  };
+
+  const handleCloningEmployeeTarget = () => {
+    if (currentIndex === 0) {
+      if (
+        employeePayload[0] &&
+        employeePayload[0]?.parent_weight &&
+        employeePayload[0]?.child_weight &&
+        employeePayload[0]?.unit_targets[0].target
+      ) {
+        const target = employeePayload[0]?.unit_targets[0].target;
+        const parent_id = targets[currentIndex].id;
+        const parentWeight = employeePayload[0]?.parent_weight;
+        const childWeight = employeePayload[0]?.child_weight;
+
+        employeePayload.forEach((theUnit) => {
+          setEmployeePayload((prevUnit) =>
+            prevUnit.map((unit) => {
+              if (unit.unit_id === theUnit.unit_id) {
+                handleEmployeeTargetClone(target, parent_id, theUnit.unit_id);
+                return { ...unit, parent_weight: parentWeight, child_weight: childWeight };
+              }
+              return unit;
+            })
+          );
+        });
+      } else {
+        setError({ ...error, state: true, message: 'Make sure there is no empty field ' });
+      }
+    } else if (currentIndex > 0) {
+      const target = employeePayload[0]?.unit_targets[currentIndex].target;
+      const parent_id = targets[currentIndex].id;
+
+      if (target) {
+        employeePayload.forEach((theUnit) => handleEmployeeTargetClone(target, parent_id, theUnit.unit_id));
+      } else {
+        setError({ ...error, state: true, message: 'Please set value for the first unit' });
+      }
+    } else {
+      setError({ ...error, state: true, message: 'There is issue while cloning' });
+    }
+  };
+
   const handleFetchingUnits = async () => {
     setUnits([]);
     const token = await GetToken();
@@ -469,39 +586,40 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
                       <Table>
                         <TableHead>
                           <TableRow>
-                            <TableCell sx={{ minWidth: 120 }}>Name</TableCell>
+                            <TableCell sx={{ minWidth: 120 }}>Employee name</TableCell>
                             {currentIndex === 0 && (
                               <TableCell sx={{ minWidth: 80 }}>
-                                Parent weight
-                                <Tooltip
-                                  TransitionComponent={Fade}
-                                  TransitionProps={{ timeout: 600 }}
-                                  title="Parent weight is an amount, this KPI weighted for parent unit"
-                                >
-                                  <IconInfoCircle size="1.2rem" stroke="1.6" />
-                                </Tooltip>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+                                  <Typography variant="subtitle1"> Parent weight</Typography>
+
+                                  <Tooltip
+                                    TransitionComponent={Fade}
+                                    TransitionProps={{ timeout: 600 }}
+                                    title="Parent weight is an amount, the KPI weighted for parent unit"
+                                  >
+                                    <IconInfoCircle size="1.2rem" stroke="1.6" />
+                                  </Tooltip>
+                                </Box>
                               </TableCell>
                             )}
 
                             {currentIndex === 0 && (
-                              <TableCell sx={{ minWidth: 80 }}>
-                                Child weight
-                                <Tooltip
-                                  TransitionComponent={Fade}
-                                  TransitionProps={{ timeout: 600 }}
-                                  title="Child weight is a weight, this KPI holds for the selected unit in the selected fiscal year"
-                                >
-                                  <IconInfoCircle size="1.2rem" stroke="1.6" />
-                                </Tooltip>
+                              <TableCell sx={{ minWidth: 80, alignItems: 'center', justifyContent: 'center' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+                                  <Typography variant="subtitle1">Child weight</Typography>
+
+                                  <Tooltip
+                                    TransitionComponent={Fade}
+                                    TransitionProps={{ timeout: 600 }}
+                                    title="Child weight is a weight, the KPI holds for the selected unit in the selected fiscal year"
+                                  >
+                                    <IconInfoCircle size="1.2rem" stroke="1.6" />
+                                  </Tooltip>
+                                </Box>
                               </TableCell>
                             )}
 
-                            <TableCell sx={{ minWidth: 120, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              Targets
-                              <IconButton title="Clone for others" sx={{ backgroundColor: theme.palette.grey[100] }}>
-                                <IconLayoutDistributeHorizontal size="1.2rem" stroke="1.6" style={{ color: theme.palette.primary.main }} />
-                              </IconButton>
-                            </TableCell>
+                            <TableCell sx={{ minWidth: 80 }}>Targets</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -519,7 +637,21 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
 
                               return (
                                 <TableRow key={index}>
-                                  <TableCell>{unit.unit_name}</TableCell>
+                                  <TableCell>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                      {index === 0 && employeePayload.length > 1 && (
+                                        <IconButton
+                                          sx={{ marginRight: 2 }}
+                                          onClick={() => handleCloningEmployeeTarget()}
+                                          title="Clone values"
+                                        >
+                                          <IconLayoutDistributeHorizontal size="1.2rem" />
+                                        </IconButton>
+                                      )}
+                                      <Typography variant="body2">{unit.unit_name}</Typography>
+                                    </Box>
+                                  </TableCell>
+
                                   {currentIndex === 0 && (
                                     <>
                                       <TableCell>
@@ -563,35 +695,35 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
                           <TableRow>
                             <TableCell sx={{ minWidth: 120 }}>Unit name</TableCell>
                             {currentIndex === 0 && (
-                              <TableCell sx={{ minWidth: 80, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                                Parent weight
-                                <Tooltip
-                                  TransitionComponent={Fade}
-                                  TransitionProps={{ timeout: 600 }}
-                                  title="Parent weight is an amount, this KPI weighted for parent unit"
-                                >
-                                  <IconInfoCircle size="1.2rem" stroke="1.6" />
-                                </Tooltip>
+                              <TableCell sx={{ minWidth: 80 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+                                  <Typography variant="subtitle1"> Parent weight</Typography>
+
+                                  <Tooltip
+                                    TransitionComponent={Fade}
+                                    TransitionProps={{ timeout: 600 }}
+                                    title="Parent weight is an amount, the KPI weighted for parent unit"
+                                  >
+                                    <IconInfoCircle size="1.2rem" stroke="1.6" />
+                                  </Tooltip>
+                                </Box>
                               </TableCell>
                             )}
                             {currentIndex === 0 && (
-                              <TableCell sx={{ minWidth: 80, alignItems: 'center', justifyContent: 'center' }}>
-                                Child weight
-                                <Tooltip
-                                  TransitionComponent={Fade}
-                                  TransitionProps={{ timeout: 600 }}
-                                  title="Child weight is a weight, this KPI holds for the selected unit in the selected fiscal year"
-                                >
-                                  <IconInfoCircle size="1.2rem" stroke="1.6" />
-                                </Tooltip>
+                              <TableCell sx={{ minWidth: 80 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+                                  <Typography variant="subtitle1">Child weight</Typography>
+                                  <Tooltip
+                                    TransitionComponent={Fade}
+                                    TransitionProps={{ timeout: 600 }}
+                                    title="Child weight is a weight, this KPI holds for the selected unit in the selected fiscal year"
+                                  >
+                                    <IconInfoCircle size="1.2rem" stroke="1.6" />
+                                  </Tooltip>
+                                </Box>
                               </TableCell>
                             )}
-                            <TableCell sx={{ minWidth: 120, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              Unit target{' '}
-                              <IconButton title="Clone for others" sx={{ backgroundColor: theme.palette.grey[100] }}>
-                                <IconLayoutDistributeHorizontal size="1.2rem" stroke="1.6" style={{ color: theme.palette.primary.main }} />
-                              </IconButton>
-                            </TableCell>
+                            <TableCell sx={{ minWidth: 80 }}>Targets</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -609,7 +741,16 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
 
                               return (
                                 <TableRow key={index}>
-                                  <TableCell>{unit.unit_name}</TableCell>
+                                  <TableCell>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                      {index === 0 && unitPayload.length > 1 && (
+                                        <IconButton sx={{ marginRight: 2 }} onClick={() => handleCloningUnitTarget()} title="Clone values">
+                                          <IconLayoutDistributeHorizontal size="1.2rem" />
+                                        </IconButton>
+                                      )}
+                                      <Typography variant="body2">{unit.unit_name}</Typography>
+                                    </Box>
+                                  </TableCell>
 
                                   {currentIndex === 0 && (
                                     <>
