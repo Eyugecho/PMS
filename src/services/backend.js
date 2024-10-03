@@ -1,9 +1,10 @@
 const Backend = {
   api: import.meta.env.VITE_PMS_URL,
   auth: import.meta.env.VITE_AUTH_URL,
-  login: 'login-with-email',
+  login: 'login',
   logout: 'logout',
   users: 'users',
+  userStatus: 'user-active-inactive',
   refreshToken: 'refresh',
   resetPassword: 'reset-password',
   setPassword: 'create-password',
@@ -32,6 +33,7 @@ const Backend = {
   updatePeriod: 'update-period/',
   changeStatus: 'change-period-status/',
   orgPlan: 'main-kpi-tracking',
+  orgPlanUpdate: 'update-plan/',
   showPlan: 'show-plan',
   deletePlan: 'delete-plan',
   getMyPlans: 'get-my-kpi-trackings',
@@ -91,6 +93,6 @@ const Backend = {
   evaluationTypes: 'evaluation-types',
   kpiExcell: 'kpis/upload',
   UnitExcell: 'units/upload',
-  JobExcell: 'job-positions/upload',
+  JobExcell: 'job-positions/upload'
 };
 export default Backend;

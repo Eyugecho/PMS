@@ -70,12 +70,7 @@ export const dashboard = () => {
       url: '/planning',
       icon: icons.IconLayoutCards
     },
-    'read:performance': {
-      id: 'report',
-      title: 'Reports',
-      url: '/report',
-      icon: icons.IconChartInfographic
-    },
+
     'approval:manage': {
       id: 'approvals',
       title: 'Approval Management',
@@ -93,6 +88,12 @@ export const dashboard = () => {
       title: 'Performance',
       url: '/performance',
       icon: icons.IconTrophy
+    },
+    'read:report': {
+      id: 'report',
+      title: 'Reports',
+      url: '/report',
+      icon: icons.IconChartInfographic
     }
   };
 

@@ -210,7 +210,6 @@ const Employees = () => {
       roles: roles,
       started_date: value?.start_date
     };
-    console.log(data);
 
     fetch(Api, {
       method: 'PATCH',

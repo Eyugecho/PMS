@@ -20,11 +20,11 @@ export const CreatePlanForms = [
   }
 ];
 
-export const UpdatePlanForm = [
+export const UpdatePlanForm = (isUpdate) => [
   {
     id: 2,
-    name: 'Selected KPI',
-    component: <KPISelection />
+    name: 'Update KPI Weight and Target',
+    component: <KPISelection isUpdate={isUpdate} />
   },
   {
     id: 3,
@@ -33,7 +33,7 @@ export const UpdatePlanForm = [
   },
   {
     id: 4,
-    name: 'Target Distribution',
+    name: 'Update Target Distribution',
     component: <TargetDistribution />
   }
 ];

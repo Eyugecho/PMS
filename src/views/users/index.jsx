@@ -278,7 +278,7 @@ const Users = () => {
       return;
     }
 
-    const Api = Backend.api + Backend.users + `/${user?.id}`;
+    const Api = Backend.auth + Backend.userStatus + `/${user?.id}`;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -286,7 +286,7 @@ const Users = () => {
     };
 
     const data = {
-      status: user?.status
+      status: user?.status === 'active' ? 'inactive' : 'active'
     };
 
     fetch(Api, {
@@ -425,7 +425,7 @@ const Users = () => {
                           </TableCell>
                           <TableCell>{format(new Date(item.created_at), 'dd-MM-yyyy')}</TableCell>
                           <TableCell>
-                            {item?.status ? (
+                            {item?.status === 'active' ? (
                               <Chip
                                 label="Active"
                                 sx={{
@@ -452,9 +452,9 @@ const Users = () => {
                           >
                             <DotMenu
                               onEdit={hasPermission('update:users') ? () => handleUserUpdate(item) : null}
-                              status={item?.status ? 'Inactivate' : 'Activate'}
+                              status={item?.status === 'active' ? 'Inactivate' : 'Activate'}
                               statusIcon={
-                                item?.status ? (
+                                item?.status === 'active' ? (
                                   <IconForbid size={18} style={{ color: '#a34' }} />
                                 ) : (
                                   <IconCircleCheckFilled size={18} style={{ color: '#008000' }} />

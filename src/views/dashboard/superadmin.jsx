@@ -61,6 +61,7 @@ const SuperAdminDashboard = () => {
       return <GetFiscalYear />;
     }
   };
+
   const handleFetchingRole = () => {
     setRoleLoading(true);
     const token = localStorage.getItem('token');
@@ -79,13 +80,12 @@ const SuperAdminDashboard = () => {
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
-          setRoles(response.data); // Update roles state
+          setRoles(response.data);
         }
         setRoleLoading(false);
       })
       .catch((error) => {
         setRoleLoading(false);
-        setError(true);
         toast(error.message);
       });
   };

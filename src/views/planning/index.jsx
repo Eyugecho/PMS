@@ -40,8 +40,10 @@ const Planning = () => {
   const [selectedPerspective, setSelectedPerspectve] = useState(0);
   const [create, setCreate] = useState(false);
   const [fullyPlanned, setFullyPlanned] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState();
+  const [canPlan, setCanPlan] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [update, setUpdate] = useState(false);
+  const [selectedPlanID, setSelectedPlanID] = useState(null);
   const [deletePlan, setDeletePlan] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
@@ -106,6 +108,7 @@ const Planning = () => {
     handleUpdatePlan([{ ...newKPI, targets: targets }]);
     Storage.setItem('selectFiscal', JSON.stringify({ id: selected?.fiscal_year_id, year: '' }));
 
+    setSelectedPlanID(selected?.id);
     setUpdate(true);
   };
 
@@ -116,6 +119,7 @@ const Planning = () => {
   const handleUpdateModalClose = () => {
     handleUpdatePlan([]);
     setUpdate(false);
+    setSelectedPlanID(null);
   };
 
   const handleDeletePlan = (data) => {
@@ -182,6 +186,7 @@ const Planning = () => {
           if (response.success && response.data?.plans) {
             setData(response.data?.plans?.data);
             setFullyPlanned(response.data?.weightSum);
+            setCanPlan(response.data?.can_plan);
             handleSettingUpPerspectiveFilter(response.data?.perspectiveTypes);
             handleSettingUpMeasuringUnitFilter(response.data?.measuringUnits);
             setPagination({ ...pagination, total: response.data?.plans?.total });
@@ -233,6 +238,7 @@ const Planning = () => {
       groupedPlans[perspectiveType].push(plan);
     }
   });
+
   return (
     <PageContainer
       title={'Planning'}
@@ -319,7 +325,7 @@ const Planning = () => {
                     <Grid item xs={12} sm={12} md={6} lg={4} xl={4} key={index}>
                       <PlanCard
                         plan={plan}
-                        onPress={() => navigate('/planning/view', { state: plan })}
+                        onPress={() => navigate('/planning/view', { state: { ...plan, can_plan: canPlan } })}
                         onEdit={() => handleUpdatingPlan(plan)}
                         onDelete={() => handleDeletePlan(plan)}
                         editInitiative={true}
@@ -354,7 +360,15 @@ const Planning = () => {
         />
       )}
       <CreatePlan add={create} onClose={handleCreateModalClose} onSucceed={() => handleFetchingPlan()} />
-      <UpdatePlan add={update} onClose={handleUpdateModalClose} onSucceed={() => handleFetchingPlan()} />
+      {selectedPlanID && (
+        <UpdatePlan
+          add={update}
+          plan_id={selectedPlanID}
+          onClose={handleUpdateModalClose}
+          onSucceed={() => handleFetchingPlan()}
+          isUpdate={true}
+        />
+      )}
       {deletePlan && (
         <DeletePrompt
           type="Delete"

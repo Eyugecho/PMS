@@ -8,19 +8,34 @@ export const firstSlideUnit = (payload, id) => {
   }
 
   payload.forEach((unit) => {
+    if (unit.parent_weight == 0) {
+      valid = false;
+      errors.push(`The ${unit.unit_name} parent weight is required.`);
+    } else if (isNaN(unit.parent_weight)) {
+      valid = false;
+      errors.push(`The ${unit.unit_name} parent weight must be a number.`);
+    } else if (unit.parent_weight < 0) {
+      valid = false;
+      errors.push(`The ${unit.unit_name} parent weight cannot be negative.`);
+    } else if (unit.parent_weight > 100) {
+      valid = false;
+      errors.push(`The ${unit.unit_name} parent weight should not exceed 100%`);
+    }
+
     if (unit.child_weight == 0) {
       valid = false;
-      errors.push(`The ${unit.unit_name} Unit weight is required.`);
+      errors.push(`The ${unit.unit_name} child weight is required.`);
     } else if (isNaN(unit.child_weight)) {
       valid = false;
-      errors.push(`The ${unit.unit_name} Unit weight must be a number.`);
+      errors.push(`The ${unit.unit_name} child weight must be a number.`);
     } else if (unit.child_weight < 0) {
       valid = false;
-      errors.push(`The ${unit.unit_name} Unit weight cannot be negative.`);
+      errors.push(`The ${unit.unit_name} child weight cannot be negative.`);
     } else if (unit.child_weight > 100) {
       valid = false;
-      errors.push(`The ${unit.unit_name} Unit weight exceeded 100%`);
+      errors.push(`The ${unit.unit_name} child weight exceeded 100%`);
     }
+
     if (unit.unit_targets.length === 0) {
       valid = false;
       errors.push(`Enter the units target`);
@@ -81,19 +96,34 @@ export const firstSlideEmployee = (payload, id) => {
   }
 
   payload.forEach((unit) => {
+    if (unit.parent_weight == 0) {
+      valid = false;
+      errors.push(`The ${unit.unit_name} parent weight is required.`);
+    } else if (isNaN(unit.parent_weight)) {
+      valid = false;
+      errors.push(`The ${unit.unit_name} parent weight must be a number.`);
+    } else if (unit.parent_weight < 0) {
+      valid = false;
+      errors.push(`The ${unit.unit_name} parent weight is cannot be negative.`);
+    } else if (unit.parent_weight > 100) {
+      valid = false;
+      errors.push(`The ${unit.unit_name} parent weight cannot exceed 100%`);
+    }
+
     if (unit.child_weight == 0) {
       valid = false;
-      errors.push(`The ${unit.unit_name}  weight is required.`);
+      errors.push(`The ${unit.unit_name} employee child weight is required.`);
     } else if (isNaN(unit.child_weight)) {
       valid = false;
-      errors.push(`The ${unit.unit_name} weight must be a number.`);
+      errors.push(`The ${unit.unit_name} employee child weight must be a number.`);
     } else if (unit.child_weight < 0) {
       valid = false;
-      errors.push(`The ${unit.unit_name} employee weight is cannot be negative.`);
+      errors.push(`The ${unit.unit_name} employee child weight is cannot be negative.`);
     } else if (unit.child_weight > 100) {
       valid = false;
-      errors.push(`The ${unit.unit_name} employee weight exceeded 100%`);
+      errors.push(`The ${unit.unit_name} employee child weight can not exceed 100%`);
     }
+
     if (unit.unit_targets.length === 0) {
       valid = false;
       errors.push(`Enter the employees target`);

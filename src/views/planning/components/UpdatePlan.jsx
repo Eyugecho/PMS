@@ -11,7 +11,7 @@ import Backend from 'services/backend';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
 import GetToken from 'utils/auth-token';
 
-export const UpdatePlan = ({ add, onClose, onSucceed }) => {
+export const UpdatePlan = ({ add, onClose, plan_id, onSucceed, isUpdate }) => {
   const theme = useTheme();
 
   const { selectedKpi } = useKPI();
@@ -21,6 +21,8 @@ export const UpdatePlan = ({ add, onClose, onSucceed }) => {
     state: false,
     message: ''
   });
+
+  const formSteps = UpdatePlanForm(isUpdate);
 
   const handleNext = () => {
     if (activeIndex === 0) {
@@ -64,20 +66,24 @@ export const UpdatePlan = ({ add, onClose, onSucceed }) => {
     const getFiscalYear = Storage.getItem('selectFiscal');
     const fiscalYear = JSON.parse(getFiscalYear);
 
-    const Api = Backend.api + Backend.orgPlan;
+    const Api = Backend.api + Backend.orgPlanUpdate + plan_id;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
       'Content-Type': 'application/json'
     };
 
+    const planData = plan[0];
+
     const data = {
       fiscal_year_id: fiscalYear?.id,
-      data: plan
+      weight: planData?.weight,
+      total_target: planData?.total_target,
+      targets: planData?.targets
     };
 
     fetch(Api, {
-      method: 'POST',
+      method: 'PATCH',
       headers: header,
       body: JSON.stringify(data)
     })
@@ -107,7 +113,7 @@ export const UpdatePlan = ({ add, onClose, onSucceed }) => {
             <div>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 1 }}>
                 <DialogTitle variant="h3" color={theme.palette.text.primary} fontSize={theme.typography.h3}>
-                  {UpdatePlanForm[activeIndex].name}
+                  {formSteps[activeIndex].name}
                 </DialogTitle>
 
                 <motion.div
@@ -122,7 +128,7 @@ export const UpdatePlan = ({ add, onClose, onSucceed }) => {
                 </motion.div>
               </Box>
 
-              <Box sx={{ padding: 3 }}>{UpdatePlanForm[activeIndex].component}</Box>
+              <Box sx={{ padding: 2 }}> {formSteps[activeIndex].component}</Box>
             </div>
 
             <DialogActions sx={{ paddingX: 3, paddingBottom: 2 }}>
@@ -133,7 +139,7 @@ export const UpdatePlan = ({ add, onClose, onSucceed }) => {
                 </Button>
               )}
 
-              {activeIndex === UpdatePlanForm.length - 1 ? (
+              {activeIndex === formSteps.length - 1 ? (
                 <Button
                   type="submit"
                   variant="contained"

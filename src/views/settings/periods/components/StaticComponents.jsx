@@ -182,55 +182,58 @@ const StaticPeriodsComponent = ({ data, fiscalYear, onRefresh }) => {
         </TableHead>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <TableBody>
-            {Object.keys(periods).map((key) => (
-              <TableRow key={key}>
-                <TableCell>
-                  <Typography variant="h4">{key}</Typography>
-                </TableCell>
-                <TableCell>
-                  <DatePicker
-                    label="Start Date"
-                    value={periods[key]?.start_date ? new Date(periods[key]?.start_date) : null}
-                    onChange={(date) => handleDateChange(date, key, 'start_date')}
-                    shouldDisableDate={(date) => shouldDisableDate(date, true, key)}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                </TableCell>
-                <TableCell>
-                  <DatePicker
-                    label="End Date"
-                    value={periods[key]?.end_date ? new Date(periods[key]?.end_date) : null}
-                    onChange={(date) => handleDateChange(date, key, 'end_date')}
-                    shouldDisableDate={(date) => shouldDisableDate(date, false, key)}
-                    renderInput={(params) => (
-                      <TextField {...params} error={!isEndDateValid(periods[key]?.start_date, periods[key]?.end_date)} />
-                    )}
-                    disabled={!periods[key]?.start_date}
-                  />
-                </TableCell>
-                <TableCell>
-                  {hasChanges(key) ? (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleSaveChanges(key)}
-                      disabled={!isEndDateValid(periods[key]?.start_date, periods[key]?.end_date)}
-                      sx={{ width: '140px', height: 'auto', borderRadius: 2, padding: 1, px: 2 }}
-                    >
-                      {theKey === key && submitting ? <ActivityIndicator size={18} sx={{ color: 'white' }} /> : 'Save Changes'}
-                    </Button>
-                  ) : changingStatus && theKey === key ? (
-                    <ActivityIndicator size={18} sx={{ color: 'primary' }} />
-                  ) : (
-                    <StatusSwitch
-                      checked={periods[key]?.status === 'true'}
-                      onChange={(e) => handleStatusChange(key, e.target.checked)}
-                      inputProps={{ 'aria-label': 'controlled' }}
-                    />
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+            {Object.keys(periods).map(
+              (key) =>
+                key != 'Monitoring' && (
+                  <TableRow key={key}>
+                    <TableCell>
+                      <Typography variant="h4">{key}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <DatePicker
+                        label="Start Date"
+                        value={periods[key]?.start_date ? new Date(periods[key]?.start_date) : null}
+                        onChange={(date) => handleDateChange(date, key, 'start_date')}
+                        shouldDisableDate={(date) => shouldDisableDate(date, true, key)}
+                        renderInput={(params) => <TextField {...params} />}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <DatePicker
+                        label="End Date"
+                        value={periods[key]?.end_date ? new Date(periods[key]?.end_date) : null}
+                        onChange={(date) => handleDateChange(date, key, 'end_date')}
+                        shouldDisableDate={(date) => shouldDisableDate(date, false, key)}
+                        renderInput={(params) => (
+                          <TextField {...params} error={!isEndDateValid(periods[key]?.start_date, periods[key]?.end_date)} />
+                        )}
+                        disabled={!periods[key]?.start_date}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {hasChanges(key) ? (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleSaveChanges(key)}
+                          disabled={!isEndDateValid(periods[key]?.start_date, periods[key]?.end_date)}
+                          sx={{ width: '140px', height: 'auto', borderRadius: 2, padding: 1, px: 2 }}
+                        >
+                          {theKey === key && submitting ? <ActivityIndicator size={18} sx={{ color: 'white' }} /> : 'Save Changes'}
+                        </Button>
+                      ) : changingStatus && theKey === key ? (
+                        <ActivityIndicator size={18} sx={{ color: 'primary' }} />
+                      ) : (
+                        <StatusSwitch
+                          checked={periods[key]?.status === 'true'}
+                          onChange={(e) => handleStatusChange(key, e.target.checked)}
+                          inputProps={{ 'aria-label': 'controlled' }}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+            )}
           </TableBody>
         </LocalizationProvider>
       </Table>

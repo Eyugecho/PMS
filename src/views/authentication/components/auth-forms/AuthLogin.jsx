@@ -40,7 +40,7 @@ const AuthLogin = ({ ...others }) => {
       const Api = Backend.auth + Backend.login;
 
       const data = {
-        email: values.email,
+        username: values.email,
         password: values.password
       };
 
@@ -103,34 +103,27 @@ const AuthLogin = ({ ...others }) => {
     <Formik
       initialValues={{ email: '', password: '', submit: null }}
       validationSchema={Yup.object().shape({
-        email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+        email: Yup.string().required('Email or ID No is required'),
         password: Yup.string().max(255).required('Password is required')
       })}
       onSubmit={handleLogin}
     >
       {({ errors, handleBlur, handleChange, handleSubmit, touched, values }) => (
         <form noValidate onSubmit={handleSubmit} {...others}>
-          <Grid container direction="column" justifyContent="center" spacing={2}>
-            <Grid item xs={12} container alignItems="center" justifyContent="center">
-              <Box sx={{ mb: 3 }}>
-                {/* <Typography variant="subtitle1" style={{fontSize:'12px'}}>Sign in with Email address</Typography> */}
-              </Box>
-            </Grid>
-          </Grid>
+          <Box sx={{ mb: 3 }}></Box>
 
-          <FormControl style={{ display: 'flex' }} error={Boolean(touched.email && errors.email)}>
+          <FormControl style={{ display: 'flex', marginBottom: '16px' }} error={Boolean(touched.email && errors.email)}>
             <InputLabel htmlFor="outlined-adornment-email-login" style={{ fontSize: '12px' }}>
-              Email Address
+              Email Address or ID No
             </InputLabel>
             <OutlinedInput
               id="outlined-adornment-email-login"
               type="email"
               value={values.email}
-              sx={{ marginBottom: '16px' }}
               name="email"
               onBlur={handleBlur}
               onChange={handleChange}
-              label="Email Address"
+              label="Email Address or ID No"
               inputProps={{}}
             />
             {touched.email && errors.email && (
@@ -149,7 +142,6 @@ const AuthLogin = ({ ...others }) => {
               type={showPassword ? 'text' : 'password'}
               value={values.password}
               name="password"
-              sx={{ marginBottom: '16px' }}
               onBlur={handleBlur}
               onChange={handleChange}
               endAdornment={
@@ -175,7 +167,7 @@ const AuthLogin = ({ ...others }) => {
             )}
           </FormControl>
 
-          <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={1}>
+          <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={1} sx={{ marginTop: 2 }}>
             <Link to={'/forgot-password'} variant="subtitle1" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
               Forgot Password?
             </Link>

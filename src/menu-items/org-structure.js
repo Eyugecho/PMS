@@ -52,7 +52,7 @@ export const getOrgStructure = () => {
     },
     'read:jobposition': {
       id: 'Job',
-      title: 'Job Position',
+      title: 'Job Positions',
       url: '/job',
       icon: icons.IconBriefcase
     },

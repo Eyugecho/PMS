@@ -21,6 +21,7 @@ import GetToken from 'utils/auth-token';
 import axios from 'axios';
 import IsEmployee from 'utils/is-employee';
 import PerKPIPerformance from './components/PerKPIPerformance';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 const ViewPlan = () => {
   const theme = useTheme();
@@ -28,11 +29,10 @@ const ViewPlan = () => {
   const isEmployee = IsEmployee();
   const { state } = useLocation();
   const { handleUpdatePlan } = useKPI();
-  const customization = useSelector((state) => state.customization);
 
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [plan, setPlan] = useState(state);
+  const [plan, setPlan] = useState(state ? state : null);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
   const [tab, setTab] = useState('units');
@@ -203,27 +203,28 @@ const ViewPlan = () => {
 
   return (
     <React.Fragment>
-      <PageContainer back={true} title={`${state ? plan?.kpi?.name : 'Plan Details'}`}>
+      <PageContainer back={true} title={`${state ? plan?.kpi?.name : 'Plan Detail'}`}>
         <Grid
           container
           spacing={gridSpacing}
-          sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 1, padding: 2 }}
+          sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 0.5, padding: 2 }}
         >
           <Grid item xs={12} sm={12} md={12} lg={4} xl={3}>
             <PlanCard plan={plan} onEdit={() => handleUpdatingPlan(plan)} onDelete={() => handleDeletePlan(plan)} />
 
-            {!isEmployee && (
+            {!isEmployee && state?.can_plan && (
               <DrogaButton
                 fullWidth
                 title={'Cascade Targets'}
                 onPress={() => handleDistributeClick()}
                 sx={{ marginY: 2, padding: 1.6, boxShadow: 0 }}
+                disabled={plan?.status === '0'}
               />
             )}
           </Grid>
 
           {isEmployee ? (
-            <Grid item xs={12} sm={12} md={12} lg={8} xl={9}>
+            <Grid item xs={12} sm={12} md={12} lg={7.8} xl={8}>
               <PerKPIPerformance plan={state} />
             </Grid>
           ) : (
@@ -232,15 +233,10 @@ const ViewPlan = () => {
               xs={12}
               sm={12}
               md={12}
-              lg={8}
-              xl={9}
+              lg={7.8}
+              xl={8}
               sx={{
-                border: 1,
-                borderColor: theme.palette.divider,
-                backgroundColor: theme.palette.background.default,
-                borderRadius: `${customization.borderRadius}px`,
-                padding: 2,
-                marginTop: 3
+                marginTop: 2
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 2.4 }}>
@@ -268,7 +264,7 @@ const ViewPlan = () => {
 
               {loading ? (
                 <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CircularProgress size={20} />
+                  <ActivityIndicator size={20} />
                 </Box>
               ) : error ? (
                 <Box sx={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -278,19 +274,25 @@ const ViewPlan = () => {
                 <Box sx={{ padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <IconTargetArrow size={80} color={theme.palette.grey[400]} />
                   <Typography variant="h4" sx={{ marginTop: 1.6 }}>
-                    Target is not found
+                    There is no distribution
                   </Typography>
                   <Typography variant="caption">The list of distributed target will be listed here</Typography>
                 </Box>
               ) : (
-                <TargetTable plans={data} />
+                <TargetTable plans={data} onRefresh={() => handleFetchingDistribution()} />
               )}
             </Grid>
           )}
         </Grid>
       </PageContainer>
 
-      <UpdatePlan add={update} onClose={handleUpdateModalClose} onSucceed={() => handleGettingPlanDetails()} />
+      <UpdatePlan
+        add={update}
+        plan_id={state?.id}
+        onClose={handleUpdateModalClose}
+        onSucceed={() => handleGettingPlanDetails()}
+        isUpdate={true}
+      />
       {deletePlan && (
         <DeletePrompt
           type="Delete"
@@ -310,6 +312,7 @@ const ViewPlan = () => {
         plan_id={plan?.id}
         targets={plan?.target}
         naming={PeriodNaming(plan?.frequency?.name)}
+        onRefresh={() => handleFetchingDistribution()}
       />
       <ToastContainer />
     </React.Fragment>

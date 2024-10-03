@@ -10,7 +10,7 @@ import ErrorPrompt from 'utils/components/ErrorPrompt';
 import noresult from '../../../../assets/images/no_result.png';
 import GetToken from 'utils/auth-token';
 
-const KPISelection = () => {
+const KPISelection = ({ isUpdate }) => {
   const theme = useTheme();
   const { selectedKpi, addOrRemoveKPI, updateKPI } = useKPI();
 
@@ -103,84 +103,84 @@ const KPISelection = () => {
         <ErrorPrompt image={noresult} title="Server Error" message="Unable to retrive kpi" />
       ) : (
         <>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-          >
-            <Autocomplete
-              id="kpi-list"
-              multiple
-              options={data}
-              getOptionLabel={(option) => option.name}
-              value={selectedKpi}
-              onChange={handleSelection}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderTags={(value, getTagProps) =>
-                value.map((option, index) => <Chip key={index} label={option.name} {...getTagProps({ index })} />)
-              }
-              fullWidth
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select a KPI"
-                  variant="outlined"
-                  onChange={(e) => setSearch(e.target.value)}
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <>
-                        {loading ? <ActivityIndicator size={16} /> : null}
-                        {params.InputProps.endAdornment}
-                      </>
-                    )
-                  }}
-                />
-              )}
-              disableClearable
-            />
-          </Box>
+          {!isUpdate && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Autocomplete
+                id="kpi-list"
+                multiple
+                options={data}
+                getOptionLabel={(option) => option.name}
+                value={selectedKpi}
+                onChange={handleSelection}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => <Chip key={index} label={option.name} {...getTagProps({ index })} />)
+                }
+                fullWidth
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select a KPI"
+                    variant="outlined"
+                    onChange={(e) => setSearch(e.target.value)}
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loading ? <ActivityIndicator size={16} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      )
+                    }}
+                  />
+                )}
+                disableClearable
+              />
+            </Box>
+          )}
 
-          <Box sx={{ padding: 2 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ minWidth: 130 }}>KPI Name</TableCell>
-                  <TableCell sx={{ minWidth: 60 }}>Weight(%)</TableCell>
-                  <TableCell sx={{ minWidth: 100 }}>Measured by</TableCell>
-                  <TableCell sx={{ minWidth: 120 }}>Target</TableCell>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ minWidth: 130 }}>KPI Name</TableCell>
+                <TableCell sx={{ minWidth: 60 }}>Weight(%)</TableCell>
+                <TableCell sx={{ minWidth: 100 }}>Measured by</TableCell>
+                <TableCell sx={{ minWidth: 120 }}>Target</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {selectedKpi?.map((kpi, index) => (
+                <TableRow key={index}>
+                  <TableCell>{kpi.name}</TableCell>
+                  <TableCell>
+                    <InputBase
+                      sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
+                      value={kpi.weight}
+                      onChange={(event) => handleWeightChange(event, kpi.id)}
+                      inputProps={{ 'aria-label': 'weight' }}
+                      type="number"
+                    />
+                  </TableCell>
+                  <TableCell sx={{ textTransform: 'capitalize' }}>{kpi.mu}</TableCell>
+                  <TableCell>
+                    <InputBase
+                      sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
+                      value={kpi.total_target}
+                      onChange={(event) => handleTargetChange(event, kpi.id)}
+                      inputProps={{ 'aria-label': 'target' }}
+                      type="number"
+                    />
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {selectedKpi?.map((kpi, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{kpi.name}</TableCell>
-                    <TableCell>
-                      <InputBase
-                        sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                        value={kpi.weight}
-                        onChange={(event) => handleWeightChange(event, kpi.id)}
-                        inputProps={{ 'aria-label': 'weight' }}
-                        type="number"
-                      />
-                    </TableCell>
-                    <TableCell sx={{ textTransform: 'capitalize' }}>{kpi.mu}</TableCell>
-                    <TableCell>
-                      <InputBase
-                        sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: theme.palette.primary.main }}
-                        value={kpi.total_target}
-                        onChange={(event) => handleTargetChange(event, kpi.id)}
-                        inputProps={{ 'aria-label': 'target' }}
-                        type="number"
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Box>
+              ))}
+            </TableBody>
+          </Table>
         </>
       )}
       <ToastContainer />

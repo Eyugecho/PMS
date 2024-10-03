@@ -21,7 +21,7 @@ import GetToken from 'utils/auth-token';
 import axios from 'axios';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 
-const TargetTable = ({ plans }) => {
+const TargetTable = ({ plans, onRefresh }) => {
   const theme = useTheme();
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
@@ -60,6 +60,7 @@ const TargetTable = ({ plans }) => {
       if (response.data.success) {
         setDeletePlan(false);
         toast.success(response.data.data.message);
+        onRefresh();
       } else {
         toast.error(response.data.data.message);
       }

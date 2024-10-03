@@ -24,14 +24,14 @@ import {
   TablePagination
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
+import { toast, ToastContainer } from 'react-toastify';
+import { useFormik } from 'formik';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
-import { toast, ToastContainer } from 'react-toastify';
 import PageContainer from 'ui-component/MainPage';
 import UploadFile from 'ui-component/modal/UploadFile';
 import hasPermission from 'utils/auth/hasPermission';
@@ -267,8 +267,6 @@ const JobPositionTable = () => {
       handleOpenModal();
     } else if (index === 1) {
       handleOpenDialog();
-    } else {
-      alert('We will be implement importing from odoo');
     }
   };
 
@@ -287,7 +285,7 @@ const JobPositionTable = () => {
   const handleChangeRowsPerPage = (event) => {
     setPagination({ ...pagination, per_page: event.target.value, page: 0 });
   };
-  
+
   const handleMenuOpen = (event, index) => {
     setAnchorEl(event.currentTarget);
     setEditIndex(index);
@@ -303,9 +301,9 @@ const JobPositionTable = () => {
 
   return (
     <PageContainer title="Job Positions">
-      <Grid container padding={2}>
+      <Grid container spacing={3}>
         <Grid container>
-          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3,paddingX:3  }}>
+          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 4, paddingX: 6 }}>
             <Search title="Filter Job Position" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
             {hasPermission('create:jobposition') && (
               <SplitButton options={AddJobPositionOptions} handleSelection={(value) => handleJobPositionAdd(value)} />
@@ -429,7 +427,16 @@ const JobPositionTable = () => {
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
             />
-
+            <TextField
+              margin="dense"
+              label="Job Code"
+              type="text"
+              fullWidth
+              variant="outlined"
+              {...formik.getFieldProps('job_code')}
+              error={formik.touched.job_code && Boolean(formik.errors.job_code)}
+              helperText={formik.touched.job_code && formik.errors.job_code}
+            />
             <DialogActions>
               <Button onClick={handleCloseModal} color="primary">
                 Cancel

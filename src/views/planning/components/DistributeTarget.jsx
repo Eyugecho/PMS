@@ -9,7 +9,9 @@ import {
   Box,
   Chip,
   CircularProgress,
+  Fade,
   Grid,
+  IconButton,
   InputBase,
   Table,
   TableBody,
@@ -17,11 +19,12 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
   useTheme
 } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
-import { IconX } from '@tabler/icons-react';
+import { IconInfoCircle, IconLayoutDistributeHorizontal, IconX } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { firstSlideEmployee, firstSlideUnit, unitTargetValidation } from 'utils/validation/distribution';
 import Backend from 'services/backend';
@@ -29,7 +32,7 @@ import GetToken from 'utils/auth-token';
 import PropTypes from 'prop-types';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
 
-const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
+const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh }) => {
   const theme = useTheme();
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const prevIndex = useRef(currentIndex);
@@ -62,6 +65,7 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
         unit_id: addedUnit.id,
         unit_name: addedUnit.name,
         total_target: targets[currentIndex].target,
+        parent_weight: 0,
         child_weight: 0,
         unit_targets: []
       };
@@ -96,6 +100,19 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
     );
   };
 
+  const handleParentWeightChange = (event, unit_id) => {
+    const value = event.target.value;
+
+    setUnitPayload((prevUnit) =>
+      prevUnit.map((unit) => {
+        if (unit.unit_id === unit_id) {
+          return { ...unit, parent_weight: value };
+        }
+        return unit;
+      })
+    );
+  };
+
   const handleUnitWeightChange = (event, unit_id) => {
     const value = event.target.value;
 
@@ -120,6 +137,7 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
         unit_id: addedEmployee.id,
         unit_name: addedEmployee.user?.name,
         total_target: targets[currentIndex].target,
+        parent_weight: 0,
         child_weight: 0,
         unit_targets: []
       };
@@ -150,6 +168,19 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
           return { ...unit, unit_targets: updatedUnitTargets };
         }
         return unit; // Ensure to return the unit if it doesn't match the unit_id
+      })
+    );
+  };
+
+  const handleEmployeeParentWeightChange = (event, unit_id) => {
+    const value = event.target.value;
+
+    setEmployeePayload((prevUnit) =>
+      prevUnit.map((unit) => {
+        if (unit.unit_id === unit_id) {
+          return { ...unit, parent_weight: value };
+        }
+        return unit;
       })
     );
   };
@@ -296,6 +327,7 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
             setIsAdding(false);
             toast.success(response.data?.message);
             onClose();
+            onRefresh();
             setSelectedUnits([]);
             setUnitPayload([]);
             setSelectedEmployees([]);
@@ -339,7 +371,7 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
         </Box>
         {targets.length > 0 && (
           <Grid container sx={{ display: 'flex', flexDirection: 'column', minWidth: '600px', padding: 1.2 }}>
-            <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'column' }}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentIndex}
@@ -437,9 +469,39 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
                       <Table>
                         <TableHead>
                           <TableRow>
-                            <TableCell sx={{ minWidth: 120 }}>Employee name</TableCell>
-                            {currentIndex === 0 && <TableCell sx={{ minWidth: 80 }}>Annum weight(%)</TableCell>}
-                            <TableCell sx={{ minWidth: 80 }}>Employee target</TableCell>
+                            <TableCell sx={{ minWidth: 120 }}>Name</TableCell>
+                            {currentIndex === 0 && (
+                              <TableCell sx={{ minWidth: 80 }}>
+                                Parent weight
+                                <Tooltip
+                                  TransitionComponent={Fade}
+                                  TransitionProps={{ timeout: 600 }}
+                                  title="Parent weight is an amount, this KPI weighted for parent unit"
+                                >
+                                  <IconInfoCircle size="1.2rem" stroke="1.6" />
+                                </Tooltip>
+                              </TableCell>
+                            )}
+
+                            {currentIndex === 0 && (
+                              <TableCell sx={{ minWidth: 80 }}>
+                                Child weight
+                                <Tooltip
+                                  TransitionComponent={Fade}
+                                  TransitionProps={{ timeout: 600 }}
+                                  title="Child weight is a weight, this KPI holds for the selected unit in the selected fiscal year"
+                                >
+                                  <IconInfoCircle size="1.2rem" stroke="1.6" />
+                                </Tooltip>
+                              </TableCell>
+                            )}
+
+                            <TableCell sx={{ minWidth: 120, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              Targets
+                              <IconButton title="Clone for others" sx={{ backgroundColor: theme.palette.grey[100] }}>
+                                <IconLayoutDistributeHorizontal size="1.2rem" stroke="1.6" style={{ color: theme.palette.primary.main }} />
+                              </IconButton>
+                            </TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -459,15 +521,26 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
                                 <TableRow key={index}>
                                   <TableCell>{unit.unit_name}</TableCell>
                                   {currentIndex === 0 && (
-                                    <TableCell>
-                                      <InputBase
-                                        sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: 'primary.main' }}
-                                        value={unit.child_weight}
-                                        onChange={(event) => handleEmployeeWeightChange(event, unit.unit_id)}
-                                        inputProps={{ 'aria-label': 'target' }}
-                                        type="number"
-                                      />
-                                    </TableCell>
+                                    <>
+                                      <TableCell>
+                                        <InputBase
+                                          sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: 'primary.main' }}
+                                          value={unit.parent_weight}
+                                          onChange={(event) => handleEmployeeParentWeightChange(event, unit.unit_id)}
+                                          inputProps={{ 'aria-label': 'target' }}
+                                          type="number"
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <InputBase
+                                          sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: 'primary.main' }}
+                                          value={unit.child_weight}
+                                          onChange={(event) => handleEmployeeWeightChange(event, unit.unit_id)}
+                                          inputProps={{ 'aria-label': 'target' }}
+                                          type="number"
+                                        />
+                                      </TableCell>
+                                    </>
                                   )}
                                   <TableCell>
                                     <InputBase
@@ -489,8 +562,36 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
                         <TableHead>
                           <TableRow>
                             <TableCell sx={{ minWidth: 120 }}>Unit name</TableCell>
-                            {currentIndex === 0 && <TableCell sx={{ minWidth: 80 }}>Annum Weight(%)</TableCell>}
-                            <TableCell sx={{ minWidth: 80 }}>Unit target</TableCell>
+                            {currentIndex === 0 && (
+                              <TableCell sx={{ minWidth: 80, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                                Parent weight
+                                <Tooltip
+                                  TransitionComponent={Fade}
+                                  TransitionProps={{ timeout: 600 }}
+                                  title="Parent weight is an amount, this KPI weighted for parent unit"
+                                >
+                                  <IconInfoCircle size="1.2rem" stroke="1.6" />
+                                </Tooltip>
+                              </TableCell>
+                            )}
+                            {currentIndex === 0 && (
+                              <TableCell sx={{ minWidth: 80, alignItems: 'center', justifyContent: 'center' }}>
+                                Child weight
+                                <Tooltip
+                                  TransitionComponent={Fade}
+                                  TransitionProps={{ timeout: 600 }}
+                                  title="Child weight is a weight, this KPI holds for the selected unit in the selected fiscal year"
+                                >
+                                  <IconInfoCircle size="1.2rem" stroke="1.6" />
+                                </Tooltip>
+                              </TableCell>
+                            )}
+                            <TableCell sx={{ minWidth: 120, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              Unit target{' '}
+                              <IconButton title="Clone for others" sx={{ backgroundColor: theme.palette.grey[100] }}>
+                                <IconLayoutDistributeHorizontal size="1.2rem" stroke="1.6" style={{ color: theme.palette.primary.main }} />
+                              </IconButton>
+                            </TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -511,14 +612,25 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
                                   <TableCell>{unit.unit_name}</TableCell>
 
                                   {currentIndex === 0 && (
-                                    <TableCell>
-                                      <InputBase
-                                        sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: 'primary.main' }}
-                                        value={unit.child_weight}
-                                        onChange={(event) => handleUnitWeightChange(event, unit.unit_id)}
-                                        inputProps={{ 'aria-label': 'target' }}
-                                      />
-                                    </TableCell>
+                                    <>
+                                      <TableCell>
+                                        <InputBase
+                                          sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: 'primary.main' }}
+                                          value={unit.parent_weight}
+                                          onChange={(event) => handleParentWeightChange(event, unit.unit_id)}
+                                          inputProps={{ 'aria-label': 'target' }}
+                                        />
+                                      </TableCell>
+
+                                      <TableCell>
+                                        <InputBase
+                                          sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: 'primary.main' }}
+                                          value={unit.child_weight}
+                                          onChange={(event) => handleUnitWeightChange(event, unit.unit_id)}
+                                          inputProps={{ 'aria-label': 'target' }}
+                                        />
+                                      </TableCell>
+                                    </>
                                   )}
 
                                   <TableCell>
@@ -540,44 +652,44 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming }) => {
                   </Box>
                 </motion.div>
               </AnimatePresence>
+
+              <DialogActions sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+                <Box> {error.state && <Alert severity="error"> {error.message}</Alert>}</Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingX: 2 }}>
+                  {currentIndex > 0 && (
+                    <Button sx={{ marginRight: 3 }} onClick={() => handlePrev()}>
+                      Back
+                    </Button>
+                  )}
+
+                  {currentIndex === targets.length - 1 ? (
+                    <Button
+                      type="button"
+                      variant="contained"
+                      sx={{ py: 1, paddingX: 6, boxShadow: 0, borderRadius: 2 }}
+                      onClick={() => handleSubmission()}
+                      disabled={isAdding}
+                    >
+                      {isAdding ? (
+                        <CircularProgress size={18} sx={{ color: 'white' }} />
+                      ) : (
+                        <Typography variant="subtitle1" color={theme.palette.background.paper}>
+                          Submit
+                        </Typography>
+                      )}
+                    </Button>
+                  ) : (
+                    <DrogaButton
+                      title="Next"
+                      type="button"
+                      variant="contained"
+                      sx={{ paddingX: 6, boxShadow: 0 }}
+                      onPress={() => handleNext()}
+                    />
+                  )}
+                </Box>
+              </DialogActions>
             </Grid>
-
-            <DialogActions sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box> {error.state && <Alert severity="error"> {error.message}</Alert>}</Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingX: 2 }}>
-                {currentIndex > 0 && (
-                  <Button sx={{ marginRight: 3 }} onClick={() => handlePrev()}>
-                    Back
-                  </Button>
-                )}
-
-                {currentIndex === targets.length - 1 ? (
-                  <Button
-                    type="button"
-                    variant="contained"
-                    sx={{ py: 1, paddingX: 6, boxShadow: 0, borderRadius: 2 }}
-                    onClick={() => handleSubmission()}
-                    disabled={isAdding}
-                  >
-                    {isAdding ? (
-                      <CircularProgress size={18} sx={{ color: 'white' }} />
-                    ) : (
-                      <Typography variant="subtitle1" color={theme.palette.background.paper}>
-                        Submit
-                      </Typography>
-                    )}
-                  </Button>
-                ) : (
-                  <DrogaButton
-                    title="Next"
-                    type="button"
-                    variant="contained"
-                    sx={{ paddingX: 6, boxShadow: 0 }}
-                    onPress={() => handleNext()}
-                  />
-                )}
-              </Box>
-            </DialogActions>
           </Grid>
         )}
       </Dialog>
