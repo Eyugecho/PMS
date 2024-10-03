@@ -23,7 +23,7 @@ const Dashboard = () => {
   //   return <EmployeeDashboard />;
   // }
 
-  return <EmployeeDashboard />;
+  return <SuperAdminDashboard />;
   // return (
   //   <Grid container>
   //     <Grid item xs={12}>
