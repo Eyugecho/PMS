@@ -345,7 +345,7 @@ const JobPositionTable = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {jobPositions?.map((job, index) => (
+                    {jobPositions?.map((job) => (
                       <TableRow
                         key={job.id}
                         sx={{

@@ -34,8 +34,8 @@ export const AddJobposition = ({ openModal, loading, onClose, handleSubmission }
         open={openModal}
         onClose={onClose}
         sx={{
-          backdropFilter: 'blur(10px)', // Frosted glass effect
-          backgroundColor: 'rgba(255, 255, 255, 0.1)' // Optional: Lightens the backdrop
+          backdropFilter: 'blur(10px)', 
+          backgroundColor: 'rgba(255, 255, 255, 0.1)' 
         }}
       >
         <Box
