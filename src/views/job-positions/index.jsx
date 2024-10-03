@@ -101,7 +101,7 @@ const JobPositionTable = () => {
     const data = {
       name: values.name
     };
-    console.log(data);
+
 
     fetch(Api, {
       method: 'PATCH',
