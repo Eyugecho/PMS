@@ -14,7 +14,7 @@ const validationSchema = Yup.object().shape({
   name: Yup.string().required('Full name is required')
 });
 
-const UpdateJobPosititon = ({ update, isUpdating, onClose, EmployeeData, handleSubmission }) => {
+const UpdateJobPosititon = ({ update, isUpdating, onClose, JopPositionData, handleSubmission }) => {
   const theme = useTheme();
 
   const formik = useFormik({
@@ -30,7 +30,7 @@ const UpdateJobPosititon = ({ update, isUpdating, onClose, EmployeeData, handleS
   const setFormInitialValues = () => {
     formik.setValues({
       ...formik.values,
-      name: EmployeeData?.user?.name
+      name: JopPositionData?.name
     });
   };
 
@@ -91,4 +91,4 @@ const UpdateJobPosititon = ({ update, isUpdating, onClose, EmployeeData, handleS
   );
 };
 
-export default UpdateEmployee;
+export default UpdateJobPosititon;

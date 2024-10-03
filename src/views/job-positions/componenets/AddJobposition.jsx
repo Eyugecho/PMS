@@ -14,10 +14,9 @@ const validationSchema = Yup.object().shape({
   name: Yup.string().required('Full name is required')
 });
 
-export const AddJobposition = ({ openModal, isAdding, onClose, handleSubmission }) => {
+export const AddJobposition = ({ openModal, loading, onClose, handleSubmission }) => {
   const theme = useTheme();
 
-  const [unitLoading, setUnitLoading] = React.useState(true);
 
   const formik = useFormik({
     initialValues: {
@@ -77,8 +76,8 @@ export const AddJobposition = ({ openModal, isAdding, onClose, handleSubmission 
             <Button onClick={onClose} sx={{ marginLeft: 10 }}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={isAdding}>
-              {isAdding ? <CircularProgress size={18} sx={{ color: 'white' }} /> : 'Done'}
+            <Button type="submit" variant="contained" sx={{ paddingX: 6, boxShadow: 0 }} disabled={loading}>
+              {loading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : 'Done'}
             </Button>
           </DialogActions>
         </form>
