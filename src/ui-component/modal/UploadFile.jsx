@@ -3,7 +3,6 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, 
 import { useDropzone } from 'react-dropzone';
 import { IconFileCheck, IconFileUpload, IconX } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
-import { toast } from 'react-toastify';
 import CloseIcon from '@mui/icons-material/Close';
 import LinearProgress from 'ui-component/indicators/LinearProgress';
 

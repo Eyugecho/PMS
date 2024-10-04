@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button,
   Table,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  IconButton,
-  Menu,
-  MenuItem,
   Box,
   Grid,
   CardContent,
@@ -23,15 +14,15 @@ import {
   CircularProgress,
   TablePagination
 } from '@mui/material';
-import { MoreVert as MoreVertIcon } from '@mui/icons-material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+
 import { useFormik } from 'formik';
+import { toast, ToastContainer } from 'react-toastify';
+import { AddJobposition } from './componenets/AddJobposition';
+import { DotMenu } from 'ui-component/menu/DotMenu';
 import * as Yup from 'yup';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
-import { toast, ToastContainer } from 'react-toastify';
 import PageContainer from 'ui-component/MainPage';
 import UploadFile from 'ui-component/modal/UploadFile';
 import hasPermission from 'utils/auth/hasPermission';
@@ -39,14 +30,24 @@ import SplitButton from 'ui-component/buttons/SplitButton';
 import Search from 'ui-component/search';
 import axios from 'axios';
 
+import UpdateJobPosititon from './componenets/UpdateJopposititon';
+import DeletePrompt from 'ui-component/modal/DeletePrompt';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import { IconBriefcase } from '@tabler/icons-react';
+
 const AddJobPositionOptions = ['Add Job Positions', 'Import From Excel'];
 
 const JobPositionTable = () => {
+  const [mounted, setMounted] = useState(false);
   const [jobPositions, setJobPositions] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [update, setUpdate] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteUser, setDeleteUser] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
   const [importExcel, setImportExcel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [search, setSearch] = useState('');
@@ -85,60 +86,46 @@ const JobPositionTable = () => {
     }
   };
 
-  const handleEditJobPosition = async (values) => {
-    if (values.name.trim() && values.job_code.trim() && editIndex !== null) {
-      setLoading(true);
-
-      const token = await GetToken();
-      if (!token) {
-        toast.error('Authorization token is missing.');
-        setLoading(false);
-        return;
-      }
-
-      const api = Backend.api + Backend.jobposition + `/${values.id}`;
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        accept: 'application/json'
-      };
-
-      const data = {
-        name: values.name,
-        code: values.job_code
-      };
-
-      try {
-        const response = await fetch(api, {
-          method: 'PATCH',
-          headers: headers,
-          body: JSON.stringify(data)
-        });
-
-        if (!response.ok) {
-          const errorResponse = await response.json();
-          toast.error(errorResponse?.data.message || 'Failed to update job position.');
-          throw new Error(errorResponse?.message || 'Failed to update job position.');
-        }
-
-        const result = await response.json();
-        if (result.success) {
-          const updatedJobs = jobPositions.map((job, index) => (index === editIndex ? result.data.job_position : job));
-          setJobPositions(updatedJobs);
-          toast.success(result?.data?.message || 'Job position updated successfully!');
-          handleCloseModal();
-          await handleFetchJobPositions();
-        } else {
-          toast.error(result?.data?.message || 'Failed to update job position');
-        }
-      } catch (error) {
-        toast.error(error?.message || 'Error updating job position');
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      toast.error('Both job position name and code are required.');
+  const handleEditJobPosition = (values) => {
+    setIsUpdating(true);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Authorization token is missing.');
+      setIsUpdating(false);
+      return;
     }
+
+    const Api = Backend.api + Backend.jobposition + `/${selectedRow?.id || ''}`;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      name: values.name
+    };
+
+    fetch(Api, {
+      method: 'PATCH',
+      headers: header,
+      body: JSON.stringify(data)
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setIsUpdating(false);
+          handleUpdateEmployeeClose();
+          handleFetchJobPositions();
+        } else {
+          setIsUpdating(false);
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        setIsUpdating(false);
+        toast.error(error.message);
+      });
   };
 
   const handleSearchFieldChange = (event) => {
@@ -162,7 +149,7 @@ const JobPositionTable = () => {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name: values.name, job_code: values.job_code })
+        body: JSON.stringify({ name: values.name })
       });
 
       const result = await response.json();
@@ -180,26 +167,43 @@ const JobPositionTable = () => {
     }
   };
 
-  const handleDeleteJobPosition = async (id) => {
-    const token = await GetToken();
-    try {
-      const Api = Backend.api + Backend.jobposition + `/${id}`;
-      const response = await fetch(Api, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
+  const handleDeleteJobPosition = () => {
+    setDeleting(true);
+    const token = localStorage.getItem('token');
+    const Api = Backend.api + Backend.jobposition + '/' + selectedRow.id;
+
+    const headers = {
+      Authorization: `Bearer` + token,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    fetch(Api, {
+      method: 'DELETE',
+      headers: headers
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          setDeleting(false);
+          setDeleteUser(false);
+          toast.success(response.data.message);
+
+          handleFetchJobPositions();
+        } else {
+          setDeleting(false);
+          toast.error(response.data.message);
         }
+      })
+      .catch((error) => {
+        setDeleting(false);
+        toast.error(error.message);
       });
-      const result = await response.json();
-      if (result.success) {
-        setJobPositions(jobPositions.filter((job) => job.id !== id));
-        toast.success(result?.data?.message || 'Job Position deleted successfully');
-      } else {
-        toast.error(result?.data?.message || 'Failed to delete job position');
-      }
-    } catch (error) {
-      toast.error('Error deleting job position: ' + (error.message || 'Unknown error'));
-    }
+  };
+
+  const handleRemovejobposition = (job) => {
+    setSelectedRow(job);
+    setDeleteUser(true);
   };
 
   const handleUpload = async (file) => {
@@ -232,9 +236,18 @@ const JobPositionTable = () => {
     }
   };
 
+  const handleJobpositionUpdate = (job) => {
+    setSelectedRow(job);
+    setUpdate(true);
+  };
+
+  const handleUpdateEmployeeClose = () => {
+    setUpdate(false);
+  };
+
   const handleOpenModal = (job = null, index = null) => {
     setEditIndex(index);
-    formik.setValues(job || { name: '', job_code: '' });
+    formik.setValues(job || { name: '' });
     setOpenModal(true);
   };
 
@@ -246,12 +259,10 @@ const JobPositionTable = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
-      job_code: ''
+      name: ''
     },
     validationSchema: Yup.object({
-      name: Yup.string().required('Job Position name is required'),
-      job_code: Yup.string().required('Code is required')
+      name: Yup.string().required('Job Position name is required')
     }),
     onSubmit: (values) => {
       if (editIndex !== null) {
@@ -287,25 +298,32 @@ const JobPositionTable = () => {
   const handleChangeRowsPerPage = (event) => {
     setPagination({ ...pagination, per_page: event.target.value, page: 0 });
   };
-  
-  const handleMenuOpen = (event, index) => {
-    setAnchorEl(event.currentTarget);
-    setEditIndex(index);
-  };
-
-  const handleActionMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   useEffect(() => {
-    handleFetchJobPositions();
-  }, [search, pagination.page, pagination.per_page]);
+    const debounceTimeout = setTimeout(() => {
+      handleFetchJobPositions();
+    }, 800);
+
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [search]);
+
+  useEffect(() => {
+    if (mounted) {
+      handleFetchJobPositions();
+    } else {
+      setMounted(true);
+    }
+
+    return () => {};
+  }, [pagination.page, pagination.per_page]);
 
   return (
     <PageContainer title="Job Positions">
       <Grid container padding={2}>
         <Grid container>
-          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3,paddingX:3  }}>
+          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 3, paddingX: 3 }}>
             <Search title="Filter Job Position" value={search} onChange={(event) => handleSearchFieldChange(event)} filter={false}></Search>
             {hasPermission('create:jobposition') && (
               <SplitButton options={AddJobPositionOptions} handleSelection={(value) => handleJobPositionAdd(value)} />
@@ -317,12 +335,12 @@ const JobPositionTable = () => {
           <CardContent>
             {loading ? (
               <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                <CircularProgress />
+                <ActivityIndicator size={20} />
               </Box>
             ) : jobPositions?.length === 0 ? (
-              <Box display="flex" alignItems="center" justifyContent="center" height="100%">
-                <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
-                <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
+              <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%">
+                <IconBriefcase size="3.6rem" stroke="1.2" />
+                <Typography variant="h4" color="textSecondary" align="center" marginLeft={2} mt={2}>
                   No job positions entered yet.
                 </Typography>
               </Box>
@@ -353,7 +371,7 @@ const JobPositionTable = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {jobPositions?.map((job, index) => (
+                    {jobPositions?.map((job) => (
                       <TableRow
                         key={job.id}
                         sx={{
@@ -376,33 +394,11 @@ const JobPositionTable = () => {
                           {job.name}
                         </TableCell>
 
-                        <TableCell
-                          sx={{
-                            border: 0,
-                            padding: '12px 16px'
-                          }}
-                        >
-                          <IconButton color="primary" onClick={(event) => handleMenuOpen(event, index)}>
-                            <MoreVertIcon />
-                          </IconButton>
-                          <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && editIndex === index} onClose={handleActionMenuClose}>
-                            <MenuItem
-                              onClick={() => {
-                                handleOpenModal(job, index);
-                                handleActionMenuClose();
-                              }}
-                            >
-                              <EditIcon /> Edit
-                            </MenuItem>
-                            <MenuItem
-                              onClick={() => {
-                                handleDeleteJobPosition(job.id);
-                                handleActionMenuClose();
-                              }}
-                            >
-                              <DeleteIcon /> Delete
-                            </MenuItem>
-                          </Menu>
+                        <TableCell sx={{ border: 0 }}>
+                          <DotMenu
+                            onEdit={hasPermission('update:jobposition') ? () => handleJobpositionUpdate(job) : null}
+                            onDelete={hasPermission('delete:jobposition') ? () => handleRemovejobposition(job) : null}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -414,42 +410,46 @@ const JobPositionTable = () => {
         </Grid>
       </Grid>
 
-      <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle>{editIndex !== null ? 'Edit Job Position' : 'Add Job Position'}</DialogTitle>
-        <DialogContent>
-          <form onSubmit={formik.handleSubmit}>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Job Position"
-              type="text"
-              fullWidth
-              variant="outlined"
-              {...formik.getFieldProps('name')}
-              error={formik.touched.name && Boolean(formik.errors.name)}
-              helperText={formik.touched.name && formik.errors.name}
-            />
+      {!loading && pagination.total > pagination.per_page && (
+        <TablePagination
+          component="div"
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          count={pagination.total}
+          rowsPerPage={pagination.per_page}
+          page={pagination.page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      )}
 
-            <DialogActions>
-              <Button onClick={handleCloseModal} color="primary">
-                Cancel
-              </Button>
-              <Button type="submit" color="primary">
-                {editIndex !== null ? 'Update' : 'Add'}
-              </Button>
-            </DialogActions>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <TablePagination
-        component="div"
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        count={pagination.total}
-        rowsPerPage={pagination.per_page}
-        page={pagination.page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+      <AddJobposition
+        openModal={openModal}
+        loading={loading}
+        onClose={handleCloseModal}
+        handleSubmission={(value) => handleSubmitJobPosition(value)}
       />
+      {selectedRow && (
+        <UpdateJobPosititon
+          update={update}
+          isUpdating={isUpdating}
+          JopPositionData={selectedRow}
+          onClose={() => handleUpdateEmployeeClose()}
+          handleSubmission={(value) => handleEditJobPosition(value)}
+          formik={formik}
+        />
+      )}
+      {deleteUser && (
+        <DeletePrompt
+          type="Delete"
+          open={deleteUser}
+          title="Removing Employee"
+          description={`Are you sure you want to remove ` + selectedRow?.user?.name}
+          onNo={() => setDeleteUser(false)}
+          onYes={() => handleDeleteJobPosition()}
+          deleting={deleting}
+          handleClose={() => setDeleteUser(false)}
+        />
+      )}
       <UploadFile
         open={importExcel}
         onClose={handleCloseDialog}
