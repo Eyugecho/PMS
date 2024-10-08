@@ -39,6 +39,7 @@ const AddUnit = ({ add, isAdding, types, onClose, handleSubmission }) => {
       name: '',
       parent_id: '',
       unit: null,
+      parent_unit_type: null,
       type: '',
       description: ''
     },
@@ -108,6 +109,7 @@ const AddUnit = ({ add, isAdding, types, onClose, handleSubmission }) => {
                 </FormHelperText>
               )}
             </FormControl>
+
             <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)} sx={{ marginTop: 3 }}>
               <InputLabel htmlfor="type">Unit type</InputLabel>
 
@@ -128,6 +130,35 @@ const AddUnit = ({ add, isAdding, types, onClose, handleSubmission }) => {
               {formik.touched.type && formik.errors.type && (
                 <FormHelperText error id="standard-weight-helper-text-type">
                   {formik.errors.type}
+                </FormHelperText>
+              )}
+            </FormControl>
+            <FormControl fullWidth error={formik.touched.parent_unit_type && Boolean(formik.errors.parent_unit_type)} sx={{ marginTop: 3 }}>
+              <InputLabel htmlfor="parent_unit_type">Parent Unit type</InputLabel>
+
+              <Select
+                id="parent_unit_type"
+                name="parent_unit_type"
+                label="Parent Unit type"
+                value={formik.values.parent_unit_type}
+                onChange={formik.handleChange}
+              >
+                {types.length === 0 ? (
+                  <Typography variant="body2" sx={{ padding: 1 }}>
+                    Unit type is not found
+                  </Typography>
+                ) : (
+                  types?.map((type, index) => (
+                    <MenuItem key={index} value={type.id}>
+                      {type.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+
+              {formik.touched.parent_unit_type && formik.errors.parent_unit_type && (
+                <FormHelperText error id="standard-weight-helper-text-type">
+                  {formik.errors.parent_unit_type}
                 </FormHelperText>
               )}
             </FormControl>

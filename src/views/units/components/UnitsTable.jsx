@@ -16,11 +16,7 @@ import {
   Avatar
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { MoreVert } from '@mui/icons-material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { IconDotsVertical } from '@tabler/icons-react';
+
 import { DotMenu } from 'ui-component/menu/DotMenu';
 import hasPermission from 'utils/auth/hasPermission';
 

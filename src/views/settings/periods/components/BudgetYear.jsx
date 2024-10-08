@@ -12,7 +12,7 @@ const BudgetYear = ({ year, startDate, endDate, expand, onExpand, onEdit, onDele
 
   const FormatDate = (dateString) => {
     const date = new Date(dateString);
-    const formattedDate = format(date, 'MM dd, yyyy');
+    const formattedDate = format(date, 'MM/ dd/ yyyy');
     return formattedDate;
   };
 

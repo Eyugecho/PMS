@@ -9,7 +9,9 @@ import {
   IconHazeMoon,
   IconList,
   IconChartInfographic,
-  IconKey
+  IconKey,
+  IconDeviceHeartMonitorFilled,
+  IconAnalyze
 } from '@tabler/icons-react';
 
 const icons = {
@@ -24,7 +26,8 @@ const icons = {
   IconList,
   IconChartInfographic,
   IconLayoutCards,
-  IconKey
+  IconKey,
+  IconAnalyze
 };
 import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
 
@@ -42,6 +45,7 @@ export const dashboard = () => {
     'read:kpitracker',
     'approval:manage',
     'read:evaluation',
+    'read:monitoring',
     'read:performance'
   ];
 
@@ -84,6 +88,12 @@ export const dashboard = () => {
       title: 'Evaluation',
       url: '/evaluations',
       icon: icons.IconListCheck
+    },
+    'read:monitoring': {
+      id: 'monitoring',
+      title: 'Monitoring',
+      url: '/monitoring',
+      icon: icons.IconAnalyze
     },
     'read:performance': {
       id: 'performance',

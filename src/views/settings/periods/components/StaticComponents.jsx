@@ -69,8 +69,7 @@ const StaticPeriodsComponent = ({ data, fiscalYear, onRefresh }) => {
     switch (key) {
       case 'Planning':
         return Backend.api + Backend.planningPeriod;
-      case 'Monitoring':
-        return Backend.api + Backend.monitoringPeriod;
+   
       case 'Revision':
         return Backend.api + Backend.revisionPeriod;
       default:

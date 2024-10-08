@@ -78,6 +78,7 @@ const Backend = {
   frequency_period_values: 'create-frequency-definition-period',
   get_frequency_definition: 'get-frequency-definition-period',
   evaluation_periods: 'create-evaluation-period',
+  get_evaluation_periods: 'get-evaluation-period',
   eodfetch: 'end-of-day-activities',
   getCount: 'get-counts',
   getEmployeesInDep: 'my-child-units-employee-count',

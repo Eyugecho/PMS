@@ -36,6 +36,9 @@ import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import { IconBriefcase } from '@tabler/icons-react';
 
 const AddJobPositionOptions = ['Add Job Positions', 'Import From Excel'];
+const templateUrl =
+  import.meta.env.MODE === 'production' ? import.meta.env.VITE_TEMPLATE_URL_PRODUCTION : import.meta.env.VITE_TEMPLATE_URL_LOCAL;
+
 
 const JobPositionTable = () => {
   const [mounted, setMounted] = useState(false);
@@ -128,6 +131,10 @@ const JobPositionTable = () => {
       });
   };
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> 9cf1a12676404b7f25994918895f91103f2b1fd6
   const handleSearchFieldChange = (event) => {
     const value = event.target.value;
     setSearch(value);
@@ -456,7 +463,7 @@ const JobPositionTable = () => {
         onUpload={handleUpload}
         uploadProgress={uploadProgress}
         onRemove={() => setUploadProgress(0)}
-        templateUrl="http://localhost:3000/Employee_Job_Position.csv"
+        templateUrl={templateUrl}
       />
       <ToastContainer />
     </PageContainer>

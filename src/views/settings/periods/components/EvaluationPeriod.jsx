@@ -30,7 +30,7 @@ import DrogaButton from 'ui-component/buttons/DrogaButton';
 import StatusSwitch from 'ui-component/switchs/StatusSwitch';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 
-const FrequencyDefinition = ({ sx, open, setOpen }) => {
+const EvaluationPeriod = ({ sx, open, setOpen }) => {
   const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
 
@@ -89,7 +89,7 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
   };
 
   const handleSettingDefaultFrequency = (data) => {
-    const quarterIndex = data.findIndex(({ value }) => value === '4');
+    const quarterIndex = data.findIndex(({ value }) => value === '2');
     if (quarterIndex === -1) return;
 
     const selected = data[quarterIndex];
@@ -102,7 +102,7 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
   };
 
   const handleCheckingPeriodAvailablity = (periods, value, index) => {
-    if (periods.length === 0 && index) {
+    if (periods.length === 0 && index >= 0) {
       const fiscalYearStartDate = new Date(selectedYear?.start_date);
       const fiscalYearEndDate = new Date(selectedYear?.end_date);
 
@@ -186,7 +186,7 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
     try {
       setLoadingDetails(true);
       const token = await GetToken();
-      const Api = Backend.api + Backend.get_frequency_definition + `?fiscal_year_id=${selectedYear?.id}&frequency_id=${id}`;
+      const Api = Backend.api + Backend.get_evaluation_periods + `?fiscal_year_id=${selectedYear?.id}&frequency_id=${id}`;
       const response = await fetch(Api, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -272,7 +272,7 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
   const handlePeriodSubmission = async () => {
     setSubmitting(true);
     const token = await GetToken();
-    const Api = Backend.api + Backend.PeriodDefinition;
+    const Api = Backend.api + Backend.evaluation_periods;
     const headers = {
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',
@@ -326,10 +326,8 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
 
       const data = {
         name: updatedRecord?.name,
-        start_date: updatedRecord?.start_date,
-        end_date: updatedRecord?.end_date,
-        evaluation_start_date: updatedRecord?.evaluation_period?.start_date,
-        evaluation_end_date: updatedRecord?.evaluation_period?.end_date
+        start_date: updatedRecord?.evaluation_period?.start_date,
+        end_date: updatedRecord?.evaluation_period?.end_date
       };
 
       fetch(Api, {
@@ -356,7 +354,7 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
 
     if ((changes.length > 0 && changes[0] === 'evaluation') || changes[1] === 'evaluation') {
       const token = await GetToken();
-      const Api = Backend.api + Backend.updatePeriod + updatedRecord?.evaluation_period?.id;
+      const Api = Backend.api + Backend.updatePeriod + updatedRecord?.id;
       const headers = {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
@@ -393,7 +391,9 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
   };
 
   const handleStatusChange = async (id, newStatus, index) => {
+
     setToBeUpdated(index);
+    
     setSubmitting(true);
     const token = await GetToken();
     const Api = Backend.api + Backend.changeStatus + id;
@@ -403,9 +403,13 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
       'Content-Type': 'application/json'
     };
     const status = newStatus.toString();
+    
+    
     const data = {
       status: status
     };
+
+    
 
     fetch(Api, {
       method: 'POST',
@@ -501,14 +505,7 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
                 <Table>
                   <TableHead>
                     <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                      {[
-                        'Name',
-                        selectedFrequency ? PeriodNaming(selectedFrequency?.name) + ' start' : `Period start`,
-                        selectedFrequency ? PeriodNaming(selectedFrequency?.name) + ' end' : `Period end`,
-                        'Evaluation start',
-                        'Evaluation end',
-                        'Status'
-                      ].map((header, index) => (
+                      {['Name', 'Evaluation start', 'Evaluation end', 'Status'].map((header, index) => (
                         <TableCell key={index}>
                           <Typography variant="subtitle1" color={theme.palette.text.primary}>
                             {header}
@@ -526,28 +523,8 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
                           </TableCell>
                           <TableCell>
                             <DatePicker
-                              label="Start Date"
-                              value={period?.start_date ? new Date(period?.start_date) : null}
-                              onChange={(date) => handleDateChange(date, index, 'start_date')}
-                              shouldDisableDate={(date) => shouldDisableDate(date, true, index)}
-                              renderInput={(params) => <TextField {...params} />}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <DatePicker
-                              label="End Date"
-                              value={period?.end_date ? new Date(period?.end_date) : null}
-                              onChange={(date) => handleDateChange(date, index, 'end_date')}
-                              shouldDisableDate={(date) => shouldDisableDate(date, false, index)}
-                              renderInput={(params) => (
-                                <TextField {...params} error={!isEndDateValid(period?.start_date, period?.end_date)} />
-                              )}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <DatePicker
                               label="Evaluation Start"
-                              value={period?.evaluation_period?.start_date ? new Date(period?.evaluation_period?.start_date) : null}
+                              value={period?.start_date ? new Date(period?.start_date) : null}
                               onChange={(date) => handleDateChange(date, index, 'start_date', true)}
                               shouldDisableDate={(date) => shouldEvaluationDisable(date, true, index)}
                               renderInput={(params) => <TextField {...params} />}
@@ -557,7 +534,7 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
                           <TableCell>
                             <DatePicker
                               label="Evaluation End"
-                              value={period?.evaluation_period?.end_date ? new Date(period?.evaluation_period?.end_date) : null}
+                              value={period?.end_date ? new Date(period?.end_date) : null}
                               onChange={(date) => handleDateChange(date, index, 'end_date', true)}
                               shouldDisableDate={(date) => shouldEvaluationDisable(date, false, index)}
                               renderInput={(params) => (
@@ -608,4 +585,4 @@ const FrequencyDefinition = ({ sx, open, setOpen }) => {
   );
 };
 
-export default FrequencyDefinition;
+export default EvaluationPeriod;
