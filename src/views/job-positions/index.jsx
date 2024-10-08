@@ -33,6 +33,9 @@ import { DotMenu } from 'ui-component/menu/DotMenu';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 
 const AddJobPositionOptions = ['Add Job Positions', 'Import From Excel'];
+const templateUrl =
+  import.meta.env.MODE === 'production' ? import.meta.env.VITE_TEMPLATE_URL_PRODUCTION : import.meta.env.VITE_TEMPLATE_URL_LOCAL;
+
 
 const JobPositionTable = () => {
   const [jobPositions, setJobPositions] = useState([]);
@@ -102,7 +105,6 @@ const JobPositionTable = () => {
       name: values.name
     };
 
-
     fetch(Api, {
       method: 'PATCH',
       headers: header,
@@ -124,6 +126,8 @@ const JobPositionTable = () => {
         toast.error(error.message);
       });
   };
+
+
   const handleSearchFieldChange = (event) => {
     const value = event.target.value;
     setSearch(value);
@@ -427,7 +431,7 @@ const JobPositionTable = () => {
         onUpload={handleUpload}
         uploadProgress={uploadProgress}
         onRemove={() => setUploadProgress(0)}
-        templateUrl="http://localhost:3000/Employee_Job_Position.csv"
+        templateUrl={templateUrl}
       />
       <ToastContainer />
     </PageContainer>

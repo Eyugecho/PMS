@@ -18,7 +18,8 @@ import Fallbacks from 'utils/components/Fallbacks';
 import EditFiscalYear from './components/EditFiscalYear';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import StaticPeriodsComponent from './components/StaticComponents';
-import FrequencyDefinition from './components/FrequencyDefinition';
+import FrequencyDefinition from './components/FisicalYearRangeDifination';
+import EvaluationPeriod from './components/EvaluationPeriod';
 
 function Periods() {
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
@@ -31,6 +32,8 @@ function Periods() {
   const [edit, setEdit] = React.useState(false);
   const [selectedFiscalYear, setSelectedFiscalYear] = React.useState(selectedYear ? selectedYear?.id : '');
   const [openPeriod, setOpenPeriod] = React.useState(false);
+  const [openEvaluation, setOpenEvaluation] = React.useState(false);
+
   const [toBeEdited, setToBeEdited] = React.useState(null);
   const [toBeDeleted, setToBeDeleted] = React.useState(null);
   const [submitting, setSumbitting] = React.useState(false);
@@ -350,6 +353,7 @@ function Periods() {
                           />
 
                           <FrequencyDefinition sx={{ marginTop: 2 }} open={openPeriod} setOpen={(value) => setOpenPeriod(value)} />
+                          <EvaluationPeriod sx={{ marginTop: 2 }} open={openEvaluation} setOpen={(value) => setOpenEvaluation(value)} />
                         </React.Fragment>
                       )}
                     </BudgetYear>
