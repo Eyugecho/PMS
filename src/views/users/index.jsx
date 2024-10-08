@@ -353,7 +353,7 @@ const Users = () => {
           <Grid item xs={10} md={12} marginBottom={3}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Search title="Search Employees" value={search} onChange={handleSearchFieldChange} filter={false} />
-              {hasPermission('create:users') && <AddButton title="Add User" onPress={handleAddUserClick} />}
+              {/* {hasPermission('create:users') && <AddButton title="Add User" onPress={handleAddUserClick} />} */}
             </Box>
           </Grid>
           <Grid container>

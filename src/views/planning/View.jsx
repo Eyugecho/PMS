@@ -212,7 +212,7 @@ const ViewPlan = () => {
           <Grid item xs={12} sm={12} md={12} lg={4} xl={3}>
             <PlanCard plan={plan} onEdit={() => handleUpdatingPlan(plan)} onDelete={() => handleDeletePlan(plan)} />
 
-            {!isEmployee && state?.can_plan && (
+            {!isEmployee && state?.can_distribute && (
               <DrogaButton
                 fullWidth
                 title={'Cascade Targets'}

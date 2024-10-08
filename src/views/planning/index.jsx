@@ -25,6 +25,7 @@ import IsEmployee from 'utils/is-employee';
 import hasPermission from 'utils/auth/hasPermission';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
+import PlanStatusNotice from './components/PlanStatusNotice';
 
 const Planning = () => {
   const theme = useTheme();
@@ -39,14 +40,19 @@ const Planning = () => {
   const [error, setError] = useState(false);
   const [selectedPerspective, setSelectedPerspectve] = useState(0);
   const [create, setCreate] = useState(false);
-  const [fullyPlanned, setFullyPlanned] = useState(false);
+
   const [canPlan, setCanPlan] = useState(false);
+  const [canDistribute, setCanDistribute] = useState(false);
+  const [canChangeStatus, setCanChangeStatus] = useState(false);
+  const [planStatus, setPlanStatus] = useState('');
+
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [update, setUpdate] = useState(false);
   const [selectedPlanID, setSelectedPlanID] = useState(null);
   const [deletePlan, setDeletePlan] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState('');
+  const [changingStatus, setchangingStatus] = useState(false);
   const [perspectiveTypes] = useState([{ label: 'All Perspectives', value: '' }]);
   const [measuringUnit] = useState([{ label: 'All Measuring Units', value: '' }]);
   const [filter, setFilter] = useState({
@@ -164,48 +170,80 @@ const Planning = () => {
   };
 
   const handleFetchingPlan = async () => {
-    if (selectedYear) {
-      setLoading(true);
-      const token = await GetToken();
-      const Api =
-        Backend.api +
-        Backend.getMyPlans +
-        `?fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}&search=${search}&perspective_type_id=${filter.perspective}&measuring_unit_id=${filter.m_unit}`;
-      const header = {
-        Authorization: `Bearer ${token}`,
-        accept: 'application/json',
-        'Content-Type': 'application/json'
-      };
+    setLoading(true);
+    const token = await GetToken();
+    const Api =
+      Backend.api +
+      Backend.getMyPlans +
+      `?fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}&search=${search}&perspective_type_id=${filter.perspective}&measuring_unit_id=${filter.m_unit}`;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
 
-      fetch(Api, {
-        method: 'GET',
-        headers: header
+    fetch(Api, {
+      method: 'GET',
+      headers: header
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success && response.data?.plans) {
+          setData(response.data?.plans?.data);
+          setCanPlan(response?.data?.can_plan);
+          setCanDistribute(response?.data?.can_distribute);
+          setCanChangeStatus(response.data?.can_change_status);
+          setPlanStatus(response.data?.plan_status);
+
+          handleSettingUpPerspectiveFilter(response.data?.perspectiveTypes);
+          handleSettingUpMeasuringUnitFilter(response.data?.measuringUnits);
+          setPagination({ ...pagination, total: response.data?.plans?.total });
+          setError(false);
+        } else {
+          toast.warning(response.data.message);
+          setError(false);
+        }
       })
-        .then((response) => response.json())
-        .then((response) => {
-          if (response.success && response.data?.plans) {
-            setData(response.data?.plans?.data);
-            setFullyPlanned(response.data?.weightSum);
-            setCanPlan(response.data?.can_plan);
-            handleSettingUpPerspectiveFilter(response.data?.perspectiveTypes);
-            handleSettingUpMeasuringUnitFilter(response.data?.measuringUnits);
-            setPagination({ ...pagination, total: response.data?.plans?.total });
-            setError(false);
-          } else {
-            toast.warning(response.data.message);
-            setError(false);
-          }
-        })
-        .catch((error) => {
-          toast.warning(error.message);
-          setError(true);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      <GetFiscalYear />;
-    }
+      .catch((error) => {
+        toast.warning(error.message);
+        setError(true);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const handlePlanStatus = async (status) => {
+    setchangingStatus(true);
+    const token = await GetToken();
+    const Api = Backend.api + Backend.planStatus;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      fiscal_year_id: selectedYear?.id,
+      status: status
+    };
+
+    fetch(Api, { method: 'POST', headers: header, body: JSON.stringify(data) })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast.success(response?.data?.message);
+          handleFetchingPlan();
+        } else {
+          toast.error(response?.data?.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error?.message);
+      })
+      .finally(() => {
+        setchangingStatus(false);
+      });
   };
 
   useEffect(() => {
@@ -214,7 +252,7 @@ const Planning = () => {
     } else {
       setMounted(true);
     }
-  }, [selectedYear, pagination.page, pagination.per_page, filter]);
+  }, [selectedYear?.id, pagination.page, pagination.per_page, filter]);
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
@@ -245,19 +283,23 @@ const Planning = () => {
       rightOption={
         hasPermission('create:kpitracker') && (
           <>
-            {!loading && fullyPlanned ? (
-              <Box sx={{ marginY: 1 }}>
-                <Alert icon={false} severity="info">
-                  Planned 100%
-                </Alert>
-              </Box>
-            ) : (
+            {canPlan && (
               <AddButton props={{ varaint: 'contained' }} title={'Create new plan'} onPress={() => handleCreatePlan()} disable={loading} />
             )}
           </>
         )
       }
     >
+      {canChangeStatus && (
+        <PlanStatusNotice
+          status={planStatus}
+          changingStatus={changingStatus}
+          onAccept={() => handlePlanStatus('accepted')}
+          onOpenToDiscussion={() => handlePlanStatus('open for discussion')}
+          onEsclate={() => handlePlanStatus('escalated')}
+        />
+      )}
+
       <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3.8, px: 2 }}>
         <Grid item xs={12} sm={12} md={4} lg={2.6} xl={2}>
           <Search value={search} onChange={(event) => handleSearchFieldChange(event)} />
@@ -325,7 +367,7 @@ const Planning = () => {
                     <Grid item xs={12} sm={12} md={6} lg={4} xl={4} key={index}>
                       <PlanCard
                         plan={plan}
-                        onPress={() => navigate('/planning/view', { state: { ...plan, can_plan: canPlan } })}
+                        onPress={() => navigate('/planning/view', { state: { ...plan, can_distribute: canDistribute } })}
                         onEdit={() => handleUpdatingPlan(plan)}
                         onDelete={() => handleDeletePlan(plan)}
                         editInitiative={true}

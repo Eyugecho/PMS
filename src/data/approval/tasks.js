@@ -1,62 +1,47 @@
 export const tasks = [
   {
-    type: 'planning',
-    status: 'pending',
-    title: 'Self Development',
-    description: "Yemisirach is waiting for your approval, don't forget to reflect on her task",
-    image: '',
-    username: 'Yemisirach Abebe',
-    position: 'Pharmacist',
-    step: 3,
-    date: '14/08/2024',
-    onPress: () => alert('Task: Self Development')
+    profilePicture: 'https://example.com/profile1.jpg',
+    name: 'John Doe',
+    position: 'Software Engineer',
+    department: 'Engineering',
+    taskCreationDate: '2024-10-05',
+    status1: 'Accepted',
+    status2: 'Pending'
   },
   {
-    type: 'evaluation',
-    status: 'rejected',
-    title: 'Inventory Management',
-    description: 'Tesfaye is currently working on the inventory audit.',
-    image: '',
-    username: 'Tesfaye Bekele',
-    position: 'Inventory Manager',
-    step: 3,
-    date: '13/08/2024',
-    onPress: () => alert('Task: Inventory Management')
+    profilePicture: 'https://example.com/profile2.jpg',
+    name: 'Jane Smith',
+    position: 'Product Manager',
+    department: 'Product',
+    taskCreationDate: '2024-09-28',
+    status1: 'Accepted',
+    status2: 'Approved'
   },
   {
-    type: 'planning',
-    status: 'amended',
-    title: 'Monthly Sales Report',
-    description: 'The sales report for July is ready for review.',
-    image: '',
-    username: 'Meklit Tadesse',
-    position: 'Sales Analyst',
-    step: 3,
-    date: '12/08/2024',
-    onPress: () => alert('Task: Monthly Sales Report')
+    profilePicture: 'https://example.com/profile3.jpg',
+    name: 'Michael Brown',
+    position: 'UX Designer',
+    department: 'Design',
+    taskCreationDate: '2024-10-01',
+    status1: 'Open to discussion',
+    status2: 'Pending'
   },
   {
-    type: 'planning',
-    status: 'approved',
-    title: 'Product Launch',
-    description: 'The product launch plan is pending your approval.',
-    image: '',
-    username: 'Liya Ayele',
-    position: 'Marketing Specialist',
-    step: 3,
-    date: '15/08/2024',
-    onPress: () => alert('Task: Product Launch')
+    profilePicture: 'https://example.com/profile4.jpg',
+    name: 'Emily White',
+    position: 'HR Specialist',
+    department: 'Human Resources',
+    taskCreationDate: '2024-09-25',
+    status1: 'Accepted',
+    status2: 'Pending'
   },
   {
-    type: 'evaluation',
-    status: 'approved',
-    title: 'Customer Feedback Analysis',
-    description: 'Dawit has completed the initial analysis of customer feedback.',
-    image: '',
-    username: 'Dawit Alemu',
-    position: 'Customer Service Lead',
-    step: 3,
-    date: '16/08/2024',
-    onPress: () => alert('Task: Customer Feedback Analysis')
+    profilePicture: 'https://example.com/profile5.jpg',
+    name: 'Chris Green',
+    position: 'DevOps Engineer',
+    department: 'IT',
+    taskCreationDate: '2024-10-03',
+    status1: 'Accepted',
+    status2: 'Approved'
   }
 ];

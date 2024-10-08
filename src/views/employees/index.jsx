@@ -542,7 +542,7 @@ const Employees = () => {
       <UploadFile
         open={importExcel}
         onClose={handleCloseDialog}
-        onUpload={handleUpload}
+        onUpload={(file) => handleUpload(file)}
         uploadProgress={uploadProgress}
         onRemove={() => setUploadProgress(0)}
       />
