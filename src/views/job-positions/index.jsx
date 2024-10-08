@@ -11,7 +11,6 @@ import {
   TableBody,
   Typography,
   useTheme,
-  CircularProgress,
   TablePagination
 } from '@mui/material';
 
@@ -20,7 +19,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import { AddJobposition } from './componenets/AddJobposition';
 import { DotMenu } from 'ui-component/menu/DotMenu';
 import * as Yup from 'yup';
-import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
 import PageContainer from 'ui-component/MainPage';
@@ -131,10 +129,6 @@ const JobPositionTable = () => {
       });
   };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 9cf1a12676404b7f25994918895f91103f2b1fd6
   const handleSearchFieldChange = (event) => {
     const value = event.target.value;
     setSearch(value);
