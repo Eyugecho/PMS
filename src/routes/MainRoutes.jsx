@@ -4,7 +4,7 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import Protected from 'Protected';
-import ViewTask from 'views/tasks/view';
+import ViewTask from 'views/approvals/view';
 import NotFound from 'views/not-found';
 import Frequencies from 'views/settings/frequencies';
 import Periods from 'views/settings/periods';
@@ -17,14 +17,15 @@ const Home = Loadable(lazy(() => import('views/dashboard')));
 const Units = Loadable(lazy(() => import('views/units')));
 const ViewUnit = Loadable(lazy(() => import('views/units/view')));
 const Planning = Loadable(lazy(() => import('views/planning')));
+const PlanDetail = Loadable(lazy(() => import('views/planning/planDetail')));
 const Employees = Loadable(lazy(() => import('views/employees')));
 const ViewEmployee = Loadable(lazy(() => import('views/employees/view')));
 
 const Ranking = Loadable(lazy(() => import('views/ranking')));
 const Perfomance = Loadable(lazy(() => import('views/performance')));
-const Feedbacks = Loadable(lazy(() => import('views/approvals/feedback')));
-const Tasks = Loadable(lazy(() => import('views/tasks')));
+const Tasks = Loadable(lazy(() => import('views/approvals')));
 const Approvals = Loadable(lazy(() => import('views/approvals')));
+const ViewApprovalTask = Loadable(lazy(() => import('views/approvals/view')));
 const Evaluations = Loadable(lazy(() => import('views/evaluation')));
 const Monitoring = Loadable(lazy(() => import('views/monitoring')));
 const ViewPlan = Loadable(lazy(() => import('views/planning/View')));
@@ -137,6 +138,15 @@ const MainRoutes = {
     },
 
     {
+      path: 'planning/details',
+      element: (
+        <Protected>
+          <PlanDetail />
+        </Protected>
+      )
+    },
+
+    {
       path: 'monitoring',
       element: (
         <Protected>
@@ -180,21 +190,20 @@ const MainRoutes = {
         </Protected>
       )
     },
+    {
+      path: 'approval/view',
+      element: (
+        <Protected>
+          <ViewApprovalTask />
+        </Protected>
+      )
+    },
 
     {
       path: 'workflows',
       element: (
         <Protected>
           <Workflows />
-        </Protected>
-      )
-    },
-
-    {
-      path: 'feedbacks',
-      element: (
-        <Protected>
-          <Feedbacks />
         </Protected>
       )
     },

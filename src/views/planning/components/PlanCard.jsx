@@ -22,7 +22,7 @@ const toolbarOptions = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }]
 ];
 
-const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative, is_employee }) => {
+const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative, hideOptions }) => {
   const theme = useTheme();
 
   const [expand, setExpand] = useState('');
@@ -76,20 +76,6 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative, is_empl
       });
   };
 
-  const handlePlanStatus = () => {
-    let p_status = '';
-
-    switch (plan?.status) {
-      case '0':
-        return (p_status = 'Pending');
-
-      case '1':
-        return (p_status = 'Active');
-
-      default:
-        return (p_status = 'Pending');
-    }
-  };
   return (
     <DrogaCard sx={{ ...sx }}>
       <div onClick={onPress} style={{ cursor: 'pointer' }}>
@@ -97,11 +83,11 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative, is_empl
           <Typography variant="body1">KPI Name</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box>
-              <Typography variant="body2" color={getStatusColor(handlePlanStatus())}>
-                {handlePlanStatus()}
+              <Typography variant="body2" sx={{ textTransform: 'capitalize' }} color={getStatusColor(plan?.status)}>
+                {plan?.status}
               </Typography>
             </Box>
-            {!plan?.is_distributed && (
+            {!plan?.is_distributed && !hideOptions && (
               <DotMenu
                 orientation="vertical"
                 onEdit={hasPermission('update:kpitracker') && onEdit}
@@ -290,11 +276,10 @@ const PlanCard = ({ plan, onPress, onEdit, onDelete, sx, editInitiative, is_empl
 };
 
 PlanCard.propTypes = {
-  plan: PropTypes.object,
+  plan: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   onPress: PropTypes.func,
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,
-  sx: PropTypes.object,
-  is_employee: PropTypes.bool
+  sx: PropTypes.object
 };
 export default PlanCard;

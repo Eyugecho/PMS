@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, ButtonBase, CircularProgress, Grid, Pagination, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, ButtonBase, CircularProgress, Grid, Pagination, TablePagination, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { IconLayoutGrid, IconLayoutList } from '@tabler/icons-react';
 import { toast, ToastContainer } from 'react-toastify';
 import { gridSpacing } from 'store/constant';
@@ -254,11 +254,15 @@ const KPIManagement = () => {
   };
 
   const handleSettingUpVariationFilter = (variations) => {
-    variationCategory.length < 2 && variations.forEach((variation, index) => variationCategory.push({ label: variation, value: index }));
+    variationCategory.length < 2 && variations.forEach((variation) => variationCategory.push({ label: variation, value: variation }));
   };
 
   const handleChangePage = (event, newPage) => {
     setPagination({ ...pagination, page: newPage });
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPagination({ ...pagination, per_page: event.target.value, page: 0 });
   };
 
   const handleFetchingKpi = async () => {
@@ -268,7 +272,7 @@ const KPIManagement = () => {
       const Api =
         Backend.api +
         Backend.kpi +
-        `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}&perspective_type_id=${filter.perspective}&measuring_unit_id=${filter.m_unit}&variation_category=${filter.m_unit}`;
+        `?page=${pagination.page + 1}&per_page=${pagination.per_page}&search=${search}&perspective_type_id=${filter.perspective}&measuring_unit_id=${filter.m_unit}&variation_category=${filter.variation}`;
       const response = await axios.get(Api, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -279,7 +283,9 @@ const KPIManagement = () => {
       if (response.data.success) {
         setData(response.data.data.data);
         setPagination({ ...pagination, total: response.data.data.total, last_page: response.data.data.last_page });
+        setError(false);
       } else {
+        setError(false);
         toast.error(response.data.data.message);
       }
     } catch (error) {
@@ -490,17 +496,20 @@ const KPIManagement = () => {
                 </Grid>
               )}
 
-              {!loading && (
-                <Pagination
-                  sx={{ marginTop: 2 }}
-                  count={pagination.last_page}
+              {!loading && pagination.total > pagination.per_page && (
+                <TablePagination
+                  component="div"
+                  rowsPerPageOptions={[10, 25, 50, 100]}
+                  count={pagination.total}
+                  rowsPerPage={pagination.per_page}
                   page={pagination.page}
-                  variant="outlined"
-                  shape="rounded"
-                  onChange={handleChangePage}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  labelRowsPerPage="Items per page"
                 />
               )}
             </Grid>
+
             <Grid item xs={12} sm={12} md={11} lg={4} xl={4}>
               <DrogaCard>
                 <Box

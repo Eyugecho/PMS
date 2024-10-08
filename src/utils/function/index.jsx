@@ -107,19 +107,21 @@ export const MeasuringUnitConverter = (mu) => {
 };
 
 export const getStatusColor = (status) => {
-  switch (status.toLowerCase()) {
-    case 'approved':
-      return 'green';
-    case 'active':
-      return 'green';
+  const normalizedStatus = status.toLowerCase();
+
+  const greenStatuses = ['approved', 'accepted', 'active'];
+  const blueStatuses = ['in-progress', 'open for discussion'];
+  const purpleStatuses = ['completed', 'escalated'];
+
+  if (greenStatuses.includes(normalizedStatus)) return 'green';
+  if (blueStatuses.includes(normalizedStatus)) return 'blue';
+  if (purpleStatuses.includes(normalizedStatus)) return 'purple';
+
+  switch (normalizedStatus) {
     case 'pending':
-      return '#FFA500';
+      return '#FFA500'; // Orange
     case 'rejected':
       return 'red';
-    case 'in-progress':
-      return 'blue';
-    case 'completed':
-      return 'purple';
     default:
       return 'gray';
   }

@@ -64,6 +64,7 @@ export const dashboard = () => {
       url: '/Eod',
       icon: icons.IconHazeMoon
     },
+
     'read:kpitracker': {
       id: 'planning',
       title: 'Planning',
@@ -74,9 +75,10 @@ export const dashboard = () => {
     'approval:manage': {
       id: 'approvals',
       title: 'Approval Management',
-      url: '/tasks',
+      url: '/approvals',
       icon: icons.IconCircleCheck
     },
+
     'read:evaluation': {
       id: 'evaluations',
       title: 'Evaluation',
