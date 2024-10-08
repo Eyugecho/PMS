@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Box, Divider, Grid, TablePagination, Typography } from '@mui/material';
+import { Alert, Box, Grid, IconButton, TablePagination, Typography, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { CreatePlan } from './components/CreatePlan';
 import { toast, ToastContainer } from 'react-toastify';
@@ -23,8 +23,11 @@ import SelectorMenu from 'ui-component/menu/SelectorMenu';
 import GetFiscalYear from 'utils/components/GetFiscalYear';
 import IsEmployee from 'utils/is-employee';
 import hasPermission from 'utils/auth/hasPermission';
+import DrogaCard from 'ui-component/cards/DrogaCard';
+import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 
 const Planning = () => {
+  const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
   const navigate = useNavigate();
   const isEmployee = IsEmployee();
@@ -34,6 +37,7 @@ const Planning = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
+  const [selectedPerspective, setSelectedPerspectve] = useState(0);
   const [create, setCreate] = useState(false);
   const [fullyPlanned, setFullyPlanned] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState();
@@ -58,7 +62,13 @@ const Planning = () => {
     setSearch(value);
     setPagination({ ...pagination, page: 0 });
   };
-
+  const handlePerspectiveCollapsing = (index) => {
+    if (selectedPerspective === index) {
+      setSelectedPerspectve(null);
+    } else {
+      setSelectedPerspectve(index);
+    }
+  };
   const handleFiltering = (event) => {
     const { value, name } = event.target;
     setFilter({ ...filter, [name]: value });
@@ -283,29 +293,50 @@ const Planning = () => {
           sx={{ paddingTop: 6 }}
         />
       ) : (
-        <Grid container sx={{ paddingY: 1, paddingX: 2, marginTop: 0.2 }} spacing={gridSpacing}>
-          {Object.keys(groupedPlans).map((perspectiveType) => (
-            <div key={perspectiveType}>
-              <Typography variant="h5" gutterBottom>
-                {perspectiveType}
-              </Typography>
+        <Grid container sx={{ paddingX: 2, marginTop: 0.2 }} spacing={gridSpacing}>
+          {Object.keys(groupedPlans).map((perspectiveType, index) => (
+            <Grid item xs={12} key={perspectiveType}>
+              <DrogaCard
+                onPress={() => handlePerspectiveCollapsing(index)}
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+              >
+                <Typography variant="h4" gutterBottom sx={{ m: 1 }}>
+                  {perspectiveType}
+                </Typography>
 
-              <Grid container spacing={2}>
-                {groupedPlans[perspectiveType].map((plan, index) => (
-                  <Grid item xs={12} sm={12} md={6} lg={4} xl={3} key={index}>
-                    <PlanCard
-                      plan={plan}
-                      onPress={() => navigate('/planning/view', { state: plan })}
-                      onEdit={() => handleUpdatingPlan(plan)}
-                      onDelete={() => handleDeletePlan(plan)}
-                      editInitiative={true}
-                      is_employee={isEmployee}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-              <Divider />
-            </div>
+                <IconButton onClick={() => handlePerspectiveCollapsing(index)}>
+                  {selectedPerspective === index ? (
+                    <IconChevronDown size="1.4rem" stroke="1.4" />
+                  ) : (
+                    <IconChevronRight size="1.4rem" stroke="1.4" />
+                  )}
+                </IconButton>
+              </DrogaCard>
+
+              {selectedPerspective === index && (
+                <Grid container spacing={2} mt={0.6}>
+                  {groupedPlans[perspectiveType].map((plan, index) => (
+                    <Grid item xs={12} sm={12} md={6} lg={4} xl={4} key={index}>
+                      <PlanCard
+                        plan={plan}
+                        onPress={() => navigate('/planning/view', { state: plan })}
+                        onEdit={() => handleUpdatingPlan(plan)}
+                        onDelete={() => handleDeletePlan(plan)}
+                        editInitiative={true}
+                        is_employee={isEmployee}
+                        sx={{
+                          ':hover': {
+                            boxShadow: theme.shadows[1],
+                            transform: 'scale(1.03)',
+                            transition: 'transform 0.3s ease-in-out'
+                          }
+                        }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+            </Grid>
           ))}
         </Grid>
       )}

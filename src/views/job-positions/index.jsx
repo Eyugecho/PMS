@@ -16,21 +16,24 @@ import {
 } from '@mui/material';
 
 import { useFormik } from 'formik';
+import { toast, ToastContainer } from 'react-toastify';
+import { AddJobposition } from './componenets/AddJobposition';
+import { DotMenu } from 'ui-component/menu/DotMenu';
 import * as Yup from 'yup';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
-import { toast, ToastContainer } from 'react-toastify';
 import PageContainer from 'ui-component/MainPage';
 import UploadFile from 'ui-component/modal/UploadFile';
 import hasPermission from 'utils/auth/hasPermission';
 import SplitButton from 'ui-component/buttons/SplitButton';
 import Search from 'ui-component/search';
 import axios from 'axios';
-import { AddJobposition } from './componenets/AddJobposition';
+
 import UpdateJobPosititon from './componenets/UpdateJopposititon';
-import { DotMenu } from 'ui-component/menu/DotMenu';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
+import { IconBriefcase } from '@tabler/icons-react';
 
 const AddJobPositionOptions = ['Add Job Positions', 'Import From Excel'];
 const templateUrl =
@@ -38,6 +41,7 @@ const templateUrl =
 
 
 const JobPositionTable = () => {
+  const [mounted, setMounted] = useState(false);
   const [jobPositions, setJobPositions] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
@@ -127,12 +131,16 @@ const JobPositionTable = () => {
       });
   };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9cf1a12676404b7f25994918895f91103f2b1fd6
   const handleSearchFieldChange = (event) => {
     const value = event.target.value;
     setSearch(value);
     setPagination({ ...pagination, page: 0 });
   };
+
   const handleSubmitJobPosition = async (values) => {
     try {
       setLoading(true);
@@ -199,10 +207,12 @@ const JobPositionTable = () => {
         toast.error(error.message);
       });
   };
+
   const handleRemovejobposition = (job) => {
     setSelectedRow(job);
     setDeleteUser(true);
   };
+
   const handleUpload = async (file) => {
     const token = localStorage.getItem('token');
     const Api = Backend.api + Backend.JobExcell;
@@ -232,13 +242,16 @@ const JobPositionTable = () => {
       toast.error(error.message);
     }
   };
+
   const handleJobpositionUpdate = (job) => {
     setSelectedRow(job);
     setUpdate(true);
   };
+
   const handleUpdateEmployeeClose = () => {
     setUpdate(false);
   };
+
   const handleOpenModal = (job = null, index = null) => {
     setEditIndex(index);
     formik.setValues(job || { name: '' });
@@ -294,8 +307,24 @@ const JobPositionTable = () => {
   };
 
   useEffect(() => {
-    handleFetchJobPositions();
-  }, [search, pagination.page, pagination.per_page]);
+    const debounceTimeout = setTimeout(() => {
+      handleFetchJobPositions();
+    }, 800);
+
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [search]);
+
+  useEffect(() => {
+    if (mounted) {
+      handleFetchJobPositions();
+    } else {
+      setMounted(true);
+    }
+
+    return () => {};
+  }, [pagination.page, pagination.per_page]);
 
   return (
     <PageContainer title="Job Positions">
@@ -313,12 +342,12 @@ const JobPositionTable = () => {
           <CardContent>
             {loading ? (
               <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                <CircularProgress />
+                <ActivityIndicator size={20} />
               </Box>
             ) : jobPositions?.length === 0 ? (
-              <Box display="flex" alignItems="center" justifyContent="center" height="100%">
-                <SentimentDissatisfiedIcon color="disabled" style={{ fontSize: 60 }} />
-                <Typography variant="subtitle1" color="textSecondary" align="center" marginLeft={2}>
+              <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%">
+                <IconBriefcase size="3.6rem" stroke="1.2" />
+                <Typography variant="h4" color="textSecondary" align="center" marginLeft={2} mt={2}>
                   No job positions entered yet.
                 </Typography>
               </Box>
@@ -388,15 +417,18 @@ const JobPositionTable = () => {
         </Grid>
       </Grid>
 
-      <TablePagination
-        component="div"
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        count={pagination.total}
-        rowsPerPage={pagination.per_page}
-        page={pagination.page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      {!loading && pagination.total > pagination.per_page && (
+        <TablePagination
+          component="div"
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          count={pagination.total}
+          rowsPerPage={pagination.per_page}
+          page={pagination.page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      )}
+
       <AddJobposition
         openModal={openModal}
         loading={loading}
