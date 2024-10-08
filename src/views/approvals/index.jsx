@@ -172,14 +172,14 @@ const Approvals = () => {
                         {data.map((item, index) => (
                           <ApprovalTasks
                             key={index}
-                            profile={item.name}
+                            profile={item.profile_picture}
                             taskType={item.task_name}
                             name={item.user_name}
-                            position={item.user_name}
+                            position={item.position}
                             unit={item.user_unit_name}
                             createdOn={format(new Date(item?.created_at), 'dd-MM-yyyy')}
-                            levelOne={item.status}
-                            levelTwo={item.status}
+                            levelOne={item.first_level_status ? item.first_level_status : 'Accepted'}
+                            levelTwo={item.second_level_status ? item.second_level_status : 'Approved'}
                             bigDevice={bigDevice}
                             onPress={() => navigate('/approval/view', { state: { id: item.id } })}
                           />
