@@ -19,6 +19,7 @@ const Backend = {
   types: 'unit-types',
   employees: 'employees',
   employeeExcel: 'employees/upload',
+  unitexcel: 'units/upload',
   kpi: 'kpis',
   getStats: 'get-counts',
   preSetups: 'kpi-pre-setups',

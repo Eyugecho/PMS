@@ -20,6 +20,7 @@ import GetToken from 'utils/auth-token';
 import UploadFile from 'ui-component/modal/UploadFile';
 import SelectorMenu from 'ui-component/menu/SelectorMenu';
 import hasPermission from 'utils/auth/hasPermission';
+import { ExcelTemplates } from 'configration/templates';
 
 const KPIManagement = () => {
   const theme = useTheme();
@@ -66,6 +67,7 @@ const KPIManagement = () => {
   const [summary, setSummary] = useState(null);
 
   const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
+const templateUrl = ExcelTemplates.kpi_data;
 
   const handleOpen = () => {
     setAdd(true);
@@ -602,6 +604,7 @@ const KPIManagement = () => {
         onUpload={handleUpload}
         uploadProgress={uploadProgress}
         onRemove={() => setUploadProgress(0)}
+        templateUrl={templateUrl}
       />
       <ToastContainer />
     </PageContainer>
