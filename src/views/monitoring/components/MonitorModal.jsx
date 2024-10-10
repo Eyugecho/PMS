@@ -4,7 +4,17 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, CircularProgress, FormControl, FormHelperText, IconButton, InputLabel, OutlinedInput, useTheme } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputLabel,
+  OutlinedInput,
+  Typography,
+  useTheme
+} from '@mui/material';
 import { IconX } from '@tabler/icons-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -12,29 +22,22 @@ import PropTypes from 'prop-types';
 
 const validationSchema = Yup.object().shape({
   actual_value: Yup.string().required('Evaluation value is required'),
+
   description: Yup.string()
 });
 
-export const MonitorModal = ({ add, isAdding, unitName, currentValue, onClose, handleSubmission }) => {
+export const MonitorModal = ({ add, isAdding, unitName, activeMonth, currentValue, onClose, handleSubmission }) => {
   const theme = useTheme();
   const formik = useFormik({
     initialValues: {
-      actual_value: '',
+      actual_value: currentValue > 0 ? currentValue : '',
       description: ''
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      handleSubmission(values);
+      handleSubmission(values, activeMonth);
     }
   });
-
-  React.useEffect(() => {
-    if (currentValue) {
-      formik.setValues({
-        actual_value: currentValue > 0 ? currentValue : ''
-      });
-    }
-  }, [currentValue]);
 
   return (
     <React.Fragment>
@@ -49,7 +52,7 @@ export const MonitorModal = ({ add, isAdding, unitName, currentValue, onClose, h
           }}
         >
           <DialogTitle variant="h4" color={theme.palette.text.primary}>
-            {unitName && unitName + ' Monitor'}
+            {unitName && unitName + ' Monitoring'}
           </DialogTitle>
           <IconButton onClick={onClose}>
             <IconX size={20} />
@@ -58,6 +61,30 @@ export const MonitorModal = ({ add, isAdding, unitName, currentValue, onClose, h
 
         <form noValidate onSubmit={formik.handleSubmit}>
           <DialogContent>
+            <Typography
+              variant="subtitle1"
+              color={theme.palette.text.primary}
+              sx={{
+                fontWeight: 'bold',
+               
+                margin: '16px 0',
+                textAlign: 'center',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                backgroundColor: theme.palette.background.paper,
+                boxShadow: `0 4px 8px rgba(0, 0, 0, 0.1)`,
+                transition: 'transform 0.3s, box-shadow 0.3s',
+                '&:hover': {
+                  transform: 'scale(1.01)',
+                  boxShadow: `0 8px 16px rgba(0, 0, 0, 0.1)`,
+                  cursor: 'pointer',
+                  color: theme.palette.secondary.contrastText 
+                }
+              }}
+            >
+              You are monitoring <span style={{ color: theme.palette.primary.main }}>{activeMonth}</span> Month
+            </Typography>
+
             <FormControl fullWidth error={formik.touched.actual_value && Boolean(formik.errors.actual_value)} sx={{ marginTop: 1 }}>
               <InputLabel htmlFor="actual_value">Monitoring Value</InputLabel>
               <OutlinedInput

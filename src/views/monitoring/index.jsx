@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Chip, Grid, TablePagination } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
+import { useSelector } from 'react-redux';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
 import UnitTable from './components/UnitTable';
@@ -10,9 +11,12 @@ import GetToken from 'utils/auth-token';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import ErrorPrompt from 'utils/components/ErrorPrompt';
 import Fallbacks from 'utils/components/Fallbacks';
+import GetFiscalYear from 'utils/components/GetFiscalYear';
 
 const Evaluations = () => {
   const [mounted, setMounted] = useState(false);
+  const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
+
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
@@ -44,38 +48,48 @@ const Evaluations = () => {
   };
 
   const handleFetchingUnits = async (value) => {
-    setLoading(true);
-    const token = await GetToken();
-    const units = Backend.api + Backend.getActiveDepartments + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
-    const employee = Backend.api + Backend.getActiveEmployees + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
-    const Api = value == 'employees' ? employee : units;
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
+     if (selectedYear) {
+       setLoading(true);
+       const token = await GetToken();
+       const units =
+         Backend.api +
+         Backend.getActiveDepartments +
+         `?fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+       const employee =
+         Backend.api +
+         Backend.getActiveEmployees +
+         `?fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+       const Api = value == 'employees' ? employee : units;
+       const header = {
+         Authorization: `Bearer ${token}`,
+         accept: 'application/json',
+         'Content-Type': 'application/json'
+       };
 
-    fetch(Api, {
-      method: 'GET',
-      headers: header
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setData(response.data.data);
-          setPagination({ ...pagination, total: response.data.total });
-          setError(false);
-        } else {
-          toast.warning(response.data.message);
-        }
-      })
-      .catch((error) => {
-        toast.warning(error.message);
-        setError(true);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+       fetch(Api, {
+         method: 'GET',
+         headers: header
+       })
+         .then((response) => response.json())
+         .then((response) => {
+           if (response.success) {
+             setData(response.data.data);
+             setPagination({ ...pagination, total: response.data.total });
+             setError(false);
+           } else {
+             toast.warning(response.data.message);
+           }
+         })
+         .catch((error) => {
+           toast.warning(error.message);
+           setError(true);
+         })
+         .finally(() => {
+           setLoading(false);
+         });
+     } else {
+       <GetFiscalYear />;
+     }
   };
 
   useEffect(() => {
@@ -94,7 +108,7 @@ const Evaluations = () => {
     } else {
       setMounted(true);
     }
-  }, [pagination.page, pagination.per_page]);
+  }, [selectedYear,pagination.page, pagination.per_page]);
 
   return (
     <PageContainer

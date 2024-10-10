@@ -55,6 +55,7 @@ const Backend = {
   employeeEligiblity: 'employee-eligible/',
   getEmployeeTask: 'get-employee-tasks/',
   evaluate: 'evaluate',
+  monitor: 'monitor',
   unitPerformance: 'unit-performance/',
   myPerformance: 'my-performance',
   myUnitPerformance: 'my-unit-performance',

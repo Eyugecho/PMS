@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Collapse,
@@ -11,14 +11,16 @@ import {
   TableHead,
   TableRow,
   Typography,
-  useTheme
+  useTheme,
+  FormControl
 } from '@mui/material';
 import { PeriodNaming } from 'utils/function';
-import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+import { KeyboardArrowDown, KeyboardArrowUp, SingleBedTwoTone } from '@mui/icons-material';
 import { MonitorModal } from './MonitorModal';
 import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
+import FrequencySelector from 'views/settings/periods/components/FrequencySelector';
 
 const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
   const theme = useTheme();
@@ -30,6 +32,8 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [currentValue, setCurrentValue] = useState('0');
 
+  const [selectedPeriodIndex, setSelectedPeriodIndex] = useState(0);
+
   const handleRowClick = (index) => {
     if (selectedRow === index) {
       setSelectedRow(null);
@@ -40,12 +44,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
     }
   };
 
-  const handleTargetSelection = (targetId) => {
-    selectedTarget === targetId ? setSelectedTarget(null) : setSelectedTarget(targetId);
-  };
-
-  const handleEvaluationClick = (targetId, value, action) => {
-    handleTargetSelection(targetId);
+  const handleMonitoringClick = (targetId, value, action) => {
     setTargetId(targetId);
     if (action === 'update') {
       setCurrentValue(value);
@@ -55,10 +54,20 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
     setAdd(true);
   };
 
-  const handleEvaluation = async (value) => {
+  const getCurrentMonth = () => {
+    const targets = plans[selectedRow].target;
+
+    const singleTarget = targets.find((target) => target.id === targetId);
+
+    const activeMonth = singleTarget?.months.find((month) => month.status === 'true');
+
+    return activeMonth?.month;
+  };
+
+  const handleMonitoring = async (value, activeMonth) => {
     setIsAdding(true);
     const token = await GetToken();
-    const Api = Backend.api + Backend.evaluate;
+    const Api = Backend.api + Backend.monitor;
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
@@ -68,6 +77,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
     const data = {
       target_setting_id: targetId,
       actual_value: value?.actual_value,
+      month: activeMonth,
       description: value?.description
     };
 
@@ -80,7 +90,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
       .then((response) => {
         if (response.success) {
           setIsAdding(false);
-          handleEvaluateModalClose();
+          handleMonitorModalClose();
           toast.success(response.data.message);
           onRefresh();
         } else {
@@ -93,10 +103,24 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
         setIsAdding(false);
       });
   };
+  const handleSelection = (index) => {
+    setSelectedPeriodIndex(index);
+  };
+  const periodOptions = plans[selectedRow]?.target?.map((target, index) => ({
+    name: `${PeriodNaming(target)} ${index + 1}`,
+    value: index
+  }));
 
-  const handleEvaluateModalClose = () => {
+  const handleMonitorModalClose = () => {
     setAdd(false);
   };
+  useEffect(() => {
+    const currentPeriodIndex = plans[selectedRow]?.target?.findIndex((target) => target.is_current_period) ?? 0;
+    console.log('currentPeriodIndex', currentPeriodIndex);
+
+    setSelectedPeriodIndex(currentPeriodIndex);
+  }, [plans[selectedRow]?.target]);
+
   return (
     <React.Fragment>
       <TableContainer component={Paper} sx={{ minHeight: '22dvh' }}>
@@ -156,103 +180,129 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                         <Table sx={{ minWidth: 650 }} aria-label="Organization plan table">
                           <TableHead>
                             <TableRow>
-                              <TableCell>Periods</TableCell>
+                              <TableCell>
+                                <FormControl>
+                                  <FrequencySelector
+                                    options={periodOptions}
+                                    handleSelection={handleSelection}
+                                    index={selectedPeriodIndex}
+                                    selectedName={periodOptions[selectedPeriodIndex]?.name}
+                                  />
+                                </FormControl>
+                              </TableCell>
                               <TableCell>Targets</TableCell>
-                              <TableCell>Month-1</TableCell>
-                              <TableCell>Month-2</TableCell>
-                              <TableCell>Month-3</TableCell>
+
+                              {plan?.target[selectedPeriodIndex]?.months?.map((monthObj, monthIndex) => (
+                                <TableCell key={monthIndex}>{monthObj.month}</TableCell>
+                              ))}
                               <TableCell>Actuals</TableCell>
 
-                              {plan?.target.some((target) => target.can_be_evaluate === true) && <TableCell>Action</TableCell>}
+                              {plan?.target[selectedPeriodIndex]?.months?.some((month) => month.status === 'true') && (
+                                <TableCell>Action</TableCell>
+                              )}
                             </TableRow>
                           </TableHead>
-                          <TableBody>
-                            {plan?.target?.map((target, index) => (
-                              <TableRow
-                                key={index}
-                                sx={
-                                  selectedTarget == target.id
-                                    ? {
-                                        backgroundColor: theme.palette.grey[100],
-                                        ':hover': {
-                                          backgroundColor: theme.palette.grey[100],
-                                          color: theme.palette.background.default,
-                                          cursor: 'pointer',
-                                          borderRadius: 2
-                                        }
-                                      }
-                                    : {
-                                        backgroundColor: theme.palette.primary.light,
-                                        ':hover': {
-                                          backgroundColor: theme.palette.grey[100],
-                                          color: theme.palette.background.default,
-                                          cursor: 'pointer',
-                                          borderRadius: 2
-                                        }
-                                      }
-                                }
-                              >
-                                <TableCell sx={{ border: 0 }}>{PeriodNaming(plan?.frequency?.name) + ' ' + (index + 1)}</TableCell>
-                                <TableCell sx={{ border: 0 }}>{target?.target}</TableCell>
-                                <TableCell
-                                  sx={{
-                                    border: 0,
-                                    backgroundColor: index === 0 ? theme.palette.success.light : 'inherit', // Conditionally apply background color
-                                    color: index === 0 ? theme.palette.success.contrastText : 'inherit' // Conditionally apply text color
-                                  }}
-                                >
-                                  10
-                                </TableCell>
-                                <TableCell
-                                  sx={{
-                                    border: 0,
-                                    backgroundColor: index === 0 ? theme.palette.grey[200] : 'inherit', // Disable other months
-                                    color: index === 0 ? theme.palette.text.disabled : 'inherit' // Disable text color for other months
-                                  }}
-                                >
-                                  0
-                                </TableCell>
-                                <TableCell
-                                  sx={{
-                                    border: 0,
-                                    backgroundColor: index === 0 ? theme.palette.grey[200] : 'inherit', // Disable other months
-                                    color: index === 0 ? theme.palette.text.disabled : 'inherit' // Disable text color for other months
-                                  }}
-                                >
-                                  0
-                                </TableCell>
-                                <TableCell
-                                  sx={{
-                                    border: 0
-                                  }}
-                                >
-                                  {target?.actual_value}
-                                </TableCell>
 
-                                {target?.can_be_evaluate &&
-                                  (target?.actual_value == 0 ? (
-                                    <TableCell sx={{ border: 0 }}>
-                                      <Button
-                                        variant="contained"
-                                        sx={{ boxShadow: 0 }}
-                                        onClick={() => handleEvaluationClick(target.id, 0, 'evaluate')}
-                                      >
-                                        Monitor
-                                      </Button>
-                                    </TableCell>
-                                  ) : (
-                                    <TableCell sx={{ border: 0 }}>
-                                      <Button
-                                        variant="text"
-                                        sx={{ boxShadow: 0 }}
-                                        onClick={() => handleEvaluationClick(target.id, target?.actual_value, 'update')}
-                                      >
-                                        Update Monitor
-                                      </Button>
-                                    </TableCell>
-                                  ))}
-                              </TableRow>
-                            ))}
+                          <TableBody>
+                            <TableRow
+                              sx={
+                                selectedTarget === plan?.target[selectedRow]?.id
+                                  ? {
+                                      backgroundColor: theme.palette.grey[100],
+                                      ':hover': {
+                                        backgroundColor: theme.palette.grey[100],
+                                        color: theme.palette.background.default,
+                                        cursor: 'pointer',
+                                        borderRadius: 2
+                                      }
+                                    }
+                                  : {
+                                      backgroundColor: theme.palette.primary.light,
+                                      ':hover': {
+                                        backgroundColor: theme.palette.grey[100],
+                                        color: theme.palette.background.default,
+                                        cursor: 'pointer',
+                                        borderRadius: 2
+                                      }
+                                    }
+                              }
+                            >
+                              <TableCell sx={{ border: 0 }}>
+                                {PeriodNaming(plan?.frequency?.name) + ' ' + (selectedPeriodIndex + 1)}
+                              </TableCell>
+                              <TableCell sx={{ border: 0 }}>{plan?.target[selectedPeriodIndex]?.target}</TableCell>
+
+                              {plan?.target[selectedPeriodIndex]?.months?.map((monthObj, monthIndex) => {
+                                const foundMonth = plan?.target[selectedPeriodIndex]?.months?.find(
+                                  (month) => month.month === monthObj.month
+                                );
+
+                                return (
+                                  <TableCell
+                                    key={monthIndex}
+                                    sx={{
+                                      border: 0,
+                                      backgroundColor: foundMonth?.status === 'true' ? theme.palette.success.light : theme.palette,
+                                      color:
+                                        foundMonth?.status === 'true' ? theme.palette.success.contrastText : theme.palette.text.disabled
+                                    }}
+                                  >
+                                    {foundMonth ? foundMonth.value : '-'}
+                                  </TableCell>
+                                );
+                              })}
+
+                              <TableCell sx={{ border: 0 }}>{plan?.target[selectedPeriodIndex]?.actual_value}</TableCell>
+
+                              {plan?.target[selectedPeriodIndex]?.is_current_period &&
+                                plan?.target[selectedPeriodIndex]?.months?.some((month) => month.status === 'true') && (
+                                  <TableCell sx={{ border: 0 }}>
+                                    {(() => {
+                                      const hasStatusTrue = plan?.target[selectedPeriodIndex]?.months?.some(
+                                        (month) => month.status === 'true'
+                                      );
+
+                                      if (!hasStatusTrue) {
+                                        return (
+                                          <Button
+                                            variant="contained"
+                                            disabled
+                                            sx={{ boxShadow: 0, backgroundColor: 'red', color: 'white' }}
+                                          >
+                                            Time Limit Expired
+                                          </Button>
+                                        );
+                                      } else if (plan?.target[selectedPeriodIndex]?.actual_value === 0) {
+                                        return (
+                                          <Button
+                                            variant="contained"
+                                            sx={{ boxShadow: 0 }}
+                                            onClick={() => handleMonitoringClick(plan?.target[selectedPeriodIndex]?.id, 0, 'evaluate')}
+                                          >
+                                            Monitor
+                                          </Button>
+                                        );
+                                      } else {
+                                        return (
+                                          <Button
+                                            variant="text"
+                                            sx={{ boxShadow: 0 }}
+                                            onClick={() =>
+                                              handleMonitoringClick(
+                                                plan?.target[selectedPeriodIndex]?.id,
+                                                plan?.target[selectedPeriodIndex]?.actual_value,
+                                                'update'
+                                              )
+                                            }
+                                          >
+                                            Update Monitor
+                                          </Button>
+                                        );
+                                      }
+                                    })()}
+                                  </TableCell>
+                                )}
+                            </TableRow>
                           </TableBody>
                         </Table>
                       </Collapse>
@@ -268,12 +318,13 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
       {targetId && (
         <MonitorModal
           add={add}
+          activeMonth={getCurrentMonth()}
           unitName={unitName}
           unitType={unitType}
           isAdding={isAdding}
           currentValue={currentValue}
-          onClose={handleEvaluateModalClose}
-          handleSubmission={(value) => handleEvaluation(value)}
+          onClose={handleMonitorModalClose}
+          handleSubmission={(value, month) => handleMonitoring(value, month)}
         />
       )}
       <ToastContainer />

@@ -52,38 +52,48 @@ const Performance = () => {
   };
 
   const handleFetchingUnits = async (value) => {
-    setLoading(true);
-    const token = await GetToken();
-    const units = Backend.api + Backend.getActiveDepartments + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
-    const employee = Backend.api + Backend.getActiveEmployees + `?page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
-    const Api = value == 'employees' ? employee : units;
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
+    if (selectedYear) {
+      setLoading(true);
+      const token = await GetToken();
+      const units =
+        Backend.api +
+        Backend.getActiveDepartments +
+        `?fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+      const employee =
+        Backend.api +
+        Backend.getActiveEmployees +
+        `?fiscal_year_id=${selectedYear?.id}&page=${pagination.page}&per_page=${pagination.per_page}&search=${search}`;
+      const Api = value == 'employees' ? employee : units;
+      const header = {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json'
+      };
 
-    fetch(Api, {
-      method: 'GET',
-      headers: header
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          setData(response.data.data);
-          setPagination({ ...pagination, total: response.data.total });
-          setError(false);
-        } else {
-          toast.warning(response.data.message);
-        }
+      fetch(Api, {
+        method: 'GET',
+        headers: header
       })
-      .catch((error) => {
-        toast.warning(error.message);
-        setError(true);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+        .then((response) => response.json())
+        .then((response) => {
+          if (response.success) {
+            setData(response.data.data);
+            setPagination({ ...pagination, total: response.data.total });
+            setError(false);
+          } else {
+            toast.warning(response.data.message);
+          }
+        })
+        .catch((error) => {
+          toast.warning(error.message);
+          setError(true);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      <GetFiscalYear />;
+    }
   };
 
   const handleViewPerformance = (selected) => {
@@ -117,7 +127,6 @@ const Performance = () => {
           if (response.success) {
             setPerformance(response.data.performance);
             console.log(response.data.performance);
-            
           } else {
             setPerformance([]);
             toast.warning(response.data.message);
@@ -159,7 +168,7 @@ const Performance = () => {
     } else {
       setMounted(true);
     }
-  }, [pagination.page, pagination.per_page]);
+  }, [selectedYear, pagination.page, pagination.per_page]);
   return (
     <PageContainer
       title="Performances"

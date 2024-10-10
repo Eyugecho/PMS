@@ -136,7 +136,7 @@ const UploadFile = ({ open, onClose, onUpload, uploadProgress, onRemove, templat
       </DialogContent>
       <DialogActions sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
         {file && uploadProgress > 0 && <LinearProgress value={uploadProgress} sx={{ paddingRight: 2 }} />}
-        <Button variant="outlined" color="info" onClick={() => handleDownloadTemplate(templateUrl)} sx={{ marginRight: 2, paddingX: 2 }}>
+        <Button component="a" href={templateUrl} download={true} variant="outlined" color="info" sx={{ marginRight: 2, paddingX: 2 }}>
           Download Template
         </Button>
         <Button

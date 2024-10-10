@@ -44,9 +44,11 @@ export const dashboard = () => {
     'read:endofdayactivity',
     'read:kpitracker',
     'approval:manage',
-    'read:evaluation',
     'read:monitoring',
-    'read:performance'
+    'read:evaluation',
+    'read:performance',
+    'read:report'
+    
   ];
 
   const permissionMap = {
@@ -74,7 +76,7 @@ export const dashboard = () => {
       url: '/planning',
       icon: icons.IconLayoutCards
     },
-    'read:performance': {
+    'read:report': {
       id: 'report',
       title: 'Reports',
       url: '/report',
