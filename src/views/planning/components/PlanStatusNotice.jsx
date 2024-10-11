@@ -43,12 +43,12 @@ const PlanStatusNotice = ({ status, changingStatus, onAccept, onOpenToDiscussion
               </Box>
 
               <Grid container spacing={gridSpacing} sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
-                {status !== 'accepted' && (
+                {onAccept && (
                   <Grid item xs={12} sm={4} md={4} lg={3}>
                     <DrogaButton variant="contained" title="Accept" fullWidth onPress={onAccept} disabled={changingStatus} />
                   </Grid>
                 )}
-                {status !== 'open for discussion' && (
+                {onOpenToDiscussion && (
                   <Grid item xs={12} sm={6} md={6} lg={4}>
                     <DrogaButton
                       variant="text"
@@ -60,7 +60,7 @@ const PlanStatusNotice = ({ status, changingStatus, onAccept, onOpenToDiscussion
                   </Grid>
                 )}
 
-                {status !== 'escalated' && (
+                {onEsclate && (
                   <Grid item xs={12} sm={4} md={4} lg={2}>
                     <DrogaButton variant="text" title="Esclate" fullWidth onPress={onEsclate} disabled={changingStatus} />
                   </Grid>

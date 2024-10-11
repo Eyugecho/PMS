@@ -24,7 +24,7 @@ import {
   useTheme
 } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
-import { IconInfoCircle, IconLayoutDistributeHorizontal, IconX } from '@tabler/icons-react';
+import { IconInfoCircle, IconLayoutDistributeHorizontal, IconMaximize, IconMinimize, IconX } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { firstSlideEmployee, firstSlideUnit, unitTargetValidation } from 'utils/validation/distribution';
 import Backend from 'services/backend';
@@ -34,6 +34,7 @@ import DrogaButton from 'ui-component/buttons/DrogaButton';
 
 const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh }) => {
   const theme = useTheme();
+  const [fullScreen, setFullScreen] = useState(false);
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const prevIndex = useRef(currentIndex);
   const [direction, setDirection] = useState('next');
@@ -51,6 +52,10 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
   const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [employeePayload, setEmployeePayload] = useState([]);
 
+  const handleExpanding = () => {
+    setFullScreen(!fullScreen);
+  };
+
   const handleAssignTo = (value) => {
     setAssignTo(value);
   };
@@ -65,8 +70,8 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
         unit_id: addedUnit.id,
         unit_name: addedUnit.name,
         total_target: targets[currentIndex].target,
-        parent_weight: 0,
-        child_weight: 0,
+        parent_weight: '',
+        child_weight: '',
         unit_targets: []
       };
       setUnitPayload((prevPayload) => [...prevPayload, newPayload]);
@@ -137,8 +142,8 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
         unit_id: addedEmployee.id,
         unit_name: addedEmployee.user?.name,
         total_target: targets[currentIndex].target,
-        parent_weight: 0,
-        child_weight: 0,
+        parent_weight: '',
+        child_weight: '',
         unit_targets: []
       };
       setEmployeePayload((prevPayload) => [...prevPayload, newPayload]);
@@ -473,17 +478,26 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
 
   return (
     <React.Fragment>
-      <Dialog open={add} onClose={onClose}>
-        <Box sx={{ position: 'absolute', right: 6, top: 14 }}>
-          <motion.div
-            whileHover={{
-              rotate: 90
-            }}
-            transition={{ duration: 0.3 }}
-            style={{ cursor: 'pointer', marginRight: 12 }}
-            onClick={onClose}
-          >
-            <IconX size="1.2rem" stroke={2} />
+      <Dialog open={add} onClose={onClose} fullScreen={fullScreen}>
+        <Box
+          sx={{
+            position: 'absolute',
+            right: 6,
+            top: 10,
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <motion.div>
+            <IconButton sx={{ cursor: 'pointer', marginRight: 2 }} onClick={() => handleExpanding()}>
+              {fullScreen ? <IconMinimize size="1.2rem" stroke={2.4} /> : <IconMaximize size="1.2rem" stroke={2.4} />}
+            </IconButton>
+          </motion.div>
+
+          <motion.div>
+            <IconButton sx={{ cursor: 'pointer', marginRight: 1 }} onClick={onClose}>
+              <IconX size="1.2rem" stroke={2} />
+            </IconButton>
           </motion.div>
         </Box>
         {targets.length > 0 && (
@@ -638,18 +652,7 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
                               return (
                                 <TableRow key={index}>
                                   <TableCell>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                      {index === 0 && employeePayload.length > 1 && (
-                                        <IconButton
-                                          sx={{ marginRight: 2 }}
-                                          onClick={() => handleCloningEmployeeTarget()}
-                                          title="Clone values"
-                                        >
-                                          <IconLayoutDistributeHorizontal size="1.2rem" />
-                                        </IconButton>
-                                      )}
-                                      <Typography variant="body2">{unit.unit_name}</Typography>
-                                    </Box>
+                                    <Typography variant="body2">{unit.unit_name}</Typography>
                                   </TableCell>
 
                                   {currentIndex === 0 && (
@@ -675,13 +678,24 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
                                     </>
                                   )}
                                   <TableCell>
-                                    <InputBase
-                                      sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: 'primary.main' }}
-                                      value={targetValue}
-                                      onChange={(event) => handleEmployeeTargetChange(event, targets[currentIndex].id, unit.unit_id)}
-                                      inputProps={{ 'aria-label': 'target' }}
-                                      type="number"
-                                    />
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                      <InputBase
+                                        sx={{ p: 0.5, border: 0.4, borderRadius: 2, borderColor: 'primary.main' }}
+                                        value={targetValue}
+                                        onChange={(event) => handleEmployeeTargetChange(event, targets[currentIndex].id, unit.unit_id)}
+                                        inputProps={{ 'aria-label': 'target' }}
+                                        type="number"
+                                      />
+                                      {index === 0 && employeePayload.length > 1 && (
+                                        <IconButton
+                                          sx={{ marginRight: 2 }}
+                                          onClick={() => handleCloningEmployeeTarget()}
+                                          title="Clone values"
+                                        >
+                                          <IconLayoutDistributeHorizontal size="1.2rem" />
+                                        </IconButton>
+                                      )}
+                                    </Box>
                                   </TableCell>
                                 </TableRow>
                               );
@@ -742,14 +756,7 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
                               return (
                                 <TableRow key={index}>
                                   <TableCell>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                      {index === 0 && unitPayload.length > 1 && (
-                                        <IconButton sx={{ marginRight: 2 }} onClick={() => handleCloningUnitTarget()} title="Clone values">
-                                          <IconLayoutDistributeHorizontal size="1.2rem" />
-                                        </IconButton>
-                                      )}
-                                      <Typography variant="body2">{unit.unit_name}</Typography>
-                                    </Box>
+                                    <Typography variant="body2">{unit.unit_name}</Typography>
                                   </TableCell>
 
                                   {currentIndex === 0 && (
@@ -775,13 +782,20 @@ const DistributeTarget = ({ add, onClose, plan_id, targets, naming, onRefresh })
                                   )}
 
                                   <TableCell>
-                                    <InputBase
-                                      sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: 'primary.main' }}
-                                      value={targetValue}
-                                      onChange={(event) => handleUnitTargetChange(event, targets[currentIndex].id, unit.unit_id)}
-                                      inputProps={{ 'aria-label': 'target' }}
-                                      type="number"
-                                    />
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                      <InputBase
+                                        sx={{ p: 0.5, border: 1, borderRadius: 2, borderColor: 'primary.main' }}
+                                        value={targetValue}
+                                        onChange={(event) => handleUnitTargetChange(event, targets[currentIndex].id, unit.unit_id)}
+                                        inputProps={{ 'aria-label': 'target' }}
+                                        type="number"
+                                      />
+                                      {index === 0 && unitPayload.length > 1 && (
+                                        <IconButton sx={{ marginRight: 2 }} onClick={() => handleCloningUnitTarget()} title="Clone values">
+                                          <IconLayoutDistributeHorizontal size="1.2rem" />
+                                        </IconButton>
+                                      )}
+                                    </Box>
                                   </TableCell>
                                 </TableRow>
                               );

@@ -217,7 +217,7 @@ const ViewPlan = () => {
               hideOptions={state?.can_distribute}
             />
 
-            {!isEmployee && plan?.status === 'approved' && (
+            {!isEmployee && state?.can_distribute && plan?.status === 'approved' && (
               <DrogaButton
                 fullWidth
                 title={'Cascade Targets'}

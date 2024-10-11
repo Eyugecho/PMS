@@ -55,13 +55,13 @@ const Planning = () => {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
+  const [allowedStatus, setAllowedState] = useState([]);
   const [error, setError] = useState(false);
   const [selectedPerspective, setSelectedPerspectve] = useState(0);
   const [create, setCreate] = useState(false);
 
   const [canPlan, setCanPlan] = useState(false);
   const [canDistribute, setCanDistribute] = useState(false);
-  const [canChangeStatus, setCanChangeStatus] = useState(false);
   const [planStatus, setPlanStatus] = useState('');
 
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -236,7 +236,7 @@ const Planning = () => {
           setData(response.data?.plans?.data);
           setCanPlan(response?.data?.can_plan);
           setCanDistribute(response?.data?.can_distribute);
-          setCanChangeStatus(response.data?.can_change_status);
+          setAllowedState(response.data?.allowed_status);
           setPlanStatus(response.data?.plan_status);
 
           handleSettingUpPerspectiveFilter(response.data?.perspectiveTypes);
@@ -336,13 +336,15 @@ const Planning = () => {
         )
       }
     >
-      {canChangeStatus && (
+      {allowedStatus.length > 0 && (
         <PlanStatusNotice
           status={planStatus}
           changingStatus={actionInfo.submitting}
-          onAccept={() => handleOpenModal('Accepting', 'accepted')}
-          onOpenToDiscussion={() => handleOpenModal('Opeining for discussion', 'open for discussion')}
-          onEsclate={() => handleOpenModal('Esclating', 'escalated')}
+          onAccept={allowedStatus.includes('accepted') ? () => handleOpenModal('Accepting', 'accepted') : null}
+          onOpenToDiscussion={
+            allowedStatus.includes('open for discussion') ? () => handleOpenModal('Opeining for discussion', 'open for discussion') : null
+          }
+          onEsclate={allowedStatus.includes('escalated') ? () => handleOpenModal('Esclating', 'escalated') : null}
         />
       )}
 

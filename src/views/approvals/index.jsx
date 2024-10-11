@@ -180,8 +180,8 @@ const Approvals = () => {
                             position={item.position}
                             unit={item.user_unit_name}
                             createdOn={format(new Date(item?.created_at), 'dd-MM-yyyy')}
-                            levelOne={item.first_level_status ? item.first_level_status : 'Accepted'}
-                            levelTwo={item.second_level_status ? item.second_level_status : 'Approved'}
+                            levelOne={item.first_level_status ? item.first_level_status : 'N/A'}
+                            levelTwo={item.second_level_status ? item.second_level_status : 'N/A'}
                             bigDevice={bigDevice}
                             onPress={() => navigate('/approval/view', { state: { id: item.id } })}
                           />
