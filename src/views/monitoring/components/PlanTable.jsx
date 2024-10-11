@@ -15,14 +15,14 @@ import {
   FormControl
 } from '@mui/material';
 import { PeriodNaming } from 'utils/function';
-import { KeyboardArrowDown, KeyboardArrowUp, SingleBedTwoTone } from '@mui/icons-material';
+import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { MonitorModal } from './MonitorModal';
 import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
 import FrequencySelector from 'views/settings/periods/components/FrequencySelector';
 
-const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
+const PlanTable = ({ hideActions, plans, unitName, unitType, onRefresh }) => {
   const theme = useTheme();
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
@@ -34,13 +34,13 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
 
   const [selectedPeriodIndex, setSelectedPeriodIndex] = useState(0);
 
-  const handleRowClick = (index) => {
+  const handleRowClick = (index, planID) => {
     if (selectedRow === index) {
       setSelectedRow(null);
       setSelectedTarget(null);
     } else {
       setSelectedRow(index);
-      setSelectedTarget(null);
+      setSelectedTarget(planID);
     }
   };
 
@@ -55,13 +55,16 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
   };
 
   const getCurrentMonth = () => {
-    const targets = plans[selectedRow].target;
+    if (selectedRow >= 0 && plans[selectedRow]?.target) {
+      const targets = plans[selectedRow]?.target || [];
+      const singleTarget = targets.find((target) => target.id === targetId);
 
-    const singleTarget = targets.find((target) => target.id === targetId);
+      const activeMonth = singleTarget?.months?.find((month) => month.status === 'true');
 
-    const activeMonth = singleTarget?.months.find((month) => month.status === 'true');
-
-    return activeMonth?.month;
+      return activeMonth?.month || '';
+    } else {
+      return '';
+    }
   };
 
   const handleMonitoring = async (value, activeMonth) => {
@@ -114,12 +117,12 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
   const handleMonitorModalClose = () => {
     setAdd(false);
   };
+
   useEffect(() => {
     const currentPeriodIndex = plans[selectedRow]?.target?.findIndex((target) => target.is_current_period) ?? 0;
-    console.log('currentPeriodIndex', currentPeriodIndex);
 
     setSelectedPeriodIndex(currentPeriodIndex);
-  }, [plans[selectedRow]?.target]);
+  }, [plans, selectedRow]);
 
   return (
     <React.Fragment>
@@ -138,7 +141,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
           </TableHead>
           <TableBody>
             {plans?.map((plan, index) => (
-              <React.Fragment key={index}>
+              <React.Fragment key={plan?.id}>
                 <TableRow
                   sx={{
                     backgroundColor: selectedRow == index ? theme.palette.grey[50] : theme.palette.background.default,
@@ -151,7 +154,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                   }}
                 >
                   <TableCell sx={{ display: 'flex', alignItems: 'center', border: 0 }}>
-                    <IconButton aria-label="expand row" size="small" onClick={() => handleRowClick(index)}>
+                    <IconButton aria-label="expand row" size="small" onClick={() => handleRowClick(index, plan?.id)}>
                       {selectedRow === index ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                     </IconButton>
 
@@ -167,13 +170,13 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                   <TableCell sx={{ border: 0 }}>{plan?.kpi?.measuring_unit?.name}</TableCell>
                   <TableCell sx={{ border: 0 }}>{plan?.frequency?.name}</TableCell>
                   <TableCell sx={{ border: 0 }}>
-                    <Button variant="outlined" onClick={() => handleRowClick(index)}>
+                    <Button variant="outlined" onClick={() => handleRowClick(index, plan?.id)}>
                       Targets
                     </Button>
                   </TableCell>
                 </TableRow>
 
-                {selectedRow == index && (
+                {selectedRow === index && (
                   <TableRow>
                     <TableCell colSpan={7}>
                       <Collapse in={selectedRow !== null} timeout="auto" unmountOnExit>
@@ -197,7 +200,7 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                               ))}
                               <TableCell>Actuals</TableCell>
 
-                              {plan?.target[selectedPeriodIndex]?.months?.some((month) => month.status === 'true') && (
+                              {plan?.target[selectedPeriodIndex]?.months?.some((month) => month.status === 'true') && !hideActions && (
                                 <TableCell>Action</TableCell>
                               )}
                             </TableRow>
@@ -255,7 +258,8 @@ const PlanTable = ({ plans, unitName, unitType, onRefresh }) => {
                               <TableCell sx={{ border: 0 }}>{plan?.target[selectedPeriodIndex]?.actual_value}</TableCell>
 
                               {plan?.target[selectedPeriodIndex]?.is_current_period &&
-                                plan?.target[selectedPeriodIndex]?.months?.some((month) => month.status === 'true') && (
+                                plan?.target[selectedPeriodIndex]?.months?.some((month) => month.status === 'true') &&
+                                !hideActions && (
                                   <TableCell sx={{ border: 0 }}>
                                     {(() => {
                                       const hasStatusTrue = plan?.target[selectedPeriodIndex]?.months?.some(

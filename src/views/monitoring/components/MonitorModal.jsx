@@ -22,7 +22,6 @@ import PropTypes from 'prop-types';
 
 const validationSchema = Yup.object().shape({
   actual_value: Yup.string().required('Evaluation value is required'),
-
   description: Yup.string()
 });
 
@@ -30,7 +29,7 @@ export const MonitorModal = ({ add, isAdding, unitName, activeMonth, currentValu
   const theme = useTheme();
   const formik = useFormik({
     initialValues: {
-      actual_value: currentValue > 0 ? currentValue : '',
+      actual_value: '',
       description: ''
     },
     validationSchema: validationSchema,
@@ -38,6 +37,10 @@ export const MonitorModal = ({ add, isAdding, unitName, activeMonth, currentValu
       handleSubmission(values, activeMonth);
     }
   });
+
+  React.useEffect(() => {
+    formik.setFieldValue('actual_value', currentValue);
+  }, [currentValue]);
 
   return (
     <React.Fragment>
@@ -65,28 +68,29 @@ export const MonitorModal = ({ add, isAdding, unitName, activeMonth, currentValu
               variant="subtitle1"
               color={theme.palette.text.primary}
               sx={{
-                fontWeight: 'bold',
-               
                 margin: '16px 0',
                 textAlign: 'center',
                 padding: '10px 20px',
-                borderRadius: '8px',
-                backgroundColor: theme.palette.background.paper,
-                boxShadow: `0 4px 8px rgba(0, 0, 0, 0.1)`,
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                '&:hover': {
-                  transform: 'scale(1.01)',
-                  boxShadow: `0 8px 16px rgba(0, 0, 0, 0.1)`,
-                  cursor: 'pointer',
-                  color: theme.palette.secondary.contrastText 
-                }
+                borderRadius: theme.shape.borderRadius,
+                backgroundColor: theme.palette.grey[50]
               }}
             >
-              You are monitoring <span style={{ color: theme.palette.primary.main }}>{activeMonth}</span> Month
+              You are monitoring{' '}
+              <span
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: '16px',
+                  color: theme.palette.primary.main,
+                  margin: 2
+                }}
+              >
+                {activeMonth}
+              </span>{' '}
+              activities
             </Typography>
 
             <FormControl fullWidth error={formik.touched.actual_value && Boolean(formik.errors.actual_value)} sx={{ marginTop: 1 }}>
-              <InputLabel htmlFor="actual_value">Monitoring Value</InputLabel>
+              <InputLabel htmlFor="actual_value">Actual Value</InputLabel>
               <OutlinedInput
                 id="actual_value"
                 name="actual_value"
@@ -139,7 +143,7 @@ MonitorModal.propTypes = {
   add: PropTypes.bool,
   isAdding: PropTypes.bool,
   unitName: PropTypes.string,
-  currentValue: PropTypes.number,
+  currentValue: PropTypes.string,
   onClose: PropTypes.func,
   handleSubmission: PropTypes.func
 };
