@@ -45,6 +45,8 @@ const Backend = {
   showTarget: 'show-target/',
   getApprovalTasks: 'get-approval-tasks',
   getApprovalTasksDetail: 'get-approval-task-detail/',
+  getApprovalTaskRemarks: 'get-remarks-by-workflow/',
+  commentOnApprovalTask: 'create-workflow-comment/',
   getDepartments: 'get-departments',
   getActiveDepartments: 'get-active-departments',
   getEmployees: 'get-employees',

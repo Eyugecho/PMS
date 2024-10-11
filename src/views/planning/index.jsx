@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Box, Grid, IconButton, TablePagination, Typography, useTheme } from '@mui/material';
+import {
+  Alert,
+  Box,
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputLabel,
+  OutlinedInput,
+  TablePagination,
+  Typography,
+  useTheme
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { CreatePlan } from './components/CreatePlan';
 import { toast, ToastContainer } from 'react-toastify';
@@ -20,12 +32,18 @@ import GetToken from 'utils/auth-token';
 import axios from 'axios';
 import Search from 'ui-component/search';
 import SelectorMenu from 'ui-component/menu/SelectorMenu';
-import GetFiscalYear from 'utils/components/GetFiscalYear';
 import IsEmployee from 'utils/is-employee';
 import hasPermission from 'utils/auth/hasPermission';
 import DrogaCard from 'ui-component/cards/DrogaCard';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import PlanStatusNotice from './components/PlanStatusNotice';
+import * as Yup from 'yup';
+import DrogaFormModal from 'ui-component/modal/DrogaFormModal';
+import { useFormik } from 'formik';
+
+const validationSchema = Yup.object().shape({
+  remark: Yup.string()
+});
 
 const Planning = () => {
   const theme = useTheme();
@@ -64,6 +82,32 @@ const Planning = () => {
     per_page: 10,
     total: 0
   });
+
+  const [actionInfo, setActionInfo] = useState({
+    openModal: false,
+    title: 'Change Status',
+    action: '',
+    submitting: false
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      remark: ''
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      handlePlanStatus(values);
+    }
+  });
+
+  const handleOpenModal = (title, action) => {
+    setActionInfo((PrevState) => ({ ...PrevState, openModal: true, title: title, action: action }));
+  };
+
+  const handleCloseModal = () => {
+    setActionInfo((PrevState) => ({ ...PrevState, openModal: false, action: '' }));
+    formik.resetForm();
+  };
 
   const handleSearchFieldChange = (event) => {
     const value = event.target.value;
@@ -213,8 +257,8 @@ const Planning = () => {
       });
   };
 
-  const handlePlanStatus = async (status) => {
-    setchangingStatus(true);
+  const handlePlanStatus = async (values) => {
+    setActionInfo((prevState) => ({ ...prevState, submitting: true }));
     const token = await GetToken();
     const Api = Backend.api + Backend.planStatus;
     const header = {
@@ -225,7 +269,8 @@ const Planning = () => {
 
     const data = {
       fiscal_year_id: selectedYear?.id,
-      status: status
+      status: actionInfo.action,
+      remark: values.remark
     };
 
     fetch(Api, { method: 'POST', headers: header, body: JSON.stringify(data) })
@@ -233,6 +278,7 @@ const Planning = () => {
       .then((response) => {
         if (response.success) {
           toast.success(response?.data?.message);
+          handleCloseModal();
           handleFetchingPlan();
         } else {
           toast.error(response?.data?.message);
@@ -242,7 +288,7 @@ const Planning = () => {
         toast.error(error?.message);
       })
       .finally(() => {
-        setchangingStatus(false);
+        setActionInfo((prevState) => ({ ...prevState, submitting: false }));
       });
   };
 
@@ -293,10 +339,10 @@ const Planning = () => {
       {canChangeStatus && (
         <PlanStatusNotice
           status={planStatus}
-          changingStatus={changingStatus}
-          onAccept={() => handlePlanStatus('accepted')}
-          onOpenToDiscussion={() => handlePlanStatus('open for discussion')}
-          onEsclate={() => handlePlanStatus('escalated')}
+          changingStatus={actionInfo.submitting}
+          onAccept={() => handleOpenModal('Accepting', 'accepted')}
+          onOpenToDiscussion={() => handleOpenModal('Opeining for discussion', 'open for discussion')}
+          onEsclate={() => handleOpenModal('Esclating', 'escalated')}
         />
       )}
 
@@ -370,6 +416,7 @@ const Planning = () => {
                         onPress={() => navigate('/planning/view', { state: { ...plan, can_distribute: canDistribute } })}
                         onEdit={() => handleUpdatingPlan(plan)}
                         onDelete={() => handleDeletePlan(plan)}
+                        hideOptions={!canPlan}
                         editInitiative={true}
                         is_employee={isEmployee}
                         sx={{
@@ -402,6 +449,36 @@ const Planning = () => {
         />
       )}
       <CreatePlan add={create} onClose={handleCreateModalClose} onSucceed={() => handleFetchingPlan()} />
+
+      {actionInfo.openModal && (
+        <DrogaFormModal
+          open={actionInfo.openModal}
+          handleClose={handleCloseModal}
+          title={actionInfo.title}
+          onCancel={handleCloseModal}
+          onSubmit={formik.handleSubmit}
+          submitting={actionInfo.submitting}
+        >
+          <FormControl fullWidth error={formik.touched.remark && Boolean(formik.errors.remark)}>
+            <InputLabel htmlFor="remark">Remark (Optional)</InputLabel>
+            <OutlinedInput
+              id="remark"
+              name="remark"
+              label="Remark (Optional)"
+              value={formik.values.remark}
+              onChange={formik.handleChange}
+              multiline
+              rows={4}
+              fullWidth
+            />
+            {formik.touched.remark && formik.errors.remark && (
+              <FormHelperText error id="standard-weight-helper-text-remark">
+                {formik.errors.remark}
+              </FormHelperText>
+            )}
+          </FormControl>
+        </DrogaFormModal>
+      )}
       {selectedPlanID && (
         <UpdatePlan
           add={update}

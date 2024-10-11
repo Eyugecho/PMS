@@ -52,6 +52,7 @@ const DrogaFormModal = ({ open, title, handleClose, children, onCancel, onSubmit
               title={submitting ? <ActivityIndicator size={16} sx={{ color: 'white' }} /> : 'Submit'}
               variant="contained"
               sx={{ paddingX: 5, boxShadow: 0 }}
+              disabled={submitting}
             />
           </DialogActions>
         </DrogaCard>

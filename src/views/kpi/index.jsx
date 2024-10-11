@@ -20,6 +20,7 @@ import GetToken from 'utils/auth-token';
 import UploadFile from 'ui-component/modal/UploadFile';
 import SelectorMenu from 'ui-component/menu/SelectorMenu';
 import hasPermission from 'utils/auth/hasPermission';
+import Fallbacks from 'utils/components/Fallbacks';
 
 const KPIManagement = () => {
   const theme = useTheme();
@@ -488,6 +489,13 @@ const KPIManagement = () => {
                 </Grid>
               ) : error ? (
                 <ErrorPrompt image={noresult} title="Server Error" message="Unable to retrive the KPI's!" />
+              ) : data.length === 0 ? (
+                <Fallbacks
+                  severity="kpis"
+                  title="KPI is not found"
+                  description="The list of KPI will be listed here"
+                  sx={{ paddingTop: 6 }}
+                />
               ) : view === 'list' ? (
                 <ListView data={data} onEdit={(kpi) => handleOpenUpdate(kpi)} onDelete={(kpi) => handleDeleteKPI(kpi)} />
               ) : (

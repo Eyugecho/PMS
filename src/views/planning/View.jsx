@@ -210,15 +210,19 @@ const ViewPlan = () => {
           sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 0.5, padding: 2 }}
         >
           <Grid item xs={12} sm={12} md={12} lg={4} xl={3}>
-            <PlanCard plan={plan} onEdit={() => handleUpdatingPlan(plan)} onDelete={() => handleDeletePlan(plan)} />
+            <PlanCard
+              plan={plan}
+              onEdit={() => handleUpdatingPlan(plan)}
+              onDelete={() => handleDeletePlan(plan)}
+              hideOptions={state?.can_distribute}
+            />
 
-            {!isEmployee && state?.can_distribute && (
+            {!isEmployee && plan?.status === 'approved' && (
               <DrogaButton
                 fullWidth
                 title={'Cascade Targets'}
                 onPress={() => handleDistributeClick()}
                 sx={{ marginY: 2, padding: 1.6, boxShadow: 0 }}
-                disabled={plan?.status === '0'}
               />
             )}
           </Grid>

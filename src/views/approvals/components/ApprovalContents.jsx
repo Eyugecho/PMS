@@ -1,12 +1,13 @@
 import React from 'react';
-import { Box, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
+import { gridSpacing } from 'store/constant';
 import PropTypes from 'prop-types';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
-import DrogaButton from 'ui-component/buttons/DrogaButton';
 import PlanCard from 'views/planning/components/PlanCard';
-import { gridSpacing } from 'store/constant';
+import Fallbacks from 'utils/components/Fallbacks';
+import ErrorPrompt from 'utils/components/ErrorPrompt';
 
-const ApprovalContents = ({ loading, data }) => {
+const ApprovalContents = ({ loading, error, data }) => {
   return (
     <React.Fragment>
       {loading ? (
@@ -15,6 +16,10 @@ const ApprovalContents = ({ loading, data }) => {
             <ActivityIndicator size={20} />
           </Grid>
         </Grid>
+      ) : error ? (
+        <ErrorPrompt title="Server Error" message={`There is error retriving details tasks`} />
+      ) : data.length === 0 ? (
+        <Fallbacks severity="task" title={`Detial tasks are not found`} description="" sx={{ paddingTop: 6 }} />
       ) : (
         <Grid container sx={{ minHeight: 400 }} spacing={gridSpacing}>
           {data?.map((task, index) => (

@@ -119,9 +119,11 @@ export const getStatusColor = (status) => {
 
   switch (normalizedStatus) {
     case 'pending':
-      return '#FFA500'; // Orange
+      return '#FFA500';
     case 'rejected':
       return 'red';
+    case 'reviewed':
+      return '#3498db';
     default:
       return 'gray';
   }

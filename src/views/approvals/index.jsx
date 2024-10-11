@@ -96,8 +96,8 @@ const Approvals = () => {
       .then((response) => response.json())
       .then((response) => {
         if (response.success) {
-          setData(response.data);
-          // setPagination({ ...pagination, total: response.data.total });
+          setData(response.data?.data);
+          setPagination({ ...pagination, total: response.data.total });
           setError(false);
         } else {
           toast.warning(response.message);
@@ -150,6 +150,9 @@ const Approvals = () => {
                   </Box>
                 </Box>
                 <Grid container>
+                  <Grid item xs={12}>
+                    {bigDevice && <Header levelTwo={true} />}
+                  </Grid>
                   {loading ? (
                     <Grid container>
                       <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 4 }}>
@@ -168,7 +171,6 @@ const Approvals = () => {
                   ) : (
                     <Grid container>
                       <Grid item xs={12}>
-                        {bigDevice && <Header levelTwo={true} />}
                         {data.map((item, index) => (
                           <ApprovalTasks
                             key={index}

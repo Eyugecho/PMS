@@ -1,34 +1,74 @@
 import React from 'react';
-import { Avatar, Box, Grid, Typography, useTheme } from '@mui/material';
+import { Avatar, Box, Grid, Paper, Typography, useTheme } from '@mui/material';
+import { getStatusColor } from 'utils/function';
+import { IconArrowRight } from '@tabler/icons-react';
 import PropTypes from 'prop-types';
 
-const Comment = ({ profile, name, position, date_time, user_comment }) => {
+const Comment = ({ profile, name, position, from, to, date_time, user_comment }) => {
   const theme = useTheme();
   return (
-    <Grid container margin={1.4}>
+    <Grid container p={1}>
       <Grid item xs={2}>
-        <Avatar src={profile} sx={{ height: 36, width: 36 }} />
+        <Avatar src={profile} sx={{ height: 30, width: 30, marginTop: 0.6 }} />
       </Grid>
       <Grid item xs={10}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box>
+        <Grid container sx={{ display: 'flex', alignItems: 'center' }}>
+          <Grid item xs={12}>
             <Typography variant="h4" color={theme.palette.text.primary}>
               {name}
             </Typography>
+          </Grid>
+          <Grid item xs={12}>
             <Typography variant="body2" color={theme.palette.text.secondary}>
               {position}
             </Typography>
-          </Box>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {from && (
+            <Typography
+              variant="subtitle2"
+              sx={{
+                color: from && getStatusColor(from),
+                textTransform: 'capitalize',
+                fontWeight: 'medium'
+              }}
+            >
+              {from}
+            </Typography>
+          )}
+
+          {to && (
+            <>
+              <IconArrowRight size="1rem" stroke="1.4" />
+
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: to && getStatusColor(to),
+                  textTransform: 'capitalize',
+                  fontWeight: 'medium'
+                }}
+              >
+                {to}
+              </Typography>
+            </>
+          )}
         </Box>
 
-        <Box sx={{ marginY: 1.4 }}>
-          <Typography variant="subtitle1" color={theme.palette.text.primary}>
-            {user_comment}
-          </Typography>
+        <Box sx={{ marginY: 2 }}>
+          {user_comment && (
+            <Typography variant="body2" color={theme.palette.text.primary}>
+              {user_comment}
+            </Typography>
+          )}
 
-          <Typography variant="subtitle2" color={theme.palette.text.secondary} sx={{ marginTop: 1.2 }}>
-            {date_time}
-          </Typography>
+          {date_time && (
+            <Typography variant="subtitle2" color={theme.palette.text.secondary} sx={{ marginTop: 1.2 }}>
+              Create at: {date_time}
+            </Typography>
+          )}
         </Box>
       </Grid>
     </Grid>
@@ -37,6 +77,9 @@ const Comment = ({ profile, name, position, date_time, user_comment }) => {
 
 Comment.propTypes = {
   profile: PropTypes.string,
+  position: PropTypes.string,
+  from: PropTypes.string,
+  to: PropTypes.string,
   name: PropTypes.string,
   date_time: PropTypes.string,
   user_comment: PropTypes.string

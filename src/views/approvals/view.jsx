@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { Box, FormControl, FormHelperText, Grid, InputLabel, OutlinedInput, TablePagination } from '@mui/material';
+import {
+  Box,
+  Chip,
+  FormControl,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  OutlinedInput,
+  TablePagination,
+  useMediaQuery,
+  useTheme
+} from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { useFormik } from 'formik';
+import { getStatusColor } from 'utils/function';
 import PageContainer from 'ui-component/MainPage';
 import EmployeeDetail from './components/EmployeeDetail';
 import ApprovalContents from './components/ApprovalContents';
 import Backend from 'services/backend';
 import GetToken from 'utils/auth-token';
-import IsEmployee from 'utils/is-employee';
 import Search from 'ui-component/search';
 import ApprovalActionButtons from './components/ApprovalActionButtons';
 import * as Yup from 'yup';
@@ -23,13 +34,24 @@ const validationSchema = Yup.object().shape({
 
 const ViewApprovalTask = () => {
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
+  const theme = useTheme();
+  const smallDevice = useMediaQuery(theme.breakpoints.down('md'));
   const { state } = useLocation();
   const navigate = useNavigate();
-  const isEmployee = IsEmployee();
 
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
+  const [additionalData, setAdditionalData] = useState({
+    employeeData: null,
+    remarks: []
+  });
+
+  const [statuses, setStatuses] = useState({
+    plan_status: '',
+    can_change_status: false
+  });
+
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
   const [pagination, setPagination] = useState({
@@ -51,9 +73,44 @@ const ViewApprovalTask = () => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      handleButtonActions(values);
+      handlePlanStatus(values);
     }
   });
+
+  const handlePlanStatus = async (values) => {
+    setActionInfo((prevState) => ({ ...prevState, submitting: true }));
+    const token = await GetToken();
+    const Api = Backend.api + Backend.planStatus;
+    const header = {
+      Authorization: `Bearer ${token}`,
+      accept: 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    const data = {
+      fiscal_year_id: selectedYear?.id,
+      status: actionInfo.action,
+      remark: values.remark
+    };
+
+    fetch(Api, { method: 'POST', headers: header, body: JSON.stringify(data) })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success) {
+          toast.success(response?.data?.message);
+          handleCloseModal();
+          handleFetchingApprovalTasks();
+        } else {
+          toast.error(response?.data?.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error?.message);
+      })
+      .finally(() => {
+        setActionInfo((prevState) => ({ ...prevState, submitting: false }));
+      });
+  };
 
   const handleSearchFieldChange = (event) => {
     const value = event.target.value;
@@ -92,6 +149,8 @@ const ViewApprovalTask = () => {
       .then((response) => {
         if (response.success) {
           setData(response?.data?.plans?.data);
+          setAdditionalData({ ...additionalData, employeeData: response?.data?.employee, remarks: response?.data?.remarks?.data });
+          setStatuses({ ...statuses, can_change_status: response?.data?.can_change_status, plan_status: response?.data?.plan_status });
           setPagination({ ...pagination, total: response.data?.plans?.total });
           setError(false);
         } else {
@@ -117,39 +176,11 @@ const ViewApprovalTask = () => {
     formik.setFieldValue('remark', '');
   };
 
-  const handleButtonActions = async (values) => {
-    const token = await GetToken();
-    const Api = Backend.api + Backend.getMyPlans;
-    const header = {
-      Authorization: `Bearer ${token}`,
-      accept: 'application/json',
-      'Content-Type': 'application/json'
-    };
-
-    const data = {
-      status: actionInfo.action,
-      remark: values.remark
-    };
-
-    fetch(Api, { method: 'POST', headers: header, body: JSON.stringify(data) })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.success) {
-          toast.success(response?.data?.message);
-        } else {
-          toast.error(response?.data?.message);
-        }
-      })
-      .catch((error) => {
-        toast.error(error?.message);
-      });
-  };
-
-  // useEffect(() => {
-  //   if (!state?.id) {
-  //     navigate(-1);
-  //   }
-  // }, [state?.id]);
+  useEffect(() => {
+    if (!state?.id) {
+      navigate(-1);
+    }
+  }, [state?.id]);
 
   useEffect(() => {
     if (mounted) {
@@ -170,36 +201,66 @@ const ViewApprovalTask = () => {
   }, [search]);
 
   return (
-    <PageContainer back={true} title="Approval Task Details">
+    <PageContainer
+      back={true}
+      title="Approval Task Details"
+      rightOption={
+        statuses?.plan_status && (
+          <Chip
+            label={statuses?.plan_status}
+            sx={{
+              backgroundColor: theme.palette.grey[50],
+              color: getStatusColor(statuses?.plan_status),
+              textTransform: 'capitalize',
+              fontWeight: 'bold'
+            }}
+          />
+        )
+      }
+    >
       <Grid container padding={2.4} spacing={gridSpacing}>
         <Grid item xs={12} sm={12} md={6} lg={3} xl={3}>
-          <EmployeeDetail loading={loading} employee={[]} />
+          <EmployeeDetail loading={false} employee={additionalData.employeeData} />
 
-          {/* <Box sx={{ paddingTop: 3 }}>
-            <Conversations loading={loading} conversation={[]} />
-          </Box> */}
+          {!smallDevice && (
+            <Box sx={{ paddingTop: 3 }}>
+              <Conversations taskID={state?.id} status={statuses?.plan_status} />
+            </Box>
+          )}
         </Grid>
 
         <Grid item xs={12} sm={12} md={6} lg={9} xl={9}>
           <Grid container>
             <Grid item xs={12}>
               <Grid container spacing={gridSpacing} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Grid item xs={12} sm={12} md={4} lg={3} xl={3}>
+                <Grid item xs={12} sm={12} md={12} lg={3} xl={3}>
                   <Search value={search} onChange={(event) => handleSearchFieldChange(event)} />
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={8} lg={9} xl={9} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                  <ApprovalActionButtons
-                    onReject={() => handleOpenModal('Rejecting Plan', 'reject')}
-                    onApprove={() => handleOpenModal('Approving Plan', 'approve')}
-                  />
-                </Grid>
+                {statuses?.plan_status !== 'approved' && (
+                  <Grid
+                    item
+                    xs={12}
+                    sm={12}
+                    md={12}
+                    lg={9}
+                    xl={9}
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
+                  >
+                    <ApprovalActionButtons
+                      onReview={() => handleOpenModal('Reviewed & sending back', 'reviewed')}
+                      onApprove={() => handleOpenModal('Approving', 'approved')}
+                    />
+                  </Grid>
+                )}
               </Grid>
             </Grid>
 
-            <Grid item xs={12} my={2}>
-              <ApprovalContents loading={loading} data={data} />
+            <Grid item xs={12} my={2} sx={{ minHeight: '56dvh' }}>
+              <ApprovalContents loading={loading} error={error} data={data} />
+            </Grid>
 
+            <Grid item xs={12} my={2}>
               {!loading && pagination.total > pagination.per_page && (
                 <TablePagination
                   component="div"
@@ -213,6 +274,14 @@ const ViewApprovalTask = () => {
                 />
               )}
             </Grid>
+
+            {smallDevice && (
+              <Grid item xs={12} sm={12}>
+                <Box sx={{ paddingTop: 3 }}>
+                  <Conversations taskID={state?.id} status={statuses?.plan_status} />
+                </Box>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
@@ -244,6 +313,8 @@ const ViewApprovalTask = () => {
           )}
         </FormControl>
       </DrogaFormModal>
+
+      <ToastContainer />
     </PageContainer>
   );
 };

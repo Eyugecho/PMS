@@ -24,10 +24,6 @@ const GetFiscalYear = () => {
           }
         });
 
-        if (!response.ok) {
-          throw new Error(`Communication error: ${response.status}`);
-        }
-
         const data = await response.json();
 
         if (data.success) {
