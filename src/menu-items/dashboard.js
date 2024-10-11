@@ -44,9 +44,10 @@ export const dashboard = () => {
     'read:endofdayactivity',
     'read:kpitracker',
     'approval:manage',
-    'read:evaluation',
     'read:monitoring',
-    'read:performance'
+    'read:evaluation',
+    'read:performance',
+    'read:report'
   ];
 
   const permissionMap = {
@@ -83,17 +84,17 @@ export const dashboard = () => {
       icon: icons.IconCircleCheck
     },
 
-    'read:evaluation': {
-      id: 'evaluations',
-      title: 'Evaluation',
-      url: '/evaluations',
-      icon: icons.IconListCheck
-    },
     'read:monitoring': {
       id: 'monitoring',
       title: 'Monitoring',
       url: '/monitoring',
       icon: icons.IconAnalyze
+    },
+    'read:evaluation': {
+      id: 'evaluations',
+      title: 'Evaluation',
+      url: '/evaluations',
+      icon: icons.IconListCheck
     },
     'read:performance': {
       id: 'performance',

@@ -1,21 +1,9 @@
 import 'react-toastify/dist/ReactToastify.css';
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Card,
-  CircularProgress,
-  Divider,
-  Grid,
-  IconButton,
-  Menu,
-  Typography,
-  useTheme,
-  MenuItem,
-  ListItemIcon,
-  CardContent,
-  TablePagination
-} from '@mui/material';
-import { MoreVertOutlined } from '@mui/icons-material';
+import { Box, Card, CircularProgress, Divider, Grid, Typography, useTheme, CardContent, TablePagination } from '@mui/material';
+
+import { DotMenu } from 'ui-component/menu/DotMenu';
+import { ExcelTemplates } from 'configration/templates';
 import { toast, ToastContainer } from 'react-toastify';
 import Backend from 'services/backend';
 import Fallbacks from 'utils/components/Fallbacks';
@@ -24,19 +12,17 @@ import AddUnitType from './components/AddUnitType';
 import AddUnit from './components/AddUnit';
 import PageContainer from 'ui-component/MainPage';
 import UnitsTable from './components/UnitsTable';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+
 import EditUnit from './components/EditUnit';
 import EditUnitType from './components/EditUnitType';
 import GetToken from 'utils/auth-token';
 import DrogaCard from 'ui-component/cards/DrogaCard';
-import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFromToken';
+
 import SplitButton from 'ui-component/buttons/SplitButton';
 import UploadFile from 'ui-component/modal/UploadFile';
-import { IconDotsVertical } from '@tabler/icons-react';
+import axios from 'axios';
 import hasPermission from 'utils/auth/hasPermission';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
-import { DotMenu } from 'ui-component/menu/DotMenu';
 
 //================================ UNIT MANAGEMENT PAGE=====================
 const Units = () => {
@@ -68,6 +54,7 @@ const Units = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const AddUnitOptions = ['Add Unit', 'Import From Excel'];
+  const templateUrl = ExcelTemplates.unit_data;
 
   const handleClick = (unitType) => {
     setSelectedUnitType(unitType);
@@ -378,7 +365,7 @@ const Units = () => {
 
   const handleUpload = async (file) => {
     const token = localStorage.getItem('token');
-    const Api = Backend.api + Backend.kpiExcell;
+    const Api = Backend.api + Backend.unitexcel;
     const headers = {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data'
@@ -614,6 +601,7 @@ const Units = () => {
           onUpload={handleUpload}
           uploadProgress={uploadProgress}
           onRemove={() => setUploadProgress(0)}
+          templateUrl={templateUrl}
         />
       </DrogaCard>
     </PageContainer>

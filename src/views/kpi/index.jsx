@@ -3,6 +3,7 @@ import { Box, ButtonBase, CircularProgress, Grid, Pagination, TablePagination, T
 import { IconLayoutGrid, IconLayoutList } from '@tabler/icons-react';
 import { toast, ToastContainer } from 'react-toastify';
 import { gridSpacing } from 'store/constant';
+import { ExcelTemplates } from 'configration/templates';
 import Backend from 'services/backend';
 import PageContainer from 'ui-component/MainPage';
 import Search from 'ui-component/search';
@@ -67,6 +68,7 @@ const KPIManagement = () => {
   const [summary, setSummary] = useState(null);
 
   const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
+  const templateUrl = ExcelTemplates.kpi_data;
 
   const handleOpen = () => {
     setAdd(true);
@@ -619,6 +621,7 @@ const KPIManagement = () => {
         onUpload={handleUpload}
         uploadProgress={uploadProgress}
         onRemove={() => setUploadProgress(0)}
+        templateUrl={templateUrl}
       />
       <ToastContainer />
     </PageContainer>

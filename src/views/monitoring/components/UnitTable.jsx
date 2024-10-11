@@ -14,9 +14,9 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+
 import Backend from 'services/backend';
 import PlanTable from './PlanTable';
 import GetToken from 'utils/auth-token';
@@ -56,6 +56,7 @@ const UnitTable = ({ units }) => {
       .then((response) => {
         if (response.success) {
           setData(response.data);
+
           setError(false);
         } else {
           setError(false);
@@ -146,6 +147,7 @@ const UnitTable = ({ units }) => {
                               unitName={unit?.name}
                               unitType={unit?.unit_type?.name}
                               page="evaluation"
+                              hideActions={true}
                               onRefresh={() => handleFetchingUnitPlan(selectedRow)}
                             />
                           </TableCell>

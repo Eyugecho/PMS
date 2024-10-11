@@ -32,11 +32,10 @@ import UpdateJobPosititon from './componenets/UpdateJopposititon';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 import { IconBriefcase } from '@tabler/icons-react';
+import { ExcelTemplates } from 'configration/templates';
 
 const AddJobPositionOptions = ['Add Job Positions', 'Import From Excel'];
-const templateUrl =
-  import.meta.env.MODE === 'production' ? import.meta.env.VITE_TEMPLATE_URL_PRODUCTION : import.meta.env.VITE_TEMPLATE_URL_LOCAL;
-
+const templateUrl = ExcelTemplates.job_positions;
 
 const JobPositionTable = () => {
   const [mounted, setMounted] = useState(false);

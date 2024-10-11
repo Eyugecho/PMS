@@ -32,8 +32,10 @@ import getRolesAndPermissionsFromToken from 'utils/auth/getRolesAndPermissionsFr
 import GetToken from 'utils/auth-token';
 import hasPermission from 'utils/auth/hasPermission';
 import { IconUserExclamation, IconUserStar } from '@tabler/icons-react';
+import { ExcelTemplates } from 'configration/templates';
 
 const AddEmployeeOptions = ['Add Employee', 'Import From Excel'];
+const templateUrl = ExcelTemplates.employee_data;
 
 const Employees = () => {
   const theme = useTheme();
@@ -545,6 +547,8 @@ const Employees = () => {
         onUpload={(file) => handleUpload(file)}
         uploadProgress={uploadProgress}
         onRemove={() => setUploadProgress(0)}
+        templateUrl={templateUrl}
+
       />
 
       <ToastContainer />
