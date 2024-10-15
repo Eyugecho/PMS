@@ -67,7 +67,7 @@ const KPIManagement = () => {
   const [summary, setSummary] = useState(null);
 
   const AddKpiOptions = ['Add Kpi', 'Import From Excel'];
-const templateUrl = ExcelTemplates.kpi_data;
+  const templateUrl = ExcelTemplates.kpi_data;
 
   const handleOpen = () => {
     setAdd(true);
@@ -231,7 +231,7 @@ const templateUrl = ExcelTemplates.kpi_data;
       }
     } catch (error) {
       setDeleting(false);
-      toast.error(error.message);
+      toast.error(error.response.data.data.message);
     }
   };
 

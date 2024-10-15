@@ -30,7 +30,7 @@ import DrogaButton from 'ui-component/buttons/DrogaButton';
 import StatusSwitch from 'ui-component/switchs/StatusSwitch';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 
-const FisicalYearRangeDifination = ({ sx, open, setOpen }) => {
+const TargetEvaluationPeriod = ({ sx, open, setOpen }) => {
   const theme = useTheme();
   const selectedYear = useSelector((state) => state.customization.selectedFiscalYear);
 
@@ -439,7 +439,7 @@ const FisicalYearRangeDifination = ({ sx, open, setOpen }) => {
     <DrogaCard sx={{ ...sx }}>
       <Grid container>
         <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="h4">Fisical Year Range</Typography>
+          <Typography variant="h4">Target Evaluation Period</Typography>
           {loading ? (
             <ActivityIndicator size={18} />
           ) : (
@@ -557,7 +557,7 @@ const FisicalYearRangeDifination = ({ sx, open, setOpen }) => {
                               <ActivityIndicator size={18} sx={{ color: 'primary' }} />
                             ) : (
                               <StatusSwitch
-                                checked={period?.status === 'true' }
+                                checked={period?.status === 'true'}
                                 onChange={(e) => handleStatusChange(period.id, e.target.checked, index)}
                                 inputProps={{ 'aria-label': 'controlled' }}
                                 disabled={changesStatus}
@@ -578,4 +578,4 @@ const FisicalYearRangeDifination = ({ sx, open, setOpen }) => {
   );
 };
 
-export default FisicalYearRangeDifination;
+export default TargetEvaluationPeriod;

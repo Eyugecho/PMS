@@ -18,7 +18,7 @@ import Fallbacks from 'utils/components/Fallbacks';
 import EditFiscalYear from './components/EditFiscalYear';
 import DeletePrompt from 'ui-component/modal/DeletePrompt';
 import StaticPeriodsComponent from './components/StaticComponents';
-import FrequencyDefinition from './components/FisicalYearRangeDifination';
+import FrequencyDefinition from './components/TargetEvaluationPeriod';
 import EvaluationPeriod from './components/EvaluationPeriod';
 
 function Periods() {
@@ -183,7 +183,7 @@ function Periods() {
         toast.error(response.data.data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response.data.data.message);
     } finally {
       setDeleting(false);
     }
@@ -325,6 +325,7 @@ function Periods() {
                         onRefresh={() => handleFetchingDetails()}
                       />
                       <FrequencyDefinition sx={{ marginTop: 2 }} open={openPeriod} setOpen={(value) => setOpenPeriod(value)} />
+                      <EvaluationPeriod sx={{ marginTop: 2 }} open={openEvaluation} setOpen={(value) => setOpenEvaluation(value)} />
                     </React.Fragment>
                   )}
                 </BudgetYear>
