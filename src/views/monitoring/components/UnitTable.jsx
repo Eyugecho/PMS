@@ -147,6 +147,7 @@ const UnitTable = ({ units }) => {
                               unitName={unit?.name}
                               unitType={unit?.unit_type?.name}
                               page="evaluation"
+                              hideActions={true}
                               onRefresh={() => handleFetchingUnitPlan(selectedRow)}
                             />
                           </TableCell>

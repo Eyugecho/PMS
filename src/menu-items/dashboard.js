@@ -48,7 +48,6 @@ export const dashboard = () => {
     'read:evaluation',
     'read:performance',
     'read:report'
-    
   ];
 
   const permissionMap = {
@@ -88,17 +87,18 @@ export const dashboard = () => {
       url: '/tasks',
       icon: icons.IconCircleCheck
     },
-    'read:evaluation': {
-      id: 'evaluations',
-      title: 'Evaluation',
-      url: '/evaluations',
-      icon: icons.IconListCheck
-    },
+
     'read:monitoring': {
       id: 'monitoring',
       title: 'Monitoring',
       url: '/monitoring',
       icon: icons.IconAnalyze
+    },
+    'read:evaluation': {
+      id: 'evaluations',
+      title: 'Evaluation',
+      url: '/evaluations',
+      icon: icons.IconListCheck
     },
     'read:performance': {
       id: 'performance',
