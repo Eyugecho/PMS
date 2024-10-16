@@ -11,6 +11,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const EditFiscalYear = ({ open, fiscal, handleCloseModal, handleSubmission, submitting }) => {
+  console.log(fiscal);
   const [startDate, setStartDate] = useState(new Date(fiscal.start_date));
   const [endDate, setEndDate] = useState(new Date(fiscal.end_date));
 

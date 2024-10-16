@@ -36,7 +36,7 @@ function Periods() {
 
   const [toBeEdited, setToBeEdited] = React.useState(null);
   const [toBeDeleted, setToBeDeleted] = React.useState(null);
-  const [submitting, setSumbitting] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
   const [deleteFiscal, setDeleteFiscal] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
 
@@ -70,7 +70,7 @@ function Periods() {
   };
 
   const handleFiscalYearCreation = async (values) => {
-    setSumbitting(true);
+    setSubmitting(true);
     const token = await GetToken();
     const Api = Backend.api + Backend.fiscal_years;
     const headers = {
@@ -107,7 +107,7 @@ function Periods() {
         toast.error(error.message);
       })
       .finally(() => {
-        setSumbitting(false);
+        setSubmitting(false);
       });
   };
 
@@ -116,8 +116,13 @@ function Periods() {
     setEdit(true);
   };
 
+  const handleClosingModal = () => {
+    setToBeEdited(null);
+    setEdit(false);
+  };
+
   const handleFiscalYearEditing = async (values) => {
-    setSumbitting(true);
+    setSubmitting(true);
     const token = await GetToken();
     const Api = Backend.api + Backend.fiscal_years + `/${toBeEdited?.id}`;
     const headers = {
@@ -154,7 +159,7 @@ function Periods() {
         toast.error(error.message);
       })
       .finally(() => {
-        setSumbitting(false);
+        setSubmitting(false);
       });
   };
 
@@ -376,7 +381,7 @@ function Periods() {
         <EditFiscalYear
           open={edit}
           fiscal={toBeEdited}
-          handleCloseModal={() => setEdit(false)}
+          handleCloseModal={() => handleClosingModal()}
           handleSubmission={(values) => handleFiscalYearEditing(values)}
           submitting={submitting}
         />

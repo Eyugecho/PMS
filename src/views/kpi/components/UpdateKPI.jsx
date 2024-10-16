@@ -16,6 +16,7 @@ import { IconX } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import DrogaButton from 'ui-component/buttons/DrogaButton';
 import * as Yup from 'yup';
+import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('KPI Name is required'),
@@ -54,7 +55,7 @@ const UpdateKPI = ({
     <Dialog open={open} onClose={handleClose}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingX: 1 }}>
         <DialogTitle variant="h3" color={theme.palette.text.primary}>
-          Update KPI
+          Edit KPI
         </DialogTitle>
         <motion.div
           whileHover={{
@@ -159,7 +160,11 @@ const UpdateKPI = ({
                 Cancel
               </Button>
 
-              <DrogaButton type="submit" title="Done" sx={{ paddingX: 6 }} />
+              <DrogaButton
+                type="submit"
+                title={isUpdating ? <ActivityIndicator size={18} sx={{ color: "white" }} /> : 'Done'}
+                sx={{ paddingX: 6 }}
+              />
             </DialogActions>
           </form>
         </DialogContent>

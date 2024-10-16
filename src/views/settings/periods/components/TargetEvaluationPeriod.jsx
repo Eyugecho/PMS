@@ -439,7 +439,7 @@ const TargetEvaluationPeriod = ({ sx, open, setOpen }) => {
     <DrogaCard sx={{ ...sx }}>
       <Grid container>
         <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="h4">Target Evaluation Period</Typography>
+          <Typography variant="h4">Target Evaluation Periods</Typography>
           {loading ? (
             <ActivityIndicator size={18} />
           ) : (

@@ -142,8 +142,8 @@ const KPIManagement = () => {
 
       // Ensure that variation_category is a valid category
       if (!variationCategories.includes(values.variation_category)) {
-        throw new Error('Invalid variation category selected');
         setAdding(false);
+        throw new Error('Invalid variation category selected');
       }
 
       const response = await axios(Api, {
@@ -160,10 +160,10 @@ const KPIManagement = () => {
         toast.error(response.data.message || 'Error occurred');
         setAdding(false);
       } else {
-        handleFetchingKpi();
-        handleClose();
         toast.success(response.data.data.message);
+        handleClose();
         setAdding(false);
+        handleFetchingKpi();
       }
     } catch (error) {
       toast.error(error.message);
@@ -193,13 +193,15 @@ const KPIManagement = () => {
         data: JSON.stringify(values)
       });
 
-      if (!response.data.success) {
-        toast.error(response.data.message || 'Error occurred');
-        setIsUpdating(false);
-      } else {
-        handleFetchingKpi();
+      // const response = payload.json();
+      if (response.data.success) {
+        console.log(response.data.message);
+        toast.success('Successfully updated');
         handleCloseUpdate();
-        toast.success(response.data.data.message);
+        setIsUpdating(false);
+        handleFetchingKpi();
+      } else {
+        toast.error(response.data?.data?.message || 'Error occurred');
         setIsUpdating(false);
       }
     } catch (error) {
@@ -209,8 +211,8 @@ const KPIManagement = () => {
   };
 
   const handleDelete = async () => {
-    setDeleting(true);
     try {
+      setDeleting(true);
       const token = await GetToken();
       const Api = Backend.api + Backend.kpi + `/${selectedKPI?.id}`;
       const response = await axios.delete(Api, {
@@ -221,10 +223,10 @@ const KPIManagement = () => {
       });
 
       if (response.data.success) {
+        toast.success(response.data.data.message);
         setDeleting(false);
         setDeleteKPI(false);
         setData((prevKpis) => prevKpis.filter((kpi) => kpi.id !== selectedKPI?.id));
-        toast.success(response.data.data.message);
       } else {
         setDeleting(false);
         toast.error(response.data.data.message);
